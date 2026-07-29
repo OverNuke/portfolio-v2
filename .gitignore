@@ -1,0 +1,14 @@
+
+.claude/
+
+.atl/
+
+node_modules/
+dist/
+dist-ssr/
+*.local
+.DS_Store
+*.tsbuildinfo
+vite.config.d.ts
+test-results/
+playwright-report/

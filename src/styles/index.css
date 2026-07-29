@@ -1,0 +1,7 @@
+@import "@fontsource/archivo-narrow";
+@import "@fontsource/jetbrains-mono";
+@import "./tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

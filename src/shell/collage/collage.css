@@ -1,0 +1,351 @@
+/**
+ * Task 3.1 (sdd/phase2-app-shell), design "Collage Canvas" section + doc
+ * 12_COLLAGE_SYSTEM.md. This file is the SINGLE placement source of truth
+ * (design D5) — every plate is positioned with `grid-area` ONLY, never an
+ * inline style or pixel `top`/`left`. `src/shell/collage/collage.test.ts`
+ * parses this file with postcss and enforces that contract, the rotation
+ * cap (`--rot-max`, ±2°), and the interactive z-index band (20-30) for nav
+ * plates.
+ *
+ * Phase-2 subset ported from `docs/home.design-proof-v3.html` (values
+ * verified in-cap against the proof's own numbers): identity plate,
+ * nav-stack (real NavItem buttons, task 2.6), and a placeholder
+ * spec-cascade plate. `.scrap`'s -3.4deg is explicitly NOT ported (out of
+ * scope this batch, and it violates --rot-max anyway). Hero, badge field,
+ * annotation scrap, channel row, record chips, and the glitch layer are
+ * all out of scope per proposal #65 — Phase 3 module content / Phase 4
+ * texture work, not this change.
+ *
+ * `<main id="main-content">` (Shell.tsx) already provides the flex sizing
+ * and outer padding (shell.css) — `.canvas` fills that box; it does not
+ * repeat the padding.
+ */
+
+.canvas {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ── Identity plate — type field, no border/shadow (doc 12: its authority
+   comes from size, from *not* being in a box) ────────────────────────── */
+.identity-plate {
+  grid-area: 1 / 1 / 4 / 7;
+  --rot: -0.4deg;
+  z-index: 12; /* content band (10-19) + 2, per tokens.css's documented offset */
+  transform: rotate(var(--rot, 0deg));
+  align-self: start;
+  min-width: 0;
+}
+
+.identity-plate .eyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  color: var(--gray);
+  margin: 0 0 var(--space-2xs);
+}
+
+.identity-plate .identity {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: var(--text-display-xl);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  margin: 0;
+  min-width: 0;
+}
+
+.identity-plate .role {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-display-sm);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gray);
+  width: fit-content;
+  max-width: 100%;
+  margin: var(--space-2xs) 0 0;
+  padding: 3px 0;
+  border-top: var(--rule-hair) solid var(--ink);
+  border-bottom: var(--rule-thick) solid var(--ink);
+}
+
+/* ── Nav stack — plates lying on the page, interactive band ──────────── */
+.nav-stack {
+  grid-area: 4 / 1 / 9 / 5;
+  z-index: 20; /* interactive band floor (docs/12_COLLAGE_SYSTEM.md) */
+  align-self: start;
+  min-width: 0;
+}
+
+.nav-stack ul {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-stack li {
+  list-style: none;
+  display: flex;
+}
+
+.nav-stack li + li {
+  margin-top: -6px;
+}
+
+.nav-stack li:nth-child(1) {
+  margin-left: 0px;
+}
+.nav-stack li:nth-child(2) {
+  margin-left: 18px;
+}
+.nav-stack li:nth-child(3) {
+  margin-left: 7px;
+}
+.nav-stack li:nth-child(4) {
+  margin-left: 26px;
+}
+
+/* Alternating rotation sign down the stack (doc 12: "a stack that leans
+   consistently one way reads as a mistake"); z-index stays inside the
+   20-30 interactive band throughout. */
+.nav-stack li:nth-child(1) .nav-item {
+  --rot: -0.8deg;
+  z-index: 21;
+}
+.nav-stack li:nth-child(2) .nav-item {
+  --rot: 0.6deg;
+  z-index: 22;
+}
+.nav-stack li:nth-child(3) .nav-item {
+  --rot: -0.4deg;
+  z-index: 23;
+}
+.nav-stack li:nth-child(4) .nav-item {
+  --rot: 0.9deg;
+  z-index: 24;
+}
+
+.nav-item {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-xs);
+  width: 100%;
+  min-height: var(--hit-min);
+  padding: var(--space-xs) var(--space-sm);
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  background: var(--paper-white);
+  border: var(--plate-border) solid var(--ink);
+  box-shadow: var(--plate-shadow-sm);
+  transform: rotate(var(--rot, 0deg));
+  transition:
+    background var(--dur-micro) var(--ease-hard),
+    color var(--dur-micro) var(--ease-hard),
+    box-shadow var(--dur-micro) var(--ease-hard);
+}
+
+.nav-index {
+  font-size: var(--text-meta);
+  color: var(--gray);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur-micro) var(--ease-hard);
+}
+
+.nav-label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--dur-micro) var(--ease-hard);
+}
+
+.nav-count {
+  font-size: var(--text-micro);
+  letter-spacing: 0.1em;
+  color: var(--field-olive);
+  transition: color var(--dur-micro) var(--ease-hard);
+}
+
+.nav-stack .nav-item:hover,
+.nav-stack .nav-item:focus-visible {
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--plate-shadow);
+  z-index: 30; /* interactive band ceiling — hover/focus raise (tokens.css) */
+}
+
+.nav-item:hover .nav-index,
+.nav-item:focus-visible .nav-index,
+.nav-item:hover .nav-sub,
+.nav-item:focus-visible .nav-sub,
+.nav-item:hover .nav-count,
+.nav-item:focus-visible .nav-count {
+  color: var(--ink-inverse);
+}
+
+.nav-item:active {
+  background: var(--signal-red);
+  color: var(--ink-inverse);
+}
+
+/* ── Spec cascade — placeholder plate, task 3.1 ──────────────────────────
+   No real spec/status content is wired yet (that's Phase 3/4 module
+   content, out of scope here) — marked aria-hidden per doc 12's rule that
+   a plate carrying no real, unique information must not be presented to
+   assistive tech as if it were authoritative content. */
+.spec-cascade {
+  grid-area: 9 / 1 / 11 / 6;
+  z-index: 14; /* content band + 4, per tokens.css's documented offset */
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+}
+
+.spec-cascade li {
+  list-style: none;
+}
+
+.spec-cascade li:nth-child(1) {
+  margin-left: 4px;
+}
+.spec-cascade li:nth-child(2) {
+  margin-left: 32px;
+}
+.spec-cascade li:nth-child(3) {
+  margin-left: 16px;
+}
+
+.spec-cascade li:nth-child(1) .spec-bar {
+  --rot: -0.7deg;
+}
+.spec-cascade li:nth-child(2) .spec-bar {
+  --rot: 0.5deg;
+}
+.spec-cascade li:nth-child(3) .spec-bar {
+  --rot: -0.5deg;
+}
+
+.spec-bar {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  max-width: 100%;
+  background: var(--ink);
+  color: var(--ink-inverse);
+  padding: 5px var(--space-sm);
+  box-shadow: var(--plate-shadow-sm);
+  transform: rotate(var(--rot, 0deg));
+}
+
+.spec-bar .k {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  opacity: 0.72;
+  white-space: nowrap;
+}
+
+.spec-bar .v {
+  font-size: var(--text-meta);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ═══ RESPONSIVE ═══════════════════════════════════════════════════════
+   Breakpoints mirror docs/home.design-proof-v3.html + design's "Collage
+   Canvas" section: ≤1180 re-places (no decorative elements to shed in
+   this Phase-2 subset), ≤900 all rotation/overlap collapses, ≤768
+   releases the shell's no-scroll rule per WCAG 1.4.10 (matches
+   shell.css's own release on `.shell`/`.shell > main`). */
+@media (max-width: 1180px) {
+  .nav-stack {
+    grid-area: 4 / 1 / 9 / 6; /* wider: labels were colliding */
+  }
+  .spec-cascade {
+    grid-area: 9 / 1 / 11 / 7;
+  }
+}
+
+@media (max-width: 900px) {
+  .canvas {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .canvas > * {
+    grid-area: auto !important;
+    --rot: 0deg !important;
+  }
+
+  .identity-plate,
+  .nav-item,
+  .spec-bar {
+    transform: none !important;
+  }
+
+  /* No `order` here — doc 12's accessibility guardrail #3 ("never use
+     order on anything a user can read or reach") only permits it for the
+     aria-hidden hero, which is out of scope for this batch. Source order
+     already matches the intended stacked-mobile order (identity, then
+     nav), so it needs no override. */
+
+  .nav-stack li {
+    margin-left: 0 !important;
+  }
+  .nav-stack li + li {
+    margin-top: var(--space-2xs);
+  }
+  .spec-cascade li {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+  .spec-bar {
+    width: 100%;
+  }
+}
+
+/* WCAG 1.4.10 reflow — shell scroll lock releases below 768px, same
+   breakpoint shell.css already uses for `.shell`/`.shell > main`. */
+@media (max-width: 768px) {
+  .canvas {
+    height: auto;
+    overflow: visible;
+  }
+}

@@ -1,0 +1,52 @@
+/**
+ * Task 2.2 (sdd/phase2-app-shell), doc 04 component style rules: technical
+ * label, clear hierarchy, borders, no rounded corners (border-radius: 0 is
+ * already enforced globally in tokens.css). Reads tokens directly — Panel
+ * is a plain-CSS component, not a Tailwind-utility one, matching the
+ * design's file layout (`components/panel/ Panel.tsx panel.css`).
+ */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  border: var(--plate-border) solid var(--ink);
+  background: var(--paper-white);
+  box-shadow: var(--plate-shadow-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+.panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  border-bottom: var(--rule-hair) solid var(--gray);
+  padding-bottom: var(--space-2xs);
+}
+
+.panel__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-display-md);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.panel__status {
+  flex-shrink: 0;
+  font-size: var(--text-meta);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--field-olive);
+}
+
+.panel__metadata {
+  font-size: var(--text-meta);
+  color: var(--gray);
+}
+
+.panel__content {
+  font-size: var(--text-body);
+}

@@ -1,0 +1,94 @@
+/**
+ * Single source of truth for the locked design tokens (docs/02_DESIGN_SYSTEM.MD,
+ * docs/11_HANDOFF_HOME.md §Design Tokens, docs/12_COLLAGE_SYSTEM.md §New tokens).
+ * Mirrored into tailwind.config.ts theme.extend — never hardcode these
+ * values anywhere else.
+ *
+ * Naming note (engram discovery/token-naming-mismatch, #66): `--paper` is the
+ * page/base surface (#E4E4E2) and `--paper-white` is the raised-surface color
+ * (#F6F6F4) — this is the OPPOSITE pairing of Phase 1's original retired
+ * "off-white"/"paper" color token names. Do not invert it back.
+ */
+:root {
+  /* ---- Color ------------------------------------------------------- */
+  --paper: #e4e4e2;
+  --paper-white: #f6f6f4;
+  --ink: #111111;
+  --ink-inverse: #f2f2f2;
+  --gray: #635d54;
+  --signal-red: #c63c32;
+  --signal-red-text: #8f2c24;
+  --warning-yellow: #d6c76a;
+  --field-olive: #4f5a3c;
+
+  /* ---- Typography ---------------------------------------------------
+     --font-display: wordmark, nav labels, identity, role, page titles.
+     --font-mono: everything else (metadata, body, labels, status).
+     --font-hand: annotation only (doc 12). */
+  --font-display: "Archivo Narrow", "Arial Narrow", Haettenschweiler, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  --font-hand: "Segoe Script", "Bradley Hand", "Snell Roundhand", cursive;
+
+  --text-display-xl: clamp(2.5rem, 5.4vw, 4.75rem);
+  --text-display-lg: clamp(1.375rem, 2.1vw, 1.875rem);
+  --text-display-md: clamp(1.125rem, 1.5vw, 1.4rem);
+  --text-display-sm: clamp(1.25rem, 2.1vw, 1.875rem);
+  --text-body: 0.875rem;
+  --text-meta: 0.6875rem;
+  --text-micro: 0.5625rem;
+
+  --track-label: 0.22em;
+  --track-micro: 0.42em;
+
+  /* ---- Space ---------------------------------------------------------
+     4px base scale, no off-scale values. */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  --rule-hair: 1px;
+  --rule-thick: 2px;
+  --hit-min: 24px; /* WCAG 2.2 SC 2.5.8 floor */
+
+  /* ---- Motion ---------------------------------------------------------
+     --dur-turn superseded to 200ms by design decision D10
+     (sdd/phase2-app-shell/design) — supersedes doc 07's 140ms; easing unchanged. */
+  --ease-hard: cubic-bezier(0.7, 0, 0.3, 1);
+  --dur-micro: 90ms;
+  --dur-cut: 140ms;
+  --dur-turn: 200ms;
+
+  /* ---- Plate ------------------------------------------------------- */
+  --plate-border: 2px;
+  --plate-shadow: 3px 4px 12px rgba(17, 17, 17, 0.22);
+  --plate-shadow-sm: 2px 3px 7px rgba(17, 17, 17, 0.18);
+  --rot-max: 2deg;
+
+  /* ---- Z-index --------------------------------------------------------
+     Bands, not fixed single values (docs/12_COLLAGE_SYSTEM.md): decorative
+     plates 1-9, content plates 10-19, interactive plates 20-30. The values
+     below are band FLOORS — individual plates express their position
+     within a band as calc(var(--z-plate-content) + N), e.g. identity is
+     content-band + 2 (=12), spec bars content-band + 4 (=14), nav hover
+     raise is interactive-band + 10 (=30). Frame/layer/crease/intro are
+     fixed single values, not bands. */
+  --z-plate-decor: 1;
+  --z-plate-content: 10;
+  --z-plate-interactive: 20;
+  --z-frame: 40;
+  --z-layer: 800;
+  --z-crease: 850;
+  --z-intro: 950;
+}
+
+/* border-radius: 0 everywhere (docs/02_DESIGN_SYSTEM.MD) — safety net for
+   any element that isn't styled through Tailwind's rounded-* utilities. */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
