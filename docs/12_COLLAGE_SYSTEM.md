@@ -98,6 +98,8 @@ doesn't fit one of these needs a case made for it, per
 
 ## Plate variants
 
+_Implemented 2026-07-30 (Phase 3 content) in `src/styles/plate.css`, shared by the Profile/Projects/Skills modules. Home's `.nav-item`/`.spec-bar` (`src/shell/collage/collage.css`) predate this file and do the same job under different names — not yet migrated onto these shared classes._
+
 | Variant | Surface | Border | Shadow | Use |
 |---|---|---|---|---|
 | `.plate` | Paper White | 2px Ink | `--plate-shadow` | Nav items, field notes — anything typographic |

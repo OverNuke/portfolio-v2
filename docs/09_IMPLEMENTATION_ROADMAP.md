@@ -50,4 +50,4 @@ Add:
 ## Phase 5
 
 Accessibility audit.
-
+i18 system English and Spanish

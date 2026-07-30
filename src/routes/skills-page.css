@@ -1,0 +1,21 @@
+.skills-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.skills-page__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.skills-page__group-label {
+  margin: 0;
+  align-self: flex-start;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}

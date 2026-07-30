@@ -1,0 +1,119 @@
+/**
+ * Shared plate/bar primitives (docs/12_COLLAGE_SYSTEM.md "Plate variants"
+ * table). Home's collage predates this file and still uses its own
+ * bespoke `.nav-item`/`.spec-bar` classes (src/shell/collage/collage.css)
+ * for the same visual job — not migrated onto these shared classes in this
+ * change, since collage.test.ts asserts structurally against that file and
+ * Home is out of scope here. New module content (Profile/Projects/Skills)
+ * builds on these instead of duplicating the recipe again.
+ */
+
+.plate {
+  background: var(--paper-white);
+  border: var(--plate-border) solid var(--ink);
+  box-shadow: var(--plate-shadow);
+}
+
+/* Photos/screenshots: the inset Paper White margin IS the frame — no
+   separate border line (doc 12: "none — the inset border is the frame"). */
+.plate--photo {
+  background: var(--paper-white);
+  padding: 7px;
+  box-shadow: var(--plate-shadow);
+}
+
+.plate--photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.plate--photo figcaption {
+  margin-top: var(--space-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  color: var(--gray);
+}
+
+/* Small pointed-at crops: 2px Signal Red border is a UI element, never
+   text (4.03:1 on paper, 4.74:1 on paper white). */
+.plate--detail {
+  background: var(--paper-white);
+  border: 2px solid var(--signal-red);
+  padding: 5px;
+  box-shadow: var(--plate-shadow-sm);
+}
+
+/* Reads as part of the page, not on top of it. */
+.plate--flat {
+  background: var(--paper);
+}
+
+.bar {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  max-width: 100%;
+  background: var(--ink);
+  color: var(--ink-inverse);
+  padding: 5px var(--space-sm);
+  box-shadow: var(--plate-shadow-sm);
+  font-family: var(--font-mono);
+}
+
+/* One callout bar per screen, max (doc 12) — a status flag or featured
+   tag, never ambient wallpaper. Paper White text only at small sizes. */
+.bar--accent {
+  background: var(--signal-red);
+  color: var(--paper-white);
+}
+
+.bar .k {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  opacity: 0.72;
+  white-space: nowrap;
+}
+
+.bar .v {
+  font-size: var(--text-meta);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge field (doc 12: "a dense block of small tags... typographic mass,
+   not a list — reads as one grey-ish rectangle from across the room and
+   resolves into names up close"). */
+.badge-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Field Olive must never sit on an Ink fill (2.56:1, fails) — badges stay
+   on Paper/Paper White surfaces only (docs/02_DESIGN_SYSTEM.MD). */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  border: 1px solid var(--field-olive);
+  background: var(--paper-white);
+  color: var(--field-olive);
+  padding: var(--space-2xs) var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}

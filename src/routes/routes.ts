@@ -12,6 +12,8 @@
  * this app's real routes (the proof calls the projects page "database";
  * here it is "projects" to match the route path).
  */
+import { PROJECTS } from "../content/data";
+
 export interface RouteConfig {
   path: string;
   pageId: string;
@@ -38,8 +40,8 @@ export const ROUTES: RouteConfig[] = [
     title: "PROJECT DATABASE",
     tag: "PAGE 02",
     index: "02",
-    sub: "12 records",
-    count: "12",
+    sub: `${PROJECTS.length} record${PROJECTS.length === 1 ? "" : "s"}`,
+    count: String(PROJECTS.length),
   },
   {
     path: "/skills",

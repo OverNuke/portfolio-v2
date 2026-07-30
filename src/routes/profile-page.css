@@ -1,0 +1,58 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.profile-page__identity {
+  padding: var(--space-sm) var(--space-md);
+}
+
+.profile-page__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: var(--text-display-lg);
+  line-height: 1;
+}
+
+.profile-page__role {
+  margin: var(--space-2xs) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.profile-page__bio,
+.profile-page__body {
+  margin: 0;
+  font-size: var(--text-body);
+}
+
+.profile-page__specs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-page__specs li {
+  display: flex;
+}
+
+.profile-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.profile-page__actions button {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
