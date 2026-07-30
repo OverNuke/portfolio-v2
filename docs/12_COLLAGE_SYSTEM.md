@@ -303,6 +303,40 @@ No new colours. Two new *placements*, both verified:
   Signal-Red/Ink pairs already computed above and in `02_DESIGN_SYSTEM.MD`,
   just applied to a fill instead of a border. No new pair to verify.
 
+> **Chrome on a Signal Red fill (added 2026-07-30).** The Chrome role row
+> above specifies Field Olive or Warning Yellow. Neither is usable on a
+> Signal Red surface, so chrome sitting **on** a `.bar--accent` fill uses
+> **Paper White**:
+>
+> | Pair | Ratio | Verdict |
+> |---|---|---|
+> | Field Olive `#4f5a3c` on Signal Red `#c63c32` | **1.43:1** | Unusable — effectively invisible |
+> | Warning Yellow `#d6c76a` on Signal Red `#c63c32` | **2.99:1** | Below the 3:1 non-text floor |
+> | Paper White `#f6f6f4` on Signal Red `#c63c32` | **4.74:1** | Used — already this plate's documented text colour |
+>
+> Field Olive at 1.43:1 is the decisive figure: two mid-dark surfaces with
+> near-identical relative luminance, so the bracket would not be seen at all.
+> Warning Yellow lands just under the 1.4.11 threshold; pure decoration is
+> technically exempt from 1.4.11, but this system documents every pair it
+> uses and does not ship sub-threshold marks. The load-bearing reason for
+> Paper White is positive, not merely eliminative: it is **already** the
+> plate's documented text colour at 4.74:1, so chrome introduces no third
+> colour onto a two-colour plate and no new pair to verify. Field Olive and
+> Warning Yellow remain the chrome colours on Paper / Paper White surfaces —
+> this note narrows the rule for Signal Red fills only.
+>
+> The same Chrome row also says chrome is *"always `aria-hidden`."*
+> Pseudo-element chrome (`::before`/`::after` with `content: ""`) satisfies
+> that requirement **by construction** — it produces no accessibility-tree
+> node, so the attribute is inapplicable rather than omitted. The rule's
+> intent is preserved; only its mechanism differs from element-based chrome.
+>
+> **Also note:** the Plate-variants table row for `.bar--accent` says "One
+> callout bar per screen, max", which contradicts prose rule 1 below it
+> ("One per screen, two only if both carry genuinely distinct information").
+> The prose governs. Home's two plates are compliant — and more clearly so
+> after phase 4.2, which gives each a unique hype line.
+
 All 17 pairs used in v2 were computed. Zero failures. The three banned
 combinations (Field Olive on Ink 2.57:1, Signal Red as small text 4.03:1,
 Warning Yellow as any text 1.35:1) remain absent.

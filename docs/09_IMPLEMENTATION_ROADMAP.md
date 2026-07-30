@@ -1,6 +1,5 @@
 # IMPLEMENTATION ROADMAP
 
-
 ## Phase 1
 
 Setup:
@@ -9,7 +8,6 @@ Setup:
 - Vite
 - TypeScript
 - Tailwind
-
 
 ---
 
@@ -21,7 +19,6 @@ Create:
 - Panel system
 - Navigation
 
-
 ---
 
 ## Phase 3
@@ -32,18 +29,31 @@ Build:
 - Project database
 - Skills module
 
-
 ---
 
 ## Phase 4
 
-Add:
+Add, in sub-phases:
 
-- textures
-- animations
-- sound(optional)
-- advanced effects
+### 4.1 — Design planning
 
+Finalize copy/content for new decorations, confirm color/contrast pairs against the /locked palette (no new tokens), sketch placement on the collage grid.
+
+### 4.2 — Components
+
+Implement the design as real components (grid-area placement only, per D5), respecting rotation cap and z-index bands.
+
+### 4.3 — Spacing & visual verification
+
+Tune placement across breakpoints; run `pnpm run audit:collage` at 1440/1280/1100/390px; manual check in a real browser via `pnpm dev`.
+
+### 4.4 — Sound (optional)
+
+Foundation + toggle only: user-initiated, off by default, persisted preference, no autoplay (WCAG 1.4.2). No specific soundscape locked in yet.
+
+### 4.5 — Advanced effects
+
+Textures, glitch/scan effects, per `docs/07_ANIMATION_GUIDELINES.md`'s mechanical/controlled motion philosophy — always with a hard `prefers-reduced-motion` fallback.
 
 ---
 
