@@ -86,3 +86,107 @@ describe("collage.css", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+/**
+ * Phase 4.2 (sdd/phase4-visual-design), design D1-D4. `.accent-plate` is a
+ * NEW, Home-only class layered on top of the shared `.bar--accent` skin
+ * (also worn by ProfilePage's CTA button and featured ProjectCards via
+ * src/styles/plate.css — discovery/bar-accent-class-collision, #91).
+ * `.bar--accent` itself MUST stay byte-identical — the approval test below
+ * pins its current declarations so any accidental edit to the shared class
+ * fails loudly.
+ */
+describe("accent-plate (phase 4.2 two-line plate + chrome)", () => {
+  const root = parse();
+
+  function declMap(selector: string): Record<string, string> {
+    const map: Record<string, string> = {};
+    root.walkRules(selector, (rule) => {
+      for (const node of rule.nodes) {
+        if (node.type === "decl") map[node.prop] = node.value;
+      }
+    });
+    return map;
+  }
+
+  // Approval test (D1) — pins the CURRENT, pre-existing `.bar--accent` skin
+  // so T2/T3's additive edits cannot silently restructure the shared class
+  // that ProfilePage.tsx and ProjectCard.tsx also depend on.
+  it("shared `.bar--accent` base skin is untouched by the new accent-plate layer", () => {
+    expect(declMap(".bar--accent")).toEqual({
+      display: "inline-flex",
+      "align-items": "baseline",
+      gap: "var(--space-xs)",
+      width: "fit-content",
+      "max-width": "100%",
+      background: "var(--signal-red)",
+      color: "var(--paper-white)",
+      padding: "5px var(--space-sm)",
+      "box-shadow": "var(--plate-shadow-sm)",
+      transform: "rotate(var(--rot, 0deg))",
+      margin: "0",
+    });
+    expect(declMap(".bar--accent .k")).toEqual({
+      "font-size": "var(--text-micro)",
+      "letter-spacing": "var(--track-label)",
+      "text-transform": "uppercase",
+      opacity: "0.8",
+      "white-space": "nowrap",
+    });
+    expect(declMap(".bar--accent .v")).toEqual({
+      "font-family": "var(--font-mono)",
+      "font-size": "var(--text-meta)",
+      "letter-spacing": "0.06em",
+      "text-transform": "uppercase",
+      "white-space": "nowrap",
+    });
+  });
+
+  it("`.accent-plate` supplies a column layout and a positioning context for chrome (D2/D3)", () => {
+    const decls = declMap(".accent-plate");
+    expect(decls.display).toBe("flex");
+    expect(decls["flex-direction"]).toBe("column");
+    expect(decls.position).toBe("relative");
+  });
+
+  it("`.accent-plate .bar__hype` is a distinct, non-truncated text line (D3)", () => {
+    const decls = declMap(".accent-plate .bar__hype");
+    expect(decls["text-transform"]).toBe("uppercase");
+    expect(decls["white-space"]).not.toBe("nowrap");
+  });
+
+  it("chrome brackets on `.accent-plate` are AT-invisible pseudo-elements anchored with `inset`, never top/left (D3)", () => {
+    // Chrome may be authored as a shared comma-selector block (shared
+    // content/position) PLUS per-pseudo rules (inset) — merge declarations
+    // across every rule whose selector LIST includes the pseudo, mirroring
+    // how the cascade actually resolves the effective computed style.
+    function mergedDecls(pseudoSelector: string): Record<string, string> | undefined {
+      let found = false;
+      const decls: Record<string, string> = {};
+      root.walkRules((rule) => {
+        if (!rule.selectors.includes(pseudoSelector)) return;
+        found = true;
+        for (const node of rule.nodes) {
+          if (node.type === "decl") decls[node.prop] = node.value;
+        }
+      });
+      return found ? decls : undefined;
+    }
+
+    for (const pseudo of [".accent-plate::before", ".accent-plate::after"]) {
+      const decls = mergedDecls(pseudo);
+      expect(decls, `${pseudo} rule not found`).toBeDefined();
+      expect(decls?.content, `${pseudo} content must be empty string`).toBe('""');
+      expect(decls?.inset, `${pseudo} must use the inset shorthand`).toBeDefined();
+      expect(decls?.top, `${pseudo} must not declare top`).toBeUndefined();
+      expect(decls?.left, `${pseudo} must not declare left`).toBeUndefined();
+    }
+  });
+
+  it("`.bar--status` and `.bar--build` grow to a 3-row grid-area span for the taller two-line plate (D4)", () => {
+    expect(declMap(".bar--status")["grid-area"]).toBe("1 / 8 / 4 / 12");
+    expect(declMap(".bar--status")["align-self"]).toBe("center");
+    expect(declMap(".bar--build")["grid-area"]).toBe("9 / 7 / 12 / 12");
+    expect(declMap(".bar--build")["align-self"]).toBe("center");
+  });
+});

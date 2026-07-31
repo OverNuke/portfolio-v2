@@ -63,4 +63,46 @@ describe("Canvas", () => {
     // should be exposed as "listitem"s, not the placeholder plate's 3.
     expect(screen.queryAllByRole("listitem")).toHaveLength(ROUTES.length);
   });
+
+  /**
+   * Phase 4.2 (sdd/phase4-visual-design), design D5/D6. Each accent plate
+   * now carries a k/v fact line AND a unique hype line, grouped as two
+   * sibling block-level children so a screen reader announces them as
+   * separate text blocks (spec `collage-accent-bars`, "Screen-Reader Line
+   * Grouping"). Neither line may be aria-hidden — both are sole-source
+   * content, so this also proves neither got accidentally suppressed.
+   */
+  it("the status accent plate exposes its fact line and a distinct hype line as separate blocks, neither hidden", () => {
+    const { container } = render(<Canvas />);
+    const plate = container.querySelector(".bar--status");
+    expect(plate).not.toBeNull();
+    expect(plate).not.toHaveAttribute("aria-hidden");
+    expect(plate?.tagName).toBe("DIV"); // two <p> siblings inside a <p> is invalid HTML (D5)
+
+    const spec = plate?.querySelector(".bar__spec");
+    const hype = plate?.querySelector(".bar__hype");
+    expect(spec?.tagName).toBe("P");
+    expect(hype?.tagName).toBe("P");
+    expect(spec).not.toBe(hype); // distinct sibling nodes, not one merged run
+
+    expect(screen.getByText("open to work")).toBeInTheDocument();
+    expect(screen.getByText("Built to ship")).toBeInTheDocument();
+  });
+
+  it("the build accent plate exposes its own distinct fact line and hype line, neither hidden", () => {
+    const { container } = render(<Canvas />);
+    const plate = container.querySelector(".bar--build");
+    expect(plate).not.toBeNull();
+    expect(plate).not.toHaveAttribute("aria-hidden");
+    expect(plate?.tagName).toBe("DIV");
+
+    const spec = plate?.querySelector(".bar__spec");
+    const hype = plate?.querySelector(".bar__hype");
+    expect(spec?.tagName).toBe("P");
+    expect(hype?.tagName).toBe("P");
+    expect(spec).not.toBe(hype);
+
+    expect(screen.getByText("phase_04 // 2026")).toBeInTheDocument();
+    expect(screen.getByText("No rounded corners")).toBeInTheDocument();
+  });
 });

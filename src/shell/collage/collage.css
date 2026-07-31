@@ -287,6 +287,132 @@
   text-overflow: ellipsis;
 }
 
+/* ── Accent bars — doc 12 `.bar--accent`, the "louder red restyle" of
+   `.spec-bar` for the one fact per screen that should read as hot. Reuses
+   the already-documented --signal-red / --paper-white pair (4.74:1) rather
+   than a new token. Placed in the canvas's still-empty right/bottom zone
+   (cols 7-12, rows 11-12) so they never collide with nav/identity/spec-
+   cascade or any hit target. ─────────────────────────────────────────── */
+.bar--accent {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  width: fit-content;
+  max-width: 100%;
+  background: var(--signal-red);
+  color: var(--paper-white);
+  padding: 5px var(--space-sm);
+  box-shadow: var(--plate-shadow-sm);
+  transform: rotate(var(--rot, 0deg));
+  margin: 0;
+}
+
+.bar--accent .k {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.bar--accent .v {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bar--status {
+  grid-area: 1 / 8 / 4 / 12;
+  --rot: 0.8deg;
+  z-index: 13; /* content band + 3 */
+  align-self: center; /* was `start`; taller 2-line plate needs slack on both sides (D4) */
+  justify-self: end;
+}
+
+.bar--build {
+  grid-area: 9 / 7 / 12 / 12; /* grows upward; bottom edge stays pinned to line 12 (D4) */
+  --rot: -0.6deg;
+  z-index: 15; /* content band + 5 */
+  align-self: center;
+  justify-self: end;
+}
+
+/* ── Two-line accent plate + chrome (phase 4.2, sdd/phase4-visual-design).
+   Home-only composition layered ON TOP of the shared `.bar--accent` skin
+   above — see design D1: `.bar--accent` is ALSO declared in
+   src/styles/plate.css and is worn by ProfilePage's CTA button and
+   featured ProjectCards (discovery/bar-accent-class-collision, #91).
+   NEVER restructure `.bar--accent`/`.k`/`.v` above for this feature — this
+   `.accent-plate` block must stay AFTER `.bar--accent` in this file:
+   both are (0,1,0) specificity, so source order breaks the tie. */
+.accent-plate {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* plate is fit-content; stretch makes the dashed
+                            separator below span the full plate width */
+  gap: var(--space-2xs);
+  padding: var(--space-xs) var(--space-md);
+  position: relative; /* containing block for the chrome brackets — REQUIRED:
+                          the plate's --rot transform is neutralised at
+                          ≤900px (see RESPONSIVE below), so without this the
+                          brackets would anchor to `.canvas` instead (D2) */
+  min-width: 0;
+}
+
+.accent-plate .bar__spec {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  margin: 0;
+}
+/* `.bar--accent .k` / `.bar--accent .v` above are DESCENDANT selectors and
+   keep matching through `.bar__spec` — no typography rules needed here. */
+
+.accent-plate .bar__hype {
+  margin: 0;
+  padding-top: var(--space-2xs);
+  border-top: var(--rule-hair) dashed var(--paper-white);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-body);
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  /* deliberately NO white-space: nowrap — wrapping is the safe failure mode
+     at 390px; a clipped/overflowing plate would trip audit.mjs's
+     clipped-text check on `.canvas` (overflow: hidden). */
+}
+
+/* Chrome — corner-bracket registration marks. `::before`/`::after` only:
+   zero new DOM, inherently absent from the accessibility tree, D5 untouched.
+   Anchored with the `inset` SHORTHAND, NEVER `top`/`left` as separate
+   declarations — collage.test.ts check (b) walks EVERY top/left decl in
+   this file with no pseudo-element exemption, and the spec requires that
+   assertion to pass unmodified. If chrome ever genuinely needs top/left,
+   extend check (b) in an explicit change; never add the decl silently. */
+.accent-plate::before,
+.accent-plate::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.accent-plate::before {
+  inset: 0 auto auto 0;
+  border-top: var(--rule-thick) solid var(--paper-white);
+  border-left: var(--rule-thick) solid var(--paper-white);
+}
+
+.accent-plate::after {
+  inset: auto 0 0 auto;
+  border-bottom: var(--rule-thick) solid var(--paper-white);
+  border-right: var(--rule-thick) solid var(--paper-white);
+}
+
 /* ═══ RESPONSIVE ═══════════════════════════════════════════════════════
    Breakpoints mirror docs/home.design-proof-v3.html + design's "Collage
    Canvas" section: ≤1180 re-places (no decorative elements to shed in
@@ -316,7 +442,8 @@
 
   .identity-plate,
   .nav-item,
-  .spec-bar {
+  .spec-bar,
+  .bar--accent {
     transform: none !important;
   }
 
