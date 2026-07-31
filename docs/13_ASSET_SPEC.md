@@ -202,10 +202,14 @@ Target: **under 250 KB of imagery** on first paint.
 ## Open
 
 1. **Nothing blocks a v1 ship.** All four Home assets are final.
-2. The Profile, Project Database and Skills modules will each want their
-   own plates. The illustrations give a consistent visual voice to build
-   on — a third pose (seated at a desk, or a back view) would cover most
-   remaining slots.
+2. The Profile and Project Database modules will each want their own
+   plates. The illustrations give a consistent visual voice to build on —
+   a third pose (seated at a desk, or a back view) would cover most
+   remaining slots. _(Updated 2026-07-31)_ Skills no longer has its own
+   page/plates — it's the Home badge field now (`12_COLLAGE_SYSTEM.md`).
+   Certificates are the new "own plates" consumer instead, though this
+   change deferred a defined asset format/icon treatment for them
+   (`Certificate.icon` isn't rendered yet).
 3. If real photography ever joins the illustrations, decide first whether
    they coexist or the photos replace them. Mixing an illustrated hero
    with photographic plates reads as unfinished unless the split is

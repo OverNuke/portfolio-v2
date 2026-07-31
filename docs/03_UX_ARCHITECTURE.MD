@@ -62,15 +62,14 @@ DESCRIPTION:
 
 ---
 
-## SKILLS MODULE
+## SKILLS MODULE — REMOVED 2026-07-31
 
-
-Display:
-
-- technologies
-- tools
-- experience level
-
+This is no longer a standalone routed page. Technologies/tools now render
+directly on Home, as the collage's Skills badge field (one of its 5 seeded
+layouts — see `12_COLLAGE_SYSTEM.md`'s "Rotation and stagger" section).
+Certificates/awards moved to Home the same way, as their own fixed
+"Certificate/Award" collage role (same doc, Composition roles table).
+Original spec for reference: technologies, tools, experience level.
 
 ---
 
@@ -129,7 +128,7 @@ back/forward and refresh/deep-link land correctly, and so "browser
 back" and "the in-app close control" trigger the same reverse
 transition rather than two different behaviors.
 
-Concretely: `/`, `/profile`, `/projects`, `/skills`, `/contact`. Nav
+Concretely: `/`, `/profile`, `/projects`, `/contact`. Nav
 items render as real links styled as buttons, and the page layer is
 driven by the route rather than by local state — that's what makes
 browser back and the close control the same code path, and what keeps

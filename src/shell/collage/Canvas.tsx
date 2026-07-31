@@ -1,5 +1,7 @@
 import { ROUTES } from "../../routes/routes";
+import { CertificateField } from "./CertificateField";
 import { NavItem } from "./NavItem";
+import { SkillsCollage } from "./SkillsCollage";
 import "./collage.css";
 
 /**
@@ -7,8 +9,9 @@ import "./collage.css";
  * 12x12 grid container (`.canvas`), composed inside `Shell.tsx`'s existing
  * `<main id="main-content">`. Wraps the identity content (previously
  * inline in `Shell.tsx`, batch 5 — moved here so it can be placed as a
- * grid plate), the real NavItem list (task 2.6), and a placeholder
- * spec-cascade plate.
+ * grid plate), the real NavItem list (task 2.6), a placeholder
+ * spec-cascade plate, the certificate field, and the (seeded) Skills badge
+ * field — the latter two replace the standalone `/skills` route.
  *
  * ALL placement (grid-area, rotation, z-index, stagger, breakpoints)
  * lives in `collage.css` (design D5 — that file is the single placement
@@ -66,6 +69,9 @@ export function Canvas() {
           </span>
         </li>
       </ul>
+
+      <CertificateField />
+      <SkillsCollage />
     </div>
   );
 }

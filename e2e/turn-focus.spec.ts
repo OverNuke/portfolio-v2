@@ -34,19 +34,19 @@ test("opening a page makes the shell inert and unreachable by keyboard", async (
 test("closing a page returns focus to the exact opener", async ({ page }) => {
   await gotoHome(page);
 
-  await page.locator('[data-page="skills"]').click();
+  await page.locator('[data-page="contact"]').click();
   await expect(page.getByRole("dialog")).toBeVisible();
 
   await page.locator(".page-close").click();
   await expect(page.locator(".shell")).not.toHaveAttribute("inert", "");
 
   const focusedPageId = await page.evaluate(() => document.activeElement?.getAttribute("data-page"));
-  expect(focusedPageId).toBe("skills");
+  expect(focusedPageId).toBe("contact");
 });
 
 test("deep link with no opener falls back to #main-content on close", async ({ page }) => {
   await preparePage(page);
-  await page.goto("/skills");
+  await page.goto("/projects");
   await expect(page.getByRole("dialog")).toBeVisible();
 
   await page.locator(".page-close").click();

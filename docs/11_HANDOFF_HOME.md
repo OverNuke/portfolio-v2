@@ -459,7 +459,8 @@ on `change`. No flashing: the live dot's 2.4s step blink is far below the
   round a corner.
 - **Routing.** `03_UX_ARCHITECTURE.MD` requires each page to be
   addressable. Use `react-router` with `/`, `/profile`, `/projects`,
-  `/skills`, `/contact`. (Amended 2026-07-29, per `sdd/phase2-app-shell/spec`:
+  `/contact`. (`/skills` removed 2026-07-31 — its content moved to the
+  Home collage, see `12_COLLAGE_SYSTEM.md`.) (Amended 2026-07-29, per `sdd/phase2-app-shell/spec`:
   nav items render as real `<button>`s calling `useNavigate()`/`go()`, not
   `<Link>` — an anchor does not natively activate on Space, which the
   keyboard map requires. JS-disabled reachability, which the `<Link>`

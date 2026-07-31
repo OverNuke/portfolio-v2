@@ -96,7 +96,7 @@ describe("App", () => {
   });
 
   it("deep link then Escape: closes back to Home and focuses #main-content", () => {
-    renderApp("/skills");
+    renderApp("/profile");
 
     act(() => {
       vi.advanceTimersByTime(200);

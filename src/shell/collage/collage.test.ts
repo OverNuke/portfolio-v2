@@ -3,10 +3,10 @@ import { join } from "node:path";
 import postcss, { type Container, type Rule } from "postcss";
 import { describe, expect, it } from "vitest";
 
-const COLLAGE_PATH = join(__dirname, "collage.css");
+const STYLESHEET_PATHS = [join(__dirname, "collage.css"), join(__dirname, "skills-collage.css")];
 
 function parse() {
-  const css = readFileSync(COLLAGE_PATH, "utf-8");
+  const css = STYLESHEET_PATHS.map((path) => readFileSync(path, "utf-8")).join("\n");
   return postcss.parse(css);
 }
 
@@ -26,9 +26,16 @@ describe("collage.css", () => {
   const root = parse();
 
   // (a) Every top-level plate placed on the 12x12 canvas must declare a
-  // grid-area — these are the only direct grid children of `.canvas` in
-  // the Phase-2 subset (identity, nav-stack, spec-cascade placeholder).
-  const PLACEMENT_SELECTORS = [".identity-plate", ".nav-stack", ".spec-cascade"];
+  // grid-area — the direct grid children of `.canvas`. `.skills-collage`'s
+  // 5 seed modifier classes vary the arrangement *inside* its one fixed
+  // grid-area, not the area itself, so only the base class is checked here.
+  const PLACEMENT_SELECTORS = [
+    ".identity-plate",
+    ".nav-stack",
+    ".spec-cascade",
+    ".cert-field",
+    ".skills-collage",
+  ];
 
   it.each(PLACEMENT_SELECTORS)("%s declares a grid-area", (selector) => {
     let found = false;
@@ -71,16 +78,29 @@ describe("collage.css", () => {
     expect(offenders).toEqual([]);
   });
 
-  // (d) Nav plate z-index values fall within the interactive band
-  // (20-30) — docs/12_COLLAGE_SYSTEM.md's stack-order-follows-meaning
-  // rule (interactive > content > decorative).
-  it("nav z-index values fall within the interactive band (20-30)", () => {
+  // (d) z-index values fall within the band matching what they carry —
+  // interactive (nav, cert-plate — both real links/buttons) vs content
+  // (skills-collage — non-interactive badges) — docs/12_COLLAGE_SYSTEM.md's
+  // stack-order-follows-meaning rule (interactive > content > decorative).
+  // An explicit table, not a single "nav" regex, so a mis-banded new plate
+  // (e.g. an interactive cert-plate wrongly left in the content band)
+  // fails loudly instead of shipping unenforced.
+  const Z_INDEX_BANDS = [
+    { pattern: /cert-plate/i, min: 20, max: 30 },
+    { pattern: /skills-collage/i, min: 10, max: 19 },
+    { pattern: /nav/i, min: 20, max: 30 },
+  ];
+
+  it("z-index values fall within their meaning's band", () => {
     const offenders: string[] = [];
     root.walkDecls("z-index", (decl) => {
-      if (!isRule(decl.parent) || !/nav/i.test(decl.parent.selector)) return;
+      if (!isRule(decl.parent)) return;
+      const selector = decl.parent.selector;
+      const band = Z_INDEX_BANDS.find(({ pattern }) => pattern.test(selector));
+      if (!band) return;
       const value = Number(decl.value);
-      if (Number.isNaN(value) || value < 20 || value > 30) {
-        offenders.push(`${decl.parent.selector}: ${decl.value}`);
+      if (Number.isNaN(value) || value < band.min || value > band.max) {
+        offenders.push(`${selector}: ${decl.value} (expected ${band.min}-${band.max})`);
       }
     });
     expect(offenders).toEqual([]);

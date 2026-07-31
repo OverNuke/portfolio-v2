@@ -6,7 +6,6 @@ import { NotFound } from "./NotFound";
 import { ProfilePage } from "./ProfilePage";
 import { ProjectsPage } from "./ProjectsPage";
 import { ROUTES } from "./routes";
-import { SkillsPage } from "./SkillsPage";
 import { TurnProvider } from "../turn/TurnProvider";
 
 /**
@@ -25,7 +24,6 @@ function TestRoutes() {
         <Route path="/" element={null} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/skills" element={<SkillsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
