@@ -1,8 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { CERTIFICATES, SKILLS } from "../../content/data";
 import { ROUTES } from "../../routes/routes";
+import { SKILLS_SEEDS } from "./collageSeeds";
 import { Canvas } from "./Canvas";
+import { SkillsCollage } from "./SkillsCollage";
 
 /**
  * Task 3.1 (sdd/phase2-app-shell). Regression check against 2.6/2.7's
@@ -59,9 +62,35 @@ describe("Canvas", () => {
     // is on the attribute itself, not on query absence.
     const specCascade = container.querySelector(".spec-cascade");
     expect(specCascade).toHaveAttribute("aria-hidden", "true");
-    // getByRole IS accessibility-tree-aware — only the 4 real nav <li>s
-    // should be exposed as "listitem"s, not the placeholder plate's 3.
-    expect(screen.queryAllByRole("listitem")).toHaveLength(ROUTES.length);
+    // getByRole IS accessibility-tree-aware — only the real nav, cert-field,
+    // and skills-collage <li>s should be exposed as "listitem"s, not the
+    // placeholder plate's.
+    expect(screen.queryAllByRole("listitem")).toHaveLength(
+      ROUTES.length + CERTIFICATES.length + SKILLS.length,
+    );
+  });
+
+  it("renders one real <a> CertificatePlate per certificate, with correct hrefs", () => {
+    render(<Canvas />);
+
+    for (const certificate of CERTIFICATES) {
+      const link = screen.getByRole("link", { name: new RegExp(certificate.title, "i") });
+      expect(link).toHaveAttribute("href", certificate.href);
+    }
+  });
+});
+
+describe("SkillsCollage seeds", () => {
+  it.each(SKILLS_SEEDS)("seed %s renders every SKILLS entry with the matching seed class", (seed) => {
+    const { container } = render(<SkillsCollage seedOverride={seed} />);
+
+    // Scoped to `.badge__name` — some icons' <svg><title> text duplicates
+    // the skill name (e.g. the CSS icon's title is "CSS"), which an
+    // unscoped getByText would collide with.
+    for (const skill of SKILLS) {
+      expect(screen.getByText(skill.name, { selector: ".badge__name" })).toBeInTheDocument();
+    }
+    expect(container.querySelector(`.skills-collage--${seed}`)).not.toBeNull();
   });
 
   /**

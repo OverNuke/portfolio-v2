@@ -6,7 +6,6 @@ import { NotFound } from "./routes/NotFound";
 import { ProfilePage } from "./routes/ProfilePage";
 import { ProjectsPage } from "./routes/ProjectsPage";
 import { ROUTES } from "./routes/routes";
-import { SkillsPage } from "./routes/SkillsPage";
 import { Announcer } from "./shell/Announcer";
 import { Shell } from "./shell/Shell";
 import { PageLayer } from "./turn/PageLayer";
@@ -52,7 +51,6 @@ function AppShell() {
             <Route path="/" element={null} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/skills" element={<SkillsPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

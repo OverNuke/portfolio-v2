@@ -287,6 +287,104 @@
   text-overflow: ellipsis;
 }
 
+/* ── Certificate field — a fixed, hand-authored chaotic layout (docs
+   12_COLLAGE_SYSTEM.md, "Certificates/Awards" role). Real links, so plates
+   sit in the interactive z-index band, same as nav items ─────────────── */
+.cert-field {
+  grid-area: 1 / 8 / 7 / 13;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.cert-field li {
+  list-style: none;
+  display: flex;
+}
+
+.cert-field li + li {
+  margin-top: -4px;
+}
+
+.cert-field li:nth-child(1) {
+  margin-left: 0px;
+}
+.cert-field li:nth-child(2) {
+  margin-left: 14px;
+}
+.cert-field li:nth-child(3) {
+  margin-left: 4px;
+}
+.cert-field li:nth-child(4) {
+  margin-left: 20px;
+}
+.cert-field li:nth-child(5) {
+  margin-left: 9px;
+}
+
+/* Alternating rotation sign, same rationale as .nav-stack: a stack that
+   leans consistently one way reads as a mistake. */
+.cert-field li:nth-child(1) .cert-plate {
+  --rot: 0.7deg;
+  z-index: 21;
+}
+.cert-field li:nth-child(2) .cert-plate {
+  --rot: -0.5deg;
+  z-index: 22;
+}
+.cert-field li:nth-child(3) .cert-plate {
+  --rot: 0.9deg;
+  z-index: 23;
+}
+.cert-field li:nth-child(4) .cert-plate {
+  --rot: -0.3deg;
+  z-index: 24;
+}
+.cert-field li:nth-child(5) .cert-plate {
+  --rot: 0.6deg;
+  z-index: 25;
+}
+
+.cert-plate {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  min-height: var(--hit-min);
+  padding: 5px var(--space-sm);
+  font: inherit;
+  text-decoration: none;
+  color: inherit;
+  transform: rotate(var(--rot, 0deg));
+  transition:
+    background var(--dur-micro) var(--ease-hard),
+    color var(--dur-micro) var(--ease-hard),
+    box-shadow var(--dur-micro) var(--ease-hard);
+}
+
+.cert-plate__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-meta);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cert-plate:hover,
+.cert-plate:focus-visible {
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--plate-shadow);
+  z-index: 30;
+}
+
 /* ── Accent bars — doc 12 `.bar--accent`, the "louder red restyle" of
    `.spec-bar` for the one fact per screen that should read as hot. Reuses
    the already-documented --signal-red / --paper-white pair (4.74:1) rather
@@ -442,8 +540,7 @@
 
   .identity-plate,
   .nav-item,
-  .spec-bar,
-  .bar--accent {
+  .spec-bar {
     transform: none !important;
   }
 
@@ -465,6 +562,12 @@
   }
   .spec-bar {
     width: 100%;
+  }
+  .cert-field li {
+    margin-left: 0 !important;
+  }
+  .cert-field li + li {
+    margin-top: var(--space-2xs);
   }
 }
 

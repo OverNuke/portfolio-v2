@@ -10,9 +10,10 @@ import { build, preview } from "vite";
  * drives Chromium (via the `@playwright/test` re-export — do NOT add a
  * top-level `playwright` devDependency; pnpm's strict node_modules only
  * symlinks direct deps, so a root-level script can't resolve it) across
- * the four spec'd viewport widths, asserting three things for every
- * interactive element: no occlusion, no undersized target, no clipped
- * text. A fourth, non-blocking check reports focus-order drift.
+ * the four spec'd viewport widths — repeated once per Skills-collage seed,
+ * via `?collageSeed=<id>` — asserting three things for every interactive
+ * element: no occlusion, no undersized target, no clipped text. A fourth,
+ * non-blocking check reports focus-order drift within each seed.
  *
  * Audits `/` only — the collage lives there; routed pages are placeholder
  * content out of scope for this script.
@@ -23,11 +24,20 @@ const VIEWPORT_HEIGHT = 900;
 const INTERACTIVE_SELECTOR =
   'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, select, textarea';
 
+// Keep in sync with src/shell/collage/collageSeeds.ts's SKILLS_SEEDS — this
+// script can't import that TS module directly, so the id list is
+// duplicated here. The Skills badge field picks one of these once per
+// mount (docs/12_COLLAGE_SYSTEM.md's 2026-07-31 dated exception); each is
+// individually authored/compliant, but only `?collageSeed=<id>` (read by
+// useCollageSeed) makes the pick deterministic enough to audit against a
+// single Vite build.
+const SKILLS_SEEDS = ["common-a", "common-b", "common-c", "common-d", "rare-easter-egg"];
+
 let failures = 0;
 
-function fail(width, reason, detail) {
+function fail(seed, width, reason, detail) {
   failures += 1;
-  console.error(`[FAIL] ${width}px — ${reason}: ${detail}`);
+  console.error(`[FAIL] seed=${seed} ${width}px — ${reason}: ${detail}`);
 }
 
 /** Runs in-page. Center-point hit-test; recovers from a vertically
@@ -119,62 +129,71 @@ async function main() {
   }
 
   const browser = await chromium.launch();
-  const focusOrders = [];
 
   try {
     const page = await browser.newPage();
     await page.addInitScript(() => sessionStorage.setItem("intro:played", "1"));
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto(url);
-    // NameRevealIntro always mounts active=true for its first paint, then an
-    // effect flips it off (session-seeded + reduced-motion both apply) and
-    // AnimatePresence unmounts it. That flip is async — without waiting for
-    // it, every occlusion check below hits the overlay instead of the
-    // collage underneath it.
-    await page
-      .locator(".nri-overlay")
-      .waitFor({ state: "detached", timeout: 3000 })
-      .catch(() => {});
 
-    for (const width of WIDTHS) {
-      await page.setViewportSize({ width, height: VIEWPORT_HEIGHT });
+    for (const seed of SKILLS_SEEDS) {
+      // One `goto` per seed (the seed is only picked once per mount) — the
+      // intro-overlay wait must happen after EACH goto, not once overall,
+      // or every seed after the first hit-tests against the still-mounted
+      // overlay instead of the real collage underneath it.
+      await page.goto(`${url}?collageSeed=${seed}`);
+      await page
+        .locator(".nri-overlay")
+        .waitFor({ state: "detached", timeout: 3000 })
+        .catch(() => {});
 
-      const occlusions = await page.evaluate(checkOcclusion, INTERACTIVE_SELECTOR);
-      for (const { el, reason, hit } of occlusions) {
-        fail(width, reason, hit ? `${el} hit ${hit}` : el);
+      const focusOrders = [];
+
+      for (const width of WIDTHS) {
+        await page.setViewportSize({ width, height: VIEWPORT_HEIGHT });
+
+        const occlusions = await page.evaluate(checkOcclusion, INTERACTIVE_SELECTOR);
+        for (const { el, reason, hit } of occlusions) {
+          fail(seed, width, reason, hit ? `${el} hit ${hit}` : el);
+        }
+
+        const undersized = await page.evaluate(checkTargetSize, INTERACTIVE_SELECTOR);
+        for (const detail of undersized) {
+          fail(seed, width, "undersized-target", detail);
+        }
+
+        const clipped = await page.evaluate(checkClippedText);
+        for (const detail of clipped) {
+          fail(seed, width, "clipped-text", detail);
+        }
+
+        focusOrders.push({ width, order: await page.evaluate(focusOrderSnapshot, INTERACTIVE_SELECTOR) });
       }
 
-      const undersized = await page.evaluate(checkTargetSize, INTERACTIVE_SELECTOR);
-      for (const detail of undersized) {
-        fail(width, "undersized-target", detail);
+      // Grouped per seed — comparing across seeds would be meaningless
+      // (skill badges are non-interactive <li>s so this should hold
+      // trivially within a seed, but it's asserted as a hard invariant,
+      // same as before seeds existed, just correctly scoped now).
+      const [first, ...rest] = focusOrders;
+      const drifted = rest.filter((entry) => JSON.stringify(entry.order) !== JSON.stringify(first.order));
+      if (drifted.length > 0) {
+        console.warn(
+          `[WARN] seed=${seed}: focus order differs from ${first.width}px at: ${drifted.map((d) => `${d.width}px`).join(", ")} (non-blocking)`,
+        );
+      } else {
+        console.log(`Seed ${seed}: focus order identical at all ${WIDTHS.length} widths.`);
       }
-
-      const clipped = await page.evaluate(checkClippedText);
-      for (const detail of clipped) {
-        fail(width, "clipped-text", detail);
-      }
-
-      focusOrders.push({ width, order: await page.evaluate(focusOrderSnapshot, INTERACTIVE_SELECTOR) });
     }
   } finally {
     await browser.close();
     await server.close();
   }
 
-  const [first, ...rest] = focusOrders;
-  const drifted = rest.filter((entry) => JSON.stringify(entry.order) !== JSON.stringify(first.order));
-  if (drifted.length > 0) {
-    console.warn(
-      `[WARN] focus order differs from ${first.width}px at: ${drifted.map((d) => `${d.width}px`).join(", ")} (non-blocking)`,
+  if (failures === 0) {
+    console.log(
+      `Audit passed: zero occlusions, zero undersized targets, zero clipped text at all ${WIDTHS.length} widths × ${SKILLS_SEEDS.length} seeds.`,
     );
   } else {
-    console.log(`Focus order identical at all ${WIDTHS.length} widths.`);
-  }
-
-  if (failures === 0) {
-    console.log(`Audit passed: zero occlusions, zero undersized targets, zero clipped text at all ${WIDTHS.length} widths.`);
-  } else {
-    console.error(`Audit failed with ${failures} failure(s) across ${WIDTHS.length} widths.`);
+    console.error(`Audit failed with ${failures} failure(s) across ${WIDTHS.length} widths × ${SKILLS_SEEDS.length} seeds.`);
     process.exitCode = 1;
   }
 }

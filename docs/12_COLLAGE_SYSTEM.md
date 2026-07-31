@@ -93,12 +93,13 @@ doesn't fit one of these needs a case made for it, per
 | **Annotation** | The handwritten scrap. Exactly one per screen — two reads as a gimmick. | 1 |
 | **Badge field** | A dense block of small tags. Typographic mass, not a list — it should read as one grey-ish rectangle from across the room and resolve into names up close. | 1 |
 | **Channel row** | Social/contact icons as a single joined strip with an Ink label cap. One per screen, on Home and again in the Contact module. | 1 |
+| **Certificate/Award** _(added 2026-07-31)_ | A real link out to a certificate/award document. Distinct from the generic Plate role, and budgeted separately from it, because the two will otherwise compete for the same 8–11 slots once the rest of v3 (field note, centre plates, record chips) ships. | 5 (`CERTIFICATES` in `src/content/data.ts`) |
 
 ---
 
 ## Plate variants
 
-_Implemented 2026-07-30 (Phase 3 content) in `src/styles/plate.css`, shared by the Profile/Projects/Skills modules. Home's `.nav-item`/`.spec-bar` (`src/shell/collage/collage.css`) predate this file and do the same job under different names — not yet migrated onto these shared classes._
+_Implemented 2026-07-30 (Phase 3 content) in `src/styles/plate.css`, shared by the Profile/Projects modules. Home's `.nav-item`/`.spec-bar` (`src/shell/collage/collage.css`) predate this file and do the same job under different names — not yet migrated onto these shared classes. `.cert-plate` (added 2026-07-31, Certificate/Award role) builds on the shared `.plate` primitive rather than adding a third bespoke recipe — it's the first Home-local plate to do so._
 
 | Variant | Surface | Border | Shadow | Use |
 |---|---|---|---|---|
@@ -173,6 +174,24 @@ rather than as handmade.
 - Overlap adjacent stack items by `margin-top: -6px` so they physically
   sit on each other.
 
+> **Updated 2026-07-31.** The rule above still governs all rotation,
+> stagger, and z-index values *within* any single layout — nothing about
+> *how a plate is placed* is ever computed at runtime. It does **not**
+> prohibit choosing, once per page load, among a small number of fully
+> pre-authored, individually doc-12-compliant layouts. The Skills badge
+> field (`src/shell/collage/skills-collage.css`) is the one place this
+> applies: exactly 5 such layouts exist ("seeds"), each with its own
+> static `grid-area`/`--rot`/stagger, each independently verified by
+> `collage.test.ts`. A weighted random pick (4 common seeds ≈90% combined,
+> 1 rare "easter egg" seed ≈10%) selects one per mount via
+> `useCollageSeed()`; the selection is a discrete choice among pre-vetted
+> static CSS, not continuous or per-instance randomization, and is
+> deterministic-overridable via `?collageSeed=<id>` for tests and
+> `scripts/audit.mjs`. This exception is scoped to the Skills badge field
+> only — it is not a general reversal of the rule above, and it does not
+> apply to Certificates (which use a single fixed layout, same as every
+> other plate on Home) or anything else on the page.
+
 ---
 
 ## Accessibility guardrails
@@ -222,6 +241,14 @@ unique content is ever shed.
 | | `.bar--accent`, if `aria-hidden` | Only sheds when its text duplicates an Ink bar elsewhere; never shed if it's the sole source of that information |
 | ≤900px | Detail crop, hero repositioned to a 190px banner | Collage collapses to a single-column stack; all rotation → 0, all overlap → 0, all `transform: none` |
 
+_(Added 2026-07-31)_ **Certificate plates are never shed at any breakpoint.**
+Each one is a unique link to a real credential — no duplicate of that
+information exists elsewhere on the page — so doc 12's own rule ("nothing
+carrying unique content is ever shed") applies directly. At ≤900px they
+collapse into the same single-column stack as everything else (the
+canvas's `.canvas > *` override reaches `.cert-plate` too, zeroing its
+rotation), but the plates themselves, and their content, always remain.
+
 ### Automated audit
 
 `scripts/audit.mjs` (added 2026-07-29, task 4.1 of
@@ -229,15 +256,19 @@ unique content is ever shed.
 every interactive element: its centre point hit-tests to itself (no
 occlusion), its unrotated box is ≥24×24, and no text node is clipped by
 an ancestor (elements marked `data-truncate="ellipsis"` — `.nav-label`,
-`.nav-sub`, `.spec-bar .v` — are exempt; their truncation is intentional).
+`.nav-sub`, `.spec-bar .v`, `.cert-plate__title` — are exempt; their
+truncation is intentional). _(Added 2026-07-31)_ since the Skills badge
+field now picks one of 5 layouts per mount, the audit repeats all four
+widths once per seed (`?collageSeed=<id>`) rather than once overall.
 Run it with `pnpm run audit:collage` (always `pnpm run`, never the bare
 `pnpm audit` shorthand — that resolves to pnpm's own dependency-audit
 subcommand instead).
 
 Current measured state: **zero occlusions, zero undersized targets, zero
-clipped text, focus order identical at all four widths.** Now wired into
-CI (`.github/workflows/ci.yml`) on every push and pull request — the
-"wire this into CI" note above is resolved.
+clipped text, focus order identical at all four widths, across all 5
+Skills-collage seeds.** Now wired into CI (`.github/workflows/ci.yml`) on
+every push and pull request — the "wire this into CI" note above is
+resolved.
 
 ---
 

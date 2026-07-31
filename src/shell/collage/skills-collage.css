@@ -1,0 +1,96 @@
+/**
+ * Skills badge field — docs/12_COLLAGE_SYSTEM.md, 2026-07-31 dated
+ * exception: 5 fully pre-authored, individually compliant layouts
+ * ("seeds"), one picked per mount by src/shell/collage/useCollageSeed.ts
+ * (weighted random: 4 common seeds share ~90%, 1 rare "easter egg" 10%).
+ * The grid-area stays constant across seeds — only the arrangement inside
+ * that one fixed box varies — so occlusion/shed behavior never depends on
+ * which seed landed; only `--rot`/stagger differ.
+ *
+ * Badges are non-interactive <li>s (badge-field, doc 12's "Badge field"
+ * role — exactly 1 slot on Home, these 5 seeds are 5 arrangements of that
+ * one slot), so z-index stays in the content band (10-19), never
+ * interactive.
+ */
+.skills-collage {
+  /* Rows 7-11, not 7-12: row 12 is deliberately left empty, same as
+     .spec-cascade's own row-11 stop. `.canvas`'s grid-template-rows are
+     always exactly 12 equal 1fr tracks regardless of how items are
+     assigned to them, so the badge field needed more ROOM (5 rows, not 3)
+     rather than more ROWS overall — but a rotated badge (`--rot`) pinned
+     flush against the canvas's hard bottom edge bleeds into the scroll
+     container's scrollable-overflow region with zero margin to absorb it,
+     tripping the collage audit's clipped-text check by ~1px. Stopping one
+     row short of the edge, like spec-cascade already does, gives that
+     bleed somewhere to go. */
+  grid-area: 7 / 7 / 12 / 13;
+  z-index: 14; /* content band + 4, matches spec-cascade's offset convention */
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-self: end;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  list-style: none;
+}
+
+.skills-collage .badge {
+  transform: rotate(var(--rot, 0deg));
+}
+
+/* common-a: gentle alternating rotation. */
+.skills-collage--common-a .badge:nth-child(odd) {
+  --rot: -0.6deg;
+}
+.skills-collage--common-a .badge:nth-child(even) {
+  --rot: 0.6deg;
+}
+
+/* common-b: stronger 3-step rotation cycle, looser row gap. */
+.skills-collage--common-b {
+  gap: 6px 4px;
+}
+.skills-collage--common-b .badge:nth-child(3n + 1) {
+  --rot: 1.1deg;
+}
+.skills-collage--common-b .badge:nth-child(3n + 2) {
+  --rot: -0.8deg;
+}
+.skills-collage--common-b .badge:nth-child(3n) {
+  --rot: 0.4deg;
+}
+
+/* common-c: alternation starts on the opposite sign from common-a, packed
+   toward the right edge of the field. */
+.skills-collage--common-c {
+  justify-content: flex-end;
+}
+.skills-collage--common-c .badge:nth-child(odd) {
+  --rot: 0.5deg;
+}
+.skills-collage--common-c .badge:nth-child(even) {
+  --rot: -0.7deg;
+}
+
+/* common-d: near-flat, minimal rotation, denser pack. */
+.skills-collage--common-d {
+  gap: 2px;
+}
+.skills-collage--common-d .badge:nth-child(4n + 1) {
+  --rot: 0.3deg;
+}
+.skills-collage--common-d .badge:nth-child(4n + 3) {
+  --rot: -0.3deg;
+}
+
+/* rare-easter-egg (10%): every badge leans the same way, deliberately
+   reading as "off" compared to the other 4 seeds' careful alternation —
+   that's the point of a rare variant. Still capped at +/-2deg. */
+.skills-collage--rare-easter-egg {
+  justify-content: center;
+}
+.skills-collage--rare-easter-egg .badge {
+  --rot: 1.6deg;
+}
