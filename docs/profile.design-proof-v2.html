@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KEVIN_ARCHIVE_OS — PROFILE / TECH PACK — design proof v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Serif+JP:wght@900&family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet" />
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   PROFILE / TECH PACK — design proof v2 · 2026-07-31
+   Concept: claude/profile-techpack-concept doc — KEVIN as the product this
+   archive ships. Style no. KSFG-001. Seven points of measure on the figure;
+   inspecting a point prints its spec plate into the tray. One plate at a
+   time. No scroll on the sheet itself (tray content may scroll internally).
+
+   Accessible spine: the MEASUREMENT INDEX is the canonical navigation —
+   real buttons in DOM order. On-figure markers are pointer shortcuts:
+   aria-hidden, tabindex=-1, forwarding clicks to their index row.
+   Keyboard: Left = next point, Right = previous, Esc = close (manga map).
+   Inspection state lives in location.hash (#pt=NN) — deep-linkable;
+   the real app will use the route query instead.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --paper: #e4e4e2; --paper-white: #f6f6f4; --ink: #111111; --ink-inverse: #f2f2f2;
+  --gray: #635d54; --signal-red: #c63c32; --signal-red-text: #8f2c24;
+  --warning-yellow: #d6c76a; --field-olive: #4f5a3c;
+  --font-display: "Archivo Narrow", "Arial Narrow", Haettenschweiler, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  --font-hand: "Segoe Script", "Bradley Hand", "Snell Roundhand", cursive;
+  --font-kanji-seal: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+  --font-kanji-poster: "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+  --text-display-xl: clamp(2.5rem, 5.4vw, 4.75rem);
+  --text-display-lg: clamp(1.375rem, 2.1vw, 1.875rem);
+  --text-display-md: clamp(1.125rem, 1.5vw, 1.4rem);
+  --text-body: 0.875rem; --text-meta: 0.6875rem; --text-micro: 0.5625rem;
+  --track-label: 0.22em; --track-micro: 0.42em;
+  --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px;
+  --space-lg: 24px; --space-xl: 32px;
+  --rule-hair: 1px; --rule-thick: 2px; --hit-min: 24px;
+  --header-h: 44px; --status-h: 30px;
+  --ease-hard: cubic-bezier(0.7, 0, 0.3, 1);
+  --dur-micro: 90ms; --dur-cut: 140ms; --dur-turn: 200ms;
+  --plate-border: 2px;
+  --plate-shadow: 3px 4px 12px rgba(17,17,17,0.22);
+  --plate-shadow-sm: 2px 3px 7px rgba(17,17,17,0.18);
+}
+*, *::before, *::after { box-sizing: border-box; border-radius: 0 !important; }
+html, body { margin: 0; padding: 0; height: 100%;
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-mono); font-size: 16px;
+  -webkit-font-smoothing: antialiased; overflow: hidden; }
+::selection { background: var(--signal-red); color: var(--ink-inverse); }
+:focus-visible { outline: var(--rule-thick) solid var(--signal-red); outline-offset: 3px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.grain { position: fixed; inset: 0; z-index: 900; pointer-events: none;
+  opacity: 0.06; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.scanlines { position: fixed; inset: 0; z-index: 899; pointer-events: none; opacity: 0.03;
+  background: repeating-linear-gradient(to bottom, var(--ink) 0 1px, transparent 1px 3px); }
+
+/* ═══ FRAME ══════════════════════════════════════════════════════════ */
+.shell { position: relative; height: 100dvh; display: grid;
+  grid-template-rows: var(--header-h) auto minmax(0,1fr) var(--status-h); }
+.system-header { display: flex; align-items: stretch; z-index: 40;
+  border-bottom: var(--rule-thick) solid var(--ink); background: var(--paper); }
+.wordmark { display: flex; align-items: center; padding: 0 var(--space-md);
+  background: var(--ink); color: var(--ink-inverse);
+  font-family: var(--font-display); font-weight: 700;
+  font-size: var(--text-display-md); letter-spacing: 0.06em; white-space: nowrap;
+  border-right: 3px solid var(--signal-red); }
+.header-meta { flex: 1; display: flex; align-items: center; gap: var(--space-lg);
+  padding: 0 var(--space-md); font-size: var(--text-meta); color: var(--gray);
+  letter-spacing: var(--track-label); text-transform: uppercase; overflow: hidden; white-space: nowrap; }
+.header-clock { display: flex; align-items: center; gap: var(--space-xs);
+  padding: 0 var(--space-md); border-left: var(--rule-hair) solid var(--ink);
+  font-size: var(--text-meta); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.live-dot { width: 7px; height: 7px; background: var(--signal-red); display: inline-block; }
+@media (prefers-reduced-motion: no-preference) { .live-dot { animation: blink 2.4s steps(1,end) infinite; } }
+@keyframes blink { 0%,62% { opacity: 1 } 63%,100% { opacity: 0.25 } }
+
+.page-head { display: flex; align-items: center; gap: var(--space-md);
+  padding: var(--space-xs) var(--space-sm); border-bottom: var(--rule-thick) solid var(--ink); }
+.page-back { display: inline-flex; align-items: center; gap: 6px;
+  min-height: var(--hit-min); padding: 4px var(--space-xs);
+  background: var(--paper-white); color: var(--ink); border: var(--rule-hair) solid var(--ink);
+  font: inherit; font-size: var(--text-micro); letter-spacing: var(--track-label);
+  text-transform: uppercase; cursor: pointer; }
+.page-back:hover { background: var(--ink); color: var(--ink-inverse); }
+.page-title { margin: 0; font-family: var(--font-display); font-weight: 700;
+  font-size: 1.75rem; letter-spacing: 0.03em; text-transform: uppercase; }
+.page-tag { margin-left: auto; font-size: var(--text-micro);
+  letter-spacing: var(--track-label); color: var(--field-olive); text-transform: uppercase; }
+
+.status-bar { display: flex; align-items: center; gap: var(--space-md); padding: 0 var(--space-sm);
+  z-index: 40; border-top: var(--rule-thick) solid var(--ink); background: var(--paper);
+  font-size: var(--text-micro); letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gray); overflow: hidden; white-space: nowrap; }
+.status-bar .key { display: inline-flex; align-items: center; padding: 2px 5px;
+  margin-right: 4px; border: var(--rule-hair) solid var(--ink);
+  color: var(--ink); background: var(--paper-white); }
+.status-bar .spacer { flex: 1; }
+.status-ok { color: var(--field-olive); }
+
+/* ═══ THE SHEET ══════════════════════════════════════════════════════ */
+.sheet { position: relative; min-height: 0; overflow: hidden;
+  display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: var(--space-md) var(--space-lg) var(--space-xs);
+  column-gap: var(--space-lg); }
+
+/* Sheet header — the tech-pack title block. Real text, top of DOM. */
+.sheet-head { grid-area: 1 / 1 / 2 / 2; border: var(--rule-thick) solid var(--ink);
+  background: var(--paper-white); box-shadow: var(--plate-shadow-sm);
+  transform: rotate(-0.3deg); }
+.sheet-head table { width: 100%; border-collapse: collapse; font-size: var(--text-meta); }
+.sheet-head td { padding: 4px 10px; border-bottom: var(--rule-hair) solid var(--gray); vertical-align: baseline; }
+.sheet-head tr:last-child td { border-bottom: 0; }
+.sheet-head .k { width: 34%; font-size: var(--text-micro); letter-spacing: var(--track-label);
+  text-transform: uppercase; color: var(--gray); white-space: nowrap; }
+.sheet-head .style-no { font-family: var(--font-display); font-weight: 700;
+  font-size: var(--text-display-lg); letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; }
+.sheet-head .desc { font-family: var(--font-display); font-weight: 600;
+  font-size: var(--text-display-md); text-transform: uppercase; }
+.sheet-head .status-word { color: var(--signal-red-text); font-weight: 700; letter-spacing: 0.14em; }
+
+/* Measurement index — the canonical nav. */
+.index-block { grid-area: 2 / 1 / 3 / 2; display: flex; flex-direction: column;
+  min-height: 0; margin-top: var(--space-sm); }
+.index-cap { display: flex; align-items: baseline; justify-content: space-between;
+  background: var(--ink); color: var(--ink-inverse); padding: 4px 10px;
+  font-size: var(--text-micro); letter-spacing: var(--track-label); text-transform: uppercase; }
+.index-cap .count { color: var(--warning-yellow); letter-spacing: 0.1em; }
+.pt-index { list-style: none; margin: 0; padding: 0;
+  border: var(--rule-hair) solid var(--ink); border-top: 0; background: var(--paper-white); }
+.pt-index button { display: flex; align-items: center; gap: var(--space-xs); width: 100%;
+  min-height: 34px; padding: 5px 10px; background: transparent; border: 0;
+  border-bottom: var(--rule-hair) solid var(--gray);
+  font: inherit; font-size: var(--text-meta); letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink); cursor: pointer; text-align: left; }
+.pt-index li:last-child button { border-bottom: 0; }
+.pt-index button:hover, .pt-index button[aria-expanded="true"] { background: var(--ink); color: var(--ink-inverse); }
+.pt-index .num { color: var(--field-olive); font-size: var(--text-micro);
+  letter-spacing: var(--track-label); width: 30px; flex: 0 0 auto; }
+.pt-index button:hover .num, .pt-index button[aria-expanded="true"] .num { color: var(--warning-yellow); }
+.pt-index .dots { flex: 1; border-bottom: 1px dotted var(--gray); height: 1px; margin: 0 2px; min-width: 12px; }
+.pt-index .tick { width: 12px; flex: 0 0 auto; color: var(--field-olive);
+  font-size: var(--text-meta); visibility: hidden; }
+.pt-index li.visited .tick { visibility: visible; }
+.pt-index button:hover .tick, .pt-index button[aria-expanded="true"] .tick { color: var(--warning-yellow); }
+.pt-index button.row-hot { background: var(--ink); color: var(--ink-inverse); }
+.pt-index button.row-hot .num { color: var(--warning-yellow); }
+
+/* Inspection tray */
+.tray { grid-area: 3 / 1 / 4 / 2; margin-top: var(--space-sm);
+  min-height: 218px; position: relative; display: flex; min-width: 0; }
+.tray-empty { flex: 1; border: 2px dashed var(--field-olive); color: var(--field-olive);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: var(--space-md); font-size: var(--text-micro);
+  letter-spacing: var(--track-label); text-transform: uppercase; line-height: 2; }
+.tray-plate { flex: 1; display: none; flex-direction: column; min-width: 0;
+  background: var(--paper-white); border: var(--plate-border) solid var(--ink);
+  box-shadow: var(--plate-shadow); transform: rotate(0.35deg); }
+.tray-plate[data-open] { display: flex; }
+.tray.printing .tray-plate[data-open] { animation: print-in var(--dur-cut) steps(5, end); }
+@keyframes print-in { from { clip-path: inset(0 0 100% 0) } to { clip-path: inset(0 0 0 0) } }
+.tray-head { display: flex; align-items: center; gap: var(--space-xs);
+  border-bottom: var(--rule-hair) solid var(--ink); padding: 5px 10px; flex: 0 0 auto; }
+.tray-head .pt-tag { font-size: var(--text-micro); letter-spacing: var(--track-label);
+  text-transform: uppercase; color: var(--field-olive); }
+.tray-head h3 { margin: 0; font-family: var(--font-display); font-weight: 700;
+  font-size: var(--text-display-md); letter-spacing: 0.04em; text-transform: uppercase; }
+.tray-close { margin-left: auto; display: inline-flex; align-items: center; gap: 5px;
+  min-height: var(--hit-min); padding: 2px 8px; background: var(--paper-white);
+  border: var(--rule-hair) solid var(--ink); font: inherit; font-size: var(--text-micro);
+  letter-spacing: var(--track-label); text-transform: uppercase; cursor: pointer; }
+.tray-close:hover { background: var(--ink); color: var(--ink-inverse); }
+.tray-body { padding: var(--space-sm) var(--space-md); overflow-y: auto; min-height: 0;
+  font-size: var(--text-body); line-height: 1.55; }
+.tray-body p { margin: 0 0 var(--space-xs); }
+.tray-body .spec-row { display: flex; gap: var(--space-xs); align-items: baseline;
+  font-size: var(--text-meta); border-bottom: 1px dotted var(--gray); padding: 3px 0; }
+.tray-body .spec-row .k { font-size: var(--text-micro); letter-spacing: var(--track-label);
+  text-transform: uppercase; color: var(--gray); flex: 0 0 96px; }
+.tray-body .todo { color: var(--signal-red-text); font-size: var(--text-micro);
+  letter-spacing: 0.14em; text-transform: uppercase; }
+.badge-field { display: flex; flex-wrap: wrap; gap: var(--space-2xs);
+  margin: 0; padding: 0; list-style: none; }
+.badge { display: inline-flex; align-items: center; gap: var(--space-2xs);
+  border: 1px solid var(--field-olive); background: var(--paper-white);
+  color: var(--field-olive); padding: var(--space-2xs) var(--space-xs);
+  font-size: var(--text-meta); letter-spacing: 0.04em; text-transform: uppercase; }
+.bar { display: inline-flex; align-items: baseline; gap: var(--space-xs); max-width: 100%;
+  background: var(--ink); color: var(--ink-inverse); padding: 5px var(--space-sm);
+  box-shadow: var(--plate-shadow-sm); }
+.bar--accent { background: var(--signal-red); color: var(--paper-white); }
+.bar .k { font-size: var(--text-micro); letter-spacing: var(--track-label);
+  text-transform: uppercase; opacity: 0.72; white-space: nowrap; }
+.bar .v { font-size: var(--text-meta); letter-spacing: 0.06em; white-space: nowrap; }
+.stamp-in { display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .printing .stamp-in { animation: stamp var(--dur-cut) var(--ease-hard); }
+}
+@keyframes stamp { 0% { transform: scale(1.06) translate(1px,-1px); opacity: 0 }
+  60% { transform: scale(1.06) translate(1px,-1px); opacity: 1 }
+  100% { transform: none; opacity: 1 } }
+.cross-ref { border: 0; background: var(--ink); color: var(--ink-inverse);
+  font: inherit; font-size: var(--text-meta); letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 5px var(--space-sm); cursor: pointer; box-shadow: var(--plate-shadow-sm); }
+.cross-ref:hover { background: var(--signal-red); color: var(--paper-white); }
+.wash-log { list-style: none; margin: 0; padding: 0; }
+.wash-log li { display: flex; gap: var(--space-xs); align-items: baseline;
+  border-bottom: 1px dotted var(--gray); padding: 4px 0; font-size: var(--text-meta); }
+.wash-log .cyc { flex: 0 0 74px; font-size: var(--text-micro);
+  letter-spacing: var(--track-label); color: var(--field-olive); text-transform: uppercase; }
+.wash-log .yr { margin-left: auto; color: var(--gray); font-size: var(--text-micro); }
+.cert-tag { display: flex; gap: var(--space-xs); align-items: baseline;
+  border: var(--rule-hair) solid var(--ink); background: var(--paper-white);
+  padding: 5px 10px; margin-bottom: 5px; font-size: var(--text-meta); }
+.cert-tag .id { color: var(--field-olive); font-size: var(--text-micro); letter-spacing: var(--track-label); }
+.cert-tag .yr { margin-left: auto; color: var(--gray); font-size: var(--text-micro); }
+
+/* ═══ FIGURE FIELD ═══════════════════════════════════════════════════ */
+.fig-field { grid-area: 1 / 2 / 4 / 3; position: relative; min-width: 0; min-height: 0; }
+/* The figure — the one absolutely positioned element (hero license):
+   bleeds off the bottom edge of the sheet. */
+.fig-wrap { position: absolute; right: 6%; top: 2%; height: 104%; aspect-ratio: 479 / 1099; }
+.fig-wrap img { width: 100%; height: 100%; display: block; image-rendering: pixelated;
+  user-select: none; pointer-events: none; }
+/* Point markers — pointer shortcuts. aria-hidden, tabindex=-1: the index
+   rows are the canonical controls; these forward clicks. ≥24px targets,
+   never rotated. PT.05 wears the screen's red. */
+.pt-marker { position: absolute; transform: translate(-50%, -50%);
+  width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+  background: var(--paper-white); border: var(--rule-thick) solid var(--ink);
+  color: var(--ink); font: inherit; font-size: var(--text-micro); font-weight: 700;
+  letter-spacing: 0.05em; cursor: pointer; box-shadow: var(--plate-shadow-sm); z-index: 20; }
+.pt-marker:hover, .pt-marker.hot { background: var(--ink); color: var(--ink-inverse); }
+.pt-marker--red { background: var(--signal-red); border-color: var(--signal-red); color: var(--paper-white); }
+.pt-marker--red:hover, .pt-marker--red.hot { background: var(--ink); border-color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .pt-marker.idle-blink { animation: mblink 1.1s steps(2, end) 2; }
+}
+@keyframes mblink { 50% { outline: 2px solid var(--signal-red); outline-offset: 2px; } }
+/* Leader stubs — decorative hairlines pointing back toward the index. */
+.leader { position: absolute; height: 1px; background: var(--ink); opacity: 0.55;
+  transform: translateY(-50%); pointer-events: none; z-index: 5; }
+.leader::before { content: ""; position: absolute; right: -3px; top: -2.5px;
+  width: 6px; height: 6px; border: 1px solid var(--ink); background: transparent; }
+/* Ghost kanji + scrap + chrome */
+.ghost-kanji { position: absolute; left: 2%; bottom: 0%; z-index: 0; pointer-events: none;
+  user-select: none; font-family: var(--font-kanji-poster); font-weight: 700;
+  color: var(--ink); opacity: 0.07; font-size: clamp(110px, 16vw, 250px); line-height: 0.95; }
+.scrap { position: absolute; left: 44%; top: 22%; font-family: var(--font-hand);
+  font-size: 1.05rem; transform: rotate(-1.8deg); pointer-events: none; z-index: 6; }
+.reticle { position: absolute; width: 16px; height: 16px; pointer-events: none;
+  border: 0 solid var(--field-olive); z-index: 6; }
+.reticle--tr { border-right-width: 2px; border-top-width: 2px; right: 4px; top: 4px; }
+.reticle--bl { border-left-width: 2px; border-bottom-width: 2px; left: 4px; bottom: 4px; }
+/* Glasses easter egg — pointer-only decorative annotation (3s dwell). */
+.egg-glasses { position: absolute; width: 15%; height: 4.5%; cursor: default; z-index: 21; }
+.egg-glasses .note { position: absolute; left: 110%; top: -10px; white-space: nowrap;
+  font-size: var(--text-micro); letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gray); border-bottom: 1px solid var(--gray); padding-bottom: 1px;
+  opacity: 0; transition: opacity var(--dur-micro) var(--ease-hard) 0s; }
+.egg-glasses:hover .note { opacity: 1; transition-delay: 3s; }
+/* The seal — PT.00, unlisted. Interactive here, so it is a REAL button
+   (accessible name provided); the kanji glyphs stay decorative. */
+.seal-btn { position: absolute; right: 2%; bottom: 5%; z-index: 22;
+  width: 92px; aspect-ratio: 1/1; display: flex; flex-direction: column;
+  background: var(--signal-red); color: var(--paper-white); border: 0;
+  box-shadow: var(--plate-shadow-sm); padding: 8px; cursor: pointer;
+  transform: rotate(-1.4deg); font-family: var(--font-mono); }
+.seal-btn::before { content: ""; position: absolute; inset: 4px;
+  border: var(--rule-hair) solid var(--paper-white); opacity: 0.85; }
+.seal-btn:hover { transform: rotate(-1.4deg) scale(1.04); }
+.seal-btn .kanji { flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; overflow: hidden; font-family: var(--font-kanji-seal);
+  font-weight: 900; font-size: 26px; line-height: 1.06; }
+.seal-btn .foot { position: relative; border-top: var(--rule-hair) solid var(--paper-white);
+  padding-top: 3px; display: flex; justify-content: space-between;
+  font-size: 5px; letter-spacing: 0.18em; text-transform: uppercase; }
+
+/* Care strip + revision block */
+.sheet-foot { grid-area: 4 / 1 / 5 / 3; display: none; }
+.care-strip { display: flex; align-items: center; gap: var(--space-md);
+  padding: var(--space-2xs) 0 0; font-size: var(--text-micro);
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--gray); }
+.care-icons { display: inline-flex; gap: 7px; align-items: center; }
+.care-icons svg { width: 15px; height: 15px; stroke: var(--field-olive); fill: none; stroke-width: 1.4; }
+.rev-block { margin-left: auto; display: inline-flex; gap: var(--space-md); align-items: baseline; }
+.full-stamp { display: none; color: var(--signal-red-text); font-weight: 700; letter-spacing: 0.2em; }
+.full-stamp.on { display: inline; }
+
+/* ═══ MOBILE — folded spec sheet + receipt slip (<768: reflow release) ═ */
+@media (max-width: 767px) {
+  html, body { overflow: auto; }
+  .shell { height: auto; min-height: 100dvh; grid-template-rows: auto auto auto auto; }
+  .system-header { flex-wrap: wrap; }
+  .wordmark { width: 100%; padding: var(--space-xs) var(--space-md); }
+  .header-meta, .header-clock { display: none; }
+  .page-head { flex-wrap: wrap; gap: var(--space-xs); }
+  .page-title { font-size: 1.2rem; }
+  .page-tag { margin-left: 0; width: 100%; }
+  .sheet { display: flex; flex-direction: column; overflow: visible;
+    padding: var(--space-md); gap: var(--space-md); }
+  .sheet-head { transform: none; }
+  .fig-field { position: relative; height: auto; min-height: 78vh; order: 2; }
+  .fig-wrap { position: relative; right: auto; top: auto; height: auto;
+    width: min(78%, 340px); margin: 0 auto; }
+  .leader { display: none; }
+  .ghost-kanji, .scrap { display: none; }
+  .index-block { order: 3; margin-top: 0; }
+  /* Tray becomes the printed slip: fixed bottom sheet, perforated top edge. */
+  .tray { position: fixed; left: 0; right: 0; bottom: 0; z-index: 700;
+    margin: 0; min-height: 0; max-height: 62dvh; pointer-events: none; }
+  .tray-empty { display: none; }
+  .tray-plate { pointer-events: auto; transform: none; border-bottom: 0;
+    border-top: 2px dashed var(--ink); box-shadow: 0 -6px 18px rgba(17,17,17,0.28); }
+  .tray-plate[data-open] { animation: slip-up var(--dur-turn) var(--ease-hard); }
+  .tray-body { max-height: 46dvh; }
+  .status-bar { white-space: normal; flex-wrap: wrap; height: auto; padding: var(--space-xs) var(--space-sm); }
+}
+@keyframes slip-up { from { transform: translateY(100%) } to { transform: translateY(0) } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important; transition-duration: 0.001ms !important;
+    transition-delay: 0s !important; }
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<div class="shell">
+  <header class="system-header">
+    <div class="wordmark">KEVIN_ARCHIVE_OS<span style="font-weight:500;opacity:.6">&nbsp;/ PROOF v2</span></div>
+    <div class="header-meta"><span>DOC. TYPE: TECHNICAL SPECIFICATION</span><span>SHEET 1 / 1</span></div>
+    <div class="header-clock"><span class="live-dot" aria-hidden="true"></span><span id="clock">00:00:00</span></div>
+  </header>
+
+  <div class="page-head">
+    <button class="page-back" type="button" id="back-btn">&#9658; BACK / ESC</button>
+    <h2 class="page-title" id="page-title" tabindex="-1">PROFILE</h2>
+    <span class="page-tag">PAGE 01 / TECH PACK · KSFG-001</span>
+  </div>
+
+  <main class="sheet" id="sheet">
+    <!-- TIER 1: sheet header — carries name/role in real markup -->
+    <section class="sheet-head" aria-label="Garment title block">
+      <table>
+        <tr><td class="k">style no.</td><td class="style-no">KSFG-001</td></tr>
+        <tr><td class="k">item</td><td class="desc">KEVIN SEBASTIÁN FRÍAS GARCÍA</td></tr>
+        <tr><td class="k">description</td><td>JR. SOFTWARE DEVELOPER — ALL-CONDITIONS BUILD</td></tr>
+        <tr><td class="k">season</td><td>2026 · SAMPLE SIZE: 1 OF 1</td></tr>
+        <tr><td class="k">status</td><td class="status-word">OPEN TO WORK</td></tr>
+      </table>
+    </section>
+
+    <!-- Canonical navigation -->
+    <nav class="index-block" aria-label="Points of measure">
+      <div class="index-cap"><span>MEASUREMENT INDEX</span><span class="count" id="insp-count">0 OF 7 INSPECTED</span></div>
+      <ul class="pt-index" id="pt-index">
+        <li data-pt="01"><button type="button" aria-expanded="false" aria-controls="plate-01"><span class="num">PT.01</span><span>HEAD / CUT</span><span class="dots" aria-hidden="true"></span><span class="tick" aria-hidden="true">✓</span></button></li>
+        <li data-pt="02"><button type="button" aria-expanded="false" aria-controls="plate-02"><span class="num">PT.02</span><span>EYES / LENSES</span><span class="dots" aria-hidden="true"></span><span class="tick" aria-hidden="true">✓</span></button></li>
+        <li data-pt="03"><button type="button" aria-expanded="false" aria-controls="plate-03"><span class="num">PT.03</span><span>HANDS / INTERFACE</span><span class="dots" aria-hidden="true"></span><span class="tick" aria-hidden="true">✓</span></button></li>
+        <li data-pt="04"><button type="button" aria-expanded="false" aria-controls="plate-04"><span class="num">PT.04</span><span>CHEST / LINING</span><span class="dots" aria-hidden="true"></span><span class="tick" aria-hidden="true">✓</span></button></li>
+        <li data-pt="05"><button type="button" aria-expanded="false" aria-controls="plate-05"><span class="num">PT.05</span><span>POCKET / CARRY</span><span class="dots" aria-hidden="true"></span><span class="tick" aria-hidden="true">✓</span></button></li>
+        <li data-pt="06"><button type="button" aria-expanded="false" aria-controls="plate-06"><span class="num">PT.06</span><span>HEM / MILEAGE</span><span class="dots" aria-hidden="true"></span><span class="tick" aria-hidden="true">✓</span></button></li>
+        <li data-pt="07"><button type="button" aria-expanded="false" aria-controls="plate-07"><span class="num">PT.07</span><span>LABEL / COMPLIANCE</span><span class="dots" aria-hidden="true"></span><span class="tick" aria-hidden="true">✓</span></button></li>
+      </ul>
+      <div class="care-strip" aria-hidden="true">
+        <span class="care-icons">
+          <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12"/></svg>
+          <svg viewBox="0 0 16 16"><path d="M2 13 L8 3 L14 13 Z"/></svg>
+          <svg viewBox="0 0 16 16"><path d="M3 3 L13 13 M13 3 L3 13"/></svg>
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/></svg>
+        </span>
+        <span>CARE: SEE PT.07 · ↑↑↓↓←→←→BA</span>
+        <span class="rev-block">
+          <span class="full-stamp" id="full-stamp">FULLY INSPECTED · 記録</span>
+          <span>REV.00 — 2003 — FIRST SAMPLE</span>
+        </span>
+      </div>
+    </nav>
+
+    <!-- Inspection tray -->
+    <div class="tray" id="tray">
+      <div class="tray-empty" id="tray-empty">SELECT A POINT OF MEASURE<br />07 ON FILE · 01 UNLISTED</div>
+
+      <section class="tray-plate" id="plate-01" aria-label="PT.01 — Identity file">
+        <div class="tray-head"><span class="pt-tag">PT.01</span><h3 tabindex="-1">IDENTITY FILE</h3>
+          <button class="tray-close" type="button">✕ CLOSE / ESC</button></div>
+        <div class="tray-body">
+          <div class="spec-row"><span class="k">cut</span><span>Regular fit. Built for range of motion, not for the runway.</span></div>
+          <div class="spec-row"><span class="k">construction</span><span>Not the flashiest fabric — holds its shape under load.</span></div>
+          <div class="spec-row"><span class="k">seams</span><span>Reinforced: gives his best, eager to learn, takes on challenges.</span></div>
+          <div class="spec-row"><span class="k">origin</span><span>Coatzacoalcos, MX</span></div>
+          <p style="margin-top:var(--space-xs)">Want to know more? This garment might not be the most experienced
+          nor the flashiest on the rack — but it is cut to grow into, and it does not fray under pressure.</p>
+        </div>
+      </section>
+
+      <section class="tray-plate" id="plate-02" aria-label="PT.02 — Inspirations">
+        <div class="tray-head"><span class="pt-tag">PT.02</span><h3 tabindex="-1">INSPIRATIONS</h3>
+          <button class="tray-close" type="button">✕ CLOSE / ESC</button></div>
+        <div class="tray-body">
+          <p>What the operator looks at through those lenses:</p>
+          <ul class="badge-field" style="margin-bottom:var(--space-xs)">
+            <li class="badge">JP STREETWEAR EDITORIALS</li><li class="badge">GARMENT TECH SHEETS</li>
+            <li class="badge">GAME HUD / FUI</li><li class="badge">VINTAGE MAGAZINE SCANS</li>
+            <li class="badge">MANGA PANELING</li>
+          </ul>
+          <p class="todo">[ CONTENT TODO — Keff's real reference list goes here ]</p>
+        </div>
+      </section>
+
+      <section class="tray-plate" id="plate-03" aria-label="PT.03 — Equipment">
+        <div class="tray-head"><span class="pt-tag">PT.03</span><h3 tabindex="-1">EQUIPMENT</h3>
+          <button class="tray-close" type="button">✕ CLOSE / ESC</button></div>
+        <div class="tray-body">
+          <p>Primary trims fitted to the interface points:</p>
+          <ul class="badge-field" style="margin-bottom:var(--space-sm)">
+            <li class="badge">TypeScript</li><li class="badge">JavaScript</li><li class="badge">React</li>
+            <li class="badge">Node.js</li><li class="badge">Tailwind CSS</li><li class="badge">Git</li>
+          </ul>
+          <button class="cross-ref" type="button">FULL MANIFEST → PAGE 03 / SKILLS</button>
+        </div>
+      </section>
+
+      <section class="tray-plate" id="plate-04" aria-label="PT.04 — Creative DNA">
+        <div class="tray-head"><span class="pt-tag">PT.04</span><h3 tabindex="-1">CREATIVE DNA</h3>
+          <button class="tray-close" type="button">✕ CLOSE / ESC</button></div>
+        <div class="tray-body">
+          <p>Inner lining, printed repeat pattern — the five principles this OS is sewn with:</p>
+          <div class="spec-row"><span class="k">print 01</span><span>Identity over trends</span></div>
+          <div class="spec-row"><span class="k">print 02</span><span>Controlled chaos</span></div>
+          <div class="spec-row"><span class="k">print 03</span><span>Functional instrumentation</span></div>
+          <div class="spec-row"><span class="k">print 04</span><span>Information density</span></div>
+          <div class="spec-row"><span class="k">print 05</span><span>Accessibility is mandatory</span></div>
+        </div>
+      </section>
+
+      <section class="tray-plate" id="plate-05" aria-label="PT.05 — Current status">
+        <div class="tray-head"><span class="pt-tag">PT.05</span><h3 tabindex="-1">CURRENT STATUS</h3>
+          <button class="tray-close" type="button">✕ CLOSE / ESC</button></div>
+        <div class="tray-body">
+          <p class="stamp-in bar bar--accent" style="margin-bottom:var(--space-sm)"><span class="k">carried in pocket</span><span class="v" style="font-weight:700;letter-spacing:.16em">OPEN TO WORK</span></p>
+          <div class="spec-row"><span class="k">location</span><span>Mexico · UTC-6</span></div>
+          <div class="spec-row"><span class="k">response</span><span>&lt; 48 h</span></div>
+          <div class="spec-row"><span class="k">open to</span><span>Junior roles · internships</span></div>
+          <p style="margin-top:var(--space-sm)"><button class="cross-ref" type="button">PRESS START → PAGE 04 / CONTACT</button></p>
+        </div>
+      </section>
+
+      <section class="tray-plate" id="plate-06" aria-label="PT.06 — Field log">
+        <div class="tray-head"><span class="pt-tag">PT.06</span><h3 tabindex="-1">FIELD LOG</h3>
+          <button class="tray-close" type="button">✕ CLOSE / ESC</button></div>
+        <div class="tray-body">
+          <p>Wash history — every cycle this sample has been through:</p>
+          <ul class="wash-log">
+            <li><span class="cyc">CYCLE 01</span><span>TOEFL certified — SEP</span><span class="yr">2018</span></li>
+            <li><span class="cyc">CYCLE 02</span><span>English cert. — Anglo Mexicano</span><span class="yr">2021</span></li>
+            <li><span class="cyc">CYCLE 03</span><span>EXAVER proficiency — U. Veracruzana</span><span class="yr">2022</span></li>
+            <li><span class="cyc">CYCLE 04</span><span>CONISOFT workshop</span><span class="yr">2025</span></li>
+            <li><span class="cyc">CYCLE 05</span><span>Barbershop + AcopiaTech shipped</span><span class="yr">2025</span></li>
+            <li><span class="cyc">CYCLE 06</span><span>ANFECA recognition · Nota Laudatoria</span><span class="yr">2025</span></li>
+            <li><span class="cyc">CYCLE 07</span><span>KEVIN_ARCHIVE_OS — this document</span><span class="yr">2026</span></li>
+          </ul>
+          <p class="todo" style="margin-top:var(--space-xs)">[ CONTENT TODO — confirm order + add education dates ]</p>
+        </div>
+      </section>
+
+      <section class="tray-plate" id="plate-07" aria-label="PT.07 — Certificates">
+        <div class="tray-head"><span class="pt-tag">PT.07</span><h3 tabindex="-1">CERTIFICATES</h3>
+          <button class="tray-close" type="button">✕ CLOSE / ESC</button></div>
+        <div class="tray-body">
+          <p>Compliance tags sewn at the label point:</p>
+          <div class="cert-tag"><span class="id">CRT_01</span><span>ANFECA Academic Recognition</span><span class="yr">2025</span></div>
+          <div class="cert-tag"><span class="id">CRT_02</span><span>Nota Laudatoria</span><span class="yr">2025</span></div>
+          <div class="cert-tag"><span class="id">CRT_03</span><span>EXAVER Language Proficiency</span><span class="yr">2022</span></div>
+          <div class="cert-tag"><span class="id">CRT_04</span><span>English — Anglo Mexicano</span><span class="yr">2021</span></div>
+          <div class="cert-tag"><span class="id">CRT_05</span><span>TOEFL — SEP</span><span class="yr">2018</span></div>
+        </div>
+      </section>
+
+      <section class="tray-plate" id="plate-00" aria-label="PT.00 — Care instructions">
+        <div class="tray-head"><span class="pt-tag">PT.00 · UNLISTED</span><h3 tabindex="-1">CARE INSTRUCTIONS</h3>
+          <button class="tray-close" type="button">✕ CLOSE / ESC</button></div>
+        <div class="tray-body">
+          <div class="spec-row"><span class="k">iron</span><span>DO NOT IRON</span></div>
+          <div class="spec-row"><span class="k">fold</span><span>WILL NOT FOLD UNDER DEADLINE</span></div>
+          <div class="spec-row"><span class="k">dry</span><span>AIR-DRY AFTER FAILURE, THEN RE-WEAR</span></div>
+          <div class="spec-row"><span class="k">wash</span><span>MACHINE-WASHABLE EGO</span></div>
+          <div class="spec-row"><span class="k">shrink</span><span>WILL NOT SHRINK FROM CHALLENGES</span></div>
+          <p style="margin-top:var(--space-xs);font-size:var(--text-micro);letter-spacing:.18em;color:var(--gray)">FOUND THE UNLISTED POINT. 記録 APPROVES.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- FIGURE FIELD -->
+    <div class="fig-field">
+      <span class="ghost-kanji" aria-hidden="true">仕様</span>
+      <p class="scrap" aria-hidden="true">fits true to size →</p>
+      <div class="fig-wrap" id="fig-wrap">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAd8AAARLCAYAAADFz6mqAAAvGElEQVR42u3dW5LjuHZAUcjhCdz5D1b+sB23XW41CeAAOADWiqgPhkqZkpIUuQk+Pv/6178KADDPf/gIAMDKFwCsfAEAK18AsPIFAN75Tx8BbOE76fd8fNSgfAFA+QJbFm306/n88f8VMyhfAFC+QM7SjXofChiULwAoX1C6d79fRQzKFwCULyjduz4XJYzyBQCULyhdJQzKFwBQvqB4z/s8FTDKFwBQvqB47/x8FTHKFwBQvqB47/j8FTDKFwBQvqB4FTAoXwBA+YLiVcCgfAFA+YKiQgGD8gUA5QuKFwUMyhcAlC8oXhQwKF8AsPKFtT4q6dgCtlcDK18A4L8Z80UhccPf194NlC8AKF9QvL98fhSUYlbAoHwBQPnC3sX76/9/XxaxQlbAoHwBQPnCGlFFWlvEpfL/mx4zDcoXAJQvnO87+ecrTgUMyhcAlC+cUbyKeK/iddQzyhcAlC8wu4gV6poCBuULAMoX2KWAi+e/ehyULwAoXzi3KG8pYNN1BayQUb4AoHxhf7sd5apQ506D8gUA5Qv7M+ZrWvGifAFA+QKZOI+37fmtj4PyBQDlC8xmTHbONChfAFC+cE5BKmDTbwrYla5QvgCgfIHZFOqaAgblCwDKF5jFebyKF+ULAChfOIsx2LXT5aHIQfkCgPIFFO9Z06B8AUD5Aor3rOmigFG+AKB8gaDSfSos5/GO+Xze/n5QvgCgfCG/7yavz5hrrmlQvgCgfGEf2YpGYSpgUL4AoHwh1jfp69n1PNdTz+N9ml+e5iPnAaN8AUD5wjpZx3zLQ6E9PT6r+Erl87OfBzxqfvoqYZQvAChfWOaWMd/aop31+0f9vt6jlqOK+tffVwmjfAFA+cI8Wc/bnHUe6m1HTUcXeHko4F3mN5QvAKB8OVnWAlldvFmKtPX1lc7PowR/3k+/r/Z1onwBAOUL7QWStch7z8OtLerSWZhRr/ft//8Gf95P7x+ULwAoX9jHLUedRo0Z33qU7ts9BFG/B5QvAChfuKd4s59HO+v1l0Gvr7ZwnaeL8gUA5QuKN1vxRv283Yq3tVCj9zCA8gUA5Qv5CjNboY8a8x1dlFH34y1Bz4/e41BePg7KFwCUL6wv3l2K3Jjv2Ndbgn6+Akb5AoDyhfOKd9SY8S73y83++lfvcQDlCwDKF/IV8aorK0UXZHTRnT7mu7p4jRGjfAFA+cJ434cS6T3Pc/UYZO3ze39/1B6D3t//tjBb/769R1WD8gUA5Qvzi/epiGYdNZz9PN9Zn0fvz5v19wTlCwDKF/Yp3t0KcfV5vtn2AJRkr/+Jo5xRvgCgfGGc0wp39zHf6NdbJhdx7x4XUL4AoHwhXmsRjS6oWWO+q4u4DH581VHsb+c3Y70oXwBQvjDerUcR3/r6Rhfw2+IF5QsAyhfmib5f7KlHTZ9+VHYZ/PN+vT9QvgCgfCG+cGfdr9eYb87iLZM/H8WL8gUA5Qvzirc0FmtvEY8+D7b1+bMK+On3l87Ps7z8/U8F2ntlrPLy/YHyBQDlC3GF+1Q8q456zT4GXCb9vhL8et8Wdul8vbXzGyhfAFC+MM7pd/9ZdS3iUYU6+kpSn84CHn0/X1C+AKB84X3pZL3W7y1FHL1Horcws35+oHwBQPlCfwlHFUn2Qi2Ln//255fBr7/154/6/ED5AoDyhbjCLZUFM7qoTZv+u/nt7ZW3QPkCgPKF9qOUnwpZAZseUbxF8aJ8AUD5QnfxRl8buPX1rLpWsuk9CtiYL8oXAJQv1Os9j3PV693tPF7P7yveonhRvgCgfKHZqPvJZnu9pveeLg9FDcoXAJQvjL8f7KjiXXUtZdO5ircoXpQvAChfmF68o8d4T7ufr+lc8xfKFwBQvpxs1+ItDwXc+/5GfT6n3E941fsH5QsAyhfqZR2Ta/35xkTPnP41f4DyBQDlC/+/CGsLc1UB9/58xXh2AbuyFcoXAJQvxBdm73m2Cth05B4UxYvyBQDlC88+nYX45/NGFXDUGHP0lbFK8ueXS14/KF8AUL7wLKoAa3/erNc3u4hNj5kG5QsAyhfmF++so6BXFZXiVLwoXwBA+bJb4a4qylFjvmXy77+tiEvltPN6Ub4AgPJlXeHWFuXsa/E+ve6sY46n3I+3df4piz9vUL4AoHxRvPFHJa+6G032o25PGRNevcehdY8NKF8AUL4o3n0KeNZ5t6N+3qlFnK3AFTDKFwCUL4o3TxGOLuAS9POzjBHfXsi1ezwUMMoXAJQvind8AY/6/aPPAy6TX//b99Fa+FnvB1wa/x4l+PmgfAFA+aJ484wJl5cFWSa9nuznufZOjxqj/zbOz7V/X1C+AKB8OUn2u93scq3lU69EFbVHZXTBts7vtY+D8gUA5cuOshZbWfzzd/u8di3kWVr/vqB8AUD5ciLXAq4rotPGfEd/fm8fH3VedW0Ru7IVyhcAlC8nun0Mc9XdkG4/yjzr39u1nVG+AKB8OaFw/2TMt6+gyqavv2z++lv3YBjzRfkCgPLlJoq2r6B2K8jRr3/0HoHePTyl8e8PyhcAlC87m30/3dH38131+k8r4Gw/v1b0ecGgfAFA+bJT4UYViDHiMws4+5hy77WaFS/KFwCULydzZSQFfEJRzx5jdtQzyhcAlC87iSrW0T9fAZtumd9G7fFRwChfAFC+7GTWUawKr62odvm8SrLPL3p+f/p5oHwBQPmS2bdzOur3K+B3n2/2Qi9Jfv/T62n9PJ/+HqB8AUD5krl433KUrwJeWbyzr0XtylcoXwBQvpxcuLXF9fbx1p+vgN/9fU8t8tr5efSV10D5AoDyZafCzX6ea5b7+Y56fql8/tu/96wiHj0/9c6/q18fKF8AUL70FO6qu7esejx7sWe7stXqIp59/9/Z8wsoXwBQvows3luL8O0egNOLeHRB7n6lrNnLw6/PD5QvAChfeoq3NBbSKY+/3SNwWuFGv9/WPSzR06WxWKOLOaqwQfkCgPJlRPG68tM/f37GhGM+z1E+lX+/3mJ21DPKFwCULzsV79tCuG0M+OnzzDpG3Pv6Zr+/2cWpeFG+AIDyval4TY8plFvGhMumr7ckfX+gfAFA+RJZvKVy+vQx4LfTvX+P2WOop94PuPbvtfsYNChfAFC+rNxiN+b7bg/D27/f2/v9lsrXO+p+wqXz+aP+Xr2vL9t55aB8AUD5Kt6aAvt6vOvx2oJ1Ja2993CsvvKXaz+jfAFA+SreN8Vrek4hRRVsdHEp6j3ml9I4fylhlC8AKN+7i/epeDwe8/jbv9fsorZHZO4eiPJyurV4nx5XwsoXAFC+Z1Msa4robZG0FvBT2Rjzzf33bi1aV8ZC+QKA8qWniDwe8/jbYokqYEWbo3hLY3HOPkbj1+81Bqx8AQDlu2fhvi0w07EFtOqo5d4CV9RzC7kkWV5//T1RvgCA8t2jeJ8KZbfHS9LXF1UsvQU8utjfzn/O840p3lnz/9PfUwkrXwBA+eZkzC1HMUYX8ar73a56/qmvP/vyivIFAJTvHpyHO/bxVcVSBv+80Z+fazv/8/K6ev52FLTyBQCU716M0Y4pnJLs9fQWTQn+/ea/uuItm71+Bax8AQDlm4sx2tjHsxbK099/9Bjy7cVbXk6XQ+Z/Bax8AQDlm4sxt7uKrraAo95fa3G7VnPsHgjn/aJ8AUD53skYbt/jp+xBKIe/v9PuTrTb8uEa0MoXAFC+cwv39GK77fdnOyradF0B3zb/oXwBAOU7Vu/9P5+2sG97/ml7ENyPN7ZAZxVvaZy/V91P+9fPQfkCgPJlbhGbriuOLPeDLYvef1QRr54fS/DnUR7KbtTvN+aL8gUA5cubLfBdz8OtLa7Wn2+PQdv8FVXIu1yLOftR91mXb5QvAChfYgr39IIrh70fhRz7960t2ifm/5hplC8AKF/GOP1ay2Xy7zc9poijizlqedn9/sFZj9FA+QKA8iV2y939duc83/TYz++2oj1t/lXAyhcAUL5z3Hq/3d7nmza9YwHvcoyGAla+AKB86StcRWfatGnn/aJ8AUD53mH0/XBvu1a0adOZp3vn/1XLJ8oXAJQvfRTBP2+Bl8rnl87f7/lrn/+95P2XzZY/lC8AKF/qjB4jOu1x06Zv2MOT7RiL8lD2KF8AUL78M8VXtwXu8zGtgI35Kl8AQPnuzhjvP29xKyTTNxRvSbr8/fr/KF8AUL7UUQB7Fa8iN33j/I/yBQDlS13h1hbwLY/bI5C7eHweaz7vrMsnyhcAlC9/T6EoLtOmdx0D/rU8onwBQPny91uMT0UX/fjq3+88X3skTMed95t1+UX5AoDyRUHMLKzeYvb8tc//ev9N3yfO81W+AIDy3auIb7/W8+otfNOmM+4BKouXT5QvAChf+tjCH7PFbtq0aef9Kl8AQPmuYoz33eP2EJg2/f/n/12WT5QvAChfchRd9qL8tcdg9edXkn5eps+YLg/zv/v7Kl8AQPmeWcAef1cICsr0yQW82zEaKF8AUL4K9++5W827LWpXwjJ9w/Ru8/fbPVQoXwBQvrc69X68o8aQXOnK9I0FnPX74WkPlQJWvgCgfNlri3v1z3/a4nY/WM8/4fm1dzMqi78fnvZQoXwBQPneynm6bY+3fn6mTe88/bTHJ9vyWR72CKB8AUD53uK08/hci9q06fnn+a7+/qh9fShfAFC+t9nlfp2zzxOMGuMybfqk4n1aHrIeg4HyBQDlezvXJo7ZolZMpm8s4JLs9bnWs/IFAOVLXdGdMkYbfZ7g0+OKyfTNxbtq+S+V70cBK18AUL63OWUMc/Trry0A06ZvKODdz/tH+QKA8r3FKef5lsGv/+0ehN2vBDb67x89HX3/2dXPj36/o/f4zF7+y8PrM+arfAFA+dJXxMaA64p79f1Ya19f6x6REvT5R/+9WkW9ntL4+b79/N/+/comy9OoPTwleP5Qvj4CAFC+pznlfrtl0s/PXgS1BdxaZL3FW17+/FkF1/t6RhX0rKOQd/t+GLVHBOULAMr3VM5zjC2CrNemjvr/vZ/H7PmzBL+e3j0Ao8ewbx3zddSz8gUA5UvdFvwt9/ONHmPe5W4vrQXXW2C1P392wfW+vuj5a/VR46ctfwpY+QKA8r3d7mNAp51XnKXwoq8sVDumPOo86NFHGUc//+37j/p8yiXLH8oXAJTvbUadl9m6hX/K4/YQxBb47KLrLazRe0jKoJ9XDl3+nvYooHwBQPneVsBvi+St2wvPtOkd5t9yyetF+QKA8r3d6CIslf/fGPCdBebzyPn5l87lPernl8b5BeULAMpX8c4p4FE/35hZzHRZ/Hyvf83zb5t/y8PzUb4AoHxPtWpMqVT+f9d6Nm06/92C3O9X+QIAyjcHY6Tej2nTp8y/pfP9onwBQPmeKst5lbWvZ/fHTZveuSBPW/5+/X+ULwAo31OsKran3182L4ay+PdHTWc9D9b0mfPvrIJ/+/2D8gUA5XuKbMXWWuSrH4/+/63To+cPhXhXAe92refW7zOULwAo39NlO0r3tMIaXayz90go4juKtwyef0rS75Nf/1/5+ggAQPneUsTZj9rNej/SXT7v0UWskM/cY9M7/2e91jrKFwCU7y1W34/09PN+nz7vsvjzLy8fL8HFM/v1n1qwZdHyduoeHeXrIwAA5Xuq7GOK2c8D3r0ATj9qetQen9vP8y2bLJ+Oela+AKB8yV1Mp99fVBGP/fx65/9y+N+3dnnbbfksg+YX5QsAKN9dZL3SVevry/L4rsV+WhH37gFq/f+zplfdz3f35VPxKl8AUL63qS22WUW3usCzvv6y+fPf/vy3BTrqqPPa50eLvrJYVNHeskenvJw/lS8AoHx3kb04y+DHo3//U6EY4x0zf5TGzz/q8TLp8SjfxsdHXyu9DF7+y6D5S/kCAMr3lCI+7Tzf3i3i089T3u1axsXnP7Toslw7OXpMX/EqXwBQvrfb/VqztWOypfL5rh28R9FludZ3tt9fgpaHrGPkUUfBl5d7XJQvAKB8d7Xb/Uh3v1ZulvvZZv/9vcViOmZ+LpWP73YerzFg5QsAyvcWt5znu/px03ML7bb5K+rxqO+Tsvj9tc4fyhcAUL6nyD4Gu1tBlmSfn6OefT4Z9kC8LeSs9y++7qhn5QsAyvc4uxRmmfx463TZ5PN0P2CPj3i8dBZx1vttX0f5AoDyPc4udzcqi35f1BbzqLu7ZDmPN8vzZ88vpsfusVh9DMm1lC8AKN9ri/j0a/WOKt5os+5X7Dxfj0fu0ck6Bhx1ZSzlCwAo313tcpTz6jHdLD/fUdk59+A4z3rsHowsr0/5AgDKd1enjuG9Lf4y+OdH3480eo/HbkXc+36i/v5Z7ge86vWXJMtPdFFfR/kCgPK9RpbzOHuLfHTRZ9tjMLqIs95PeNaYu+m1y0dZ/PqULwCgfHeX7TzQ3tcX9fzRR01mudbu6isPrR4DLov+Prfcrzrr51s6/7/yBQCU725OOU9y9Ovf/fPJfu3d2WPcrcV86vJz65i0o56VLwAo31tkHfPdZYw36ufvcr/W3Qp41jEIpXP+3eU85FOuRV0a//7KFwBQvqcXsTFc0yv2kJTGx0vw7y+Vj++2xyB6DPyWa08rXwBA+e7u9Pv5jv75zuM8c4/J6GMaSufnW4J+/6jvj9mPK17lCwDKl74CPO084OzFtOt5kKePSa++FnfvGG3x+Stg5QsAyvcqWQqwVG5Bl5fTre+39vdnGeNafR6wAs6xR2e3Me7VxzAY87UuBADle7rWLcbeLe6n3x+1RV/7/o359n0+b/c4jD7P96nAR82/s6Z739+s9z97+SuD3r/yBQCU7y1FnP0o3NK5xV2Cf//u5/GOGgMuQa/Hlcz23qNSBs9/o75vlC8AoHxPc8pRqgooZ/HMLmB/jzMKeNXdrI6nfAFA+V5jt/v7lpfPb31/Ho95vLx8vATPf9n26JiOXd5H79H6Nb8oXwBA+d5SxKPPgxy9RWt6bdHsPiZoOma6do9ImfT3/PXzj6d8AUD5Xi/rGJAx1tyPRxdK7fzgqGfTkQWsfAEA5Xsad28xPXIPxujzRMvk12Na8SpfAED57ihrIUQXTvTj2V9ftvN8Z1856+lxBah4lS8AoHxvUnulF+cBm24p5Kj5523hluD55/bnfw99/eVhPlO+AIDyvbWAjQF7/E2BnnY3HdNn7qG5lvIFAOV7rV3HWBWNwlTAphWw8gUA5cs7uxdlqZxefR7v6undzvNt/TzLotdnWvEqXwBA+e5UwFnOE4w+D7R3C3jUz68tyt7XX3sUc6l8fbOL9rQ9OqbHFu915/cqXwBQvlxWCL0FGrVHIdsYeVRRtk7P+nwVsAK+mvIFAOV7PYVgemVBOO/XtOJVvgCgfFHApvcoiux3p8r2ekyv+XsrXwBA+RJbCJ6/9vmj7sf6dv4onXtQyuDXb/458/mKV/kCgPKljTEk0yfMH+Zv86vyBQCUL//mqGfTNUWh4E0rXuULACjf89jCVhQnzA+7F7zpd39PlC8AKF/+2a8ty13u92taMda8n++h76dcOj+ifAFA+dJHASrek9/frkV7+t9H8SpfAFC+jHX7mJLivaN4s+7hqV0+FS/KFwCULyMKuLwsYoWsCL1fY7i9n4/iVb4AoHyZW8BPxftkdBGXxc//bv77ewusbPr3K4N/f6vT7sfb+vkoXuULAMqXs4u4dtoYbmzxlkvff7a77ZwyZhz1/YLyBQDlS64i/jY+PqsQZk07z/fsAq7d4zOroEfNv71FrnCVLwAoX+4q4lVjaLONKg7FO/b9RxVd1jHV1vm3d/lH+QKA8kUB/9N0mVSAWYpk1pXFbi/eU661/Gs+iF5+FK3yBQCULzXFprDGFHNtISves6bL5PnzaQ8VyhcAlC9nmn2Urum+Yvb5mc6whwblCwDKl72cOqao4E2bPxWv8gUAlC/vtpBPux+s+wl7/s1/f5QvAKB87+Q8X9OmjfmifAFA+XIXhWHa9Ll3o/q1PKB8AUD5chdjbKZNu9IVyhcAlC9ny3Ie4y53izFtuqc4FS/KFwCULysY8zVtel5xZlseUL4AoHw5s3D/pFhMm75vzBnlCwDKlzPdNiZ6+vszbf6LeD0oXwBQvpyld8y39v9neX7Z/PV7/h7PL8lfv/N+lS8AKF/ucPuY6G3v17T5TfEqXwBA+d7n1vN8Fa/plYW5y/KA8gUA5cuZjMGZNu1a0yhfAFC+nM0YnGnT9+1hQfkCgPLl7MK9vQBvK37TphWw8gUAlO89FKBp0/awKF7lCwDKl7MZ81X8ph1V70pXyhcAlC9niyrA3i361c//bv76PX+P55fNXj/KFwCUL2cw5ttX/KZN18xfZdPXi/IFAOXLWRSKYjNtWgErXwBQvpzNFr7iMW2PCsoXAJQvZ1Mois20aVe6Ur4AoHw5my1+06btUUH5AoDy5azC/ZNCUWymTStg5QsAypc7ilgBmDZtj4oCVr4AoHw50+33Yy2Xv3/Pj33+2+Vr9etXvMoXAJQvZ3GU89gCNm36xOnycnlB+QKA8iUH57W+28K3R8D0yGLcfXlA+QKA8iU3hXdHsZg2P814/ShfAFC+5KTw6rbgFZzpiGIsh74flC8AKF9yMuZbV8AKzrRplC8AKF92ZwvftGlHOStg5QsAypezKZQ7isW0acWrfAEA5Xuv6KOEPd/zPb9+D8ou7788PB/lCwDKl5yMafUVi2nTNy0PRfEqXwBQvmxRuL+2YG3hmzZtD4oxX+ULAMqXsyiUu4rFtOmI5QHlCwDKl73Yoq+btsfAdEQxKmCULwAoX2ZSKO+28H0epiML0RgwyhcAlC8zKRTTpu1BUbzKFwBQvmcV7p8Uyl3FYnptITrvF+ULAMqXkWqvzep+rGMedz/cO59fDpt/UL4AoHzJyZhv23TxeZguzvNVwMoXAJQve1Iopk3bg6J4lS8AoHzPpkjuLBbTpmcsHyhfAFC+5GALvm3a52e6pxDLIfP/r/eD8gUA5UsuiqSuWHwepiOK95T56en9oHwBQPmyhiIxbdoelNFj2ChfAFC+rGUMU7GYNu08X+ULACjfs7mfb8x0Ofz9e/6Y55ck86cxX+ULAChfBTxzC92Yr2nzk7sboXwBQPmypoDLQxErGNOmFS/KFwCUL2cWsCI2bdr00/eBo56VLwAoX+4w+jxi06ZPKEbXdkb5AoDy5YYi3qUAioIzbX5y1LPyBQDly6FFuur3KyTTilfxonwBQPlyZ5GvKghFbtq0o5yVLwAoX8hZyFnv9+v5dz5/t/mzKF7lCwDKlyOL8ZYiLp0FYAzQ9EnTtd8Hilf5AoDyZS/O24stZNOmTypcpat8AUD5cmbx0VfIxohNryzYr+Vb+QIAype/Ycw3VzHPOg/V9Njp1r+PgkX5AoDyZUaRsUchPz1fgc6drv37WP5QvgCgfIHZBT1r+tSjikH5AoDyBchd5IoW5QsAWPkCgJUvAFj5AgBWvgBwAkc7n8NRnQDKFwCw8gUAK18AsPIFAKx8AcDKFwCw8gUAK18AwMoXAHJwhav9ubIVgPIFAKx8z/b5n38AWPkCAH/HmO/+jPkCKF8AwMoXAKx8AcDKFwCw8gWAMznaGeAergmgfAHAyheAs32LawNY+QLAjYz57r0FC1DDmK/yBQArX/bbgrUVC9Qw5mvlCwB3Mua79xYsQA17y5QvAFj5AnA2Y75WvgBwJ2O+APcw5qt8AcDKF4CzGfO18gWAOxnzBbiHMV/lCwDKlz0YrwFQvgCAle/Z3M0IwMoXAKhhzHc/xnwBlC8AYOULAFa+AMD/MuYLcD5nSChfALDyBeBs7mZk5QsAdzPmC3A+Y77KFwCsfAEAK18AsPIFAKx8AWBPjnbeh3P0gN7vD0c9K18AUL7APT5/FBF3/L1RvgCgfAEFBChfAFC+rC8WY3QoXlC+AIDyPZPiBVC+AICVLwBY+QIAfzLmC2f7vHzcMQV3/v1RvgCgfIHzKd47/r4KWPkCgPIF7mXM946/L8oXAJQvuSkSRhaP+euO7w8FrHwBQPmyR8EoFMxftP59Ub4AoHzJTZEAKF8AQPmezZgcLfMLoHwBAOW7D8XLzGI2v4HyBQDliyIh93wCKF8AQPnuR/ECKF8AQPnCvYz1gvIFAKx84Wzf4rgAsPIFAP6ZMV/YmzFfUL4AgPIFxQsoXwCw8gX4a1GrarDyBYCzGPMF/so5w6B8AUD5Amt9Jv18BQzKFwCUL3AmxQvKFwCsfIGzOc8XrHwB4DzGfGGfIgWULwBg5QsAVr4AgJUvAFj5AsBdHO0MuTnKGZQvAGDlC4wqbtUNVr4AYOULAFj5AkB+jnaGnIy3gvIFAJQvKF5A+QIAVr6wn+///APzk5UvABDFmC/k8kn6etST+QnlCwDKFzizUBTv3r4KWPkCAMoXeFnkCnjvvx/KFwCUL8AviveMv58CVr4AoHzJzZjbHX9f8x8oXwBA+d5LcQAoXwDAyvdsn+JIRQArXwCgnTHf/Iz5nsneDFC+AICVL38tJJWE+RCsfAEAK18AsPIFAP6Oo51hLuOmrODuRsoXAKx8AQArXwCw8gUArHwBYE+Odt7H/x6l6FrPe//9AJQvAChfflG8ZCp48yMoXwBQvsCZFC8oXwBQvsD/9Tn0/ShgUL4AYOULAFj5AoCVLwBY+QIA4znaOT9Hle7pc8n7M3+C8gUAK19iCsMdcQCsfAGAVsZ88zOmBqB8AQDlC3l8Ln2/9tCA8gUA5Us9JbH33+1jPgWULwAoXziSMV9A+QKA8uWJglC8ChiULwCgfBUE+dx2lPOv9w8oXwBQviiIUxnzNf+C8gUA5QuKF0D5AoDyhf3cfpQzezB/Kl8AUL7kKigUxQmfh/k55/eL+VX5AoDyBRQv5leULwBY+QIAVr4AYOUL8CnGGcHKFwCycLQz1Bcd7MZ5vsoXAJQvObZIAUZRvMoXAKx8Wb9FaqsU8zdY+QIAoxjzXc+Y7z4FB6B8AUD50lNUCljxwijO81W+AKB8ybFFimI4mT08OT5/lC8AKF8UAYoBUL4AoHyJp3gVL6B8AQAr3/MLS2UBWPkCAKMY813PmC+A8gUAlO/ZnOeb8+8BoHwBQPkSRfHm/HsoYED5AoDyJYox35x/DwDlCwDKlyiKF0D5AgDK92zGfHP9HQCULwAoX6IpXgDlCwBY+Z7N/XwBrHwBgJGM+a5nzBdA+QIAVr5nM+YLYOULAIxkzHc9Y74AyhcAsPIFACtfAMDKFwCsfAGAv+NoZ27nHGvM3yhfALDyhbN9i3OtMX9j5QsAZzPmy+2MiWH+RvkCgJUvnM2YGOZvrHwB4HTGfLmdMTHM3yhfALDyBWBXxnytfAGAUoz5ApzMmK/yBQCsfMGYGOZvrHwB4HzGfLmdMTHM3yhfALDyBQCsfAFgZ8Z813EEIoDyBQCsfM/2KY5EBLDyBQDGM+a7jjFfbvQx/4PyBQDlC5MLjLkULyhfALDyBc7mKH+w8gWA+Yz5AjMZ8wXlCwBWvsDZjPmClS8AzGfMdz5jXsBo9i4oXwDAynf9FqmtUmCkb7GXzcoXAPg3Y75rtkjhdu5uNOfzRfkCAMrXFr8igDN9ze/KFwBQvim2SAFGUbzKFwCw8l2/RWqrFMDKFwCYxZjvfMZ817C3AVC+AGDly8wCU2FgecDKFwCYxZjvfMZ8AZQvAKB8z+bazms+bwDlCwBWvgDrOOoZK18AwMoXgPe+xXElVr4AwL852nkdRz3P+XzB/I/yBQArX4Bcxaba+hnztfIFAP7KmC+QrdhA+QIAyvc0jnoe83lieQDlCwAo3yxs4Y/5PBUwWB6ULwCgfDmTLXxA+QIAVr5Afq50FcsVr6x8AeBuxnzXbokCoHwBAOUL7xgfhGfO+1W+AKB8wRY9nM3yoXwBQPkyt9CwRQ+rvn8sL8oXAKx8YdctensVzuNKV1j5AgD9jPlyUiFxHnszUL4AgJUv/LWQVNJ5jPli5QsA9DPmC2RmbwbKFwBQvrbgAVC+AICVbxaO2gTAyhcAVjDmO48xX2A1e9+ULwBY+TJ+i9NWJ7CSK8FZ+QLAnYz5ringYutz2OcKWE6ULwCgfFdTvIDiVb4AgPK9YwtUAduix/KC8gUAlK8tep59FfAVf19QvgCA8lXAPj8sH1g+lC8AoHxt4duix/Jh+UD5AoDyxRa+LXosH5YPlC8AKF9Gs0Vvix4F3Pv9YXlRvgCA8rVFr3ixvFheUL4AoHxZxxa8LXgUcO/3h+VH+QIAytcWPFh+zn7/KF8AQPnmpnhBAfd+fyhg5QsAKF9b7Du8f4goQMsPyhcAUL622PO+f1vwRBSgMV+ULwCgfG2x533/gOVH+QIAyvdUzvMFer8/FLDyBQCUL3CL246hULzKFwBQvthi5zbO80X5AgDKFzibMV+ULwBg5Qtwkm9xrQArXwDAyhcArHwBwMoXgFMYA7byBQBKcZ5vti3UGzkvEcZ/n7jylfIFAOWL4s3w/m2RM9LpV7r6/Fievi+/byx/yhcAlC9zi/fT+fxdt9iB/uXlbQGjfAFA+bKmeN8W8dMYqS1cOL9w3y7nClj5AgDKN0fxPo3RPB21+Hm5xWyLF/Yv3t7vj9rvE5QvAChfYou3NG7Btm4hA/mL92kPV2/hKmDlCwDKl7FbuL1jNFG/P9uWPsxc/kry5aD2vP/V3y8oXwBQvszZQnUeMOxXwLXL79vHFa/yBQCU75wt2Kct7tbppy36VVv8n5fvHzIun7/m06iC7F0+eo96br37keVW+QKA8qVuSzr6SjS15+WNLnJb1Oy8nJbG4p21PLeO+fYWvOVW+QKA8uWfC7JUTteOCUXd/3f0Fv7b3wszi7f12um9e3xK5ffBqOW99vOxnCpfAFC+tqjriu/tFnjvFnzU+xldxLasyVzEq86bbT2KetQxGpZT5QsAytcWc8wWYe+1XEe/31FjXjBD65XiWou3d/mcfW3nt1fGU8DKFwCU7+3FO6vwVo9BjbrSjy1qRi6v38nLV3TxthZ77eOt3wcoXwBQvoq4bwv7z9/Tel5ilgJ2dxVWiB7zjfp9vf+/9/voE1TsKF8AUL63bmHXFu5T0T5toX6DX39UwbqfKBlEXXs5umDL4J/feu3ot9Ou/ax8AUD5nrKlPHqL8mmLdtaYbuvPbz2KUgEzc7ntPYq4t7Cjls/ePUyt30f2YClfAFC+t2k9z693i3HUeXWrzmu0xczJ3wfRhRh9DEZrMVt+lS8AKN9TfAc//msL9Fu5RR21xf60BVxb/K2/b3ThQ8/8/Kn8eW/vxzv6PPzaQs66h075AgDKd1bx1m7x1p4X9/T/Rm3xj77yT20xQOTy+wlafkd9H8y+O1npfH2tR1WjfAFA+WbfYh51ZZhfzx+1Jfx2zPVT+fy3hQEjjTomIer7pfUo4973EX1lLwWsfAFA+Z5exKOu9BS9hTxrzKn25799v7aYiVhee+e36Plz1Bjr22NFvo2fx6jvR+ULACjfrFq3SN9uUbZeazWqoFuP6nw7/XYL3BYyI5bPt8tHeTn/RR9FPerx1mtdty5/Clj5AoDyzaL1bkW906Vyi3zW9Nst0qjH3/5dFDA9y3Xveeu983+25bu8fLx0/jxHQStfAFC+u29BR9394/Py+aPHgGrHWFsfjzrvElYs763zf/QesuizIErw+2ndA3Ed5QsAynfalu3oLeSn3/ut/H2fJNNvX1/0300Bk+l7Y/Z597Pvtz36Wu9Pr+v45V35AoDynV68Ueexjb4y1arH336OxnS4uYi/g5e/3uU76u5jo/cAPH2fKl8AQPk+bZm2Ft3bLdKn39t6FGL0ebujx5RAEccvX0/fZ613J3r6Pa3F23tlu+MLWPkCgPKdVsLl5Rba03l+T1ukvUc1v309o8aIareIZxUFZJo/awuvdvnrLdCozyf6Sn2t38/KFwBQvqPOy/v1+K/S7R3j7X390Vugqylebvp+qv15o5fnT+XPjT4v2ZgvAKB8W7coo+9O8raAo4r72/n5zCrcqDEnY76smF9nHeX/DVoeRo8Bj74b3Nvfu/33gPIFAOUbviUWff/J3t8fdX/N2wpC8bJyfs16nvusuwu1XqP57XTt57/9njDlCwDKt3tL7FP5/NFXvoo+KjnbFvisK2UZ82VFQe6+/EX//NbXU/v7StLPW/kCgPJdX7ytW7C9BRs9Rtt7bdasxVuSvX6o+f7IujzOup926/JfBi//2x4FrXwBQPmGb4GVl9O/tpx6z9ttfb2lsdBXFW+W1wcZvm9mL4+jl7/Py8+j9fN7Kvq3f59tjg1RvgCgfMO2QKOPwh11XnDrGHaW4v0umh8c9UyG+S/b8jBqj9y38/tg9vd1+u8J5QsAynda8Zag/9+6pRW1xXhq8X4UL4HzzaziXP0+P5XPe3q89pia1vujR9//96nYlS8AKN88hfu0RVNeboGNGlN4u0X5tMVXJr2+qL/Pd/H8oYCJLMdv8Py56vuz9cpSUcX69vOIPitl9B5K5QsAyndc8faOWbzdguot6Not7Kgt2F3utlJb9H9+DlGfP3cadR5p1uWp9fsheoy49ftt1Pfr0/dL6/tRvgCgfNu3IKPGKJ5+Xu9R0dFb3FFj1rsUbu+1YBUwPQU86xiQWd+no5a36Mdrp0ft0fhk+X5RvgBwUPk+bSG2bln0bpFEbYG1vr63j2fdAh99pZroMSHuNnv+zFL4pXF5mjUGvOr79Wn+eFp/hb0/5QsAG5bvqPNgRz0ePQYS9Xllvx/u6uId9fdA8Z5cwKOvZR/9+lavH56+r8O+f5QvAGxUvlFjup/Jj0ePcTxt0ZXG15ftKOZZRfF2CxxmFnAZNH/PKuDW5fltAbaOKc/+/m99PLyAlS8AbFC+38M+g6gt1N3HjHYZI1PA9HxffTeb36Pff5n8/nrvJzzr+752D1z395HyBYDE5du7RTC7WGq3OHvHHHuv7LJb8b59fkk6f3CH3vlzdDGv3iPQunz3fj9G3a83qshbv/++rd9fyhcAEpZv1BbI088bvYUXvQW127WXR21Blsa/r/N4WbH8Rx1zEF3Ib5ePWZ9P6/Kd7ToAs6+09/r7S/kCQMLyjRoDrN1CGH3lqbevvwRNryrb2i3CWe/HlayYUXSr9kh9g15P9j1oUe+/BD1eBv/8sPlJ+QJAwvLNep7c6WOyvaVbkr//7Ney5uzizXLlqdML2PpE+QJA/vJ9ez/DUddCLYMeP62oTive0/ZIoIAjXt/b5f2Uv9fo9ceo5z+9H+ULABnLN8t5VMZ02wqyVP79sr5eiCiqbEUcdd5qWbQ8z/p79Rbs6GtVN3/eyhcAEpVv7ZVO3u7zXjXGu3vh9j4+aot+9h4J5/0Ssbz3Xmu8d/npPeq5dvn4Hvr33nb9oXwBIFH5RjHGG1t4b6/8FP15rR4jUbyMKODeIt7lftenjQlvv/5QvgBwYPnWbpH1nod1SuH2FvHqowBXfT4o4BHz5ar7/dbe7/rUMeHj1h/KFwAOLt/RW4inFm/tUZejz2P7Jvt8YEUJzy7kt8+v/f4olb8/WwFvu/5QvgBwQfl+Xk4Pv5/iJsXWOiac9UpSipYdls+shVz7fnqPKak9xmRVAb/9/kuz/lC+AHBB+Y66duesLea3Yyi1W2yl8+crXBi/vK8qvNHFWPv9E3X3n9Gfz+pjWH5+nsoXAC4o39YtzNYtlt7z5qKLLmqMxlHIMH9+bz1LYVbxjToPOOrzyvL9sfz7UvkCwIXl+3TUWrYt2N7Hv42/f9UW/3fQ3wNuLObVRdz6/dO6BzHqyl2l8/VmW78pXwC4sXzfbrFl2YJ9+3ht0Y+6v27v56h4YXwRj/r+/PV46/2Ka1//qDHgrNcxeP2+lC8AJCrfbPvMa4vvk+T1Ro1BRN/dBDivqFvv/1v7/7LdvzjL5/+a8gWAROX7tEbPereL0a9v9hZa1vPkgLwFPPp78Dt4epfPt5nyBYCE5RtdgLtzJSlg9xK+9fs7zfev8gWAjcq3dwvh1i0uRQtk+f7JfqW91veX/sp8yhcANizf6ALMcv9ehQsQU8ifysc/k16v8gUA5ZtnC8t5rgBnFLIr8ylfALDyBQArXwDAyhcAtvdfUzdWlufTMiwAAAAASUVORK5CYII=" alt="" />
+        <!-- markers: pointer shortcuts, aria-hidden; positions in % of figure -->
+        <button class="pt-marker" data-pt="01" style="left:52%;top:4.5%" tabindex="-1" aria-hidden="true">01</button>
+        <button class="pt-marker" data-pt="02" style="left:63%;top:8.6%" tabindex="-1" aria-hidden="true">02</button>
+        <button class="pt-marker" data-pt="04" style="left:47%;top:26%" tabindex="-1" aria-hidden="true">04</button>
+        <button class="pt-marker" data-pt="03" style="left:56%;top:36%" tabindex="-1" aria-hidden="true">03</button>
+        <button class="pt-marker pt-marker--red" data-pt="05" style="left:27%;top:47%" tabindex="-1" aria-hidden="true">05</button>
+        <button class="pt-marker" data-pt="07" style="left:71%;top:53%" tabindex="-1" aria-hidden="true">07</button>
+        <button class="pt-marker" data-pt="06" style="left:63%;top:87%" tabindex="-1" aria-hidden="true">06</button>
+        <span class="egg-glasses" aria-hidden="true" style="left:48%;top:6.5%"><span class="note">PRESCRIPTION: CURIOSITY</span></span>
+      </div>
+      <!-- leader stubs (decorative) -->
+      <span class="leader" id="lead-01" aria-hidden="true"></span>
+      <span class="leader" id="lead-02" aria-hidden="true"></span>
+      <span class="leader" id="lead-03" aria-hidden="true"></span>
+      <span class="leader" id="lead-04" aria-hidden="true"></span>
+      <span class="leader" id="lead-05" aria-hidden="true"></span>
+      <span class="leader" id="lead-06" aria-hidden="true"></span>
+      <span class="leader" id="lead-07" aria-hidden="true"></span>
+      <button class="seal-btn" type="button" id="seal" aria-label="Unlisted point PT.00 — care instructions">
+        <span class="kanji" aria-hidden="true"><span>記</span><span>録</span></span>
+        <span class="foot" aria-hidden="true"><span>K.S.F.G.</span><span>®</span></span>
+      </button>
+      <span class="reticle reticle--tr" aria-hidden="true"></span>
+      <span class="reticle reticle--bl" aria-hidden="true"></span>
+    </div>
+  </main>
+
+  <footer class="status-bar">
+    <span><span class="key">NODE</span>PAGE 01 / TECH PACK</span>
+    <span><span class="key">←</span>NEXT PT.</span>
+    <span><span class="key">→</span>PREV PT.</span>
+    <span><span class="key">ESC</span>CLOSE</span>
+    <span class="spacer"></span>
+    <span class="status-ok" id="motion-state">MOTION: FULL</span>
+    <span>SAMPLE 1/1 · MX</span>
+  </footer>
+</div>
+
+<div class="visually-hidden" role="status" aria-live="polite" id="announcer"></div>
+
+<script>
+(function () {
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var motionState = document.getElementById("motion-state");
+  function syncMotion(){ motionState.textContent = reduced.matches ? "MOTION: REDUCED" : "MOTION: FULL"; }
+  syncMotion();
+  if (reduced.addEventListener) reduced.addEventListener("change", syncMotion);
+
+  var clock = document.getElementById("clock");
+  function tick(){ var d = new Date();
+    clock.textContent = [d.getHours(),d.getMinutes(),d.getSeconds()]
+      .map(function(n){ return String(n).padStart(2,"0"); }).join(":"); }
+  tick(); setInterval(tick, 1000);
+
+  /* ── Inspection state ─────────────────────────────────────────────── */
+  var ORDER = ["01","02","03","04","05","06","07"];
+  var NAMES = { "00":"CARE INSTRUCTIONS","01":"IDENTITY FILE","02":"INSPIRATIONS",
+    "03":"EQUIPMENT","04":"CREATIVE DNA","05":"CURRENT STATUS","06":"FIELD LOG","07":"CERTIFICATES" };
+  var tray = document.getElementById("tray");
+  var trayEmpty = document.getElementById("tray-empty");
+  var announcer = document.getElementById("announcer");
+  var countEl = document.getElementById("insp-count");
+  var fullStamp = document.getElementById("full-stamp");
+  var current = null;
+  var lastInvoker = null;
+
+  var visited = {};
+  try { visited = JSON.parse(sessionStorage.getItem("techpack-visited") || "{}"); } catch (e) {}
+  function persist(){ try { sessionStorage.setItem("techpack-visited", JSON.stringify(visited)); } catch (e) {} }
+
+  function indexBtn(pt){ var li = document.querySelector('.pt-index li[data-pt="'+pt+'"]');
+    return li ? li.querySelector("button") : null; }
+
+  function syncVisited(){
+    var n = 0;
+    ORDER.forEach(function(pt){
+      var li = document.querySelector('.pt-index li[data-pt="'+pt+'"]');
+      if (visited[pt]) { n++; if (li) li.classList.add("visited"); }
+    });
+    countEl.textContent = n + " OF 7 INSPECTED";
+    if (n === 7) fullStamp.classList.add("on");
+  }
+
+  function open(pt, invoker){
+    var plate = document.getElementById("plate-" + pt);
+    if (!plate) return;
+    if (current) {
+      document.getElementById("plate-" + current).removeAttribute("data-open");
+      var prevBtn = indexBtn(current); if (prevBtn) prevBtn.setAttribute("aria-expanded","false");
+    }
+    trayEmpty.style.display = "none";
+    plate.setAttribute("data-open","");
+    current = pt;
+    lastInvoker = invoker || indexBtn(pt) || null;
+    var btn = indexBtn(pt); if (btn) btn.setAttribute("aria-expanded","true");
+    if (ORDER.indexOf(pt) !== -1) { visited[pt] = true; persist(); syncVisited(); }
+    if (!reduced.matches) { tray.classList.remove("printing"); void tray.offsetWidth; tray.classList.add("printing"); }
+    if (history.replaceState) history.replaceState(null, "", "#pt=" + pt);
+    announcer.textContent = "PT." + pt + " — " + NAMES[pt] + " open";
+    var h = plate.querySelector("h3"); if (h) h.focus();
+    syncMarkers();
+  }
+
+  function close(){
+    if (!current) return;
+    document.getElementById("plate-" + current).removeAttribute("data-open");
+    var btn = indexBtn(current); if (btn) btn.setAttribute("aria-expanded","false");
+    trayEmpty.style.display = "";
+    announcer.textContent = "PT." + current + " closed";
+    if (history.replaceState) history.replaceState(null, "", location.pathname + location.search);
+    current = null;
+    syncMarkers();
+    if (lastInvoker && lastInvoker.focus) lastInvoker.focus();
+  }
+
+  function syncMarkers(){
+    document.querySelectorAll(".pt-marker").forEach(function(m){
+      m.classList.toggle("hot", m.dataset.pt === current);
+    });
+    document.querySelectorAll(".pt-index button").forEach(function(b){
+      b.classList.remove("row-hot");
+    });
+  }
+
+  /* index rows — canonical */
+  document.querySelectorAll(".pt-index button").forEach(function(b){
+    b.addEventListener("click", function(){
+      var pt = b.closest("li").dataset.pt;
+      if (current === pt) { close(); } else { open(pt, b); }
+    });
+    b.addEventListener("mouseenter", function(){ hotMarker(b.closest("li").dataset.pt, true); });
+    b.addEventListener("mouseleave", function(){ hotMarker(b.closest("li").dataset.pt, false); });
+  });
+  /* markers — pointer shortcuts forwarding to the index row */
+  document.querySelectorAll(".pt-marker").forEach(function(m){
+    m.addEventListener("click", function(){ var b = indexBtn(m.dataset.pt); if (b) b.click(); });
+    m.addEventListener("mouseenter", function(){ var b = indexBtn(m.dataset.pt); if (b) b.classList.add("row-hot"); });
+    m.addEventListener("mouseleave", function(){ var b = indexBtn(m.dataset.pt); if (b) b.classList.remove("row-hot"); });
+  });
+  function hotMarker(pt, on){
+    var m = document.querySelector('.pt-marker[data-pt="'+pt+'"]');
+    if (m) m.classList.toggle("hot", on || m.dataset.pt === current);
+  }
+
+  document.querySelectorAll(".tray-close").forEach(function(b){ b.addEventListener("click", close); });
+  document.getElementById("seal").addEventListener("click", function(){ open("00", this); });
+  document.getElementById("back-btn").addEventListener("click", function(){
+    announcer.textContent = "Reverse page turn — Home (stub in this proof)";
+  });
+
+  /* Keyboard: Left = next point, Right = previous, Esc = close (manga map).
+     Arrows are a shortcut layer; Tab reaches everything without them. */
+  document.addEventListener("keydown", function(e){
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === "Escape") { close(); return; }
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    var i = current ? ORDER.indexOf(current) : -1;
+    if (e.key === "ArrowLeft") { var n = ORDER[(i + 1) % ORDER.length]; open(n); }
+    else if (i > -1) { var p = ORDER[(i - 1 + ORDER.length) % ORDER.length]; open(p); }
+  });
+
+  /* Leader stubs — connect each marker toward the index side. */
+  function layoutLeaders(){
+    var field = document.querySelector(".fig-field");
+    if (!field || window.matchMedia("(max-width: 767px)").matches) return;
+    var frect = field.getBoundingClientRect();
+    document.querySelectorAll(".pt-marker").forEach(function(m){
+      var lead = document.getElementById("lead-" + m.dataset.pt);
+      if (!lead) return;
+      var r = m.getBoundingClientRect();
+      var y = r.top + r.height/2 - frect.top;
+      var endX = r.left - frect.left;
+      var startX = Math.max(0, endX - (60 + (parseInt(m.dataset.pt,10) % 4) * 26));
+      lead.style.top = y + "px"; lead.style.left = startX + "px";
+      lead.style.width = Math.max(0, endX - startX - 4) + "px";
+    });
+  }
+  layoutLeaders();
+  window.addEventListener("resize", layoutLeaders);
+
+  /* Ambient marker blink — one at a time, glitch cadence, tab-visible only */
+  var blinkTimer = null;
+  function scheduleBlink(){
+    blinkTimer = setTimeout(function(){
+      if (!document.hidden && !reduced.matches) {
+        var ms = document.querySelectorAll(".pt-marker");
+        var m = ms[Math.floor(Math.random() * ms.length)];
+        m.classList.remove("idle-blink"); void m.offsetWidth; m.classList.add("idle-blink");
+      }
+      scheduleBlink();
+    }, 6000 + Math.random() * 5000);
+  }
+  scheduleBlink();
+
+  /* Deep link */
+  var h = location.hash.match(/pt=(\d\d)/);
+  syncVisited();
+  if (h && (ORDER.indexOf(h[1]) !== -1 || h[1] === "00")) open(h[1]);
+})();
+</script>
+</body>
+</html>
