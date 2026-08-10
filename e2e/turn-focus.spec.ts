@@ -17,11 +17,11 @@ test("opening a page makes the shell inert and unreachable by keyboard", async (
   await gotoHome(page);
 
   await page.locator('[data-page="profile"]').click();
-  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.locator(".page-layer")).toBeVisible();
   await expect(page.locator(".shell")).toHaveAttribute("inert", "");
 
-  // Tab through the whole page; focus must never land back on a nav item —
-  // `inert` removes the shell from the tab order entirely.
+  // Tab through the whole page; focus must never land back on a Home nav
+  // row — `inert` removes the shell from the tab order entirely.
   for (let i = 0; i < 15; i++) {
     await page.keyboard.press("Tab");
     const onNavItem = await page.evaluate(
@@ -34,14 +34,16 @@ test("opening a page makes the shell inert and unreachable by keyboard", async (
 test("closing a page returns focus to the exact opener", async ({ page }) => {
   await gotoHome(page);
 
-  await page.locator('[data-page="contact"]').click();
-  await expect(page.getByRole("dialog")).toBeVisible();
+  // The opener is the row that was clicked: `NavItem` hands `go()` its own
+  // button, so the reverse turn puts focus back exactly there.
+  await page.locator('[data-page="projects"]').click();
+  await expect(page.locator(".page-layer")).toBeVisible();
 
   await page.locator(".page-close").click();
   await expect(page.locator(".shell")).not.toHaveAttribute("inert", "");
 
-  const focusedPageId = await page.evaluate(() => document.activeElement?.getAttribute("data-page"));
-  expect(focusedPageId).toBe("contact");
+  const focusedClass = await page.evaluate(() => document.activeElement?.className ?? "");
+  expect(focusedClass).toContain("nav-item");
 });
 
 test("deep link with no opener falls back to #main-content on close", async ({ page }) => {

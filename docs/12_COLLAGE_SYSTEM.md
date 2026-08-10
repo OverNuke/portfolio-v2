@@ -14,6 +14,123 @@
 > bottom-right. It also removed the bio from Home, added a social row and
 > a glitch layer, and replaced the generated hero with Keff's own
 > illustrations. Sections below are current as of v3.
+>
+> **Updated 2026-08-01 (Phase 4.2).** Real components shipped for the
+> field-note/photo/detail plate stack, the annotation scrap, the channel
+> row, and chrome (registration mark, serial block) — previously proof-only.
+> The hero ships as a placeholder (`.hero` in `collage.css`) pending source
+> art; its grid/bleed/z-index behavior is real, only the image is not. The
+> glitch decay layer remains proof-only — it's animation/JS behavior, not
+> grid placement, so it's out of scope for this batch.
+>
+> **Updated 2026-08-03 (Keff, style pass).** Keff flagged three things on
+> the live Home as clutter pulling it away from the streetwear/2000s-
+> advertisement reference this whole system is built from (see
+> `10_PROJECT_MANIFESTO.md`'s "akatachi wldd product sheet" origin): the
+> two Signal Red `.bar--status`/`.bar--build` accent plates (added
+> 2026-07-28, "Red accent bar decision" below), the `.field-note` quote
+> plate, and `.hero`'s diagonal-stripe placeholder fill, which read as
+> hazard tape rather than print texture once nothing was overlapping it.
+> All three are removed/flattened. The shared `.bar--accent` primitive is
+> untouched — ProfilePage's CTA button and featured ProjectCards still
+> wear it (`src/styles/plate.css`) — only the two Home-only instances and
+> their `.accent-plate` chrome wrapper are gone. This also **relaxes the
+> "no region is empty" density principle for Home specifically**: the
+> vacated field-note cell (`4/5/6/8`) and the freed hero real estate under
+> where the two bars sat are left open rather than reclaimed by another
+> plate — generous negative space next to a bold image is closer to the
+> poster-ad reference than a fully packed grid, so Home no longer treats
+> every cell as needing an occupant. Sections below describing the removed
+> elements (composition-role counts, the "Red accent bar decision"
+> write-up, the shed-order table's `.bar--accent` row) are left as history
+> — they explain a decision this note now supersedes, not current Home
+> behavior. Code-level detail lives in `src/shell/collage/Canvas.tsx` and
+> `collage.css`'s own dated comments.
+>
+> **Updated 2026-08-03 (Keff, second pass, same day).** Two follow-ups to
+> the style pass above, both from Keff's own review of the flattened
+> result: the `.hero` placeholder (left as a solid Paper White fill by the
+> style pass) is now **removed from Home entirely**, and the `.scrap`
+> annotation ("Frontend or Backend, that's the question") is also removed.
+> Keff's read: a blank rectangle with nothing left to hold down (no stripe
+> pattern, no red plate) had no utility, and with `.field-note` already
+> gone, `.scrap` became a second stray phrase with no partner and no clear
+> job. Net effect on the Composition-roles table below: **Hero reads 0 on
+> Home** (was "1, always exactly 1") and **Annotation reads 0 on Home**
+> (was "exactly one per screen") — both counts, and "The pattern" section's
+> "one exception is the hero" line, describe the *system's* general rule,
+> which is unchanged; Home is now a documented instance that claims
+> neither role, pending real `halftone.py` portrait art for the hero (see
+> `13_ASSET_SPEC.md`'s `hero` preset) and a specific reason for the
+> annotation to return. Freed by the hero's removal: cols 7–12 of the
+> canvas, which the photo/detail plate stack now uses. Also as part of
+> this pass, the plate stack (`.plate-sit`/`.plate-work`/`.plate-detail`)
+> and the channel row (`.socials`) were **rewound to
+> `docs/home.design-proof-v3.html`'s original coordinates and, for the
+> channel row, its original fused icon-strip treatment** — Keff's own call,
+> made once the style pass freed enough canvas for v3's wider originals to
+> work without crowding. The channel row keeps one deliberate deviation
+> from v3: link labels move to a `.visually-hidden` span (v3 had icon-only,
+> no text) so the accessible name isn't lost. Code-level detail lives in
+> `src/shell/collage/Canvas.tsx` and `collage.css`'s own dated comments
+> near `.plate-sit` and `.socials`.
+>
+> **Updated 2026-08-03 (Keff, third pass, same day).** The photo/detail
+> plate stack's *images* changed, not their placement: the three plates
+> now show Kevin's own halftone-dithered portrait illustrations
+> (`src/assets/plates/portrait/`) instead of `PROJECTS` screenshots
+> (Barbershop/AcopiaTech/Odoo). Keff's call: project screenshots belong
+> only inside the Project/Award record they document, i.e. the `/projects`
+> module (`ProjectsPage`/`ProjectCard`, which already renders
+> `PROJECTS[].image` independently and needed no change here) — not
+> repeated on Home. The illustration art itself isn't new: it shipped in
+> `src/assets/plates/archive-os-plates.zip` back on 2026-07-27 but had
+> never been wired into a component until now. Grid-area, rotation, and
+> z-index for `.plate-sit`/`.plate-work`/`.plate-detail` are unchanged —
+> see `collage.css`'s own dated note at that block for the one CSS
+> addition (`image-rendering: pixelated` on these three plates' images, so
+> the dot-screen art isn't smoothed by browser scaling).
+>
+> **Updated 2026-08-04.** Three elements read as too small against the
+> 2000s-Japanese-streetwear-ad reference this system is built from: the
+> nav-stack (main menu), the channel row, and the Skills badge field. Two
+> changes, both size-only, no color/content changes:
+>
+> 1. **`.spec-cascade` removed entirely.** It was a Phase-2 placeholder —
+>    three black bars reading literal `"placeholder"` text for
+>    status/build/mode, never wired to real content and already
+>    `aria-hidden` for exactly that reason. Doc 12's own rule (a plate
+>    carrying no real, unique information shouldn't be presented as
+>    authoritative content) made it the safe donor: removing it freed
+>    canvas rows 9-10, which `.nav-stack` and `.socials` (the channel row)
+>    now split between them (nav-stack: rows 4-9; channel: rows 10-12).
+>    Nav-item padding/index-column width, `.nav-label` font-size, and the
+>    channel row's button/icon/label sizes all grew to match — see the
+>    dated notes at `.nav-stack`/`.socials` in `collage.css`.
+> 2. **Skills badge field widened by one canvas column** (`9/9/13/13` →
+>    `9/8/13/13`, ~1/8 of the canvas instead of ~1/11), deliberately
+>    overlapping the tail of `.plate-work`'s image — permitted by
+>    guardrail #1 below ("overlap... on an image") since `.plate-work` is
+>    exactly that. This is a much smaller, narrowly-scoped repeat of the
+>    2026-08-01 attempt reverted above: that one reclaimed a much larger
+>    block (rows 4-11 × cols 7-12) and collided with the photo-plate
+>    layout broadly; this one only claims the one column `.plate-work`'s
+>    own tail already sits under, and stays clear of its figcaption text.
+>    All 5 seed layouts were re-authored for the wider internal grid — see
+>    `skills-collage.css`'s own dated note.
+>
+> Two more fixes surfaced by `pnpm run audit:collage` while verifying the
+> above, both pre-existing and unrelated to the nav/channel/badge sizing
+> itself: `.plate-work`'s source image (`standing.png`) is an unusually
+> tall 2.29:1 crop that rendered ~1090px tall inside a grid-area with room
+> for roughly a third of that, blowing `.canvas`'s scrollHeight out
+> entirely — capped via `aspect-ratio: 4/3; object-fit: cover; object-
+> position: top` scoped to `.plate-work img` only (`collage.css`), leaving
+> the shared `.plate--photo` primitive used by Profile/Projects untouched.
+> Once that was fixed, `.socials`'s pre-existing `-0.6deg` rotation — whose
+> bounding box is always slightly taller than its unrotated box — had just
+> enough clearance from the canvas's bottom edge to matter once the channel
+> row's own footprint grew; a small `margin-bottom: 4px` absorbs it.
 
 ---
 
@@ -88,12 +205,12 @@ doesn't fit one of these needs a case made for it, per
 | **Hero** | One image at a scale nothing else approaches, bleeding off two edges. Establishes that this is a printed sheet, not a screen. | 1, always exactly 1 |
 | **Type field** | Identity set directly on the page — no plate, no card. Its authority comes from size and from *not* being in a box. | 1 |
 | **Plate** | Anything lying on the page: nav items, photos, notes, records. Bordered or photo-bordered, shadowed, rotated. | 8–11 |
-| **Bar** | Black label strips with cream text, cascading with a staggered left margin. Carries spec/status data. Reads as typeset caption, not as UI. A single bar may take the Signal Red `.bar--accent` skin (see Plate variants) to call out one featured/status flag — never ambient wallpaper. | 5 |
+| **Bar** | Black label strips with cream text, cascading with a staggered left margin. Carries spec/status data. Reads as typeset caption, not as UI. A single bar may take the Signal Red `.bar--accent` skin (see Plate variants) to call out one featured/status flag — never ambient wallpaper. | 0 on Home _(was 5; the two `.bar--accent` status/build plates were removed 2026-08-03, the three `.spec-cascade` placeholder bars removed 2026-08-04 — see that date's note above. The role itself is unchanged and still available to Profile/Projects via the shared `.bar`/`.bar--accent` primitives in `plate.css`.)_ |
 | **Chrome** | Reticles, barcode, serial, registration mark, tape, scale figures. Field Olive or Warning Yellow. Always `aria-hidden`. | 4–6 |
 | **Annotation** | The handwritten scrap. Exactly one per screen — two reads as a gimmick. | 1 |
-| **Badge field** | A dense block of small tags. Typographic mass, not a list — it should read as one grey-ish rectangle from across the room and resolve into names up close. | 1 |
+| **Badge field** | A dense block of small tags. Typographic mass, not a list — it should read as one grey-ish rectangle from across the room and resolve into names up close. Grew by one canvas column 2026-08-04 (~1/8 of the canvas instead of ~1/11) — see that date's note above and `skills-collage.css`'s own dated comment. | 1 |
 | **Channel row** | Social/contact icons as a single joined strip with an Ink label cap. One per screen, on Home and again in the Contact module. | 1 |
-| **Certificate/Award** _(added 2026-07-31)_ | A real link out to a certificate/award document. Distinct from the generic Plate role, and budgeted separately from it, because the two will otherwise compete for the same 8–11 slots once the rest of v3 (field note, centre plates, record chips) ships. | 5 (`CERTIFICATES` in `src/content/data.ts`) |
+| **Certificate/Award** _(added 2026-07-31, moved off Home 2026-08-01)_ | A real link out to a certificate/award document. _(Updated 2026-08-01: no longer a Home collage role — moved to its own routed module, `/certifications`; see `03_UX_ARCHITECTURE.MD`.)_ | 0 — moved off Home 2026-08-01, see below |
 
 ---
 
@@ -241,13 +358,19 @@ unique content is ever shed.
 | | `.bar--accent`, if `aria-hidden` | Only sheds when its text duplicates an Ink bar elsewhere; never shed if it's the sole source of that information |
 | ≤900px | Detail crop, hero repositioned to a 190px banner | Collage collapses to a single-column stack; all rotation → 0, all overlap → 0, all `transform: none` |
 
-_(Added 2026-07-31)_ **Certificate plates are never shed at any breakpoint.**
+~~_(Added 2026-07-31)_ **Certificate plates are never shed at any breakpoint.**
 Each one is a unique link to a real credential — no duplicate of that
 information exists elsewhere on the page — so doc 12's own rule ("nothing
 carrying unique content is ever shed") applies directly. At ≤900px they
 collapse into the same single-column stack as everything else (the
 canvas's `.canvas > *` override reaches `.cert-plate` too, zeroing its
-rotation), but the plates themselves, and their content, always remain.
+rotation), but the plates themselves, and their content, always remain.~~
+
+> **Updated 2026-08-01:** Certificates no longer render on Home at all
+> (moved to the routed `/certifications` module) — there are no
+> `.cert-plate` elements left in the Home collage, so this shed-order
+> guarantee no longer applies to Home; it's preserved here only as a
+> record of the prior design decision.
 
 ### Automated audit
 

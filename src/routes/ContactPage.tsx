@@ -7,8 +7,6 @@ const route = ROUTES.find((r) => r.pageId === "contact")!;
 export function ContactPage() {
   return (
     <Panel
-      title={route.title}
-      status={route.tag}
       metadata={<span>{route.sub}</span>}
       content={<p>Contact terminal placeholder — content ships in Phase 3.</p>}
     />

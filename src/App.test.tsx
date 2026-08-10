@@ -2,6 +2,7 @@ import { act, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
+import { ABOUT_PROFILE } from "./content/data";
 import { ROUTES } from "./routes/routes";
 
 /**
@@ -41,7 +42,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { name: "Kevin Sebastián Frías García" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Full-Stack Developer")).toBeInTheDocument();
+    expect(screen.getByText(ABOUT_PROFILE.role)).toBeInTheDocument();
   });
 
   it("mounts NameRevealIntro when the initial location is '/' (D6)", () => {
@@ -76,11 +77,12 @@ describe("App", () => {
       const dialog = screen.getByRole("dialog");
       expect(within(dialog).getByRole("heading", { level: 1, name: title })).toBeInTheDocument();
       // Panel primitive rendered end-to-end inside the real composed app
-      // (not just routes.test.tsx's standalone harness) — its status slot
-      // shows the route's tag. PageLayer's own `.page-tag` chrome also
-      // duplicates this text, so at least one match (not exactly one) is
-      // the correct assertion here.
-      expect(within(dialog).getAllByText(tag).length).toBeGreaterThanOrEqual(1);
+      // (not just routes.test.tsx's standalone harness) — it no longer
+      // repeats the route's title/tag (Panel's title prop is omitted at
+      // every call site now that PageLayer's `.page-tag` chrome is the
+      // sole owner of this text), so exactly one match is the correct
+      // assertion here.
+      expect(within(dialog).getByText(tag)).toBeInTheDocument();
     },
   );
 

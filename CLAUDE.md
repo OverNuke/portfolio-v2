@@ -38,6 +38,13 @@ This project uses **pnpm** exclusively — `package.json`'s `preinstall` script 
 
 `.github/workflows/ci.yml` runs typecheck/lint/test/build/audit/e2e on push and pull request.
 
+## Agent session hygiene
+
+- Ad-hoc verification scripts, probe `.mjs` files, and screenshots belong in the session scratchpad directory. Never the repo root. Committed tooling lives in `scripts/` or `tools/` and is referenced from `package.json`.
+- Never delete an untracked file without explicit user confirmation — git cannot recover it. Move it to `_quarantine/` (gitignored) and let the user empty that directory.
+- `.claude/`, `.atl/`, `.impeccable/` are gitignored tool state. `claude/` (no leading dot) is NOT — it is a spec location cited by live code (`src/components/project-sheet/project-sheet.css` line 3). Never sweep it.
+- `_quarantine/` is a holding pen, not storage. If it is non-empty, ask the user before adding to it.
+
 ## What this project is
 
 **KEVIN_ARCHIVE_OS** — a developer portfolio deliberately built as *not* a website: a single-viewport "digital operating system" with a HUD/FUI–neo-industrial–Japanese-streetwear-editorial visual identity (fashion technical sheets, scanned magazines, game character-select screens). Full mission and five guiding principles (Identity over Trends, Controlled Chaos, Functional Instrumentation, Information Density, Accessibility is Mandatory) are in `src/MASTER_AGENT.md` — read that file first; it's the constitution every other doc answers to.

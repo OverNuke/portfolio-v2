@@ -1,0 +1,53 @@
+/**
+ * Certifications page — the height chain.
+ *
+ * The module must not scroll vertically at 768px and up (Keff, 2026-08-06).
+ * `.cert-wall__sheet` sizes itself with `min(100cqw, 100cqh * ar)`, which only
+ * works if it has a DEFINITE height to measure against. Every ancestor from
+ * `.page-content` down therefore needs a bounded height and `min-height: 0` —
+ * without the latter a flex item refuses to shrink below its content, and the
+ * sheet silently falls back to content height, which is the thing that
+ * scrolls.
+ *
+ * Scoped with `:has()` so no other routed page inherits a bounded page body:
+ * /profile and /projects are both entitled to scroll their own content.
+ */
+.page-layer:has(.certifications) {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.page-layer:has(.certifications) .page-content {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  /* The shell never scrolls; below 768px the ledger is allowed to. */
+  overflow: hidden;
+}
+
+.certifications {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.certifications > .panel {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.certifications .panel__content {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+/* The ledger is the one composition entitled to scroll (WCAG 1.4.10 reflow).
+   It scrolls its own content — the shell above it still does not. */
+.certifications[data-mode="ledger"] .panel__content {
+  overflow-y: auto;
+}

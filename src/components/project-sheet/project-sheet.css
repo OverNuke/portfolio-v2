@@ -1,0 +1,746 @@
+/**
+ * PROJECT DATABASE — panel sheet.
+ * Spec: `claude/projects-module-manga-sheet-2026-08-05.md`.
+ *
+ * This is the system's SECOND composition mode. Doc 12's collage (Home)
+ * gets its order from depth: plates stacked, shadowed, rotated, deliberately
+ * overlapping. This gets its order from division: panels tiled with a
+ * gutter, never touching, never rotated. Home is a pile of paper; this is a
+ * printed page. Do not "fix" this file by making it look more like Home —
+ * the distinction is the point.
+ *
+ * Colour, in one sentence: the reference sheet's black artboards are
+ * inverted to olive, but the FIELD stays paper (Keff, 2026-08-05), so the
+ * gutter is the paper showing between panels rather than black showing
+ * between tiles.
+ *
+ * THE RULE THAT WILL BITE SOMEONE: oxblood on Field Olive is 1.90:1.
+ * Focus rings inside an olive panel are Paper White (6.79:1). Oxblood
+ * focus rings exist only out on the paper margin — which is the whole
+ * reason the pocket, and the pager it carries, live there.
+ */
+
+.project-sheet {
+  /* PANEL SIZE. Keff 2026-08-05: the panels read a little large, so the
+     sheet is capped well below the page width and centred, leaving real
+     paper margin around the whole composition — the reference sheet's tiles
+     occupy roughly three quarters of their field, not all of it.
+     THIS IS THE ONE KNOB: change --sheet-max and every panel, gutter, rail
+     and type size scales with it, because everything inside is expressed in
+     container-query units against this element. */
+  --sheet-max: 1040px;
+
+  width: 100%;
+  max-width: var(--sheet-max);
+  margin-inline: auto;
+
+  /* The frame is the query container; the grid inside is the containee.
+     They CANNOT be the same element: an element can't query itself, so a
+     `cqw` used in the grid's own `gap`/`padding` would silently resolve
+     against the viewport instead of against the sheet. That bug is
+     invisible at desktop width and wrong everywhere else. */
+  container-type: inline-size;
+  font-family: var(--font-mono);
+}
+
+.project-sheet__grid {
+  --gutter: 1.05cqw;
+  --rail: 2.4cqw;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  gap: var(--gutter);
+  aspect-ratio: 8 / 5;
+  padding-left: var(--rail);
+}
+
+/* ------------------------------------------------------------------ rail */
+.project-sheet__rail {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--rail);
+  display: grid;
+  grid-template-rows: repeat(12, 1fr);
+  align-items: center;
+  font-size: clamp(6px, 0.62cqw, 9px);
+  letter-spacing: 0.08em;
+  color: var(--field-olive); /* 5.77:1 on paper */
+  pointer-events: none;
+}
+
+.project-sheet__rail span::after {
+  content: "";
+  display: block;
+  width: 0.7em;
+  height: 1px;
+  margin-top: 0.25em;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* ---------------------------------------------------------------- pocket */
+.project-sheet__pocket {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  overflow: hidden;
+  border-left: 1px solid var(--field-olive);
+  padding: clamp(6px, 0.9cqw, 16px) 0 clamp(6px, 0.9cqw, 16px) clamp(6px, 0.9cqw, 14px);
+}
+
+.project-sheet__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  margin: 0;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.14);
+  padding-bottom: 0.4em;
+  font-size: clamp(6px, 0.64cqw, 9px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray); /* 5.12:1 on paper */
+}
+
+.project-sheet__row b {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.project-sheet__pager {
+  display: flex;
+  gap: 0.4em;
+  margin: 0;
+}
+
+.project-sheet__pager button {
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  padding: 0.25em 0.6em;
+  border: 1px solid var(--field-olive);
+  background: transparent;
+  color: var(--field-olive);
+  font: inherit;
+  font-size: clamp(7px, 0.7cqw, 10px);
+  cursor: pointer;
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+
+.project-sheet__pager button:hover:not(:disabled) {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+/* On paper, so oxblood is legal here — and ONLY here. */
+.project-sheet__pager button:focus-visible {
+  outline: 2px solid var(--oxblood);
+  outline-offset: 2px;
+}
+
+.project-sheet__pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ================================================================== PANEL
+   Print, not UI. No hover, no lift, no rotation. Ever. */
+.sheet-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: clamp(10px, 1.5cqw, 26px);
+  color: var(--paper-white);
+}
+
+/* The two olive tones are near-identical on purpose (1.14:1): the seam
+   should read as registration drift between print passes, not as two
+   different colours. Pulling them apart to "improve contrast" would
+   destroy the effect and improve nothing — no text is set in one on the
+   other. */
+.sheet-panel--record {
+  background: var(--field-olive);
+} /* Paper White type: 6.79:1 */
+
+.sheet-panel--feature,
+.sheet-panel--colophon {
+  background: var(--field-olive-deep);
+} /* Paper White type: 7.74:1 */
+
+.sheet-panel--spread {
+  background: var(--paper-white);
+  color: var(--ink); /* 17.45:1 */
+}
+
+.sheet-panel__tick {
+  flex: 0 0 auto;
+  font-size: clamp(7px, 0.68cqw, 10px);
+  letter-spacing: 0.1em;
+  opacity: 0.62;
+}
+
+.sheet-panel--spread .sheet-panel__tick {
+  color: var(--gray);
+  opacity: 1;
+}
+
+.sheet-panel__rail {
+  display: flex;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: clamp(5.5px, 0.58cqw, 8px);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* ------------------------------------------------------------- typography */
+.sheet-panel__display {
+  margin: 0.42em 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 4.5cqw, 58px);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.sheet-panel__title {
+  margin: 0.5em 0 0.4em;
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.85cqw, 26px);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.sheet-panel__sub {
+  margin: 0.9em 0 0;
+  font-size: clamp(6.5px, 0.72cqw, 11px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.sheet-panel__note {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(6.5px, 0.7cqw, 10px);
+  line-height: 1.55;
+}
+
+.sheet-panel--spread .sheet-panel__note {
+  color: var(--gray);
+}
+
+/* The reference sheet's jammed label blocks, inverted: Paper White fill
+   carrying olive type. The staggered indents do more work than any
+   rotation would — they are what makes the stack read as hand-set. */
+.sheet-panel__blocks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.26em;
+  margin: auto 0 0;
+}
+
+.sheet-panel__blk {
+  max-width: 100%;
+  padding: 0.28em 0.5em;
+  background: var(--paper-white);
+  color: var(--field-olive); /* 6.79:1 */
+  font-size: clamp(6px, 0.66cqw, 10px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-panel--colophon .sheet-panel__blk {
+  color: var(--field-olive-deep); /* 7.74:1 */
+}
+
+.sheet-panel__blk:nth-child(2) {
+  margin-left: 7%;
+}
+.sheet-panel__blk:nth-child(3) {
+  margin-left: 2.5%;
+}
+.sheet-panel__blk:nth-child(4) {
+  margin-left: 11%;
+}
+
+/* ------------------------------------------------------------------ chips */
+.sheet-panel__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin: 0.9em 0 0;
+}
+
+.sheet-panel__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--hit-min);
+  padding: 0.3em 0.65em;
+  background: var(--paper-white);
+  color: var(--field-olive);
+  font-size: clamp(6px, 0.62cqw, 9px);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+
+.sheet-panel--colophon .sheet-panel__chip,
+.sheet-panel--feature .sheet-panel__chip {
+  color: var(--field-olive-deep);
+}
+
+.sheet-panel__chip:hover {
+  background: #fff;
+}
+
+/* Inside an olive panel the ring MUST be Paper White. Oxblood here is
+   1.90:1 — an invisible focus indicator, which is a failure of SC 2.4.7
+   dressed up as a colour choice. */
+.sheet-panel__chip:focus-visible {
+  outline: 2px solid var(--paper-white);
+  outline-offset: 2px;
+}
+
+/* The spread is Paper White stock, so it inverts — and oxblood becomes
+   legal again, because it is no longer touching olive. */
+.sheet-panel--spread .sheet-panel__chip {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+.sheet-panel--spread .sheet-panel__chip:hover {
+  background: var(--field-olive-deep);
+}
+
+.sheet-panel--spread .sheet-panel__chip:focus-visible {
+  outline: 2px solid var(--oxblood);
+}
+
+/* ============================================================ IMAGE PLATE
+   The only thing on this page allowed to rotate. */
+.sheet-plate {
+  margin: 0;
+  padding: 2.6%;
+  background: var(--paper-white);
+  box-shadow: var(--plate-shadow);
+  transform: rotate(var(--rot, 0deg));
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet-plate > img {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The dither IS the image (docs/13_ASSET_SPEC.md, tools/halftone.py):
+     these are 1-bit halftone plates, and smooth-scaling one turns the dot
+     screen to grey mush. Same reasoning as the Home plate stack. */
+  image-rendering: pixelated;
+}
+
+.sheet-plate > figcaption {
+  flex: 0 0 auto;
+  margin-top: 0.5em;
+  font-size: clamp(5.5px, 0.56cqw, 8px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------- feature stage */
+.sheet-panel__stage {
+  position: relative;
+  flex: 1 1 auto;
+  margin: 4% 0;
+}
+
+.sheet-plate--feature {
+  position: absolute;
+  left: 13%;
+  top: 20%;
+  width: 85%;
+  height: 62%;
+  --rot: -4.6deg;
+}
+
+/* Outlined registration circles — authored positions, never randomised.
+   A page that is different every visit reads as broken, not as handmade. */
+/* Drawn as SVG circles rather than round-cornered boxes. tokens.css
+   zeroes border-radius globally with !important, and that law is worth more
+   than the convenience of an override — an <svg><circle> is a shape, not a
+   rounded card, so nothing has to be won back. */
+.sheet-panel__marks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.sheet-panel__marks circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9;
+  opacity: 0.42;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ----------------------------------------------------------------- spread */
+.sheet-panel--spread {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  gap: 3%;
+}
+
+/* The two plates sit SIDE BY SIDE, not stacked. The reference sheet stacks
+   two landscape photos, but a mobile-app record's screenshots are portrait,
+   and a portrait image in a landscape mat gets cropped to a white sliver by
+   `object-fit: cover`. Side-by-side portrait mats fit the actual asset. */
+.sheet-panel__plates {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 6%;
+  /* Bottom room for the rotated corner to dip into without clipping. */
+  padding: 3% 0 11%;
+}
+
+.sheet-plate--a,
+.sheet-plate--b {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.sheet-plate--a {
+  --rot: -3deg;
+}
+
+.sheet-plate--b {
+  --rot: 2.2deg;
+  margin-top: 7%;
+}
+
+.sheet-panel__body {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 4%;
+  align-items: start;
+}
+
+/* Real text, rotated by writing-mode — never an image, never a transform
+   on a text node. It stays selectable, searchable, and is read normally by
+   assistive tech. */
+.sheet-panel__vertical {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 2.3cqw, 32px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.sheet-panel__column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+}
+
+.sheet-panel__vmeta {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-size: clamp(5.5px, 0.58cqw, 8px);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+/* ========================================================= TEMPLATE LADDER
+   Pre-authored static layouts selected by record count. Deterministic, not
+   weighted-random like doc 12's Skills seeds — which makes this strictly
+   safer than the precedent it borrows from. Every rung is a whole
+   composition; what varies is how much paper is left showing.
+
+   Read the grid-areas as row-start / col-start / row-end / col-end. Keep
+   them all in this one block, in composition order, so the layout can be
+   read as a whole rather than reconstructed from twelve scattered rules. */
+
+/* --- T2 · 3 records · the reference distribution (also the base) --------- */
+.sheet-panel--feature {
+  grid-area: 1 / 1 / 13 / 6;
+}
+.sheet-panel--record {
+  grid-area: 1 / 6 / 4 / 10;
+}
+.sheet-panel--colophon {
+  grid-area: 4 / 6 / 7 / 10;
+}
+.project-sheet__pocket {
+  grid-area: 1 / 10 / 7 / 13;
+}
+.sheet-panel--spread {
+  grid-area: 8 / 6 / 13 / 13;
+}
+
+/* --- T1 · 1–2 records · maximum air ------------------------------------- */
+[data-tpl="1"] .project-sheet__pocket {
+  grid-area: 1 / 1 / 3 / 7;
+  flex-direction: row;
+  align-items: end;
+  gap: 1.2em;
+  border-left: 0;
+  border-bottom: 1px solid var(--field-olive);
+  padding: 0 0 0.7em;
+}
+[data-tpl="1"] .project-sheet__row {
+  flex: 0 1 auto;
+  gap: 0.7em;
+}
+[data-tpl="1"] .project-sheet__pager {
+  margin-left: auto;
+}
+[data-tpl="1"] .sheet-panel--feature {
+  grid-area: 3 / 1 / 13 / 7;
+}
+[data-tpl="1"] .sheet-panel--spread {
+  grid-area: 1 / 7 / 7 / 13;
+}
+[data-tpl="1"] .sheet-panel--colophon {
+  grid-area: 8 / 7 / 13 / 13;
+}
+/* One lone record and no spread: the feature takes the freed half rather
+   than leaving a hole where a panel should be. */
+[data-tpl="1"][data-spread="0"] .project-sheet__pocket {
+  grid-area: 1 / 1 / 3 / 13;
+}
+[data-tpl="1"][data-spread="0"] .sheet-panel--feature {
+  grid-area: 3 / 1 / 13 / 9;
+}
+[data-tpl="1"][data-spread="0"] .sheet-panel--colophon {
+  grid-area: 3 / 9 / 13 / 13;
+}
+
+/* --- T3 · 4 records · the pocket yields its lower half ------------------- */
+[data-tpl="3"] .project-sheet__pocket {
+  grid-area: 1 / 10 / 5 / 13;
+}
+[data-tpl="3"] .sheet-panel--record[data-record="2"] {
+  grid-area: 5 / 10 / 8 / 13;
+}
+
+/* --- T4 · 5 records · the cap. Fully packed, gutter tightens ------------- */
+[data-tpl="4"] .project-sheet__grid {
+  --gutter: 0.85cqw;
+}
+[data-tpl="4"] .sheet-panel--feature {
+  grid-area: 1 / 1 / 9 / 5;
+}
+[data-tpl="4"] .sheet-panel--record {
+  grid-area: 1 / 5 / 5 / 9;
+}
+[data-tpl="4"] .sheet-panel--record[data-record="2"] {
+  grid-area: 5 / 5 / 9 / 9;
+}
+[data-tpl="4"] .project-sheet__pocket {
+  grid-area: 1 / 9 / 5 / 13;
+}
+[data-tpl="4"] .sheet-panel--record[data-record="3"] {
+  grid-area: 5 / 9 / 9 / 13;
+}
+[data-tpl="4"] .sheet-panel--spread {
+  grid-area: 9 / 1 / 13 / 9;
+}
+[data-tpl="4"] .sheet-panel--colophon {
+  grid-area: 9 / 9 / 13 / 13;
+}
+[data-tpl="4"] .sheet-panel__display {
+  font-size: clamp(16px, 2.9cqw, 38px);
+}
+[data-tpl="4"] .sheet-plate--feature {
+  left: 10%;
+  top: 14%;
+  width: 86%;
+  height: 72%;
+  --rot: -3.8deg;
+}
+
+/* ============================================================== EMPTY STATE
+   Never a blank grid. A sheet with nothing on it still has to be a sheet. */
+.project-sheet--empty .project-sheet__grid {
+  display: block;
+  aspect-ratio: auto;
+  padding-left: 0;
+}
+
+.project-sheet--empty .sheet-panel--record {
+  grid-area: auto;
+  min-height: 160px;
+}
+
+/* ================================================================== MOTION
+   Hard-edged clip wipes only (docs/07_ANIMATION_GUIDELINES.md): no curl,
+   no spring, no overshoot. The wipe runs right -> left, matching the
+   forward turn. Staggered in DOM order so the sheet assembles in reading
+   order rather than all at once. */
+@keyframes sheet-wipe {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+[data-motion="full"] .sheet-panel {
+  animation: sheet-wipe var(--dur-turn) var(--ease-hard) both;
+}
+
+[data-motion="full"] .sheet-panel--feature {
+  animation-delay: 0ms;
+}
+[data-motion="full"] .sheet-panel--record[data-record="1"] {
+  animation-delay: 45ms;
+}
+[data-motion="full"] .sheet-panel--record[data-record="2"] {
+  animation-delay: 90ms;
+}
+[data-motion="full"] .sheet-panel--record[data-record="3"] {
+  animation-delay: 135ms;
+}
+[data-motion="full"] .sheet-panel--spread {
+  animation-delay: 180ms;
+}
+[data-motion="full"] .sheet-panel--colophon {
+  animation-delay: 225ms;
+}
+
+/* `data-motion="reduced"` simply never adds the animation — an omission,
+   not an override, so no half-animated state is reachable. The
+   prefers-reduced-motion query below is the belt to that hook's braces,
+   for the frame before React reads the media query. */
+@media (prefers-reduced-motion: reduce) {
+  .sheet-panel {
+    animation: none !important;
+    clip-path: none !important;
+  }
+}
+
+/* ============================================================== RESPONSIVE */
+
+/* Rotation halves; the decorative circles shed. Overlap turns into
+   occlusion as things narrow, so what can be lost is lost early. */
+@media (max-width: 1100px) {
+  .sheet-plate--feature {
+    --rot: -2.3deg;
+  }
+  .sheet-plate--a {
+    --rot: -1.5deg;
+  }
+  .sheet-plate--b {
+    --rot: 1.1deg;
+  }
+  .sheet-panel__marks {
+    display: none;
+  }
+}
+
+/* Below 900px the sheet stops being a sheet: single column, no rotation,
+   no aspect ratio, and the page scrolls. Permitted, and always was —
+   docs/03_UX_ARCHITECTURE.MD, "the shell never scrolls, content is always
+   free to". WCAG 1.4.10 reflow beats the composition here, per
+   MASTER_AGENT.md's conflict order. */
+@media (max-width: 900px) {
+  .project-sheet {
+    max-width: none;
+  }
+
+  .project-sheet__grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    aspect-ratio: auto;
+    padding-left: 0;
+  }
+
+  .project-sheet__rail {
+    display: none;
+  }
+
+  .project-sheet__pocket {
+    border-left: 0;
+    border-bottom: 1px solid var(--field-olive);
+    padding: 0 0 var(--space-sm);
+  }
+
+  .sheet-panel {
+    gap: var(--space-sm);
+    /* Stacked panels must not be squeezed by an ancestor's height. A flex
+       item shrinks by default, and `overflow: hidden` turns that squeeze
+       into silently clipped copy rather than a visible overflow. */
+    flex: 0 0 auto;
+  }
+
+  .sheet-panel__blocks {
+    margin-top: 0;
+  }
+
+  .sheet-plate {
+    position: static;
+    width: 100% !important;
+    height: auto !important;
+    --rot: 0deg !important;
+  }
+
+  .sheet-plate > img {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .sheet-panel__stage {
+    margin: var(--space-sm) 0;
+  }
+
+  .sheet-panel--spread {
+    display: block;
+  }
+
+  .sheet-panel__plates {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .sheet-panel__body {
+    display: block;
+  }
+
+  .sheet-panel__vertical {
+    writing-mode: horizontal-tb;
+    font-size: clamp(20px, 7vw, 30px);
+  }
+
+  .sheet-panel__vmeta {
+    writing-mode: horizontal-tb;
+    margin-top: var(--space-sm);
+  }
+}

@@ -35,11 +35,12 @@
   color: var(--gray);
 }
 
-/* Small pointed-at crops: 2px Signal Red border is a UI element, never
-   text (4.03:1 on paper, 4.74:1 on paper white). */
+/* Small pointed-at crops: 2px Oxblood border is a UI element, never text
+   (10.98:1 on paper, 12.92:1 on paper white — the retired Signal Red only
+   reached 4.03/4.74 here). */
 .plate--detail {
   background: var(--paper-white);
-  border: 2px solid var(--signal-red);
+  border: 2px solid var(--oxblood);
   padding: 5px;
   box-shadow: var(--plate-shadow-sm);
 }
@@ -62,9 +63,11 @@
 }
 
 /* One callout bar per screen, max (doc 12) — a status flag or featured
-   tag, never ambient wallpaper. Paper White text only at small sizes. */
+   tag, never ambient wallpaper. Oxblood carries Paper White at 12.92:1, so
+   unlike the retired Signal Red there is no size restriction on the label.
+   Never place this bar ON a Field Olive plate: 1.90:1. */
 .bar--accent {
-  background: var(--signal-red);
+  background: var(--oxblood);
   color: var(--paper-white);
 }
 

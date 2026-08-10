@@ -1,58 +1,121 @@
+/**
+ * Sheet 01's paper margin. The composition itself is
+ * `src/components/profile-plate/profile-plate.css` — nothing here should
+ * reach into it. This file only styles what sits BELOW the sheet.
+ */
+
+/* Panel's base surface is --paper-white (panel.css — shared by every
+   module, never edited from here). The plate itself sits on --paper, so a
+   Panel-white gutter around the header/title/margin read as a second,
+   disconnected page butted up against the sheet. Re-pointing just THIS
+   panel instance to --paper via :has() keeps the override scoped to
+   Profile without touching the shared component. */
+.panel:has(> .panel__content > .profile-page) {
+  position: relative;
+  background: var(--paper);
+}
+
+/* Two-pass film grain — a dark speckle (multiply) and a light speckle
+   (screen); one pass alone reads as dirt on light paper, the pair reads as
+   film. This used to live inside `profile-plate.css`, scoped to just the
+   plate stage, but the stage's `overflow: hidden` + `isolation: isolate`
+   clipped it at the stage edge — visible as a seam against the flat paper
+   margin below, on top of the portrait's own background not matching
+   `--paper` either. Moved here as a page-level layer covering the whole
+   Profile panel (stage + margin) as one continuous texture, scoped to just
+   this panel instance via the same :has() selector above so Projects/
+   Certifications/Contact stay flat with no texture. Purely decorative:
+   pointer-events: none, empty generated content never reaches the
+   accessibility tree. */
+.panel:has(> .panel__content > .profile-page)::before,
+.panel:has(> .panel__content > .profile-page)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-frame);
+  pointer-events: none;
+}
+
+.panel:has(> .panel__content > .profile-page)::before {
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='1.6' intercept='-0.42'/></feComponentTransfer></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+}
+
+.panel:has(> .panel__content > .profile-page)::after {
+  opacity: 0.75;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='190' height='190'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' seed='7' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='1.4' intercept='-0.55'/></feComponentTransfer></filter><rect width='190' height='190' filter='url(%23m)'/></svg>");
+  background-size: 190px 190px;
+}
+
 .profile-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Pure atmosphere in the gutters beside the sheet, not a second focal
+   element — aria-hidden, no information they alone carry (matches the
+   plate's own portrait/decorative-image pattern). Sized by width only;
+   height stays intrinsic to each figure's own aspect ratio rather than a
+   percentage, since `.profile-page` has no definite height to resolve one
+   against. Hidden below 1300px: `.profile-page__margin` caps at 960px and
+   the panel has ~18px of its own padding on each side, so below that width
+   there isn't enough gutter left for a figure without crowding the margin
+   column's text. */
+.profile-page__silhouette {
+  display: none;
+  position: absolute;
+  top: 2%;
+  width: clamp(70px, 8vw, 140px);
+  height: auto;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@media (min-width: 1300px) {
+  .profile-page__silhouette {
+    display: block;
+  }
+}
+
+.profile-page__silhouette--sit {
+  left: 1%;
+}
+
+.profile-page__silhouette--stand {
+  right: 1%;
+}
+
+/* Left-aligned to the sheet's own seam (8.7% of the stage) so the margin
+   copy reads as part of the same print, not as a separate block. Capped at
+   the stage's max width for the same reason. */
+.profile-page__margin {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-}
-
-.profile-page__identity {
-  padding: var(--space-sm) var(--space-md);
-}
-
-.profile-page__name {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: var(--text-display-lg);
-  line-height: 1;
-}
-
-.profile-page__role {
-  margin: var(--space-2xs) 0 0;
-  font-family: var(--font-display);
-  font-size: var(--text-body);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--gray);
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  padding-left: 8.7%;
 }
 
 .profile-page__bio,
 .profile-page__body {
   margin: 0;
+  max-width: 62ch;
   font-size: var(--text-body);
 }
 
-.profile-page__specs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.profile-page__body {
+  color: var(--gray);
 }
 
-.profile-page__specs li {
-  display: flex;
-}
-
-.profile-page__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-}
-
-.profile-page__actions button {
-  border: none;
-  font: inherit;
-  cursor: pointer;
+@media (max-width: 900px) {
+  .profile-page__margin {
+    padding-left: 0;
+  }
 }

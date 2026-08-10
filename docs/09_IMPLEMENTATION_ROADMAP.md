@@ -28,10 +28,14 @@ Build:
 - Profile module
 - Project database
 - ~~Skills module~~ — removed 2026-07-31: ships as part of the Home
-  collage instead (Skills badge field + Certificate/Award plates), not a
-  standalone routed page. See `12_COLLAGE_SYSTEM.md`.
+  collage instead (Skills badge field + ~~Certificate/Award plates~~), not
+  a standalone routed page. See `12_COLLAGE_SYSTEM.md`.
+  _(Updated 2026-08-01: Certificate/Award plates have since moved off Home
+  into their own routed module, `/certifications` — see
+  `03_UX_ARCHITECTURE.MD`. The Skills badge field is unaffected and still
+  ships as part of the Home collage as described.)_
 
----
+---j
 
 ## Phase 4
 

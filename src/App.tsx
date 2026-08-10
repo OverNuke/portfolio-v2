@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Route, Routes, useLocation } from "react-router";
 import { NameRevealIntro } from "./components/name-reveal-intro";
+import { ABOUT_PROFILE } from "./content/data";
+import { CertificationsPage } from "./routes/CertificationsPage";
 import { ContactPage } from "./routes/ContactPage";
 import { NotFound } from "./routes/NotFound";
 import { ProfilePage } from "./routes/ProfilePage";
@@ -39,17 +41,30 @@ function AppShell() {
   // `displayedPath` keeps PageLayer's title/tag and the routed content in
   // sync with what's actually still painted.
   const contentPath = turn === "reverse" ? displayedPath : location.pathname;
-  const activeRoute = ROUTES.find((route) => route.path === contentPath);
+  // Exact match first, then the route whose path is a prefix — /certifications
+  // paginates to /certifications/2, and those sheets are the same page, so
+  // they must resolve to the same title/tag rather than falling through to
+  // "NOT FOUND". The trailing "/" guard keeps /certificationsXYZ from matching.
+  const activeRoute =
+    ROUTES.find((route) => route.path === contentPath) ??
+    ROUTES.find((route) => contentPath.startsWith(`${route.path}/`));
 
   return (
     <>
-      {showIntro && <NameRevealIntro caption="Full-Stack Developer" />}
+      {/* Was a hardcoded "Full-Stack Developer" until 2026-08-06, which
+          had drifted from ABOUT_PROFILE.role ("Jr. Software Developer") —
+          the intro and the page under it announced different jobs. */}
+      {showIntro && <NameRevealIntro caption={ABOUT_PROFILE.role} />}
       <Shell />
       {layerMounted && (
         <PageLayer title={activeRoute?.title ?? "NOT FOUND"} tag={activeRoute?.tag ?? ""}>
           <Routes location={contentPath}>
             <Route path="/" element={null} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/certifications" element={<CertificationsPage />} />
+          {/* Past the sheet cap the wall paginates rather than densifying, so
+              each sheet is a real route and browser back walks the sheets. */}
+          <Route path="/certifications/:page" element={<CertificationsPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="*" element={<NotFound />} />

@@ -3,7 +3,13 @@ import { join } from "node:path";
 import postcss, { type Container, type Rule } from "postcss";
 import { describe, expect, it } from "vitest";
 
-const STYLESHEET_PATHS = [join(__dirname, "collage.css"), join(__dirname, "skills-collage.css")];
+/* 2026-08-06: Home's placement moved to `home.css` — a new composition on
+   a new filename rather than an in-place rewrite of `collage.css`, whose
+   grid this Home no longer uses. `collage.css` and `skills-collage.css`
+   are both still on disk and BOTH ARE NOW UNREFERENCED (nothing imports
+   either); delete them, along with `SkillsCollage.tsx`, `collageSeeds.ts`,
+   `useCollageSeed.ts` and `components/skill-badge/`, in a cleanup pass. */
+const STYLESHEET_PATHS = [join(__dirname, "home.css")];
 
 function parse() {
   const css = STYLESHEET_PATHS.map((path) => readFileSync(path, "utf-8")).join("\n");
@@ -22,35 +28,36 @@ function isRule(node: Container | undefined): node is Rule {
  * grid-area-only placement, the ±2° rotation cap (--rot-max), and the
  * interactive (20-30) z-index band for nav plates.
  */
-describe("collage.css", () => {
+describe("home.css", () => {
   const root = parse();
 
-  // (a) Every top-level plate placed on the 12x12 canvas must declare a
-  // grid-area — the direct grid children of `.canvas`. `.skills-collage`'s
-  // 5 seed modifier classes vary the arrangement *inside* its one fixed
-  // grid-area, not the area itself, so only the base class is checked here.
-  const PLACEMENT_SELECTORS = [
-    ".identity-plate",
-    ".nav-stack",
-    ".spec-cascade",
-    ".cert-field",
-    ".skills-collage",
-  ];
+  // (a) Every block placed on the canvas must declare a grid-area. The
+  // 2026-08-06 "ghost plate" Home is a 4-area grid rather than a 12x12
+  // collage, but the rule it enforces is unchanged: placement is CSS's
+  // job, declared once, never an inline style. The photograph, the seam
+  // and the margin reticles are absolutely positioned instead — they are
+  // decorative, aria-hidden, and outside the grid on purpose, which is
+  // exactly what check (b) below pins down.
+  const PLACEMENT_SELECTORS = [".hm-identity", ".hm-plate", ".hm-rail", ".hm-channels"];
 
   it.each(PLACEMENT_SELECTORS)("%s declares a grid-area", (selector) => {
-    let found = false;
+    let declared = false;
     root.walkRules(selector, (rule) => {
-      found = true;
-      const hasGridArea = rule.nodes.some(
-        (node) => node.type === "decl" && node.prop === "grid-area",
-      );
-      expect(hasGridArea, `${selector} must declare grid-area`).toBe(true);
+      // Top-level rules only. A breakpoint override that retunes rotation
+      // or padding is not a second placement declaration, and demanding
+      // grid-area in every one of them would just be noise.
+      if (rule.parent?.type !== "root") return;
+      if (rule.nodes.some((node) => node.type === "decl" && node.prop === "grid-area")) {
+        declared = true;
+      }
     });
-    expect(found, `${selector} rule not found in collage.css`).toBe(true);
+    expect(declared, `${selector} must declare grid-area in home.css`).toBe(true);
   });
 
   // (b) No rule anywhere may use pixel top/left placement — grid-area is
-  // the only placement mechanism (the hero's exception is out of scope).
+  // the only placement mechanism. (`.hero` used to be this check's one
+  // documented exception, positioned via the `inset` shorthand rather than
+  // `top`/`left` — moot as of 2026-08-03, second pass: `.hero` is gone.)
   it("no rule uses top/left placement", () => {
     const offenders: string[] = [];
     root.walkDecls(/^(top|left)$/, (decl) => {
@@ -79,28 +86,69 @@ describe("collage.css", () => {
   });
 
   // (d) z-index values fall within the band matching what they carry —
-  // interactive (nav, cert-plate — both real links/buttons) vs content
-  // (skills-collage — non-interactive badges) — docs/12_COLLAGE_SYSTEM.md's
+  // interactive (the index plate and the channel strip, both real
+  // controls) vs content (identity, stack rail — inert) vs decorative
+  // (photograph, seam, margin chrome) — docs/12_COLLAGE_SYSTEM.md's
   // stack-order-follows-meaning rule (interactive > content > decorative).
   // An explicit table, not a single "nav" regex, so a mis-banded new plate
-  // (e.g. an interactive cert-plate wrongly left in the content band)
   // fails loudly instead of shipping unenforced.
   const Z_INDEX_BANDS = [
-    { pattern: /cert-plate/i, min: 20, max: 30 },
-    { pattern: /skills-collage/i, min: 10, max: 19 },
-    { pattern: /nav/i, min: 20, max: 30 },
+    { pattern: /hm-(hero|seam|reticle)/i, min: 1, max: 9 },
+    { pattern: /hm-(identity|rail)/i, min: 10, max: 19 },
+    { pattern: /hm-(plate|channels)/i, min: 20, max: 30 },
   ];
+
+  /**
+   * Every z-index in this file is written as a token or as
+   * `calc(var(--token) + N)` — that is the point of the bands, and it is
+   * also why the previous version of this check silently passed nothing:
+   * `Number("var(--z-plate-decor)")` is NaN, and NaN made every rule an
+   * offender the moment the CSS stopped using raw integers. So resolve
+   * the tokens from tokens.css first, then band-check the number.
+   */
+  const Z_TOKENS = (() => {
+    const css = readFileSync(join(__dirname, "..", "..", "styles", "tokens.css"), "utf-8");
+    const map = new Map<string, number>();
+    postcss.parse(css).walkDecls(/^--z-/, (decl) => {
+      map.set(decl.prop, Number(decl.value.trim()));
+    });
+    return map;
+  })();
+
+  function resolveZ(value: string): number | null {
+    const raw = value.trim();
+    if (/^-?\d+$/.test(raw)) return Number(raw);
+
+    const bare = /^var\((--[\w-]+)\)$/.exec(raw);
+    if (bare) return Z_TOKENS.get(bare[1]) ?? null;
+
+    const offset = /^calc\(\s*var\((--[\w-]+)\)\s*([+-])\s*(\d+)\s*\)$/.exec(raw);
+    if (offset) {
+      const base = Z_TOKENS.get(offset[1]);
+      if (base === undefined) return null;
+      return offset[2] === "+" ? base + Number(offset[3]) : base - Number(offset[3]);
+    }
+    return null;
+  }
 
   it("z-index values fall within their meaning's band", () => {
     const offenders: string[] = [];
     root.walkDecls("z-index", (decl) => {
       if (!isRule(decl.parent)) return;
       const selector = decl.parent.selector;
+      // Pseudo-elements stack inside their own parent's context, so they
+      // are not band members — `.hm-plate::before` is the registration
+      // pass printed *behind* its plate, at -1 of it.
+      if (selector.includes("::")) return;
       const band = Z_INDEX_BANDS.find(({ pattern }) => pattern.test(selector));
       if (!band) return;
-      const value = Number(decl.value);
-      if (Number.isNaN(value) || value < band.min || value > band.max) {
-        offenders.push(`${selector}: ${decl.value} (expected ${band.min}-${band.max})`);
+      const value = resolveZ(decl.value);
+      if (value === null) {
+        offenders.push(`${selector}: unresolvable z-index "${decl.value}"`);
+        return;
+      }
+      if (value < band.min || value > band.max) {
+        offenders.push(`${selector}: ${decl.value} = ${value} (expected ${band.min}-${band.max})`);
       }
     });
     expect(offenders).toEqual([]);
@@ -108,105 +156,13 @@ describe("collage.css", () => {
 });
 
 /**
- * Phase 4.2 (sdd/phase4-visual-design), design D1-D4. `.accent-plate` is a
- * NEW, Home-only class layered on top of the shared `.bar--accent` skin
- * (also worn by ProfilePage's CTA button and featured ProjectCards via
- * src/styles/plate.css — discovery/bar-accent-class-collision, #91).
- * `.bar--accent` itself MUST stay byte-identical — the approval test below
- * pins its current declarations so any accidental edit to the shared class
- * fails loudly.
+ * Retired from Home on 2026-08-06 and NOT re-pinned here: `.identity-plate`,
+ * `.nav-stack`, `.skills-collage`, `.plate-sit`/`.plate-work`/`.plate-detail`,
+ * `.socials`, `.serial-block`. They are gone from `collage.css` entirely
+ * rather than exempted — see `home.css`'s header for the design record.
+ *
+ * The shared `.bar--accent` / `.plate` skins (ProfilePage's CTA button,
+ * featured ProjectCards) live in `src/styles/plate.css` and are untouched;
+ * nothing in this file layers on top of them any more, so their coverage
+ * belongs with the pages that actually use them.
  */
-describe("accent-plate (phase 4.2 two-line plate + chrome)", () => {
-  const root = parse();
-
-  function declMap(selector: string): Record<string, string> {
-    const map: Record<string, string> = {};
-    root.walkRules(selector, (rule) => {
-      for (const node of rule.nodes) {
-        if (node.type === "decl") map[node.prop] = node.value;
-      }
-    });
-    return map;
-  }
-
-  // Approval test (D1) — pins the CURRENT, pre-existing `.bar--accent` skin
-  // so T2/T3's additive edits cannot silently restructure the shared class
-  // that ProfilePage.tsx and ProjectCard.tsx also depend on.
-  it("shared `.bar--accent` base skin is untouched by the new accent-plate layer", () => {
-    expect(declMap(".bar--accent")).toEqual({
-      display: "inline-flex",
-      "align-items": "baseline",
-      gap: "var(--space-xs)",
-      width: "fit-content",
-      "max-width": "100%",
-      background: "var(--signal-red)",
-      color: "var(--paper-white)",
-      padding: "5px var(--space-sm)",
-      "box-shadow": "var(--plate-shadow-sm)",
-      transform: "rotate(var(--rot, 0deg))",
-      margin: "0",
-    });
-    expect(declMap(".bar--accent .k")).toEqual({
-      "font-size": "var(--text-micro)",
-      "letter-spacing": "var(--track-label)",
-      "text-transform": "uppercase",
-      opacity: "0.8",
-      "white-space": "nowrap",
-    });
-    expect(declMap(".bar--accent .v")).toEqual({
-      "font-family": "var(--font-mono)",
-      "font-size": "var(--text-meta)",
-      "letter-spacing": "0.06em",
-      "text-transform": "uppercase",
-      "white-space": "nowrap",
-    });
-  });
-
-  it("`.accent-plate` supplies a column layout and a positioning context for chrome (D2/D3)", () => {
-    const decls = declMap(".accent-plate");
-    expect(decls.display).toBe("flex");
-    expect(decls["flex-direction"]).toBe("column");
-    expect(decls.position).toBe("relative");
-  });
-
-  it("`.accent-plate .bar__hype` is a distinct, non-truncated text line (D3)", () => {
-    const decls = declMap(".accent-plate .bar__hype");
-    expect(decls["text-transform"]).toBe("uppercase");
-    expect(decls["white-space"]).not.toBe("nowrap");
-  });
-
-  it("chrome brackets on `.accent-plate` are AT-invisible pseudo-elements anchored with `inset`, never top/left (D3)", () => {
-    // Chrome may be authored as a shared comma-selector block (shared
-    // content/position) PLUS per-pseudo rules (inset) — merge declarations
-    // across every rule whose selector LIST includes the pseudo, mirroring
-    // how the cascade actually resolves the effective computed style.
-    function mergedDecls(pseudoSelector: string): Record<string, string> | undefined {
-      let found = false;
-      const decls: Record<string, string> = {};
-      root.walkRules((rule) => {
-        if (!rule.selectors.includes(pseudoSelector)) return;
-        found = true;
-        for (const node of rule.nodes) {
-          if (node.type === "decl") decls[node.prop] = node.value;
-        }
-      });
-      return found ? decls : undefined;
-    }
-
-    for (const pseudo of [".accent-plate::before", ".accent-plate::after"]) {
-      const decls = mergedDecls(pseudo);
-      expect(decls, `${pseudo} rule not found`).toBeDefined();
-      expect(decls?.content, `${pseudo} content must be empty string`).toBe('""');
-      expect(decls?.inset, `${pseudo} must use the inset shorthand`).toBeDefined();
-      expect(decls?.top, `${pseudo} must not declare top`).toBeUndefined();
-      expect(decls?.left, `${pseudo} must not declare left`).toBeUndefined();
-    }
-  });
-
-  it("`.bar--status` and `.bar--build` grow to a 3-row grid-area span for the taller two-line plate (D4)", () => {
-    expect(declMap(".bar--status")["grid-area"]).toBe("1 / 8 / 4 / 12");
-    expect(declMap(".bar--status")["align-self"]).toBe("center");
-    expect(declMap(".bar--build")["grid-area"]).toBe("9 / 7 / 12 / 12");
-    expect(declMap(".bar--build")["align-self"]).toBe("center");
-  });
-});

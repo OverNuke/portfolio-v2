@@ -1,137 +1,134 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CERTIFICATES, SKILLS } from "../../content/data";
+import { ABOUT_PROFILE, SKILLS, SOCIAL_LINKS } from "../../content/data";
 import { ROUTES } from "../../routes/routes";
-import { SKILLS_SEEDS } from "./collageSeeds";
 import { Canvas } from "./Canvas";
-import { SkillsCollage } from "./SkillsCollage";
 
 /**
- * Task 3.1 (sdd/phase2-app-shell). Regression check against 2.6/2.7's
- * existing behavior now that NavItem is composed inside the 12x12 collage
- * grid instead of a plain ungrided list (batch 5). `useTurn` is mocked —
- * same rationale as `NavItem.test.tsx`: the turn machine itself is
- * covered end-to-end elsewhere (`TurnProvider.test.tsx`), this file only
- * needs to prove Canvas composes NavItem/ROUTES correctly.
+ * Rewritten 2026-08-06 with the "ghost plate" Home.
+ *
+ * `useTurn` is mocked for the same reason as in `NavItem.test.tsx`: the
+ * turn machine is covered end-to-end in `TurnProvider.test.tsx`; this file
+ * only proves Canvas composes the right content and wires the right
+ * controls.
+ *
+ * What is deliberately asserted here is the ACCESSIBILITY CONTRACT, not
+ * the layout — layout is `home.css`'s job and `collage.test.ts` /
+ * `audit:collage` cover it. The things that would silently break and that
+ * nothing else would catch:
+ *   · the split masthead must not reach the accessibility tree (it would
+ *     announce the name twice, fragmented);
+ *   · the rail must follow `Skill.core` rather than a literal;
+ *   · channel links must be named by their address, not by "GitHub".
  */
 const goMock = vi.hoisted(() => vi.fn());
 
 vi.mock("../../turn/useTurn", () => ({
-  useTurn: () => ({ go: goMock }),
+  useTurn: () => ({ go: goMock, layerMounted: false }),
 }));
+
+const CORE_SKILLS = SKILLS.filter((skill) => skill.core);
+const MODULES = ROUTES.filter((route) => route.pageId !== "contact");
+const CONTACT_ROUTE = ROUTES.find((route) => route.pageId === "contact")!;
 
 describe("Canvas", () => {
   beforeEach(() => {
     goMock.mockClear();
   });
 
-  it("renders the identity content", () => {
+  it("exposes the full name once, as the page heading", () => {
     render(<Canvas />);
+
+    // `name:` is an exact match, so this alone proves the decorative
+    // fragments are not contributing: if either reached the tree the
+    // accessible name would be the whole thing twice over.
     expect(
-      screen.getByRole("heading", { name: "Kevin Sebastián Frías García" }),
+      screen.getByRole("heading", { level: 1, name: ABOUT_PROFILE.fullName }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Full-Stack Developer")).toBeInTheDocument();
   });
 
-  it("renders one real <button> NavItem per route, still reachable via the Primary nav landmark", () => {
+  it("hides the split masthead from assistive tech", () => {
+    const { container } = render(<Canvas />);
+
+    // Text queries deliberately ignore aria-hidden, so this has to be
+    // asserted on the attribute rather than through queryByText — which is
+    // exactly the mistake the first version of this test made.
+    for (const cls of [".hm-name__given", ".hm-name__family"]) {
+      expect(container.querySelector(cls)).toHaveAttribute("aria-hidden", "true");
+    }
+  });
+
+  it("lists every routed module inside the Primary landmark, and omits contact", () => {
     render(<Canvas />);
     const nav = screen.getByRole("navigation", { name: "Primary" });
 
-    for (const route of ROUTES) {
-      const button = screen.getByRole("button", { name: new RegExp(route.title, "i") });
-      expect(nav).toContainElement(button);
+    for (const route of MODULES) {
+      expect(
+        within(nav).getByRole("button", { name: new RegExp(route.title, "i") }),
+      ).toBeInTheDocument();
     }
+
+    // Contact keeps its route; it is simply not a module row, because its
+    // channels are on this page.
+    expect(
+      screen.queryByRole("button", { name: new RegExp(CONTACT_ROUTE.title, "i") }),
+    ).not.toBeInTheDocument();
   });
 
-  it("NavItems still activate correctly (click) now that they're inside the grid", async () => {
+  it("index rows drive the turn machine, passing the row as the opener", async () => {
     const user = userEvent.setup();
     render(<Canvas />);
-    const button = screen.getByRole("button", { name: /profile/i });
 
-    await user.click(button);
+    const profileRow = screen.getByRole("button", { name: /profile/i });
+    await user.click(profileRow);
 
     expect(goMock).toHaveBeenCalledTimes(1);
-    expect(goMock).toHaveBeenCalledWith("/profile", button);
+    // NavItem hands `go()` its own button so the reverse turn has somewhere
+    // to put focus back.
+    expect(goMock).toHaveBeenCalledWith("/profile", profileRow);
   });
 
-  it("the placeholder spec-cascade plate carries no real content and is aria-hidden", () => {
-    const { container } = render(<Canvas />);
-    // getByText/queryByText are not accessibility-tree-aware (they match
-    // raw DOM text regardless of aria-hidden), so the real assertion here
-    // is on the attribute itself, not on query absence.
-    const specCascade = container.querySelector(".spec-cascade");
-    expect(specCascade).toHaveAttribute("aria-hidden", "true");
-    // getByRole IS accessibility-tree-aware — only the real nav, cert-field,
-    // and skills-collage <li>s should be exposed as "listitem"s, not the
-    // placeholder plate's.
-    expect(screen.queryAllByRole("listitem")).toHaveLength(
-      ROUTES.length + CERTIFICATES.length + SKILLS.length,
-    );
+  it("renders the stack rail from Skill.core, and states the remainder", () => {
+    render(<Canvas />);
+    const rail = screen.getByRole("complementary", { name: "Core stack" });
+
+    expect(CORE_SKILLS.length).toBeGreaterThan(0);
+    for (const skill of CORE_SKILLS) {
+      expect(screen.getByText(skill.name)).toBeInTheDocument();
+    }
+
+    // A skill without the flag must not appear — that is the whole point
+    // of the flag living in data.ts.
+    const unlisted = SKILLS.filter((skill) => !skill.core);
+    for (const skill of unlisted) {
+      expect(screen.queryByText(skill.name)).not.toBeInTheDocument();
+    }
+
+    expect(rail).toHaveTextContent(new RegExp(`\\+ 0?${unlisted.length} more`, "i"));
   });
 
-  it("renders one real <a> CertificatePlate per certificate, with correct hrefs", () => {
+  it("names each channel link by its address, not by its platform", () => {
     render(<Canvas />);
 
-    for (const certificate of CERTIFICATES) {
-      const link = screen.getByRole("link", { name: new RegExp(certificate.title, "i") });
-      expect(link).toHaveAttribute("href", certificate.href);
+    for (const link of SOCIAL_LINKS) {
+      const address = link.href
+        .replace(/^mailto:/, "")
+        .replace(/^https?:\/\//, "")
+        .replace(/^www\./, "")
+        .replace(/\/$/, "");
+
+      const anchor = screen.getByRole("link", { name: address });
+      expect(anchor).toHaveAttribute("href", link.href);
     }
   });
-});
 
-describe("SkillsCollage seeds", () => {
-  it.each(SKILLS_SEEDS)("seed %s renders every SKILLS entry with the matching seed class", (seed) => {
-    const { container } = render(<SkillsCollage seedOverride={seed} />);
-
-    // Scoped to `.badge__name` — some icons' <svg><title> text duplicates
-    // the skill name (e.g. the CSS icon's title is "CSS"), which an
-    // unscoped getByText would collide with.
-    for (const skill of SKILLS) {
-      expect(screen.getByText(skill.name, { selector: ".badge__name" })).toBeInTheDocument();
-    }
-    expect(container.querySelector(`.skills-collage--${seed}`)).not.toBeNull();
-  });
-
-  /**
-   * Phase 4.2 (sdd/phase4-visual-design), design D5/D6. Each accent plate
-   * now carries a k/v fact line AND a unique hype line, grouped as two
-   * sibling block-level children so a screen reader announces them as
-   * separate text blocks (spec `collage-accent-bars`, "Screen-Reader Line
-   * Grouping"). Neither line may be aria-hidden — both are sole-source
-   * content, so this also proves neither got accidentally suppressed.
-   */
-  it("the status accent plate exposes its fact line and a distinct hype line as separate blocks, neither hidden", () => {
+  it("marks the photograph decorative", () => {
     const { container } = render(<Canvas />);
-    const plate = container.querySelector(".bar--status");
-    expect(plate).not.toBeNull();
-    expect(plate).not.toHaveAttribute("aria-hidden");
-    expect(plate?.tagName).toBe("DIV"); // two <p> siblings inside a <p> is invalid HTML (D5)
+    const img = container.querySelector(".hm-hero img");
 
-    const spec = plate?.querySelector(".bar__spec");
-    const hype = plate?.querySelector(".bar__hype");
-    expect(spec?.tagName).toBe("P");
-    expect(hype?.tagName).toBe("P");
-    expect(spec).not.toBe(hype); // distinct sibling nodes, not one merged run
-
-    expect(screen.getByText("open to work")).toBeInTheDocument();
-    expect(screen.getByText("Built to ship")).toBeInTheDocument();
-  });
-
-  it("the build accent plate exposes its own distinct fact line and hype line, neither hidden", () => {
-    const { container } = render(<Canvas />);
-    const plate = container.querySelector(".bar--build");
-    expect(plate).not.toBeNull();
-    expect(plate).not.toHaveAttribute("aria-hidden");
-    expect(plate?.tagName).toBe("DIV");
-
-    const spec = plate?.querySelector(".bar__spec");
-    const hype = plate?.querySelector(".bar__hype");
-    expect(spec?.tagName).toBe("P");
-    expect(hype?.tagName).toBe("P");
-    expect(spec).not.toBe(hype);
-
-    expect(screen.getByText("phase_04 // 2026")).toBeInTheDocument();
-    expect(screen.getByText("No rounded corners")).toBeInTheDocument();
+    // It duplicates the heading and carries nothing the heading does not —
+    // same call as the profile plate's portrait.
+    expect(img).toHaveAttribute("alt", "");
   });
 });

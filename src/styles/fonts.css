@@ -1,0 +1,50 @@
+/**
+ * Self-hosted editorial faces — added 2026-08-06 with the Home redesign
+ * (claude/home-y2k-editorial-directions-2026-08-06.md).
+ *
+ * THE FINDING THAT SET THE TYPE SYSTEM: both new faces are serifs. LT
+ * Remark is not a grotesque — it is a high-contrast editorial serif. So
+ * the system is three roles, not two:
+ *
+ *   --font-serif-display  LT Superior Serif   the masthead, and only that
+ *   --font-serif-edit     LT Remark           the editorial voice
+ *   --font-mono           JetBrains Mono      every technical label
+ *
+ * Dense 9px tracked uppercase must never be set in either serif; that is
+ * what --font-mono is for. See docs/02_DESIGN_SYSTEM.MD.
+ *
+ * Files are Latin-1 + common punctuation subsets (pyftsubset --flavor=woff2),
+ * ~10kB each rather than ~75kB. If copy ever needs a glyph outside
+ * U+0020-00FF plus the usual dashes/quotes, regenerate the subset —
+ * a missing glyph falls back to Georgia mid-word and is very visible.
+ *
+ * `font-display: block` on the masthead is deliberate and is the one place
+ * in this repo that does not use `swap`: the family name is set at ~14rem
+ * and is the entire composition, so a fallback flash reflows the identity
+ * block and drags the photograph's dissolve with it. Blocking on ~10kB is
+ * the cheaper artefact. The editorial face swaps normally.
+ */
+
+@font-face {
+  font-family: "LT Superior Serif";
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url("../assets/fonts/LTSuperiorSerif-ExtraBold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "LT Remark";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/LTRemark-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "LT Remark";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/LTRemark-Bold.woff2") format("woff2");
+}

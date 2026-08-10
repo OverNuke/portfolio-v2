@@ -19,10 +19,14 @@ export default {
         // Replaces Tailwind's default gray scale entirely (e.g. text-gray-500
         // no longer exists) — intentional, per design D1. Do not restore it.
         gray: "var(--gray)",
-        "signal-red": "var(--signal-red)",
-        "signal-red-text": "var(--signal-red-text)",
         "warning-yellow": "var(--warning-yellow)",
         "field-olive": "var(--field-olive)",
+        "field-olive-deep": "var(--field-olive-deep)",
+        // Replaces the retired signal-red pair (2026-08-05). One token, not
+        // two — oxblood passes AA at any text size, so there is no
+        // large-text/small-text split to mirror.
+        oxblood: "var(--oxblood)",
+        "oxblood-hi": "var(--oxblood-hi)",
       },
       fontFamily: {
         display: ["var(--font-display)"],

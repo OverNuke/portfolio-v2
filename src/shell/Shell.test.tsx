@@ -1,6 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ABOUT_PROFILE } from "../content/data";
 import { ROUTES } from "../routes/routes";
 import { TurnProvider } from "../turn/TurnProvider";
 import { Shell } from "./Shell";
@@ -44,12 +45,16 @@ describe("Shell", () => {
     expect(
       screen.getByRole("heading", { name: "Kevin Sebastián Frías García" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Full-Stack Developer")).toBeInTheDocument();
+    expect(screen.getByText(ABOUT_PROFILE.role)).toBeInTheDocument();
   });
 
-  it("renders one NavItem button per route", () => {
+  // Contact left the module index on 2026-08-06 (its channels live on Home
+  // itself); the route is still reachable by deep link and from Profile's
+  // status chip, which Canvas.test.tsx covers.
+  it("renders the module index, with one row per routed module", () => {
     renderShell();
-    for (const route of ROUTES) {
+
+    for (const route of ROUTES.filter((r) => r.pageId !== "contact")) {
       expect(
         screen.getByRole("button", { name: new RegExp(route.title, "i") }),
       ).toBeInTheDocument();
@@ -72,7 +77,7 @@ describe("Shell", () => {
     expect(shellEl).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("wires useTurnKeyboard: ArrowLeft on a focused NavItem opens its page", () => {
+  it("wires ArrowLeft on a focused index row to opening its page", () => {
     renderShell();
     const profileButton = screen.getByRole("button", { name: /profile/i });
     profileButton.focus();

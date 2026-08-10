@@ -1,0 +1,587 @@
+/**
+ * CERTIFICATE WALL / LEDGER — /certifications
+ *
+ * Palette is strictly the tokens in `src/styles/tokens.css`. No raw hex here.
+ * The red family is retired; --oxblood never touches --field-olive (1.90:1).
+ *
+ * The load-bearing constraint (Keff, 2026-08-06): at 768px and up this module
+ * MUST NOT scroll vertically. That is why the sheet is sized by `min()`
+ * against the container's own box rather than by `aspect-ratio` alone —
+ * `aspect-ratio` can only satisfy one axis, so a short viewport would overflow.
+ *
+ * Spec: claude/certifications-module-2026-08-05.md
+ */
+
+/* ============================================================
+   SHEET SIZING — fit the box on BOTH axes
+   ============================================================ */
+.cert-wall {
+  /* `size` (not `inline-size`) so the sheet can read 100cqh. */
+  container-type: size;
+  display: grid;
+  flex: 1 1 auto;
+  place-items: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cert-wall__sheet {
+  /* Own container for the cqw-based type inside; sized against .cert-wall. */
+  container-type: inline-size;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  gap: var(--cw-gutter, 1.05cqw);
+  padding-left: var(--cw-rail, 2.4cqw);
+
+  /* The whole no-scroll guarantee, in two lines. */
+  width: min(100cqw, calc(100cqh * var(--cw-ar)));
+  height: min(100cqh, calc(100cqw / var(--cw-ar)));
+}
+
+.cert-wall[data-sheet="landscape"] .cert-wall__sheet { --cw-ar: 1.6; }
+.cert-wall[data-sheet="portrait"] .cert-wall__sheet { --cw-ar: 0.8; }
+
+/* ============================================================
+   CHROME — aria-hidden throughout, and it SHEDS rather than truncating.
+   ============================================================ */
+.cert-wall__rail {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: var(--z-plate-decor);
+  display: flex;
+  width: var(--cw-rail, 2.4cqw);
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2px 0;
+  pointer-events: none;
+}
+
+.cert-wall__rail i {
+  font-size: clamp(6px, 0.62cqw, 8.5px);
+  font-style: normal;
+  letter-spacing: 0.12em;
+  color: var(--field-olive);
+  opacity: 0.85;
+}
+
+.cert-wall__kanji {
+  position: absolute;
+  right: 1.5%;
+  bottom: -2%;
+  z-index: var(--z-plate-decor);
+  font-family: var(--font-jp);
+  font-size: 26cqw;
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  /* A wash, not type. `data-texture` exempts it from the contrast audit
+     rather than the bar being lowered to accommodate it. */
+  opacity: 0.07;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cert-wall__chrome {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--space-sm);
+  grid-area: 2 / 5 / 3 / 9;
+  color: var(--field-olive);
+  pointer-events: none;
+  user-select: none;
+}
+
+.cert-wall__barcode {
+  display: flex;
+  height: 22px;
+  align-items: flex-end;
+  gap: 1.5px;
+}
+
+.cert-wall__barcode i {
+  display: block;
+  width: 1.5px;
+  height: 100%;
+  background: var(--field-olive);
+}
+
+.cert-wall__barcode i:nth-child(3n) { width: 3px; height: 76%; }
+.cert-wall__barcode i:nth-child(4n) { height: 88%; }
+.cert-wall__barcode i:nth-child(7n) { width: 2.5px; height: 62%; }
+
+.cert-wall__serial {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--field-olive);
+}
+
+/* ============================================================
+   HEADER BLOCK + SHEET META
+   ============================================================ */
+.cert-wall__head {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-2xs);
+  grid-area: 1 / 1 / 3 / 5;
+  min-width: 0;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--olive-edge);
+  box-shadow: var(--plate-shadow-sm);
+  color: var(--paper-white);
+}
+
+.cert-wall__head h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 2.4cqw, 34px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+
+.cert-wall__sub {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  /* Real text: never below --on-olive-dim. */
+  opacity: var(--on-olive-dim);
+}
+
+.cert-wall__rule {
+  border-top: var(--rule-hair) solid rgb(246 246 244 / 30%);
+  padding-top: var(--space-2xs);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  opacity: var(--on-olive-dim);
+}
+
+.cert-wall__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+  grid-area: 1 / 9 / 2 / 13;
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+/* ============================================================
+   MAT — a document hung on the field. Rotation lives here and only here,
+   and it is the `rotate` property so it composes with the wipe.
+   ============================================================ */
+.cert-mat {
+  --focus: var(--oxblood);
+
+  z-index: var(--z-plate-content);
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  margin: 0;
+  padding: 1.9%;
+  background: var(--paper-white);
+  box-shadow: var(--plate-shadow);
+  rotate: var(--cw-rot, 0deg);
+}
+
+.cert-mat__scan {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  min-height: 0;
+  flex: 1 1 auto;
+  background: var(--scan-stock);
+  place-items: center;
+}
+
+.cert-mat__scan img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* `contain`, never `cover`: a certificate cropped is a certificate ruined.
+     The dot grid must not be resampled either — the dither IS the image
+     (tools/halftone.py), hence pixelated. */
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* Placeholder stock: flat, olive reticles, size label. Never a grey box and
+   never a hatch — the 2026-08-03 style pass killed hatch fills for reading
+   as hazard tape. */
+.cert-mat__scan--empty::before,
+.cert-mat__scan--empty::after {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: var(--rule-hair) solid var(--field-olive);
+  content: "";
+  pointer-events: none;
+}
+
+.cert-mat__scan--empty::before {
+  top: 6px;
+  left: 6px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.cert-mat__scan--empty::after {
+  right: 6px;
+  bottom: 6px;
+  border-top: 0;
+  border-left: 0;
+}
+
+.cert-mat__ph {
+  padding: 0 var(--space-xs);
+  font-size: var(--text-micro);
+  line-height: 1.7;
+  letter-spacing: var(--track-label);
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--olive-edge);
+}
+
+/* ---- caption: the olive label plate. Paper White type only —
+        Ink on --field-olive is 2.57:1 and is banned. ---- */
+.cert-mat__cap {
+  --focus: var(--paper-white);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin-top: 1.9%;
+  padding: 6px 8px 7px;
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+/* Alternate print pass. 1.14:1 from --field-olive ON PURPOSE: the seam reads
+   as registration drift between passes, not as two colours. Never set type
+   across the seam. */
+.cert-mat__cap--deep { background: var(--field-olive-deep); }
+
+.cert-mat__title {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(10px, 1.45cqw, 19px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.cert-mat__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  border-top: var(--rule-hair) solid rgb(246 246 244 / 28%);
+  padding-top: 4px;
+}
+
+.cert-mat__meta {
+  min-width: 0;
+  font-size: clamp(7px, 0.7cqw, 9.5px);
+  line-height: 1.6;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.cert-mat__issuer {
+  display: block;
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cert-mat__date {
+  display: block;
+  font-style: normal;
+  letter-spacing: 0.16em;
+  opacity: var(--on-olive-dim);
+}
+
+/* ============================================================
+   THE LINK — inside an olive plate it is Paper White. Oxblood here is
+   1.90:1 and illegal; the ring colour comes from --focus, set per surface.
+   ============================================================ */
+.cert-link {
+  display: inline-flex;
+  min-height: var(--hit-min);
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border: var(--rule-hair) solid rgb(246 246 244 / 55%);
+  background: transparent;
+  color: var(--paper-white);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background var(--dur-micro) var(--ease-hard),
+    color var(--dur-micro) var(--ease-hard);
+}
+
+.cert-link:hover {
+  border-color: var(--paper-white);
+  background: var(--paper-white);
+  color: var(--field-olive);
+}
+
+.cert-mat__cap--deep .cert-link:hover,
+.cert-row--deep .cert-link:hover { color: var(--field-olive-deep); }
+
+/* ============================================================
+   ANNOTATION — exactly one per sheet. Two reads as a gimmick.
+   ============================================================ */
+.cert-wall__scrap {
+  z-index: var(--z-plate-decor);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2xs);
+  padding: var(--space-xs);
+  border-left: 3px solid var(--field-olive);
+  background: var(--paper-white);
+  box-shadow: var(--plate-shadow-sm);
+  rotate: var(--cw-rot, 0deg);
+}
+
+.cert-wall__scrap p {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: clamp(9px, 1cqw, 14px);
+  line-height: 1.28;
+  color: var(--ink);
+}
+
+.cert-wall__scrap small {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+/* ============================================================
+   EMPTY STATE — not a blank grid.
+   ============================================================ */
+.cert-wall__empty {
+  display: grid;
+  grid-area: 4 / 1 / 9 / 9;
+  padding: var(--space-lg);
+  background: var(--field-olive);
+  box-shadow: var(--plate-shadow);
+  color: var(--paper-white);
+  font-size: clamp(10px, 1.3cqw, 15px);
+  letter-spacing: var(--track-label);
+  text-align: center;
+  text-transform: uppercase;
+  place-items: center;
+}
+
+/* ============================================================
+   PAGER — past the sheet cap the page turns rather than densifying.
+   NEXT sits LEFT of PREVIOUS: doc 03 says directional chrome reads with the
+   right-to-left turn, not with the Western default.
+   ============================================================ */
+.cert-pager {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-top: var(--space-xs);
+}
+
+.cert-pager__btn {
+  --focus: var(--oxblood);
+
+  display: inline-flex;
+  min-height: var(--hit-min);
+  align-items: center;
+  padding: 4px var(--space-sm);
+  border: var(--rule-hair) solid var(--field-olive);
+  background: transparent;
+  color: var(--field-olive);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background var(--dur-micro) var(--ease-hard),
+    color var(--dur-micro) var(--ease-hard);
+}
+
+.cert-pager__btn:hover {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+.cert-pager__btn[data-inert="true"] {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.cert-pager__count {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+/* ============================================================
+   LEDGER — the phone composition (< 768px), composition B restored.
+   This is the one regime that scrolls, and it is allowed to: WCAG 1.4.10
+   reflow. Machine-true throughout — zero rotation, by contrast with the wall.
+   ============================================================ */
+.cert-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.cert-ledger__head,
+.cert-ledger__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--olive-edge);
+  color: var(--paper-white);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.cert-ledger__head span,
+.cert-ledger__foot span { opacity: var(--on-olive-dim); }
+
+.cert-row {
+  --focus: var(--paper-white);
+
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm);
+  background: var(--field-olive);
+  box-shadow: var(--plate-shadow-sm);
+  color: var(--paper-white);
+  /* Machine-true. The ledger's discipline is that nothing leans. */
+  rotate: 0deg;
+}
+
+.cert-row--deep { background: var(--field-olive-deep); }
+
+.cert-row__tick {
+  align-self: start;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  opacity: var(--on-olive-dim);
+}
+
+.cert-row__main { min-width: 0; }
+
+.cert-row__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.004em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.cert-row__sub {
+  margin: var(--space-2xs) 0 0;
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: var(--on-olive-dim);
+}
+
+.cert-row__scan {
+  grid-column: 2;
+  padding: 4px;
+  background: var(--paper-white);
+  box-shadow: var(--plate-shadow-sm);
+}
+
+.cert-row__scan img {
+  display: block;
+  width: 100%;
+  max-height: 34vh;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.cert-row__act {
+  display: flex;
+  grid-column: 2;
+}
+
+/* ============================================================
+   MOTION — hard-edged clip wipe. Forward is right to left.
+   ============================================================ */
+@keyframes cert-wipe {
+  from { clip-path: inset(0 0 0 100%); }
+  to { clip-path: inset(0); }
+}
+
+.cert-wall__sheet > *,
+.cert-ledger > * {
+  animation: cert-wipe var(--dur-turn) var(--ease-hard) both;
+  animation-delay: calc(var(--cw-i, 0) * 45ms);
+}
+
+/* Omission, not override: no clip-path is set at all, so no half-animated
+   state is reachable. Matches the pattern in turn.css. */
+@media (prefers-reduced-motion: reduce) {
+  .cert-wall__sheet > *,
+  .cert-ledger > * {
+    animation: none;
+    clip-path: none;
+  }
+
+  .cert-link,
+  .cert-pager__btn { transition: none; }
+}
+
+/* ============================================================
+   RESPONSIVE — the wall never stacks and never scrolls. Below 768px it is
+   not resized, it is REPLACED (see useCertMode), so there is no
+   stack-collapse block here at all.
+   ============================================================ */
+@media (max-width: 1100px) {
+  /* Rotation relaxes; chrome sheds. Chrome must never truncate. */
+  .cert-mat { rotate: calc(var(--cw-rot, 0deg) * 0.55); }
+  .cert-wall__scrap,
+  .cert-wall__chrome { display: none; }
+}

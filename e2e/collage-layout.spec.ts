@@ -19,10 +19,10 @@ function rotationDegrees(transform: string): number {
 test.describe("collage rotation cap at 1440px", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("identity plate and nav items stay within ±2°", async ({ page }) => {
+  test("the index plate and its control stay within ±2°", async ({ page }) => {
     await gotoHome(page);
 
-    const selectors = [".identity-plate", ".nav-item"];
+    const selectors = [".hm-plate", ".nav-item"];
     for (const selector of selectors) {
       const transforms = await page.locator(selector).evaluateAll((els) =>
         els.map((el) => getComputedStyle(el).transform),
@@ -40,7 +40,7 @@ test.describe("collage collapse at 390px", () => {
   test("rotation collapses to zero and plates don't overlap", async ({ page }) => {
     await gotoHome(page);
 
-    const selectors = [".identity-plate", ".nav-item"];
+    const selectors = [".hm-plate", ".nav-item"];
     for (const selector of selectors) {
       const transforms = await page.locator(selector).evaluateAll((els) =>
         els.map((el) => getComputedStyle(el).transform),

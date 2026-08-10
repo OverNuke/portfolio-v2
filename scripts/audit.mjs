@@ -24,14 +24,15 @@ const VIEWPORT_HEIGHT = 900;
 const INTERACTIVE_SELECTOR =
   'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, select, textarea';
 
-// Keep in sync with src/shell/collage/collageSeeds.ts's SKILLS_SEEDS — this
-// script can't import that TS module directly, so the id list is
-// duplicated here. The Skills badge field picks one of these once per
-// mount (docs/12_COLLAGE_SYSTEM.md's 2026-07-31 dated exception); each is
-// individually authored/compliant, but only `?collageSeed=<id>` (read by
-// useCollageSeed) makes the pick deterministic enough to audit against a
-// single Vite build.
-const SKILLS_SEEDS = ["common-a", "common-b", "common-c", "common-d", "rare-easter-egg"];
+// Collapsed to a single pass on 2026-08-06. This list used to mirror
+// `collageSeeds.ts`'s SKILLS_SEEDS because Home's badge field picked one
+// arrangement at random per mount, so the audit had to pin the pick with
+// `?collageSeed=<id>` to be reproducible. The "ghost plate" Home has no
+// badge field and no random arrangement — every element is authored — so
+// there is exactly one configuration to audit. The label is kept (rather
+// than unwinding the loop) purely so the failure messages keep their
+// shape; drop it if this ever needs to iterate over something real again.
+const SKILLS_SEEDS = ["home"];
 
 let failures = 0;
 

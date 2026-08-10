@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { describe, expect, it } from "vitest";
+import { CertificationsPage } from "./CertificationsPage";
 import { ContactPage } from "./ContactPage";
 import { NotFound } from "./NotFound";
 import { ProfilePage } from "./ProfilePage";
@@ -23,6 +24,7 @@ function TestRoutes() {
       <Routes>
         <Route path="/" element={null} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/certifications" element={<CertificationsPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="*" element={<NotFound />} />
@@ -42,15 +44,20 @@ describe("routes", () => {
     ).not.toThrow();
   });
 
-  it.each(ROUTES.map((route) => [route.path, route.title] as const))(
+  it.each(ROUTES.map((route) => [route.path, route.sub] as const))(
     "renders the placeholder Panel at %s",
-    (path, title) => {
+    (path, sub) => {
+      // Panel no longer carries `route.title`/`route.tag` (PageLayer, not
+      // present in this standalone route tree, owns that heading now — see
+      // the Panel/PageLayer dedup). `route.sub` still reaches Panel's
+      // `metadata` slot on every page, so it's what proves routing renders
+      // real per-route content here.
       render(
         <MemoryRouter initialEntries={[path]}>
           <TestRoutes />
         </MemoryRouter>,
       );
-      expect(screen.getByText(title)).toBeInTheDocument();
+      expect(screen.getByText(sub)).toBeInTheDocument();
     },
   );
 

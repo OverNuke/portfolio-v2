@@ -1,8 +1,31 @@
-.projects-page__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-md);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+/**
+ * The paper margin around the panel sheet. The composition itself is
+ * `src/components/project-sheet/project-sheet.css` — nothing here should
+ * reach into it. Panel size is tuned there, via `--sheet-max`.
+ *
+ * The old `.projects-page__grid` (an auto-fill card grid that extended
+ * horizontally) is gone; see ProjectsPage.tsx for why it existed and why
+ * it didn't need to.
+ */
+
+.projects-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+
+  /* The field has to be --paper, not the Panel's --paper-white, or the
+     spread panel disappears: the spread IS Paper White, and Paper White on
+     Paper White is 1:1. This one declaration is what makes the gutter read
+     as paper showing between panels rather than as nothing at all.
+     The sheet is a printed sheet, and a printed sheet has a size — past its
+     own max-width it centres in this field rather than growing. */
+  background: var(--paper);
+  padding: var(--space-lg) var(--space-md);
+}
+
+@media (max-width: 900px) {
+  .projects-page {
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-xs);
+  }
 }

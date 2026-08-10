@@ -34,7 +34,7 @@ test("an open page's content wrapper scrolls internally while staying clipped op
   await gotoHome(page);
 
   await page.locator('[data-page="profile"]').click();
-  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.locator(".page-layer")).toBeVisible();
 
   const content = page.locator(".page-content");
   await expect(content).toHaveCSS("overflow-y", "auto");

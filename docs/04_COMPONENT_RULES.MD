@@ -12,8 +12,10 @@ Properties:
 
 Panel
 |
-|- title
-|- status
+|- title (optional — omit when the caller's chrome already owns the
+|  heading, e.g. every routed module page's `PageLayer`; Panel skips its
+|  own header entirely rather than duplicate it)
+|- status (optional, falls back to "SYSTEM NOMINAL")
 |- metadata
 |- content
 

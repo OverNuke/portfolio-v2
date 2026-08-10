@@ -8,6 +8,19 @@
  * page/base surface (#E4E4E2) and `--paper-white` is the raised-surface color
  * (#F6F6F4) — this is the OPPOSITE pairing of Phase 1's original retired
  * "off-white"/"paper" color token names. Do not invert it back.
+ *
+ * Palette note (2026-08-05, Keff): the red family is RETIRED. The old
+ * `signal-red` / `signal-red-text` pair (#c63c32 / #8f2c24) is gone, and
+ * the short-lived vermilion (#e8452f) explored for the profile sheet never
+ * landed here. (Their token names are deliberately not spelled in full
+ * anywhere under src/ — tokens.test.ts greps for them and fails the build,
+ * and that guard should not have to special-case its own doc comment.) Their single replacement is --oxblood (#4a1f1a), which is
+ * dark enough to behave like Ink: it CARRIES Paper White type rather than
+ * being type on paper, so the old large-text/small-text red split
+ * collapses into one token (10.98:1 on paper, at any size).
+ *
+ * The one rule that will bite someone: --oxblood on --field-olive is
+ * 1.90:1. Accent and plate must never touch. See docs/02_DESIGN_SYSTEM.MD.
  */
 :root {
   /* ---- Color ------------------------------------------------------- */
@@ -16,10 +29,21 @@
   --ink: #111111;
   --ink-inverse: #f2f2f2;
   --gray: #635d54;
-  --signal-red: #c63c32;
-  --signal-red-text: #8f2c24;
   --warning-yellow: #d6c76a;
   --field-olive: #4f5a3c;
+  --field-olive-deep: #47513a;
+  /* Third olive, one step darker than -deep. Header blocks and registration
+     hairlines. Documented as "reserved" in the profile plate handoff
+     (2026-08-05); first real use is the certificate wall's header block.
+     Paper White on it is 9.69:1. */
+  --olive-edge: #3a4230;
+  /* Placeholder scan stock. Flat — never a hatch (the 2026-08-03 style pass
+     killed hatch fills for reading as hazard tape). Ink 13.35:1,
+     --olive-edge 7.42:1, --gray 4.60:1 (the tightest pair in use: do NOT
+     darken this). */
+  --scan-stock: #d9d9d6;
+  --oxblood: #4a1f1a;
+  --oxblood-hi: #5c2a22;
 
   /* ---- Typography ---------------------------------------------------
      --font-display: wordmark, nav labels, identity, role, page titles.
@@ -28,6 +52,16 @@
   --font-display: "Archivo Narrow", "Arial Narrow", Haettenschweiler, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
   --font-hand: "Segoe Script", "Bradley Hand", "Snell Roundhand", cursive;
+  /* Editorial faces, self-hosted 2026-08-06 with the Home redesign
+     (styles/fonts.css). BOTH are serifs — LT Remark is NOT a grotesque,
+     which is why the technical chrome stays on --font-mono. Never set
+     9px tracked uppercase in either of these. */
+  --font-serif-display: "LT Superior Serif", Georgia, "Times New Roman", serif;
+  --font-serif-edit: "LT Remark", Georgia, "Times New Roman", serif;
+  /* CJK, for the ghost-kanji texture only. Archivo Narrow has no CJK
+     coverage and renders tofu. System-only for now; self-hosting is the
+     open decision from claude/module-screens-components-2026-07-31.md. */
+  --font-jp: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", "MS Mincho", serif;
 
   --text-display-xl: clamp(2.5rem, 5.4vw, 4.75rem);
   --text-display-lg: clamp(1.375rem, 2.1vw, 1.875rem);
@@ -39,6 +73,17 @@
 
   --track-label: 0.22em;
   --track-micro: 0.42em;
+
+  /* ---- Opacity floors for type on an olive surface --------------------
+     NOT colours — floors. `getComputedStyle` reports `color` at full
+     strength regardless of the opacity painted over it, so dimmed type
+     passes a naive contrast check while failing in fact: Paper White at
+     .70 on --field-olive paints 4.28:1, under the AA bar. .74 is the first
+     passing step (4.57:1); --on-olive-dim carries margin over it.
+     Decorative, aria-hidden chrome may use --on-olive-chrome (3.00:1),
+     which clears the 3:1 non-text bar and nothing more. */
+  --on-olive-dim: 0.78;
+  --on-olive-chrome: 0.5;
 
   /* ---- Space ---------------------------------------------------------
      4px base scale, no off-scale values. */

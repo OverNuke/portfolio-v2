@@ -1,0 +1,935 @@
+/**
+ * HOME — "GHOST PLATE" placement (2026-08-06, Keff).
+ *
+ * This file replaces the doc-12 12x12 collage Home wholesale. Design
+ * record: `claude/home-y2k-editorial-directions-2026-08-06.md` (direction
+ * A) and `claude/home-icon-system-2026-08-06.md` (rail + channel glyphs).
+ * It ships as a NEW FILE rather than an in-place rewrite of `collage.css`:
+ * this Home is a different composition, not a restyle of the old grid, and
+ * the old file's 692 lines describe a canvas that no longer exists.
+ * `collage.css` and `skills-collage.css` are now both unreferenced — delete
+ * them in a cleanup pass. Nothing outside `Canvas.tsx` imports this file.
+ *
+ * It keeps three rules from the old file, because they are the ones that
+ * were actually load-bearing (`collage.test.ts` still enforces all three):
+ *   · placement is CSS's job, never an inline style;
+ *   · absolute placement uses the `inset` shorthand, never `top`/`left`;
+ *   · authored rotation stays inside the +/-2deg `--rot-max` cap.
+ *
+ * SIZING IS CONTAINER-RELATIVE, NOT VIEWPORT-RELATIVE. `.canvas` is an
+ * inline-size container and every large measurement is `cqw`. The old file
+ * used `vw` and had to compensate for `<main>`'s padding by hand; `cqw`
+ * already excludes it. `container-type: inline-size` (not `size`) is
+ * deliberate — `size` implies `contain: size`, which would clip rather
+ * than grow if a chip row ever exceeded its box.
+ *
+ * Retired with this pass, still on disk, safe to delete once nothing
+ * references them: `SkillsCollage.tsx`, `skills-collage.css`,
+ * `collageSeeds.ts`, `useCollageSeed.ts`, `components/skill-badge/`.
+ */
+
+.canvas {
+  position: relative;
+  height: 100%;
+  container-type: inline-size;
+
+  --hm-rail-w: 26px;
+  --hm-gap: clamp(var(--space-md), 2.6cqw, 44px);
+
+  display: grid;
+  grid-template-columns: var(--hm-rail-w) minmax(0, 1fr);
+  /* Identity and the index plate used to sit side by side, in a third
+     44cqw-wide `plate` column. That put an opaque, higher-z-index box
+     immediately next to the masthead, so any run of the family name past
+     the identity column's edge vanished behind olive instead of behind
+     the (translucent, intentional) photograph — a real clipping bug, not
+     the print-bleed effect the overlap was going for. Stacking identity
+     and the plate as two rows of the SAME column removes the collision
+     surface entirely: the plate can now only ever meet the name on the
+     vertical axis, where `align-self` keeps them clear of each other. */
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* The rail spans all three rows, so the foot starts after it. That is
+     not cosmetic: with the foot spanning the full width the rail's tail
+     and the contact strip's heading occupy the same bottom-left corner,
+     and they collided at every short viewport. Giving the margin entirely
+     to the rail removes the whole class of collision instead of tuning
+     paddings against it. */
+  grid-template-areas:
+    "rail identity"
+    "rail plate"
+    "rail foot";
+  column-gap: var(--hm-gap);
+  row-gap: var(--space-lg);
+}
+
+/* ============================================================
+   1. THE PHOTOGRAPH
+   `hero.png` (Keff, 2026-08-09) — a real color photo, not the halftone-
+   dithered `hero-plate.png` this replaced. Desaturated + blurred in CSS
+   for a clean editorial portrait, deliberately NOT given the ink-plate
+   treatment the module index (`.hm-plate`) and the Projects/Certificates
+   cards use — grayscale keeps it inside the locked ink/paper/olive/oxblood
+   palette without making it read as another printed plate.
+
+   No olive color-cast, no `mix-blend-mode: multiply` — both retired with
+   `hero-plate.png`. They existed to make dithered ink pixels merge with
+   the page rather than sit as a hard rectangle; a blurred photo doesn't
+   need that trick, and multiplying real photo color would just look
+   muddy. Text safety was verified, not assumed: `.hm-identity`, `.hm-rail`,
+   `.hm-plate`, and `.hm-channels` all carry explicit `z-index` at
+   `--z-plate-content` or higher, `.hm-hero` sits at the lowest tier
+   (`--z-plate-decor`) — every real line of text already paints above the
+   photo regardless of blend mode.
+
+   Two mask stops, both kept — an edge-softening technique independent of
+   the above, still doing its job:
+   · the left edge dissolves so the figure has no vertical cut line;
+   · the bottom dissolves BEFORE the foot block, or the contact strip
+     would be ink type sitting on the photo.
+   ============================================================ */
+.hm-hero {
+  position: absolute;
+  inset: 0 calc(var(--space-md) * -1) auto auto;
+  width: 58cqw;
+  height: 100%;
+  z-index: var(--z-plate-decor);
+  pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.35) 10%, #000 28%, #000 100%),
+    linear-gradient(180deg, #000 0, #000 58%, transparent 82%);
+  mask-image:
+    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.35) 10%, #000 28%, #000 100%),
+    linear-gradient(180deg, #000 0, #000 58%, transparent 82%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.hm-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 9%;
+  filter: grayscale(1) blur(4px);
+}
+
+/* The fold line. It runs through the text, not beside it — it is a crease
+   in the sheet, not a column edge, which is why it does not move when the
+   content columns do. */
+.hm-seam {
+  position: absolute;
+  inset: 0 auto 0 calc(var(--hm-rail-w) + var(--hm-gap) + 8cqw);
+  width: var(--rule-hair);
+  background: rgba(17, 17, 17, 0.16);
+  z-index: var(--z-plate-decor);
+  pointer-events: none;
+}
+
+/* ============================================================
+   2. IDENTITY
+   ============================================================ */
+.hm-identity {
+  grid-area: identity;
+  align-self: start;
+  position: relative;
+  z-index: calc(var(--z-plate-content) + 2);
+  padding-top: clamp(var(--space-lg), 5cqh, 64px);
+}
+
+.hm-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  color: var(--field-olive);
+  margin-bottom: var(--space-lg);
+}
+
+.hm-name {
+  display: block;
+  /* max-content so intrinsic sizing survives the minmax(0, …) column —
+     without it the huge family name would shrink-to-fit the track instead
+     of sizing itself via its own clamp(). The plate no longer sits beside
+     this column (see `.canvas`'s grid-template-areas above), so any run
+     past the column's edge only ever crosses the translucent, multiply-
+     blended photograph — the intended print-bleed read, not a collision
+     with an opaque box. */
+  width: max-content;
+  max-width: none;
+}
+
+.hm-name__given {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.75rem, 1.35cqw, 1.2rem);
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: var(--space-sm);
+}
+
+.hm-name__family {
+  display: block;
+  font-family: var(--font-serif-display);
+  font-weight: 800;
+  font-size: clamp(2.5rem, 12.2cqw, 11rem);
+  line-height: 0.8;
+  letter-spacing: -0.028em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* One accented glyph carries the accent colour. `<i>` is presentational
+   here, so the italic default is cancelled. */
+.hm-name__family i {
+  font-style: normal;
+  color: var(--olive-edge);
+}
+
+.hm-rule {
+  height: var(--rule-thick);
+  background: var(--ink);
+  max-width: 32cqw;
+  margin: clamp(var(--space-lg), 4cqh, 48px) 0 var(--space-md);
+}
+
+.hm-summary {
+  font-family: var(--font-serif-edit);
+  font-weight: 400;
+  font-size: clamp(1rem, 1.92cqw, 1.7rem);
+  line-height: 1.16;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  max-width: 30cqw;
+  margin-bottom: var(--space-md);
+}
+
+/* ============================================================
+   3. THE OLIVE INDEX PLATE
+   Printed OVER the photograph, with a second `--field-olive-deep` pass
+   behind it. The two tones are ~1.14:1 apart on purpose — the seam should
+   read as registration drift, not as a third colour. Pulling them apart
+   to "fix" the contrast destroys the effect.
+   ============================================================ */
+.hm-plate {
+  grid-area: plate;
+  /* This row flexes to fill whatever height identity and foot don't use;
+     anchoring to `end` keeps a consistent gap under the masthead instead
+     of the gap changing size with viewport height. */
+  align-self: end;
+  /* The plate used to fill a dedicated 44cqw column by default (grid
+     `stretch`); now that it shares identity's wider column, cap its own
+     width instead so it keeps the same proportions rather than stretching
+     edge-to-edge. */
+  width: min(100%, 44cqw);
+  justify-self: start;
+  position: relative;
+  z-index: var(--z-plate-interactive);
+
+  --rot: -1.15deg;
+  rotate: var(--rot);
+
+  background: var(--field-olive);
+  color: var(--paper-white);
+  box-shadow: 0 14px 34px rgba(17, 17, 17, 0.22);
+  padding: var(--space-lg) var(--space-lg) var(--space-md);
+
+  /* Focus rings inside an olive surface must be Paper White: --oxblood on
+     --field-olive is 1.90:1. Set per surface, never hardcoded on the
+     control, or someone eventually ships an invisible ring. */
+  --focus: var(--paper-white);
+}
+
+.hm-plate::before {
+  content: "";
+  position: absolute;
+  inset: 7px 9px -7px -9px;
+  background: var(--field-olive-deep);
+  z-index: -1;
+}
+
+.hm-plate__tick {
+  position: absolute;
+  inset: var(--space-lg) auto auto var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  opacity: var(--on-olive-chrome);
+}
+
+/* The empty left third is load-bearing: it is what stops the plate reading
+   as a card. Same device as the profile sheet's data plate. */
+.hm-plate__title,
+.hm-index,
+.hm-plate__foot {
+  margin-left: clamp(56px, 18cqw, 132px);
+}
+
+.hm-plate__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-md);
+}
+
+/* RECONSTRUCTED 2026-08-10 during the index-overlay rewind. The overlay
+   session deleted the original `.hm-index` rule when it replaced the row
+   list with a single trigger; no copy of that rule survived, so these two
+   declarations are rebuilt from the surrounding evidence -- `.nav-item`
+   carries no separator of its own, and the trigger that replaced this list
+   borrowed exactly this hairline. Visually equivalent, not byte-identical
+   to what stood here before 00:47. */
+.hm-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hm-index > li + li {
+  border-top: var(--rule-hair) solid rgba(246, 246, 244, 0.28);
+}
+
+.hm-plate__foot {
+  margin-top: var(--space-sm);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  opacity: var(--on-olive-chrome);
+}
+
+/* --- NavItem, on the plate ---------------------------------------- */
+.nav-item {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  gap: var(--space-sm);
+  align-items: baseline;
+  padding: var(--space-xs) 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+
+/* The lane fill: a hard-edged clip-path wipe, `--field-olive-deep` sweeping
+   in from the left underneath the row, reading as the entry lighting up
+   rather than a generic opacity dim. Same second-pass tone the plate's own
+   registration layer already uses, so hover never introduces a new color.
+   `--on-olive-dim`/`--on-olive-chrome` were calibrated against the lighter
+   `--field-olive`; this tone is darker, so paper-white text only gains
+   contrast here, never loses it. */
+.nav-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--field-olive-deep);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--dur-cut) var(--ease-hard);
+}
+
+.nav-item:hover::before,
+.nav-item:focus-visible::before {
+  clip-path: inset(0 0 0 0);
+}
+
+/* The scan tick: a paper-white hairline that crosses the row once, like a
+   scanner reading the entry. A moving clip-path window, not a positioned
+   bar -- this file only ever places things by `inset`, never `top`/`left`
+   (`collage.test.ts` enforces it), so the "movement" is the visible slice
+   of a full-bleed layer sliding, not the layer itself relocating. Plays on
+   entry into the hover/focus state only: the keyframes open and close the
+   window in the same pass, so nothing lingers while the state holds. */
+@media (prefers-reduced-motion: no-preference) {
+  .nav-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--paper-white);
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .nav-item:hover::after,
+  .nav-item:focus-visible::after {
+    animation: nav-scan var(--dur-turn) var(--ease-hard);
+  }
+}
+
+@keyframes nav-scan {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  4% {
+    clip-path: inset(0 97% 0 0%);
+  }
+  96% {
+    clip-path: inset(0 0% 0 97%);
+  }
+  100% {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+.nav-index {
+  font-size: var(--text-meta);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  /* Not chrome. These numerals ARE the visual index, so they sit at the
+     dim floor (4.57:1), not the 3:1 decoration floor. */
+  opacity: var(--on-olive-dim);
+  transition: opacity var(--dur-micro) var(--ease-hard);
+}
+
+/* The numeral reads at full strength once its row is the one being read --
+   the one flourish the hover state spends on content rather than chrome. */
+.nav-item:hover .nav-index,
+.nav-item:focus-visible .nav-index {
+  opacity: 1;
+}
+
+.nav-label {
+  display: block;
+  font-size: var(--text-meta);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nav-sub {
+  display: block;
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: var(--on-olive-dim);
+  margin-top: 3px;
+}
+
+.nav-count {
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: var(--on-olive-dim);
+}
+
+.nav-item:focus-visible {
+  outline: var(--rule-thick) solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Plates are print, not UI: no lift, no shadow change, no added transform on
+   the row itself -- the fill and scan tick above are the whole interaction,
+   :active just presses it a shade darker on top of them. */
+.nav-item:active {
+  opacity: 0.85;
+}
+
+/* ============================================================
+   4. THE STACK RAIL
+   Type only. The first cut carried a glyph per chip; nine olive marks down
+   the edge read as colour weight and pulled the page's only accent away
+   from the plate (Keff, 2026-08-06). The core/non-core border-weight
+   variant went with them — the rail is all-core now, so a second weight
+   would be decoration pretending to be information.
+
+   `writing-mode` is on the LABEL, never on the chip: in `vertical-rl` the
+   block axis is horizontal, so a `flex-direction: column` chip lays its
+   children out left-to-right and the label escapes the border.
+   ============================================================ */
+.hm-rail {
+  grid-area: rail;
+  align-self: start;
+  justify-self: start;
+  position: relative;
+  z-index: calc(var(--z-plate-content) + 2);
+  padding-top: clamp(var(--space-lg), 5cqh, 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 0;
+}
+
+.hm-rail ul {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hm-rail__label,
+.hm-rail__tail {
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+.hm-rail__label {
+  color: var(--field-olive);
+  padding-bottom: var(--space-sm);
+  border-bottom: var(--rule-hair) solid rgba(17, 17, 17, 0.32);
+  margin-bottom: var(--space-2xs);
+}
+
+.hm-rail__tail {
+  color: var(--gray);
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  padding-top: var(--space-sm);
+  border-top: var(--rule-hair) solid rgba(17, 17, 17, 0.32);
+  margin-top: var(--space-2xs);
+}
+
+.hm-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hm-rail-w);
+  padding: 6px 0;
+  border: var(--rule-hair) solid rgba(17, 17, 17, 0.42);
+  background: var(--paper-white);
+}
+
+.hm-chip em {
+  writing-mode: vertical-rl;
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  /* .16em, not the .2em the rest of the chrome uses: seven chips plus a
+     label and a tail have to fit between the header rule and the contact
+     strip, and tracking is the only lever here that costs nothing. If an
+     eighth core skill is ever added, drop one rather than tightening
+     further — 7 is the measured capacity at 1440x900. */
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ============================================================
+   5. CONTACT CHANNELS  (direction C's foot strip, re-tasked)
+   ============================================================ */
+.hm-channels {
+  grid-area: foot;
+  position: relative;
+  z-index: var(--z-plate-interactive);
+  --focus: var(--oxblood);
+}
+
+.hm-channels__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  border-bottom: var(--rule-thick) solid var(--ink);
+  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.hm-channels__head h2 {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.hm-channels ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.hm-channels li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  column-gap: var(--space-md);
+  align-items: start;
+  padding: 0 var(--space-lg);
+  border-left: var(--rule-hair) solid rgba(17, 17, 17, 0.24);
+}
+
+.hm-channels li:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+/* Borrows the rail chip's border and fill so the two icon surfaces read
+   as one family — which matters more now that the rail has no glyph. */
+.hm-channels__ic {
+  grid-row: 1 / span 3;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--rule-hair) solid rgba(17, 17, 17, 0.42);
+  background: var(--paper-white);
+  color: var(--olive-edge);
+  margin-top: 1px;
+}
+
+.hm-channels__id {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: var(--field-olive);
+  margin-bottom: 6px;
+}
+
+.hm-channels__nm {
+  font-family: var(--font-serif-edit);
+  font-weight: 700;
+  font-size: clamp(0.9rem, 1.35cqw, 1.2rem);
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-decoration: none;
+  /* 24px SC 2.5.8 floor even though the glyphs are ~19px. */
+  min-height: var(--hit-min);
+  display: flex;
+  align-items: center;
+  overflow-wrap: anywhere;
+}
+
+.hm-channels__nm:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hm-channels__nm:focus-visible {
+  outline: var(--rule-thick) solid var(--focus);
+  outline-offset: 2px;
+}
+
+.hm-channels__meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-top: 4px;
+}
+
+/* ============================================================
+   6. MARGIN CHROME  (all aria-hidden, all inert)
+   ============================================================ */
+.hm-reticle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: var(--rule-hair) solid var(--olive-edge);
+  z-index: calc(var(--z-plate-decor) + 4);
+  pointer-events: none;
+}
+
+.hm-reticle--tl {
+  inset: 0 auto auto 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.hm-reticle--br {
+  inset: auto 0 0 auto;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* ============================================================
+   7. MOTION  (docs/07_ANIMATION_GUIDELINES.md — hard-edged clip wipes,
+   no curl, no spring, no overshoot; forward direction is right -> left.)
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .hm-hero,
+  .hm-identity,
+  .hm-plate,
+  .hm-rail,
+  .hm-channels {
+    animation: hm-wipe var(--dur-turn) var(--ease-hard) both;
+  }
+
+  .hm-hero {
+    animation: hm-fade 240ms var(--ease-hard) both;
+  }
+
+  .hm-identity {
+    animation-delay: 80ms;
+  }
+  .hm-plate {
+    animation-delay: 140ms;
+  }
+  .hm-rail {
+    animation-delay: 200ms;
+  }
+  .hm-channels {
+    animation-delay: 260ms;
+  }
+
+  /* The plate's own ink pass: the `--field-olive-deep` layer starts flush
+     with the front face and settles into its resting registration-drift
+     offset a beat after the plate lands — the two passes printing
+     slightly out of true, the way the rest of the plate is already
+     described in comments above. Inset only, never transform, so it
+     never fights the plate's static rotation. */
+  .hm-plate::before {
+    animation: hm-plate-register 220ms var(--ease-hard) 160ms both;
+  }
+
+  /* The plate's interior reads in the same order a reader would scan it:
+     tick + title first, then the index rows in sequence, then the foot —
+     landing just after the outer wipe clears rather than as one flat
+     block. Same primitives as `profile-plate.css` (`-scan`, `-rise`),
+     same tokens, so the whole system shares one motion vocabulary. */
+  .hm-plate__tick,
+  .hm-plate__title {
+    animation: hm-scan 160ms var(--ease-hard) 300ms both;
+  }
+
+  .hm-index > li {
+    animation: hm-rise 160ms var(--ease-hard) both;
+  }
+  .hm-index > li:nth-child(1) {
+    animation-delay: 380ms;
+  }
+  .hm-index > li:nth-child(2) {
+    animation-delay: 420ms;
+  }
+  .hm-index > li:nth-child(3) {
+    animation-delay: 460ms;
+  }
+  .hm-index > li:nth-child(4) {
+    animation-delay: 500ms;
+  }
+
+  .hm-plate__foot {
+    animation: hm-rise 160ms var(--ease-hard) 520ms both;
+  }
+}
+
+@keyframes hm-wipe {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes hm-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hm-scan {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes hm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hm-plate-register {
+  from {
+    inset: 0;
+  }
+  to {
+    inset: 7px 9px -7px -9px;
+  }
+}
+
+/* ============================================================
+   8. RESPONSIVE
+   ============================================================ */
+
+/* 769-1100px — still the three-column sheet, because it still has to fit
+   100dvh (see the stack breakpoint note below). The plate needs more of
+   the width than the masthead can spare, so the masthead gives it up. */
+@media (max-width: 1100px) {
+  .hm-plate {
+    --rot: -0.6deg;
+  }
+
+  /* Purely a proportion call at this width now — the plate lives in its
+     own row below the masthead (see `.canvas`'s grid-template-areas), so
+     this no longer guards against an opaque-plate collision. Kept because
+     an 8rem ceiling still reads better than 11rem once the column has
+     less room to breathe. */
+  .hm-name__family {
+    font-size: clamp(2.5rem, 10.4cqw, 8rem);
+  }
+
+  /* The rail is height-bound rather than width-bound, and this is where
+     that starts to bite — it now has the full canvas height to work with
+     (it spans both grid rows), so only the padding needs to give. */
+  .hm-chip {
+    padding: 4px 0;
+  }
+
+  /* The channel cells lose their glyph COLUMN and stack instead. A URL has
+     no break opportunities, so a 30px icon column plus its gutter is the
+     difference between "linkedin.com/in/keffwontwakeup" fitting and
+     breaking mid-word — and a hyphen-less mid-word break in an address
+     reads as a broken address. The glyph stays; it just moves above. */
+  .hm-channels li {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 var(--space-sm);
+  }
+
+  .hm-channels__ic {
+    grid-row: auto;
+    margin-bottom: var(--space-xs);
+  }
+
+  .hm-channels__nm {
+    font-size: 0.85rem;
+  }
+}
+
+/* THE STACK BREAKPOINT IS 768px, NOT 900px, AND THAT IS NOT A ROUND-NUMBER
+   CHOICE. `shell.css` releases the scroll lock at `max-width: 768px`
+   (inclusive) and holds `height: 100dvh; overflow: hidden` above it. A
+   stacked Home is taller than the viewport, so stacking anywhere above
+   that line produces a page that is too tall to fit and cannot scroll —
+   content silently clipped, which is exactly what happened when this
+   block was first written at 900px. The layout's breakpoint follows the
+   shell's real behaviour, not the prose in 05_ACCESSIBILITY.MD, which
+   words the same rule as "below 768px". Reconcile those by tightening the
+   shell, never by loosening this.
+
+   Below the line the margin is the first thing a narrow viewport eats, so
+   the rail LEAVES the margin and becomes a horizontal tape above the
+   contact strip — placement P1 from the v2 exploration, already designed
+   and rendered rather than invented here. Everything stacks, rotation goes
+   to 0, and the photograph stops bleeding. */
+@media (max-width: 768px) {
+  .canvas {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    height: auto;
+  }
+
+  .hm-seam,
+  .hm-reticle {
+    display: none;
+  }
+
+  /* Stacked, the identity sits ON the photograph rather than beside it,
+     so the photograph drops to a wash. At 0.9 the eyebrow crossed the
+     sweater at roughly 2:1. */
+  .hm-hero {
+    inset: 0 calc(var(--space-md) * -1) auto auto;
+    width: 74cqw;
+    height: 58cqw;
+    opacity: 0.5;
+  }
+
+  .hm-plate {
+    --rot: 0deg;
+    align-self: stretch;
+    width: auto;
+  }
+
+  .hm-plate::before {
+    display: none;
+  }
+
+  .hm-plate__title,
+  .hm-index,
+  .hm-plate__foot {
+    margin-left: 0;
+  }
+
+  .hm-plate__tick {
+    display: none;
+  }
+
+  .hm-rail {
+    padding-top: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-xs);
+  }
+
+  .hm-rail ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .hm-rail__label,
+  .hm-rail__tail {
+    writing-mode: horizontal-tb;
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  .hm-chip {
+    width: auto;
+    min-height: var(--hit-min);
+    padding: 6px 10px;
+  }
+
+  .hm-chip em {
+    writing-mode: horizontal-tb;
+  }
+
+  .hm-summary,
+  .hm-rule {
+    max-width: none;
+  }
+
+  .hm-name__family {
+    font-size: clamp(2.75rem, 22cqw, 8rem);
+  }
+
+  .hm-channels ul {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-md);
+  }
+
+  .hm-channels li {
+    padding: 0;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .hm-eyebrow,
+  .hm-name__given {
+    letter-spacing: 0.2em;
+  }
+}

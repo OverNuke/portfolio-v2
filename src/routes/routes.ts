@@ -12,7 +12,7 @@
  * this app's real routes (the proof calls the projects page "database";
  * here it is "projects" to match the route path).
  */
-import { PROJECTS } from "../content/data";
+import { CERTIFICATES, PROJECTS } from "../content/data";
 
 export interface RouteConfig {
   path: string;
@@ -35,11 +35,20 @@ export const ROUTES: RouteConfig[] = [
     count: "RDY",
   },
   {
+    path: "/certifications",
+    pageId: "certifications",
+    title: "CERTIFICATE ARCHIVE",
+    tag: "PAGE 02",
+    index: "02",
+    sub: `${CERTIFICATES.length} credential${CERTIFICATES.length === 1 ? "" : "s"}`,
+    count: String(CERTIFICATES.length),
+  },
+  {
     path: "/projects",
     pageId: "projects",
     title: "PROJECT DATABASE",
-    tag: "PAGE 02",
-    index: "02",
+    tag: "PAGE 03",
+    index: "03",
     sub: `${PROJECTS.length} record${PROJECTS.length === 1 ? "" : "s"}`,
     count: String(PROJECTS.length),
   },
@@ -47,8 +56,8 @@ export const ROUTES: RouteConfig[] = [
     path: "/contact",
     pageId: "contact",
     title: "CONTACT TERMINAL",
-    tag: "PAGE 03",
-    index: "03",
+    tag: "PAGE 04",
+    index: "04",
     sub: "channels open",
     count: "ON",
   },

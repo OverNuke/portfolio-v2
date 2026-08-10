@@ -66,13 +66,42 @@ Field Olive #4F5A3C on #111111 → 2.56:1 — fails. Do not use Field
 Olive text or icons on an Ink fill; keep it on Paper or Paper White.
 
 
+State accent — Oxblood (added 2026-08-05, replaces the red family):
+
+Oxblood #4A1F1A on paper #E4E4E2 → 10.98:1 (AA at any text size)
+Paper White #F6F6F4 on Oxblood #4A1F1A → 12.92:1 (the default pairing)
+Oxblood — Raised #5C2A22 on paper → 9.12:1 (hover state only)
+
+Oxblood #4A1F1A on Field Olive #4F5A3C → 1.90:1 — FAILS, and fails
+invisibly rather than merely marginally. This is the pair most likely to
+be reached for by accident now that Field Olive is a plate surface: an
+accent mark placed "inside" a plate. It doesn't go inside; it goes on the
+paper margin.
+
+
+Plate surfaces — Field Olive as a printed fill (added 2026-08-05):
+
+Paper White #F6F6F4 on Field Olive #4F5A3C → 6.79:1 (AA any size)
+Paper White #F6F6F4 on Field Olive Deep #47513A → 7.74:1 (AA any size)
+
+Ink #111111 on Field Olive #4F5A3C → 2.57:1 — fails
+Ink #111111 on Field Olive Deep #47513A → 2.25:1 — fails
+
+Olive plates carry Paper White type, never Ink. Note this is the OPPOSITE
+of the pairing the retired vermilion explored on 2026-08-01 (Ink on red);
+that habit does not transfer.
+
+
 ---
 
 Avoid:
 
 - #777777 as a text color at any body/caption size, on either background
-- Signal Red #C63C32 as small-size text (4.03:1 on paper — large
-  text/UI only; use Signal Red — Text #8F2C24 for small red text, 6.46:1)
+- Signal Red #C63C32 and Signal Red — Text #8F2C24 anywhere at all —
+  both retired 2026-08-05, replaced by Oxblood #4A1F1A. The token names
+  are guarded by src/styles/tokens.test.ts
+- Oxblood #4A1F1A on a Field Olive fill (1.90:1)
+- Ink #111111 on a Field Olive or Field Olive Deep fill (2.57 / 2.25:1)
 - Warning Yellow #D6C76A as a text color (~1.35:1 on paper) — fill/backdrop
   only, with black ink text on top
 - Field Olive #4F5A3C as text or icons directly on an Ink (#111111)

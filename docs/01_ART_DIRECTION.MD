@@ -5,8 +5,7 @@
 Keywords:
 
 - HUD / FUI (heads-up display, technical overlay)
-- Neo-industrial
-- Japanese streetwear
+- Streetwear from 90s and Y2
 - Editorial archive
 - Analog digital hybrid
 

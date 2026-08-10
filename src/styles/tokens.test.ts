@@ -41,7 +41,16 @@ function collectSourceFiles(dir: string): string[] {
 describe("tokens.css", () => {
   const decls = readRootDecls();
 
-  it.each(["--paper", "--paper-white", "--font-display", "--space-md", "--dur-turn", "--rot-max"])(
+  it.each([
+    "--paper",
+    "--paper-white",
+    "--font-display",
+    "--space-md",
+    "--dur-turn",
+    "--rot-max",
+    "--oxblood",
+    "--field-olive-deep",
+  ])(
     "%s resolves to a non-empty value",
     (token) => {
       expect(decls.has(token)).toBe(true);
@@ -50,7 +59,13 @@ describe("tokens.css", () => {
   );
 
   const RETIRED_TOKEN_PREFIX = "--color-";
-  const retiredTokens = [`${RETIRED_TOKEN_PREFIX}paper`, `${RETIRED_TOKEN_PREFIX}off-white`];
+  const retiredTokens = [
+    `${RETIRED_TOKEN_PREFIX}paper`,
+    `${RETIRED_TOKEN_PREFIX}off-white`,
+    // Retired 2026-08-05 with the red family; --oxblood replaces both.
+    "--signal-red",
+    "--signal-red-text",
+  ];
 
   it.each(retiredTokens)("no file under src/ references the retired %s token", (token) => {
     const files = collectSourceFiles(SRC_ROOT).filter(

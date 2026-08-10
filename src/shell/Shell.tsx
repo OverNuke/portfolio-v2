@@ -31,7 +31,7 @@ import "./shell.css";
  *
  * Collage/grid placement (task 3.1) now lives in `Canvas`/`collage.css` —
  * `<main>` wraps `<Canvas>`, which owns the 12x12 grid, the identity plate,
- * the real NavItem list (task 2.6), and a placeholder spec-cascade plate.
+ * and the real NavItem list (task 2.6).
  * All placement (grid-area, rotation, z-index) lives in collage.css
  * (design D5); Shell.tsx itself carries no placement concerns.
  */

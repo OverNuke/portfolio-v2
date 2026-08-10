@@ -5,31 +5,75 @@
  * (weighted random: 4 common seeds share ~90%, 1 rare "easter egg" 10%).
  * The grid-area stays constant across seeds — only the arrangement inside
  * that one fixed box varies — so occlusion/shed behavior never depends on
- * which seed landed; only `--rot`/stagger differ.
+ * which seed landed; only the per-badge grid-row/grid-column/--rot differ.
  *
  * Badges are non-interactive <li>s (badge-field, doc 12's "Badge field"
  * role — exactly 1 slot on Home, these 5 seeds are 5 arrangements of that
  * one slot), so z-index stays in the content band (10-19), never
  * interactive.
+ *
+ * REVERTED 2026-08-0X: the 2026-08-01 change grew this field's canvas-
+ * level grid-area from rows 7-11 to rows 4-11 (cols 7-12) to reclaim the
+ * space Certificates left behind — but that made the badge field read as
+ * a dominant mid-canvas block instead of doc 12's "Badge field" role
+ * ("a dense block... 1 slot"), and collided with the reworked photo-plate
+ * layout (see collage.css). Restored to a small bottom-right corner
+ * matching docs/home.design-proof-v3.html's `.tech` box (`grid-area: 9 /
+ * 9 / 13 / 13`) instead.
+ *
+ * Updated 2026-08-04: grew again, deliberately smaller in scope than the
+ * reverted 2026-08-01 attempt above and for a different, doc-12-sanctioned
+ * reason — the field read as cropped/cramped against the portrait-plate
+ * collage. `grid-area` widened by one canvas column, from `9/9/13/13`
+ * (4x4 = 16 cells) to `9/8/13/13` (4x5 = 20 cells, ~1/8 of the 144-cell
+ * canvas), absorbing canvas column 8 / rows 9-11 — territory
+ * `.plate-work`'s grid-area (`7/5/12/9`) already claims. This is a real
+ * overlap, not a coordinate error: doc 12's accessibility guardrail #1
+ * explicitly permits overlap "on a plate's empty margin, on an image, or
+ * on the hero," and `.plate-work` is exactly an image. `.skills-collage`'s
+ * existing `z-index: 14` already sits above `.plate-work`'s `z-index: 13`,
+ * so no z-index change was needed for badges to render on top where they
+ * overlap. The internal grid grew from 4 to 5 columns to stay 1:1 with the
+ * canvas (see "Columns stay 1:1" note below); each column's absolute
+ * width is unchanged (still 1 canvas-column wide), which is why the badge
+ * text/padding/icon sizes below are UNCHANGED from the pre-2026-08-04
+ * shrink — the column-width constraint that motivated that shrink still
+ * holds. What changed is the amount of free space to scatter into: the
+ * new dead zone is only the overlap with `.plate-work` (internal column 1,
+ * rows 1-6 — canvas col 8, rows 9-11), versus the old dead zone's 3 full
+ * columns, so all 5 seeds below were re-authored with much more breathing
+ * room between badges.
+ *
+ * Columns stay 1:1 with the canvas (5 internal cols over this box's 5
+ * canvas cols, was 4:4 before 2026-08-04) — an earlier draft used an 8x8
+ * internal grid (2 internal cols per canvas col) to leave more free cells
+ * around the dead zone, but that halved each column's width below badge
+ * text's min-content width ("Tailwind CSS", "JavaScript", ...) and
+ * inflated `.canvas`'s own scrollWidth (`pnpm run audit:collage`'s
+ * clipped-text check caught it — grid items can overflow their own track
+ * without affecting a definite-width grid container's box, but that
+ * overflow still inflates an ancestor's measured scrollWidth even under
+ * `overflow: hidden`, same mechanism `.hero`/`.scrap`'s comments elsewhere
+ * in this file document). Rows stay finer (8 internal rows over 4 canvas
+ * rows) since row height doesn't have that failure mode.
+ *
+ * Dead zone (as of 2026-08-04) = internal column 1, rows 1-6 — the part of
+ * `.skills-collage`'s box that overlaps `.plate-work`'s image *and* sits
+ * above `.plate-work`'s figcaption ("Self-record — standing", real text
+ * that must never be obscured per doc 12's guardrail #1). Free cells =
+ * internal column 1 rows 7-8 (canvas row 12, which `.plate-work` never
+ * reaches) plus internal columns 2-5, all 8 rows — 34 of the 40 internal
+ * cells, comfortably more than the 11 badges need.
  */
 .skills-collage {
-  /* Rows 7-11, not 7-12: row 12 is deliberately left empty, same as
-     .spec-cascade's own row-11 stop. `.canvas`'s grid-template-rows are
-     always exactly 12 equal 1fr tracks regardless of how items are
-     assigned to them, so the badge field needed more ROOM (5 rows, not 3)
-     rather than more ROWS overall — but a rotated badge (`--rot`) pinned
-     flush against the canvas's hard bottom edge bleeds into the scroll
-     container's scrollable-overflow region with zero margin to absorb it,
-     tripping the collage audit's clipped-text check by ~1px. Stopping one
-     row short of the edge, like spec-cascade already does, gives that
-     bleed somewhere to go. */
-  grid-area: 7 / 7 / 12 / 13;
+  grid-area: 9 / 8 / 13 / 13;
   z-index: 14; /* content band + 4, matches spec-cascade's offset convention */
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  align-self: end;
-  gap: var(--space-2xs);
+  display: grid;
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: start;
+  justify-items: start;
+  gap: 2px;
   margin: 0;
   padding: 0;
   min-height: 0;
@@ -38,59 +82,329 @@
 
 .skills-collage .badge {
   transform: rotate(var(--rot, 0deg));
+  /* Smaller than the shared `.badge` size (plate.css) — this box's 1
+     canvas-col-wide internal columns are narrower than badge min-content
+     width at the normal size, which was inflating `.canvas`'s scrollWidth
+     (audit:collage's clipped-text check). Also reads as an even denser
+     "typographic mass" (doc 12's Badge field description) at this scale.
+     Column width is unchanged by the 2026-08-04 grid-area growth above
+     (still 1 canvas-col-wide per internal column), so this override stays
+     as-is — the growth bought more free cells to scatter into, not wider
+     columns to grow the badges themselves into. */
+  font-size: var(--text-micro);
+  padding: 1px 3px;
+  gap: 2px;
+  letter-spacing: 0;
 }
 
-/* common-a: gentle alternating rotation. */
+.skills-collage .badge svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* ── common-a: scatter across the safe zone (cols 2-5, rows 1-6, plus row
+   7-8 across all 5 cols), avoiding column 1 / rows 1-6 (`.plate-work`'s
+   overlap). ─────────────────────────────────────────────────────────── */
+.skills-collage--common-a .badge:nth-child(1) {
+  grid-row: 1;
+  grid-column: 3;
+}
+.skills-collage--common-a .badge:nth-child(2) {
+  grid-row: 1;
+  grid-column: 5;
+}
+.skills-collage--common-a .badge:nth-child(3) {
+  grid-row: 2;
+  grid-column: 2;
+}
+.skills-collage--common-a .badge:nth-child(4) {
+  grid-row: 2;
+  grid-column: 4;
+}
+.skills-collage--common-a .badge:nth-child(5) {
+  grid-row: 3;
+  grid-column: 5;
+}
+.skills-collage--common-a .badge:nth-child(6) {
+  grid-row: 4;
+  grid-column: 3;
+}
+.skills-collage--common-a .badge:nth-child(7) {
+  grid-row: 5;
+  grid-column: 2;
+}
+.skills-collage--common-a .badge:nth-child(8) {
+  grid-row: 5;
+  grid-column: 4;
+}
+.skills-collage--common-a .badge:nth-child(9) {
+  grid-row: 6;
+  grid-column: 5;
+}
+.skills-collage--common-a .badge:nth-child(10) {
+  grid-row: 7;
+  grid-column: 1;
+}
+.skills-collage--common-a .badge:nth-child(11) {
+  grid-row: 8;
+  grid-column: 3;
+}
 .skills-collage--common-a .badge:nth-child(odd) {
-  --rot: -0.6deg;
+  --rot: -1.6deg;
 }
 .skills-collage--common-a .badge:nth-child(even) {
-  --rot: 0.6deg;
+  --rot: 1.6deg;
 }
 
-/* common-b: stronger 3-step rotation cycle, looser row gap. */
-.skills-collage--common-b {
-  gap: 6px 4px;
+/* ── common-b: same idea, different cells within the safe zone. ──────── */
+.skills-collage--common-b .badge:nth-child(1) {
+  grid-row: 2;
+  grid-column: 3;
+}
+.skills-collage--common-b .badge:nth-child(2) {
+  grid-row: 1;
+  grid-column: 4;
+}
+.skills-collage--common-b .badge:nth-child(3) {
+  grid-row: 4;
+  grid-column: 5;
+}
+.skills-collage--common-b .badge:nth-child(4) {
+  grid-row: 6;
+  grid-column: 2;
+}
+.skills-collage--common-b .badge:nth-child(5) {
+  grid-row: 3;
+  grid-column: 2;
+}
+.skills-collage--common-b .badge:nth-child(6) {
+  grid-row: 7;
+  grid-column: 4;
+}
+.skills-collage--common-b .badge:nth-child(7) {
+  grid-row: 5;
+  grid-column: 5;
+}
+.skills-collage--common-b .badge:nth-child(8) {
+  grid-row: 8;
+  grid-column: 2;
+}
+.skills-collage--common-b .badge:nth-child(9) {
+  grid-row: 4;
+  grid-column: 3;
+}
+.skills-collage--common-b .badge:nth-child(10) {
+  grid-row: 6;
+  grid-column: 4;
+}
+.skills-collage--common-b .badge:nth-child(11) {
+  grid-row: 7;
+  grid-column: 5;
 }
 .skills-collage--common-b .badge:nth-child(3n + 1) {
-  --rot: 1.1deg;
+  --rot: 1.8deg;
 }
 .skills-collage--common-b .badge:nth-child(3n + 2) {
-  --rot: -0.8deg;
+  --rot: -1.6deg;
 }
 .skills-collage--common-b .badge:nth-child(3n) {
-  --rot: 0.4deg;
+  --rot: 0.9deg;
 }
 
-/* common-c: alternation starts on the opposite sign from common-a, packed
-   toward the right edge of the field. */
-.skills-collage--common-c {
-  justify-content: flex-end;
+/* ── common-c: rows shifted from common-a, packed a little differently
+   across the same safe zone. ─────────────────────────────────────────── */
+.skills-collage--common-c .badge:nth-child(1) {
+  grid-row: 1;
+  grid-column: 5;
+}
+.skills-collage--common-c .badge:nth-child(2) {
+  grid-row: 2;
+  grid-column: 2;
+}
+.skills-collage--common-c .badge:nth-child(3) {
+  grid-row: 3;
+  grid-column: 4;
+}
+.skills-collage--common-c .badge:nth-child(4) {
+  grid-row: 5;
+  grid-column: 3;
+}
+.skills-collage--common-c .badge:nth-child(5) {
+  grid-row: 1;
+  grid-column: 3;
+}
+.skills-collage--common-c .badge:nth-child(6) {
+  grid-row: 6;
+  grid-column: 5;
+}
+.skills-collage--common-c .badge:nth-child(7) {
+  grid-row: 7;
+  grid-column: 2;
+}
+.skills-collage--common-c .badge:nth-child(8) {
+  grid-row: 8;
+  grid-column: 4;
+}
+.skills-collage--common-c .badge:nth-child(9) {
+  grid-row: 4;
+  grid-column: 2;
+}
+.skills-collage--common-c .badge:nth-child(10) {
+  grid-row: 7;
+  grid-column: 3;
+}
+.skills-collage--common-c .badge:nth-child(11) {
+  grid-row: 8;
+  grid-column: 1;
 }
 .skills-collage--common-c .badge:nth-child(odd) {
-  --rot: 0.5deg;
+  --rot: 1.7deg;
 }
 .skills-collage--common-c .badge:nth-child(even) {
+  --rot: -1.9deg;
+}
+
+/* ── common-d: near-flat rotation, denser pack — deliberately more
+   restrained than the other seeds (that contrast is the point of having 5
+   variants), clustered toward the top of column 5 and along row 8 instead
+   of spread across the whole safe zone. ──────────────────────────────── */
+.skills-collage--common-d .badge:nth-child(1) {
+  grid-row: 1;
+  grid-column: 5;
+}
+.skills-collage--common-d .badge:nth-child(2) {
+  grid-row: 2;
+  grid-column: 5;
+}
+.skills-collage--common-d .badge:nth-child(3) {
+  grid-row: 3;
+  grid-column: 5;
+}
+.skills-collage--common-d .badge:nth-child(4) {
+  grid-row: 4;
+  grid-column: 5;
+}
+.skills-collage--common-d .badge:nth-child(5) {
+  grid-row: 8;
+  grid-column: 1;
+}
+.skills-collage--common-d .badge:nth-child(6) {
+  grid-row: 8;
+  grid-column: 2;
+}
+.skills-collage--common-d .badge:nth-child(7) {
+  grid-row: 8;
+  grid-column: 3;
+}
+.skills-collage--common-d .badge:nth-child(8) {
+  grid-row: 8;
+  grid-column: 4;
+}
+.skills-collage--common-d .badge:nth-child(9) {
+  grid-row: 5;
+  grid-column: 5;
+}
+.skills-collage--common-d .badge:nth-child(10) {
+  grid-row: 7;
+  grid-column: 1;
+}
+.skills-collage--common-d .badge:nth-child(11) {
+  grid-row: 7;
+  grid-column: 2;
+}
+.skills-collage--common-d .badge:nth-child(4n + 1) {
+  --rot: 0.7deg;
+}
+.skills-collage--common-d .badge:nth-child(4n + 3) {
   --rot: -0.7deg;
 }
 
-/* common-d: near-flat, minimal rotation, denser pack. */
-.skills-collage--common-d {
-  gap: 2px;
+/* ── rare-easter-egg (10%): a deliberately mechanical grid instead of the
+   other 4 seeds' organic scatter — reads as "off" on purpose, same role
+   this seed always had, just expressed through placement now instead of
+   only rotation. Still capped at +/-2deg. */
+.skills-collage--rare-easter-egg .badge:nth-child(1) {
+  grid-row: 1;
+  grid-column: 5;
 }
-.skills-collage--common-d .badge:nth-child(4n + 1) {
-  --rot: 0.3deg;
+.skills-collage--rare-easter-egg .badge:nth-child(2) {
+  grid-row: 2;
+  grid-column: 5;
 }
-.skills-collage--common-d .badge:nth-child(4n + 3) {
-  --rot: -0.3deg;
+.skills-collage--rare-easter-egg .badge:nth-child(3) {
+  grid-row: 3;
+  grid-column: 5;
 }
-
-/* rare-easter-egg (10%): every badge leans the same way, deliberately
-   reading as "off" compared to the other 4 seeds' careful alternation —
-   that's the point of a rare variant. Still capped at +/-2deg. */
-.skills-collage--rare-easter-egg {
-  justify-content: center;
+.skills-collage--rare-easter-egg .badge:nth-child(4) {
+  grid-row: 5;
+  grid-column: 5;
+}
+.skills-collage--rare-easter-egg .badge:nth-child(5) {
+  grid-row: 7;
+  grid-column: 1;
+}
+.skills-collage--rare-easter-egg .badge:nth-child(6) {
+  grid-row: 7;
+  grid-column: 3;
+}
+.skills-collage--rare-easter-egg .badge:nth-child(7) {
+  grid-row: 7;
+  grid-column: 5;
+}
+.skills-collage--rare-easter-egg .badge:nth-child(8) {
+  grid-row: 8;
+  grid-column: 1;
+}
+.skills-collage--rare-easter-egg .badge:nth-child(9) {
+  grid-row: 8;
+  grid-column: 2;
+}
+.skills-collage--rare-easter-egg .badge:nth-child(10) {
+  grid-row: 8;
+  grid-column: 3;
+}
+.skills-collage--rare-easter-egg .badge:nth-child(11) {
+  grid-row: 8;
+  grid-column: 5;
 }
 .skills-collage--rare-easter-egg .badge {
-  --rot: 1.6deg;
+  --rot: 1.9deg;
+}
+
+/* Internal rows 7-8 (this box's last 2 internal rows) both map onto
+   canvas row 12 — 8 internal rows over this box's 4 canvas rows is a 2:1
+   split, so rows 7 AND 8 land in the canvas's own hard bottom row, not
+   just row 8. Same reasoning the pre-revert layout documented for why it
+   left its own last row empty: a rotated badge's bounding box can dip a
+   few px past that edge and inflate `.canvas`'s scrollHeight even under
+   `overflow: hidden` (confirmed via `pnpm run audit:collage` — an
+   earlier draft that only zeroed row 8 still failed at 1100px from row-7
+   badges). Zeroing rotation for both rows — placed last in the file so
+   it wins the equal-specificity tie against each seed's general --rot
+   rule above — avoids that without giving up either row's free cells.
+   Re-derived 2026-08-04 for the new 5-column internal grid and re-authored
+   seed coordinates above; the technique itself is unchanged. */
+.skills-collage--common-a .badge:nth-child(10),
+.skills-collage--common-a .badge:nth-child(11),
+.skills-collage--common-b .badge:nth-child(6),
+.skills-collage--common-b .badge:nth-child(8),
+.skills-collage--common-b .badge:nth-child(11),
+.skills-collage--common-c .badge:nth-child(7),
+.skills-collage--common-c .badge:nth-child(8),
+.skills-collage--common-c .badge:nth-child(10),
+.skills-collage--common-c .badge:nth-child(11),
+.skills-collage--common-d .badge:nth-child(5),
+.skills-collage--common-d .badge:nth-child(6),
+.skills-collage--common-d .badge:nth-child(7),
+.skills-collage--common-d .badge:nth-child(8),
+.skills-collage--common-d .badge:nth-child(10),
+.skills-collage--common-d .badge:nth-child(11),
+.skills-collage--rare-easter-egg .badge:nth-child(5),
+.skills-collage--rare-easter-egg .badge:nth-child(6),
+.skills-collage--rare-easter-egg .badge:nth-child(7),
+.skills-collage--rare-easter-egg .badge:nth-child(8),
+.skills-collage--rare-easter-egg .badge:nth-child(9),
+.skills-collage--rare-easter-egg .badge:nth-child(10),
+.skills-collage--rare-easter-egg .badge:nth-child(11) {
+  --rot: 0deg;
 }

@@ -17,6 +17,21 @@
 > warning/hot meaning. Per this doc's own accent rule ("nothing else
 > unless justified") — Field Olive is justified as a neutral, structural
 > accent, not a state color.
+>
+> Updated 2026-08-05 — THE RED FAMILY IS RETIRED. Confirmed with Keff while
+> designing the profile sheet's plate composition. Signal Red (#C63C32) and
+> its small-text sibling (#8F2C24) are gone, and the vermilion (#E8452F)
+> explored in the 2026-08-01 profile sheet v2 never landed here — it was set
+> aside in the same conversation. Their single replacement is OXBLOOD
+> (#4A1F1A). Two consequences worth reading before you touch anything red:
+>
+> 1. Oxblood is dark enough to behave like Ink — it CARRIES Paper White type
+>    rather than being type on paper. The old large-text/small-text red split
+>    therefore collapses into one token. There is no "oxblood-text".
+> 2. Oxblood on Field Olive is 1.90:1. The accent and the plate colour must
+>    never touch. Field Olive was promoted in the same pass from a chrome
+>    accent to a full plate surface, so this pairing is now easy to reach for
+>    by accident.
 
 
 ## Color Palette
@@ -90,31 +105,46 @@ body-size text.
 ## Accent Colors
 
 
-SIGNAL RED
+OXBLOOD (added 2026-08-05 — replaces the entire red family)
 
 HEX:
-#C63C32
+#4A1F1A
 
 Usage:
 
-- warnings, active states, highlights
-- large text (24px+ / 19px+ bold), icons, borders, filled UI elements only
+- warnings, active states, highlights — the same job Signal Red held
+- focus rings, live dots, `:active` fills, callout bars, detail-crop borders
+- one instance per screen. Oxblood is a STATE colour, not a material one:
+  it means "pay attention here," so a second instance halves the first.
 
-Contrast on paper (#E4E4E2): 4.03:1 — passes AA for large text/UI
-components (3:1) but NOT for normal body-size text. For small red text
-(links, inline flags, small badges) use SIGNAL RED — TEXT below instead.
+Contrast on paper (#E4E4E2): 10.98:1 — passes AA at any text size, which
+is why there is no separate small-text variant the way Signal Red needed
+one. On Paper White (#F6F6F4): 12.92:1.
+
+Paper White ON Oxblood: 12.92:1 — this is the default pairing. Oxblood is
+close enough to Ink in value that it behaves like an inverted surface:
+prefer putting light type on it over using it as type.
+
+NEVER on Field Olive: 1.90:1 — effectively invisible. If a component needs
+a red mark inside an olive plate, it does not get one; move the mark to the
+paper margin, or use Paper White at reduced opacity.
 
 
-SIGNAL RED — TEXT
+OXBLOOD — RAISED
 
 HEX:
-#8F2C24
+#5C2A22
 
 Usage:
 
-- small-size red text: links, inline status flags, small badges
+- hover / raised state of an Oxblood surface only. Never a resting colour.
 
-Contrast on paper (#E4E4E2): 6.46:1 — passes AA for any text size.
+Contrast on paper (#E4E4E2): 9.12:1. Paper White on it: 10.73:1.
+
+
+~~SIGNAL RED #C63C32~~ / ~~SIGNAL RED — TEXT #8F2C24~~ — RETIRED 2026-08-05.
+Do not reintroduce either value. `src/styles/tokens.test.ts` fails the build
+if the token names reappear anywhere under `src/`.
 
 
 WARNING YELLOW
@@ -132,24 +162,46 @@ of it (11:1) — that's how it reads in the reference photo (tape behind
 a label, not tape-colored text).
 
 
-FIELD OLIVE (added 2026-07-27)
+FIELD OLIVE (added 2026-07-27 — promoted to a plate surface 2026-08-05)
 
 HEX:
 #4F5A3C
 
 Usage:
 
+- PLATE SURFACE. As of the profile sheet's plate composition this is a
+  full-size printed fill carrying Paper White type, not only a chrome
+  accent. Paper White on Field Olive is 6.79:1 — AA at any size.
 - neutral technical / structural accent — reticle corner marks,
   barcode + serial-number labels, spec/status icon rows, field-tag
   borders (see the TS-26 manifest reference)
-- does NOT communicate warning or urgency the way Signal Red does —
+- does NOT communicate warning or urgency the way the accent does —
   it reads as "this is equipment," not "pay attention now"
-- keep it off Signal Red-carrying elements; the two accents should
-  never both apply to the same component
+- keep it off Oxblood-carrying elements; the two should never both apply
+  to the same component, and Oxblood on Field Olive is unreadable anyway
 
 Contrast on paper (#E4E4E2): 5.77:1 — passes AA for any text size.
 Contrast on Ink (#111111): 2.56:1 — do not place Field Olive text or
 icons directly on an Ink fill; keep it on Paper or Paper White.
+Ink on Field Olive: 2.57:1 — fails. Plates carry Paper White type, never
+Ink. This inverts the pairing the 2026-08-01 vermilion sheet used; do not
+carry that habit across.
+
+
+FIELD OLIVE — DEEP (added 2026-08-05)
+
+HEX:
+#47513A
+
+Usage:
+
+- the second print pass where two olive plates overlap. Its whole job is to
+  be *barely* distinguishable from Field Olive, so the overlap reads as
+  registration drift rather than as a third colour. Do not use it as a
+  standalone surface, and do not widen the gap between the two.
+
+Contrast on paper (#E4E4E2): 6.58:1. Paper White on it: 7.74:1 — clears
+this doc's 7:1 preferred bar, not just the 4.5:1 minimum.
 
 
 ---

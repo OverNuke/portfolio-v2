@@ -33,4 +33,13 @@ describe("Panel", () => {
     expect(screen.getByText("meta-info")).toBeInTheDocument();
     expect(screen.getByText("body copy")).toBeInTheDocument();
   });
+
+  it("omits the header entirely when title is not given", () => {
+    // Every routed page already gets its real heading from `PageLayer`;
+    // Panel must not fall back to a headingless status row in that case.
+    render(<Panel metadata={<span>meta-info</span>} content={<p>body copy</p>} />);
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.queryByText("SYSTEM NOMINAL")).not.toBeInTheDocument();
+    expect(screen.getByText("meta-info")).toBeInTheDocument();
+  });
 });

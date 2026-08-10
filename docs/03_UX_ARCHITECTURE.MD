@@ -67,9 +67,16 @@ DESCRIPTION:
 This is no longer a standalone routed page. Technologies/tools now render
 directly on Home, as the collage's Skills badge field (one of its 5 seeded
 layouts — see `12_COLLAGE_SYSTEM.md`'s "Rotation and stagger" section).
-Certificates/awards moved to Home the same way, as their own fixed
-"Certificate/Award" collage role (same doc, Composition roles table).
+~~Certificates/awards moved to Home the same way, as their own fixed
+"Certificate/Award" collage role (same doc, Composition roles table).~~
 Original spec for reference: technologies, tools, experience level.
+
+> **Updated 2026-08-01:** superseded. Certificates/awards no longer live on
+> Home — they ship as their own routed module, `/certifications`
+> ("CERTIFICATE ARCHIVE"), the 2nd nav item after Profile. Skills is
+> unaffected by this change and still renders inline on Home as described
+> above. See `12_COLLAGE_SYSTEM.md`'s Composition roles table and its
+> shed-order note, both updated with the same date.
 
 ---
 

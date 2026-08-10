@@ -13,6 +13,7 @@ import {
 
 import barbershopUserImg from "../assets/plates/projects/barbershop/user.png";
 import acopiatechMainImg from "../assets/plates/projects/acopiatech/main.png";
+import acopiatechPickupImg from "../assets/plates/projects/acopiatech/pickup.png";
 import odooAccessImg from "../assets/plates/projects/odoo/access.png";
 
 import anfecaCertImg from "../assets/certificates/ANFECA_Certificate.jpg";
@@ -20,6 +21,16 @@ import notaCertUrl from "../assets/certificates/notaLaudatoria.pdf?url";
 import exaverCertUrl from "../assets/certificates/exaver.pdf?url";
 import angloCertUrl from "../assets/certificates/anglo.pdf?url";
 import toeflCertUrl from "../assets/certificates/sepToelf.pdf?url";
+
+// Halftone archive plates of each document (tools/halftone.py --preset plate,
+// page 1). Separate from the `*Url` imports above because four of the five
+// certificates are PDFs: the PDF stays the thing VIEW opens, the plate is what
+// the wall can actually render. Portrait A4s are 920x1301, landscape 1440x920.
+import anfecaPlate from "../assets/certificates/plates/anfeca.png";
+import notaPlate from "../assets/certificates/plates/nota.png";
+import exaverPlate from "../assets/certificates/plates/exaver.png";
+import angloPlate from "../assets/certificates/plates/anglo.png";
+import toeflPlate from "../assets/certificates/plates/sepToelf.png";
 
 import type { AboutProfile, Certificate, Project, Skill, SocialLink } from "./types";
 
@@ -34,8 +45,10 @@ export const PROJECTS: Project[] = [
     href: "#",
     repo: "https://github.com/Sinhularity/barbershop",
     featured: true,
+    sheetSlot: "feature",
     image: barbershopUserImg,
-    imageAlt: "Barbershop admin dashboard showing an employee record with contact details and status.",
+    imageAlt:
+      "Barbershop admin dashboard showing an employee record with contact details and status.",
   },
   {
     title: "AcopiaTech",
@@ -47,8 +60,12 @@ export const PROJECTS: Project[] = [
     href: "#",
     repo: "https://github.com/Sinhularity/acopiatech-app",
     featured: true,
+    sheetSlot: "spread",
     image: acopiatechMainImg,
-    imageAlt: "AcopiaTech mobile app home screen showing a scheduled e-waste pickup and quick actions.",
+    imageAlt:
+      "AcopiaTech mobile app home screen showing a scheduled e-waste pickup and quick actions.",
+    imageB: acopiatechPickupImg,
+    imageBAlt: "AcopiaTech pickup scheduling screen with a collection point selected on the map.",
   },
   {
     title: "Odoo Custom Module",
@@ -58,8 +75,10 @@ export const PROJECTS: Project[] = [
     tags: ["Odoo", "Python", "PostgreSQL"],
     year: "2025",
     href: "#",
+    sheetSlot: "record",
     image: odooAccessImg,
-    imageAlt: "Odoo document manager showing a file-sharing dialog with read and write access groups.",
+    imageAlt:
+      "Odoo document manager showing a file-sharing dialog with read and write access groups.",
   },
 ];
 
@@ -73,6 +92,10 @@ export const CERTIFICATES: Certificate[] = [
     category: "honors",
     icon: "trophy",
     hero: true,
+    scan: anfecaPlate,
+    scanAlt:
+      "ANFECA recognition: first place, XVIII Maraton Regional Zona 6 Sur, Informatica Administrativa, 2025",
+    scanOrientation: "landscape",
   },
   {
     id: "nota",
@@ -82,6 +105,10 @@ export const CERTIFICATES: Certificate[] = [
     href: notaCertUrl,
     category: "honors",
     icon: "crown",
+    scan: notaPlate,
+    scanAlt:
+      "Nota Laudatoria from Universidad Veracruzana for a 9.40 general average in Software Engineering",
+    scanOrientation: "portrait",
   },
   {
     id: "exaver",
@@ -91,6 +118,10 @@ export const CERTIFICATES: Certificate[] = [
     href: exaverCertUrl,
     category: "language",
     icon: "globe",
+    scan: exaverPlate,
+    scanAlt:
+      "EXAVER language proficiency certificate, Universidad Veracruzana",
+    scanOrientation: "portrait",
   },
   {
     id: "anglo",
@@ -100,6 +131,10 @@ export const CERTIFICATES: Certificate[] = [
     href: angloCertUrl,
     category: "academic",
     icon: "scroll",
+    scan: angloPlate,
+    scanAlt:
+      "English language certificate from Anglo Mexicano de Coatzacoalcos",
+    scanOrientation: "landscape",
   },
   {
     id: "toefl",
@@ -109,32 +144,45 @@ export const CERTIFICATES: Certificate[] = [
     href: toeflCertUrl,
     category: "language",
     icon: "globe",
+    scan: toeflPlate,
+    scanAlt:
+      "TOEFL certificate issued by SEP",
+    scanOrientation: "portrait",
   },
 ];
 
+/**
+ * `core: true` selects the seven chips Home's stack rail shows; the rest
+ * are counted by its tail marker. Seven is what a 26px margin column holds
+ * at 1440x900 — see `Skill.core`. HTML/CSS are assumed rather than
+ * announced, and VS Code and Figma are tools rather than stack.
+ */
 export const SKILLS: Skill[] = [
-  { name: "TypeScript", category: "language", icon: SiTypescript },
-  { name: "JavaScript", category: "language", icon: SiJavascript },
+  { name: "TypeScript", category: "language", icon: SiTypescript, core: true },
+  { name: "JavaScript", category: "language", icon: SiJavascript, core: true },
   { name: "HTML", category: "language", icon: SiHtml5 },
   { name: "CSS", category: "language", icon: SiCss },
-  { name: "React", category: "framework", icon: SiReact },
-  { name: "Next.js", category: "framework", icon: SiNextdotjs },
-  { name: "Tailwind CSS", category: "framework", icon: SiTailwindcss },
-  { name: "Node.js", category: "framework", icon: SiNodedotjs },
-  { name: "Git", category: "tool", icon: SiGit },
+  { name: "React", category: "framework", icon: SiReact, core: true },
+  { name: "Next.js", category: "framework", icon: SiNextdotjs, core: true },
+  { name: "Tailwind CSS", category: "framework", icon: SiTailwindcss, core: true },
+  { name: "Node.js", category: "framework", icon: SiNodedotjs, core: true },
+  { name: "Git", category: "tool", icon: SiGit, core: true },
   { name: "VS Code", category: "tool" },
   { name: "Figma", category: "tool", icon: SiFigma },
 ];
 
 export const SOCIAL_LINKS: SocialLink[] = [
-  { label: "GitHub", href: "https://github.com/OverNuke", icon: "/github-light.svg" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/keffwontwakeup/", icon: "/linkedin.svg" },
-  { label: "Email", href: "mailto:ksfgarcia24@gmail.com", icon: "/gmail.svg" },
+  { label: "GitHub", href: "https://github.com/OverNuke" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/keffwontwakeup/" },
+  { label: "Email", href: "mailto:ksfgarcia24@gmail.com" },
 ];
 
 export const ABOUT_PROFILE: AboutProfile = {
   firstName: "Kevin S.",
   lastName: "F. García",
+  fullName: "Kevin Sebastián Frías García",
+  mark: ["K.S", "F.G"],
+  summary: "Builds interface systems through engineering, design, and archival practice.",
   role: "Jr. Software Developer",
   status: "ONLINE · OPEN TO WORK",
   statusOnline: true,
@@ -142,6 +190,4 @@ export const ABOUT_PROFILE: AboutProfile = {
   bodyText: "Open to junior roles and internships where I can grow and contribute.",
   location: "Mexico",
   openTo: "Junior roles · internships",
-  ctaPrimary: { label: "PRESS START", href: "/contact" },
-  ctaSecondary: { label: "CONTINUE", href: "/projects" },
 };

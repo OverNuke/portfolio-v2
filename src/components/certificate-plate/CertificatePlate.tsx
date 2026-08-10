@@ -5,11 +5,11 @@ export interface CertificatePlateProps {
 }
 
 /**
- * A real link (opens the certificate image/PDF), not a button — placed in
- * the interactive z-index band (20-30) alongside NavItem, per
- * docs/12_COLLAGE_SYSTEM.md's stack-order-follows-meaning rule.
- * `certificate.icon` is not rendered this change (deferred — no renderer
- * exists yet for its string values).
+ * A real link (opens the certificate image/PDF), not a button. Used by the
+ * Certifications page (`/certifications`) — moved out of the Home collage
+ * 2026-08-01 when Certificates became their own routed module (see
+ * `docs/03_UX_ARCHITECTURE.MD`). `certificate.icon` is not rendered this
+ * change (deferred — no renderer exists yet for its string values).
  */
 export function CertificatePlate({ certificate }: CertificatePlateProps) {
   return (

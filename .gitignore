@@ -3,6 +3,12 @@
 
 .atl/
 
+# Tool-local state (config + hook cache only) — same class as .atl/
+.impeccable/
+
+# Holding pen for swept session junk. The USER empties this, never an agent.
+_quarantine/
+
 node_modules/
 dist/
 dist-ssr/
