@@ -38,7 +38,7 @@ describe("home.css", () => {
   // and the margin reticles are absolutely positioned instead — they are
   // decorative, aria-hidden, and outside the grid on purpose, which is
   // exactly what check (b) below pins down.
-  const PLACEMENT_SELECTORS = [".hm-identity", ".hm-plate", ".hm-rail", ".hm-channels"];
+  const PLACEMENT_SELECTORS = [".hm-meta", ".hm-mast", ".hm-role", ".hm-stack"];
 
   it.each(PLACEMENT_SELECTORS)("%s declares a grid-area", (selector) => {
     let declared = false;
@@ -93,9 +93,17 @@ describe("home.css", () => {
   // An explicit table, not a single "nav" regex, so a mis-banded new plate
   // fails loudly instead of shipping unenforced.
   const Z_INDEX_BANDS = [
-    { pattern: /hm-(hero|seam|reticle)/i, min: 1, max: 9 },
-    { pattern: /hm-(identity|rail)/i, min: 10, max: 19 },
-    { pattern: /hm-(plate|channels)/i, min: 20, max: 30 },
+    // 2026-08-10: the painted masthead is DECORATIVE and belongs in the
+    // bottom band. Not a demotion — the honest reading: both copies are
+    // aria-hidden and the accessible name is the visually hidden <h1>. It
+    // is also what makes the composition work: --back at 2, the
+    // photograph at 5, the 10% overprint --over at 8.
+    { pattern: /hm-(field|shade|hero|mast|kg)/i, min: 1, max: 9 },
+    { pattern: /hm-(meta|role|stack)/i, min: 10, max: 19 },
+    // The interactive band (20-30) has no member left in this file — the
+    // module wheel (formerly `.hm-wheel`/`.hm-gate`/`.hm-advance`) was
+    // promoted out to `shell/wheel/wheel.css` on 2026-08-11 and carries its
+    // own z-index token (`--z-wheel`) entirely outside this file's bands.
   ];
 
   /**

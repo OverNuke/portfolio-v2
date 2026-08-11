@@ -1,8 +1,12 @@
 /**
  * Task 2.5 (sdd/phase2-app-shell), design "DOM sibling order & z bands" +
- * doc11/proof `.shell`/`.system-header`/`.status-bar`/`.visually-hidden`.
- * Minimal port only — grid placement of collage plates is task 3.1,
- * explicitly out of scope here. Tokens only, no raw hex.
+ * doc11/proof `.shell`/`.status-bar`/`.visually-hidden`. Minimal port
+ * only — grid placement of collage plates is task 3.1, explicitly out of
+ * scope here. Tokens only, no raw hex.
+ *
+ * `.system-header`/`.wordmark` (the static "KEVIN_ARCHIVE_OS" band) were
+ * removed 2026-08-10 — no functionality, and the branding motif now lives
+ * in `Canvas.tsx`'s `.hm-meta__end` instead.
  */
 .shell {
   position: relative;
@@ -12,33 +16,10 @@
   overflow: hidden;
 }
 
-.system-header,
 .status-bar {
   position: relative;
   z-index: var(--z-frame);
   flex: 0 0 auto;
-}
-
-.system-header {
-  display: flex;
-  align-items: stretch;
-  border-bottom: var(--rule-thick) solid var(--ink);
-  background: var(--paper);
-}
-
-.wordmark {
-  display: flex;
-  align-items: center;
-  padding: 0 var(--space-md);
-  background: var(--ink);
-  color: var(--ink-inverse);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--text-display-md);
-  letter-spacing: 0.06em;
-}
-
-.status-bar {
   display: flex;
   align-items: center;
   gap: var(--space-md);

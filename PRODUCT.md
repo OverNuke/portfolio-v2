@@ -4,7 +4,8 @@
 
 ## Platform
 
-web
+- web
+- mobile & tablets
 
 ## Users
 

@@ -1,0 +1,87 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   fonts.css — the app's four faces, self-hosted for the proofs.
+
+   The older proofs in docs/ pull Archivo Narrow and JetBrains Mono off the
+   Google Fonts CDN. These do not: a design proof that renders in fallback
+   Courier the first time someone opens it on a plane is a proof of nothing,
+   and the whole argument here is about type. The two LT faces come
+   straight from the app's own `src/assets/fonts/` (same files
+   `src/styles/fonts.css` loads); the two @fontsource families are copied
+   into `assets/fonts/` here — latin subsets, ~12-22kB each.
+
+   THE THREE TYPE ROLES, unchanged from docs/02_DESIGN_SYSTEM.MD:
+     --font-mast   LT Superior Serif ExtraBold   the one oversized word
+     --font-edit   LT Remark                     the editorial voice
+     --font-mono   JetBrains Mono                every technical label
+   Archivo Narrow joins as direction 02's display face only, where the
+   brief asks for geometric rather than editorial type.
+
+   Rule that still holds: dense 9px tracked uppercase is never set in
+   either serif. That is mono's job.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: "LT Superior Serif";
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url("../../src/assets/fonts/LTSuperiorSerif-ExtraBold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "LT Remark";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../src/assets/fonts/LTRemark-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "LT Remark";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../../src/assets/fonts/LTRemark-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Archivo Narrow";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/archivo-narrow-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Archivo Narrow";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/archivo-narrow-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Archivo Narrow";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/archivo-narrow-latin-700-normal.woff2") format("woff2");
+}

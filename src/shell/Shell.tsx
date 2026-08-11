@@ -1,20 +1,25 @@
 import { useTurn } from "../turn/useTurn";
 import { useTurnKeyboard } from "../turn/useTurnKeyboard";
 import { Canvas } from "./collage/Canvas";
-import { SystemHeader } from "./SystemHeader";
 import { StatusBar } from "./StatusBar";
 import "./shell.css";
 
 /**
  * Task 2.5 (sdd/phase2-app-shell). There is no `routes/Home.tsx` — `Shell`
- * IS Home (design): renders the Frame (SystemHeader + StatusBar) and owns
+ * IS Home (design): renders the Frame (StatusBar) and owns
  * `<main id="main-content" tabIndex={-1}>`.
+ *
+ * `SystemHeader` (the static "KEVIN_ARCHIVE_OS" wordmark band) was removed
+ * 2026-08-10 in the editorial-Home refinement pass — it carried no
+ * functionality, and the branding motif now lives in `Canvas.tsx`'s
+ * `.hm-meta__end` instead. The accessible identity content below is
+ * unaffected by that removal: it never lived in SystemHeader.
  *
  * `registerShell` is attached to the OUTER `.shell` wrapper, not `<main>`
  * alone — advisor-flagged: design says "`#main-content` is therefore
  * INSIDE the subtree that goes inert", which only holds if the wrapper
- * (not just main) is what TurnProvider marks inert. Otherwise SystemHeader/
- * StatusBar would stay reachable/announced while a page is open. Un-inert
+ * (not just main) is what TurnProvider marks inert. Otherwise StatusBar
+ * would stay reachable/announced while a page is open. Un-inert
  * on close still happens on the wrapper first, then
  * `getElementById("main-content").focus()` lands inside it — unaffected.
  *
@@ -41,7 +46,6 @@ export function Shell() {
 
   return (
     <div className="shell" ref={registerShell}>
-      <SystemHeader />
       <main id="main-content" tabIndex={-1}>
         <Canvas />
       </main>

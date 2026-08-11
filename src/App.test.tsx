@@ -116,4 +116,116 @@ describe("App", () => {
     expect(shell).not.toHaveAttribute("inert");
     expect(document.activeElement).toBe(document.getElementById("main-content"));
   });
+
+  /**
+   * 2026-08-11, promoted-to-global pass. The module wheel used to be a
+   * Home grid item, nested inside `.shell` — it went `inert` along with
+   * everything else in `.shell` the instant a page opened, so it could
+   * never be reopened FROM a routed page. It is now a `position: fixed`
+   * sibling of `Shell`/`PageLayer`, mounted from `AppShell` itself. These
+   * tests exercise the composition no single unit test can: the wheel
+   * staying interactive over an open page, Escape's topmost-layer-first
+   * precedence, and a real navigation through it closing it on arrival.
+   */
+  describe("the global module wheel", () => {
+    function openWheel() {
+      act(() => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true }),
+        );
+      });
+    }
+
+    it("stays interactive on a routed page — not caught by .shell going inert", () => {
+      renderApp("/profile");
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+      expect(document.querySelector(".shell")).toHaveAttribute("inert");
+
+      openWheel();
+
+      expect(screen.getByRole("listbox", { name: "Portfolio modules" })).toBeInTheDocument();
+    });
+
+    it("Escape closes the wheel first when it's open over an already-open page; a second Escape then closes the page", () => {
+      renderApp("/profile");
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+      const shell = document.querySelector(".shell")!;
+      expect(shell).toHaveAttribute("inert");
+
+      openWheel();
+      expect(screen.getByRole("listbox")).toBeInTheDocument();
+
+      act(() => {
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      });
+      // The wheel closed; the page underneath is untouched.
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+      expect(shell).toHaveAttribute("inert");
+
+      act(() => {
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      });
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+      expect(shell).not.toHaveAttribute("inert");
+    });
+
+    it("selecting a module from an already-open page navigates directly, and the wheel closes on arrival", () => {
+      renderApp("/profile");
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+
+      openWheel();
+      const projectsIndex = ROUTES.findIndex((route) => route.path === "/projects");
+      for (let i = 0; i < projectsIndex; i++) openWheel(); // Space advances while open
+
+      // Enter is handled by the wheel's own focused listbox, not at the
+      // document level — a keyboard-driven open already moved focus there.
+      const listbox = screen.getByRole("listbox");
+      act(() => {
+        listbox.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
+        );
+      });
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+
+      const dialog = screen.getByRole("dialog");
+      expect(
+        within(dialog).getByRole("heading", { level: 1, name: ROUTES[projectsIndex].title }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Open navigation" })).toBeInTheDocument();
+    });
+
+    it("ArrowLeft at Home on the focused wheel opens its selected page", () => {
+      renderApp("/");
+      openWheel();
+      const listbox = screen.getByRole("listbox", { name: "Portfolio modules" });
+      expect(listbox).toHaveAttribute("data-page", ROUTES[0].pageId);
+      listbox.focus();
+
+      act(() => {
+        listbox.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true, cancelable: true }),
+        );
+      });
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+
+      expect(document.querySelector(".shell")).toHaveAttribute("inert");
+      const dialog = screen.getByRole("dialog");
+      expect(
+        within(dialog).getByRole("heading", { level: 1, name: ROUTES[0].title }),
+      ).toBeInTheDocument();
+    });
+  });
 });

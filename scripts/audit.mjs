@@ -151,6 +151,18 @@ async function main() {
 
       for (const width of WIDTHS) {
         await page.setViewportSize({ width, height: VIEWPORT_HEIGHT });
+        // Settle before measuring. Until 2026-08-10 every responsive
+        // decision on Home was pure CSS, so a resize was laid out by the
+        // time `setViewportSize` resolved. Home's wheel is not: its row
+        // height is derived in JS from a `fontSize` prop chosen per
+        // breakpoint, so a resize costs a React render + a remount before
+        // the geometry is right. Two frames is the cheapest guarantee that
+        // React has committed AND the browser has laid out; without it the
+        // audit measures the previous width's wheel and reports a
+        // clipped-text failure that does not exist.
+        await page.evaluate(
+          () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+        );
 
         const occlusions = await page.evaluate(checkOcclusion, INTERACTIVE_SELECTOR);
         for (const { el, reason, hit } of occlusions) {

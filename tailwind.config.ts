@@ -80,6 +80,7 @@ export default {
         frame: "var(--z-frame)",
         layer: "var(--z-layer)",
         crease: "var(--z-crease)",
+        wheel: "var(--z-wheel)",
         intro: "var(--z-intro)",
       },
     },

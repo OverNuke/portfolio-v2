@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { useSetWheelOpen, WheelProvider } from "../shell/wheel/WheelContext";
 import { PageLayer } from "./PageLayer";
 import { TurnProvider } from "./TurnProvider";
 import { useTurn } from "./useTurn";
@@ -13,10 +14,18 @@ import { useTurnKeyboard } from "./useTurnKeyboard";
  * mirroring `TurnProvider.test.tsx`'s own harness style (plain `.click()`/
  * `fireEvent` inside `act()` + fake timers — user-event + fake timers hangs
  * without extra config, per that file's precedent).
+ *
+ * 2026-08-11: `useTurnKeyboard` now reads `useWheelOpen()` (the wheel takes
+ * Escape/ArrowRight precedence while it's open — see the hook's own header),
+ * so it throws without a `WheelProvider` ancestor. `renderHarness` wraps in
+ * one; a `data-testid="open-wheel"` button flips the shared context value
+ * without needing the real `ModuleWheel` (that integration is covered in
+ * `App.test.tsx`, against the real composed app).
  */
 function Harness() {
   useTurnKeyboard();
   const { registerShell, layerMounted, go } = useTurn();
+  const setWheelOpen = useSetWheelOpen();
 
   return (
     <div>
@@ -30,6 +39,9 @@ function Harness() {
           Open profile
         </button>
       </main>
+      <button type="button" data-testid="open-wheel" onClick={() => setWheelOpen(true)}>
+        Open wheel
+      </button>
       {/* Deliberately OUTSIDE the shell: while a page is open the shell is
           `inert`, and jsdom does not enforce inert's real focus-blocking
           behavior (design D4 note — only the attribute is observable in
@@ -49,7 +61,9 @@ function renderHarness(initialPath = "/") {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
       <TurnProvider>
-        <Harness />
+        <WheelProvider>
+          <Harness />
+        </WheelProvider>
       </TurnProvider>
     </MemoryRouter>,
   );
@@ -166,6 +180,41 @@ describe("useTurnKeyboard", () => {
     });
 
     expect(shell).not.toHaveAttribute("inert");
+  });
+
+  it("defers Escape/ArrowRight to the wheel while it's open over an open page", () => {
+    renderHarness("/");
+    const shell = document.getElementById("main-content")!;
+
+    act(() => {
+      screen.getByTestId("nav-profile").click();
+    });
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+    expect(shell).toHaveAttribute("inert");
+
+    act(() => {
+      screen.getByTestId("open-wheel").click();
+    });
+
+    act(() => {
+      fireEvent.keyDown(document, { key: "Escape" });
+    });
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+    // The page must stay open — the wheel owns Escape while `wheelOpen` is
+    // true; this hook stood down instead of closing the page underneath it.
+    expect(shell).toHaveAttribute("inert");
+
+    act(() => {
+      fireEvent.keyDown(document, { key: "ArrowRight" });
+    });
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+    expect(shell).toHaveAttribute("inert");
   });
 
   it("ignores Escape when focus is inside a text input while a page is open", () => {

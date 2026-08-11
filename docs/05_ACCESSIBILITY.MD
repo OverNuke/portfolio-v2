@@ -78,7 +78,6 @@ be reached for by accident now that Field Olive is a plate surface: an
 accent mark placed "inside" a plate. It doesn't go inside; it goes on the
 paper margin.
 
-
 Plate surfaces — Field Olive as a printed fill (added 2026-08-05):
 
 Paper White #F6F6F4 on Field Olive #4F5A3C → 6.79:1 (AA any size)

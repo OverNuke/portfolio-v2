@@ -127,6 +127,13 @@
   --z-frame: 40;
   --z-layer: 800;
   --z-crease: 850;
+  /* The global module wheel (`shell/wheel/`) — a fixed DOM sibling of
+     `Shell`/`PageLayer` (2026-08-11, promoted-to-global pass), so it needs
+     to sit above `--z-layer` (a routed page can be open underneath it) but
+     below `--z-intro` (mutually exclusive in practice: the intro only
+     shows on an initial "/" load, before anything could have opened the
+     wheel, but there's no reason to invert that ordering). */
+  --z-wheel: 900;
   --z-intro: 950;
 }
 

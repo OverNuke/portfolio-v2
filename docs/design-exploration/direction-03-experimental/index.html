@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DIRECTION 03 — EXPERIMENTAL ART DIRECTION / Kevin S. F. García</title>
+<link rel="stylesheet" href="../fonts.css" />
+<link rel="stylesheet" href="../option-wheel.css" />
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   DIRECTION 03 — EXPERIMENTAL ART DIRECTION
+
+   THE IDEA: the page is cut in two. A paper field on the left, a solid ink
+   block on the right, and the photograph standing ON the seam — half of
+   him lit, half of him in the dark. Everything else is arranged around
+   that one edge.
+
+   THE MOVE THAT ONLY WORKS HERE: the module title crosses the seam and is
+   painted with `mix-blend-mode: difference` against near-white. Over
+   paper it computes to near-black; over the ink block to near-white. One
+   element, one colour, two fields — and it inverts itself the instant the
+   proportions change. It is the "large type crossing the composition"
+   idea from the reference, done as a property of the surface rather than
+   as two spans in two colours.
+
+   Contrast is not a casualty of that trick, it is the reason it is safe:
+   |246 - 228| = 18 on paper (13.9:1) and |246 - 17| = 229 on ink (14.6:1).
+   Both fields are flat where the title crosses them — the title sits
+   ABOVE the figure's head, never over the photograph, because difference
+   blending over a mid-grey jean would land near 4:1 and the whole point
+   would collapse.
+
+   THE CROPPED LETTERS are texture, not information: a K bleeding off the
+   bottom-left at 12% ink and a G bleeding off the top-right at 10% paper.
+   They are `aria-hidden` and they never carry meaning the page does not
+   also state in words.
+
+   THE ONE POINT OF COLOUR IN THE WHOLE EXPLORATION lives here: this
+   direction does NOT grayscale the photograph, so the oxblood sneaker
+   stays red. One accent, roughly 400 square pixels, at the bottom of the
+   frame. Directions 01 and 02 are monochrome; this one earns its accent
+   by having exactly one.
+
+   USABILITY IS NOT THE EXPERIMENT. The wheel, the readout and the stack
+   all sit on flat fields at full contrast. Only the decoration is strange.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --paper: #e4e4e2;
+  --ink: #111111;
+  --paper-white: #f6f6f4;
+  --gray: #5f5b55;
+  --dim-on-ink: #a3a3a0;
+  --hair-ink: rgba(17, 17, 17, 0.2);
+  --hair-paper: rgba(246, 246, 244, 0.2);
+
+  --font-mast: "LT Superior Serif", Georgia, "Times New Roman", serif;
+  --font-edit: "LT Remark", Georgia, serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+
+  --m: clamp(20px, 3.8vw, 60px);
+  --seam: 46vw; /* width of the ink block */
+  --t-micro: 0.5625rem;
+  --t-meta: 0.6875rem;
+  --track: 0.22em;
+
+  --ease: cubic-bezier(0.7, 0, 0.3, 1);
+  --dur: 200ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; border-radius: 0; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+.stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 640px;
+  overflow: hidden;
+  /* No filter, no opacity, no transform on this element — any of the three
+     would isolate the stacking context and kill the difference blend. */
+}
+
+/* ── The block ───────────────────────────────────────────────────────── */
+.block {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--seam);
+  background: var(--ink);
+  z-index: 0;
+}
+
+/* ── Cropped letters ─────────────────────────────────────────────────── */
+.crop {
+  position: absolute;
+  margin: 0;
+  font-family: var(--font-mast);
+  font-weight: 800;
+  line-height: 0.7;
+  pointer-events: none;
+  z-index: 1;
+}
+.crop--k {
+  left: -3vw;
+  bottom: -14vh;
+  font-size: 66vh;
+  color: var(--ink);
+  opacity: 0.12;
+}
+.crop--g {
+  right: -3vw;
+  top: -16vh;
+  font-size: 62vh;
+  color: var(--paper-white);
+  opacity: 0.1;
+}
+
+/* ── Photograph, standing on the seam ────────────────────────────────────
+   Not grayscaled. This is the one direction that keeps the sneaker. */
+.figure {
+  position: absolute;
+  bottom: 0;
+  left: 54%;
+  transform: translateX(-50%);
+  height: clamp(320px, 80vh, 800px);
+  z-index: 2;
+  pointer-events: none;
+}
+.figure img {
+  height: 100%;
+  width: auto;
+  display: block;
+  filter: contrast(1.05);
+}
+
+/* ── Title crossing the seam ─────────────────────────────────────────── */
+/* CENTRED ON THE SEAM, not on the page. Flush-left, a short title like
+   "Contact" would sit entirely on paper and the blend would never fire;
+   right-aligned it would sit entirely on ink and never fire either.
+   Anchoring its centre to the seam makes the crossing a property of the
+   layout rather than a happy accident of string length. */
+.title {
+  position: absolute;
+  left: 54vw;
+  top: 5vh;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  margin: 0;
+  font-family: var(--font-mast);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 7vw, 6.2rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--paper-white);
+  mix-blend-mode: difference;
+  z-index: 7;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+/* ── Vertical lines ──────────────────────────────────────────────────── */
+.vert {
+  position: absolute;
+  writing-mode: vertical-rl;
+  font-size: var(--t-meta);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  white-space: nowrap;
+  z-index: 6;
+}
+/* Paper side, reading bottom-to-top. */
+.vert--left {
+  left: 14px;
+  bottom: 26vh;
+  transform: rotate(180deg);
+  color: var(--gray);
+}
+/* Ink side, big, reading top-to-bottom, running the full height. */
+.vert--right {
+  right: calc(var(--m) - 0.12em);
+  top: var(--m);
+  font-family: var(--font-mast);
+  font-weight: 800;
+  font-size: clamp(1.3rem, 3.4vw, 3rem);
+  letter-spacing: -0.01em;
+  color: var(--paper-white);
+  opacity: 0.92;
+}
+
+/* ── Readout + lede, paper side ──────────────────────────────────────── */
+.readout {
+  position: absolute;
+  left: var(--m);
+  top: 42vh;
+  z-index: 6;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 2px solid var(--ink);
+  width: min(30vw, 340px);
+  font-size: var(--t-meta);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.readout__idx { font-weight: 700; }
+.readout__sub { color: var(--gray); }
+
+.lede {
+  position: absolute;
+  left: var(--m);
+  top: calc(42vh + 44px);
+  width: min(28vw, 300px);
+  margin: 0;
+  z-index: 6;
+  font-family: var(--font-edit);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.is-swapping { opacity: 0; transform: translateY(6px); }
+/* The title already owns its transform, so its swap state has to restate it. */
+.title.is-swapping { transform: translateX(-50%) translateY(6px); }
+
+/* ── Wheel, paper side, bottom ───────────────────────────────────────── */
+.wheel-zone {
+  position: absolute;
+  left: 0;
+  bottom: 64px;
+  width: min(46vw, 420px);
+  height: 34vh;
+  z-index: 6;
+}
+.option-wheel {
+  --ow-text-color: #111111;
+  --ow-active-color: #111111;
+  --ow-focus: 1px solid #111111;
+}
+.option-wheel__item {
+  font-family: var(--font-edit);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+}
+.option-wheel__item--selected::after {
+  content: "";
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 0.34em;
+  width: 0;
+  height: 0;
+  border-left: 8px solid currentColor;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+.wheel-hint {
+  position: absolute;
+  left: var(--m);
+  bottom: var(--m);
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--t-micro);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.wheel-hint kbd { font: inherit; border: 1px solid var(--hair-ink); padding: 3px 7px; letter-spacing: 0.1em; }
+
+/* ── Stack, lower right, on the ink block ────────────────────────────────
+   Staggered indents rather than a grid — the one place this direction lets
+   the alignment go. Still 9px mono, still no fill, still no chip. */
+.stack {
+  position: absolute;
+  right: calc(var(--m) + 74px);
+  bottom: var(--m);
+  z-index: 6;
+  text-align: right;
+  color: var(--paper-white);
+  font-size: var(--t-meta);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.7;
+}
+.stack__label {
+  display: block;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hair-paper);
+  font-size: var(--t-micro);
+  letter-spacing: var(--track);
+  color: var(--dim-on-ink);
+}
+.stack ul { list-style: none; margin: 0; padding: 0; }
+.stack li:nth-child(2) { margin-right: 14px; }
+.stack li:nth-child(3) { margin-right: 30px; }
+.stack li:nth-child(4) { margin-right: 8px; }
+.stack li:nth-child(5) { margin-right: 38px; }
+.stack li:nth-child(6) { margin-right: 20px; }
+.stack__tail { display: block; margin-top: 10px; font-size: var(--t-micro); letter-spacing: var(--track); color: var(--dim-on-ink); }
+
+.ow-advance {
+  position: absolute;
+  right: var(--m);
+  bottom: calc(var(--m) + 210px);
+  z-index: 8;
+  color: var(--paper-white);
+}
+
+/* ── Tablet and below ────────────────────────────────────────────────────
+   The seam becomes horizontal instead of vertical: paper on top where the
+   reading is, ink at the foot where the stack lives. The figure still
+   stands on it. Same idea, rotated 90 degrees, because a 46vw block on a
+   390px screen is 180px of nothing. */
+@media (max-width: 1024px) {
+  :root { --seam: 26vh; }
+  /* Padding-bottom reserves the whole ink block, so every flowing
+     element — including the wheel, which is ink-coloured — stays on
+     paper. Only the stack and the touch control live on the block. */
+  .stage { display: flex; flex-direction: column; padding: var(--m) var(--m) calc(var(--seam) + var(--m)); height: 100dvh; }
+  .block { top: auto; left: 0; right: 0; bottom: 0; width: auto; height: var(--seam); }
+  .crop--k { font-size: 40vh; bottom: auto; top: 26vh; left: -6vw; }
+  .crop--g { font-size: 34vh; top: auto; bottom: -6vh; right: -8vw; }
+  .title.is-swapping { transform: translateY(6px); }
+  .title { position: static; left: auto; transform: none; white-space: normal; margin-bottom: 4vh; font-size: clamp(2.2rem, 9.5vw, 5rem); }
+  .readout, .lede, .wheel-zone { position: static; }
+  .readout { width: 100%; margin-bottom: 14px; }
+  .lede { width: min(40ch, 100%); }
+  .wheel-zone { width: 100%; height: clamp(150px, 24vh, 230px); margin-top: auto; margin-left: calc(var(--m) * -1); }
+  .vert--left, .vert--right, .wheel-hint { display: none; }
+  .figure {
+    position: absolute;
+    left: auto;
+    right: -22%;
+    bottom: calc(var(--seam) - 4vh);
+    transform: none;
+    height: clamp(280px, 46vh, 460px);
+    z-index: 2;
+  }
+  .stack {
+    position: absolute;
+    left: var(--m);
+    right: var(--m);
+    bottom: var(--m);
+    text-align: left;
+  }
+  .stack ul { display: flex; flex-wrap: wrap; gap: 0 16px; }
+  .stack li { margin: 0 !important; }
+  .ow-advance { bottom: var(--m); }
+}
+
+@media (max-width: 640px) {
+  :root { --seam: 24vh; }
+  .lede { display: none; }
+  .figure { right: -34%; height: clamp(240px, 36vh, 360px); }
+  .stack { font-size: var(--t-micro); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title, .readout, .lede { transition-duration: 0ms; }
+}
+</style>
+</head>
+<body>
+
+<main class="stage">
+  <div class="block" aria-hidden="true"></div>
+
+  <p class="crop crop--k" aria-hidden="true">K</p>
+  <p class="crop crop--g" aria-hidden="true">G</p>
+
+  <h1 class="visually-hidden">Kevin Sebastián Frías García — Jr. Software Developer</h1>
+
+  <h2 class="title" id="big-title">Profile</h2>
+
+  <div class="figure">
+    <img src="../assets/portrait-sit.png" alt="" />
+  </div>
+
+  <span class="vert vert--left" aria-hidden="true">Jr. Software Developer — MX</span>
+  <span class="vert vert--right" aria-hidden="true">Kevin S. F. García</span>
+
+  <p class="readout" id="readout">
+    <span class="readout__idx" id="r-idx">01</span>
+    <span class="readout__sub" id="r-sub">identity / experience</span>
+  </p>
+
+  <p class="lede" id="lede">Identity, experience, and the way the work actually gets made.</p>
+
+  <div class="wheel-zone"><div id="wheel"></div></div>
+
+  <p class="wheel-hint" aria-hidden="true"><kbd>Space</kbd> next module</p>
+
+  <div class="stack">
+    <span class="stack__label">Stack — 7 of 11 in use</span>
+    <ul>
+      <li>TypeScript</li>
+      <li>React</li>
+      <li>Next.js</li>
+      <li>Node.js</li>
+      <li>Tailwind</li>
+      <li>Git</li>
+      <li>JavaScript</li>
+    </ul>
+    <span class="stack__tail">+4 filed in the archive</span>
+  </div>
+
+  <button class="ow-advance" type="button" id="advance">
+    <span class="visually-hidden">Next module</span>
+  </button>
+
+  <p class="ow-live" id="live" role="status" aria-live="polite"></p>
+</main>
+
+<script src="../option-wheel.js"></script>
+<script src="../sections.js"></script>
+<script>
+  mountDirection({
+    wheel: document.getElementById("wheel"),
+    fontSize: 1.9,
+    spacing: 1.5,
+    tilt: 6,
+    curve: 1,
+    blur: 0.9,
+    fade: 0.2,
+    minOpacity: 0.66,
+  });
+</script>
+</body>
+</html>

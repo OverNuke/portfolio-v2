@@ -10,6 +10,8 @@ import { ProjectsPage } from "./routes/ProjectsPage";
 import { ROUTES } from "./routes/routes";
 import { Announcer } from "./shell/Announcer";
 import { Shell } from "./shell/Shell";
+import { ModuleWheel } from "./shell/wheel/ModuleWheel";
+import { WheelProvider } from "./shell/wheel/WheelContext";
 import { PageLayer } from "./turn/PageLayer";
 import { TurnProvider } from "./turn/TurnProvider";
 import { useTurn } from "./turn/useTurn";
@@ -50,7 +52,7 @@ function AppShell() {
     ROUTES.find((route) => contentPath.startsWith(`${route.path}/`));
 
   return (
-    <>
+    <WheelProvider>
       {/* Was a hardcoded "Full-Stack Developer" until 2026-08-06, which
           had drifted from ABOUT_PROFILE.role ("Jr. Software Developer") —
           the intro and the page under it announced different jobs. */}
@@ -71,13 +73,20 @@ function AppShell() {
           </Routes>
         </PageLayer>
       )}
+      {/* A DOM sibling of `Shell`/`PageLayer`, not a child of either —
+          `Shell`'s wrapper goes `inert` while a page is open (`useTurn`'s
+          `registerShell`), and nothing under that subtree can be the site's
+          navigation once it needs to work FROM a routed page too. Fixed
+          positioning + `--z-wheel` (tokens.css) put it above both
+          regardless of which is currently showing. */}
+      <ModuleWheel modules={ROUTES} />
       {/* Announcer/Shell/intro are DOM siblings, never nested inside one
           another (design "DOM sibling order & z bands") — `aria-hidden` on
           the inert Shell must never swallow the live-region announcement,
           and `inert` on the Shell must never disable the intro's
           click-to-dismiss escape hatch. */}
       <Announcer />
-    </>
+    </WheelProvider>
   );
 }
 

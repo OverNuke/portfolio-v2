@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { ROUTES } from "../routes/routes";
+import { useWheelOpen } from "../shell/wheel/WheelContext";
 import { useTurn } from "./useTurn";
 
 /**
@@ -18,12 +19,23 @@ import { useTurn } from "./useTurn";
  * - `Tab`/`Shift+Tab` are never remapped — this hook does not listen for
  *   them at all.
  *
+ * WHEEL PRECEDENCE (2026-08-11, promoted-to-global pass). The module wheel
+ * is now a floating layer that can be open on top of an already-open page
+ * (`ModuleWheel`, promoted out of `.shell` in `App.tsx`). Escape/ArrowRight
+ * closing the page out from under it would be the wrong layer closing —
+ * topmost-closes-first is the chosen precedence (confirmed with the user),
+ * so this hook stands down entirely while `useWheelOpen()` is true and lets
+ * `useWheelGate`'s own Escape handler close the wheel instead. A second
+ * Escape, once the wheel is closed, then reaches this hook and closes the
+ * page as before.
+ *
  * Attached once at `document` level (not per-element) via a `keydown`
  * listener, cleaned up on unmount — mirrors the "one imperative driver"
  * precedent `TurnProvider`'s `useLayoutEffect` set in task 2.4.
  */
 export function useTurnKeyboard(): void {
   const { go, layerMounted } = useTurn();
+  const wheelOpen = useWheelOpen();
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -36,6 +48,7 @@ export function useTurnKeyboard(): void {
       }
 
       if (layerMounted) {
+        if (wheelOpen) return; // the wheel owns Escape while it's the topmost layer
         if (event.key === "Escape" || event.key === "ArrowRight") {
           event.preventDefault();
           go("/");
@@ -57,5 +70,5 @@ export function useTurnKeyboard(): void {
 
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [go, layerMounted]);
+  }, [go, layerMounted, wheelOpen]);
 }

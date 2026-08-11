@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DIRECTION 02 — MONOCHROME DIGITAL / Kevin S. F. García</title>
+<link rel="stylesheet" href="../fonts.css" />
+<link rel="stylesheet" href="../option-wheel.css" />
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   DIRECTION 02 — MONOCHROME DIGITAL
+
+   THE IDEA: direction 01 is a printed page; this is an INSTRUMENT. Same
+   compositional principles — asymmetry, one figure, oversized type,
+   generous emptiness — but the page admits it is a screen. The 12-column
+   grid is visible rather than implied, the frame is bracketed by a header
+   and a status bar, and every label is machine type.
+
+   WHAT MAKES IT NOT A DASHBOARD (the failure mode this direction has to
+   dodge): there is exactly one bordered object on the page — the stack
+   lattice — and it is 9px type in an empty grid, not a card. Nothing has
+   a fill. Nothing has a shadow. The left 55% of the frame is a
+   photograph and empty space, and the type sits in a single right-hand
+   column that reads straight down.
+
+   THE TYPE IS STATE, NOT IDENTITY. In 01 the surname is the big thing and
+   the module is a caption. Here it inverts: the module title is what is
+   set large, and it changes when the wheel turns. The name is a 9px
+   header entry. That is the whole argument of this direction — a
+   portfolio that behaves like a system readout.
+
+   THE PORTRAIT AS ARTIFACT: grayscale, dropped in brightness, and lifted
+   in contrast so it belongs to the background rather than sitting on it,
+   with a 3px scanline over the top and registration marks at its bounding
+   box. It reads as a plate the system is displaying. This also carries
+   the contrast: white 9px type over a mid-grey photograph is 3:1 and
+   illegible; over this treatment it is above 7:1.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg: #0e0e0e;
+  --ink: #f2f2f2;
+  --dim: #9a9a9a;
+  --hair: rgba(242, 242, 242, 0.14);
+  --grid: rgba(242, 242, 242, 0.055);
+
+  --font-disp: "Archivo Narrow", "Arial Narrow", Haettenschweiler, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+
+  --m: clamp(20px, 3.6vw, 56px);
+  --header-h: 44px;
+  --status-h: 30px;
+  --t-micro: 0.5625rem;
+  --t-meta: 0.6875rem;
+  --track: 0.22em;
+
+  --ease: cubic-bezier(0.7, 0, 0.3, 1);
+  --dur: 200ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; border-radius: 0; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+.stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 620px;
+  overflow: hidden;
+}
+
+/* ── The grid, made visible ─────────────────────────────────────────────
+   12 columns drawn as hairlines rather than implied by alignment. At 5.5%
+   of the ink colour it is texture, not chrome — you read it as paper
+   ruling, and it is well under the 3:1 bar that would make it a UI
+   component with an accessibility obligation. */
+.grid {
+  position: absolute;
+  inset: var(--header-h) var(--m) var(--status-h);
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  pointer-events: none;
+  z-index: 0;
+}
+.grid span { border-left: 1px solid var(--grid); }
+.grid span:last-child { border-right: 1px solid var(--grid); }
+
+/* ── Frame: header and status bar ───────────────────────────────────── */
+.bar {
+  position: absolute;
+  left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--m);
+  padding: 0 var(--m);
+  font-size: var(--t-micro);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--dim);
+  z-index: 8;
+}
+.bar--top { top: 0; height: var(--header-h); border-bottom: 1px solid var(--hair); }
+.bar--bottom { bottom: 0; height: var(--status-h); border-top: 1px solid var(--hair); }
+.bar__spacer { flex: 1; }
+.bar strong { color: var(--ink); font-weight: 500; }
+
+/* The progress track is the only moving chrome on the page, and it moves
+   on transform alone. */
+.track {
+  position: relative;
+  width: clamp(80px, 14vw, 180px);
+  height: 1px;
+  background: var(--hair);
+}
+.track span {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform-origin: left center;
+  transition: transform var(--dur) var(--ease);
+}
+
+/* ── Portrait ────────────────────────────────────────────────────────── */
+.figure {
+  position: absolute;
+  left: -2%;
+  bottom: var(--status-h);
+  height: min(82vh, 760px);
+  z-index: 1;
+}
+.figure img {
+  height: 100%;
+  width: auto;
+  display: block;
+  filter: grayscale(1) brightness(0.92) contrast(1.12);
+}
+/* 3px scanline. Decorative, aria-hidden by virtue of being a pseudo
+   element, and pinned to the image box so it never spills onto the page. */
+.figure::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(14, 14, 14, 0) 0 2px,
+    rgba(14, 14, 14, 0.30) 2px 3px
+  );
+  pointer-events: none;
+}
+/* Registration marks at the plate's bounding box — the corners of a crop,
+   not a border. */
+.marks {
+  position: absolute;
+  left: -2%;
+  bottom: var(--status-h);
+  height: min(82vh, 760px);
+  aspect-ratio: 1100 / 1217;
+  z-index: 2;
+  pointer-events: none;
+}
+.marks i {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid var(--hair);
+}
+.marks i:nth-child(1) { top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; }
+.marks i:nth-child(2) { top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; }
+.marks i:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; }
+.marks i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; }
+
+/* ── The right column ────────────────────────────────────────────────── */
+.col {
+  position: absolute;
+  right: var(--m);
+  top: calc(var(--header-h) + 6vh);
+  bottom: calc(var(--status-h) + 3vh);
+  width: min(46vw, 620px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  z-index: 5;
+}
+
+/* Ghost numeral. Deliberately NOT behind the title — it sits in the empty
+   middle of the frame, which is the part of the composition that would
+   otherwise read as an accident rather than a decision. 5% of the ink
+   colour: texture, not information. */
+.ghost {
+  position: absolute;
+  left: 46%;
+  bottom: 8vh;
+  margin: 0;
+  font-family: var(--font-disp);
+  font-weight: 700;
+  font-size: clamp(9rem, 26vw, 24rem);
+  line-height: 0.72;
+  color: var(--ink);
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-disp);
+  font-weight: 700;
+  font-size: clamp(2rem, 5.6vw, 4.75rem);
+  line-height: 0.92;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.readout {
+  display: flex;
+  gap: 16px;
+  margin: 18px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--hair);
+  font-size: var(--t-meta);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--dim);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.readout strong { color: var(--ink); font-weight: 500; }
+
+.lede {
+  margin: 14px 0 0;
+  max-width: 44ch;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--dim);
+  transition: opacity var(--dur) var(--ease);
+}
+
+.is-swapping { opacity: 0; transform: translateY(6px); }
+
+/* ── The wheel ───────────────────────────────────────────────────────────
+   Right-anchored, so it curves around the edge it sits on. Machine type
+   at a small size: this is a control, not a headline — the headline is
+   what the control changes. */
+.wheel-zone {
+  width: 100%;
+  height: clamp(180px, 28vh, 300px);
+  margin-top: 5vh;
+  position: relative;
+}
+.option-wheel {
+  --ow-text-color: #f2f2f2;
+  --ow-active-color: #f2f2f2;
+  --ow-focus: 1px solid #f2f2f2;
+}
+.option-wheel__item {
+  font-family: var(--font-disp);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.option-wheel__item--selected { font-weight: 700; }
+.option-wheel__item--selected::after {
+  content: "";
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 0.42em;
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+}
+
+/* ── Stack lattice ───────────────────────────────────────────────────────
+   The one bordered object on the page, and the lower-right anchor the
+   brief asks for. Hairline cells only — no fill, no chip, no radius, no
+   "Skills" heading dressed up as a card. Reads as a spec table because
+   that is what a stack list actually is. */
+.spec {
+  width: min(100%, 420px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--hair);
+  border-left: 1px solid var(--hair);
+  list-style: none;
+  padding: 0;
+}
+.spec li {
+  border-right: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+  padding: 9px 8px;
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ink);
+}
+.spec li.is-rest { color: var(--dim); }
+.spec__label {
+  display: block;
+  margin-top: auto;
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: var(--t-micro);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.ow-advance {
+  position: absolute;
+  right: var(--m);
+  bottom: calc(var(--status-h) + 10px);
+  z-index: 9;
+  color: var(--ink);
+}
+
+/* ── Tablet and below ────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .col {
+    position: static;
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+    padding: calc(var(--header-h) + 5vh) var(--m) calc(var(--status-h) + 4vh);
+    height: 100dvh;
+  }
+  .ghost { left: auto; right: 2%; bottom: 14vh; font-size: clamp(7rem, 34vw, 18rem); }
+  .title { font-size: clamp(2rem, 8.5vw, 4.5rem); }
+  .lede { max-width: 40ch; }
+  .figure, .marks { left: auto; right: -26%; height: min(52vh, 480px); }
+  .wheel-zone { margin-top: auto; margin-bottom: 4vh; height: clamp(150px, 24vh, 240px); }
+  .option-wheel__item--selected::after { right: auto; left: calc(100% + 12px); }
+  .bar { gap: 16px; }
+  .spec__label { margin-top: 0; }
+  .grid { display: none; }
+}
+
+@media (max-width: 640px) {
+  .spec { grid-template-columns: repeat(2, 1fr); }
+  .figure, .marks { right: -44%; height: min(42vh, 360px); }
+  /* The frame bars are 44px and 30px of chrome. On a 390px viewport that
+     is a real budget, so they carry only what the page cannot say
+     elsewhere: who this is, and where you are in the sequence. The Space
+     hint goes because there is no Space key here — there is a button. */
+  .bar--top .bar__role, .bar--bottom .bar__hint { display: none; }
+  .bar { gap: 12px; letter-spacing: 0.14em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title, .readout, .lede, .track span { transition-duration: 0ms; }
+}
+</style>
+</head>
+<body>
+
+<main class="stage">
+  <div class="grid" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="bar bar--top">
+    <strong>Kevin S. F. García</strong>
+    <span class="bar__spacer"></span>
+    <span class="bar__role">Jr. Software Developer</span>
+    <span>MX · UTC−6</span>
+  </div>
+
+  <h1 class="visually-hidden">Kevin Sebastián Frías García — Jr. Software Developer</h1>
+
+  <div class="figure">
+    <img src="../assets/portrait-sit.png" alt="" />
+  </div>
+  <div class="marks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+  <p class="ghost" id="big-index" aria-hidden="true">01</p>
+
+  <div class="col">
+    <h2 class="title" id="big-title">Profile</h2>
+
+    <p class="readout" id="readout">
+      <strong id="r-idx">01</strong>
+      <span id="r-sub">identity / experience</span>
+      <span id="r-path">/profile</span>
+    </p>
+
+    <p class="lede" id="lede">Identity, experience, and the way the work actually gets made.</p>
+
+    <div class="wheel-zone"><div id="wheel"></div></div>
+
+    <span class="spec__label">Stack — 7 of 11 in use</span>
+    <ul class="spec">
+      <li>TypeScript</li>
+      <li>React</li>
+      <li>Next.js</li>
+      <li>Node.js</li>
+      <li>Tailwind</li>
+      <li>Git</li>
+      <li>JavaScript</li>
+      <li class="is-rest">+4 more</li>
+    </ul>
+  </div>
+
+  <div class="bar bar--bottom">
+    <span>Module <strong id="r-num">01</strong> / 04</span>
+    <span class="track"><span id="progress"></span></span>
+    <span class="bar__spacer"></span>
+    <span class="bar__hint">Space ▸ next module</span>
+  </div>
+
+  <button class="ow-advance" type="button" id="advance">
+    <span class="visually-hidden">Next module</span>
+  </button>
+
+  <p class="ow-live" id="live" role="status" aria-live="polite"></p>
+</main>
+
+<script src="../option-wheel.js"></script>
+<script src="../sections.js"></script>
+<script>
+  mountDirection({
+    wheel: document.getElementById("wheel"),
+    side: "right",
+    fontSize: 1.7,
+    spacing: 1.6,
+    tilt: 4,
+    curve: 0.8,
+    blur: 0.8,
+    fade: 0.2,
+    minOpacity: 0.66,
+    inset: 0,
+    sideSmall: "left",
+  });
+</script>
+</body>
+</html>

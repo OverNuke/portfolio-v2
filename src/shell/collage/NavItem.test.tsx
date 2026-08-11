@@ -26,6 +26,10 @@ const route: RouteConfig = {
   index: "01",
   sub: "identity / experience",
   count: "RDY",
+  short: "PROFILE",
+  // Added to RouteConfig 2026-08-10 for Home's caption rail. NavItem does
+  // not render it — the field is here only to satisfy the type.
+  lede: "Identity, experience, and the way the work actually gets made.",
 };
 
 describe("NavItem", () => {

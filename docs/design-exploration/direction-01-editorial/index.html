@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DIRECTION 01 — EDITORIAL MINIMAL / Kevin S. F. García</title>
+<link rel="stylesheet" href="../fonts.css" />
+<link rel="stylesheet" href="../option-wheel.css" />
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   DIRECTION 01 — EDITORIAL MINIMAL
+
+   THE IDEA: the page is a printed page. One surname set enormous, one
+   photograph, and a left column of small type that behaves like a caption
+   rail. Nothing is a card, nothing has a fill, and the only structural
+   line on the whole page is a single hairline over the module readout.
+
+   THE ONE COMPOSITIONAL MOVE: the masthead passes BEHIND the figure's
+   head and shoulders, and a second copy of the same word is printed OVER
+   him at 13% — an overprint, the way a name would sit on a contact sheet.
+   The photograph is never framed, never cropped into a shape, never
+   rounded. It stands on the bottom edge of the page.
+
+   INK BUDGET: at 1440x900 the composition covers roughly 40% of the
+   frame. The remaining 60% is the design.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Faces are declared once in ../fonts.css. */
+:root {
+  --paper: #f6f6f4;
+  --ink: #111111;
+  --gray: #5f5b55;
+  --hair: rgba(17, 17, 17, 0.18);
+
+  --font-mast: "LT Superior Serif", Georgia, "Times New Roman", serif;
+  --font-edit: "LT Remark", Georgia, serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+
+  --m: clamp(22px, 4.2vw, 64px);
+  --t-micro: 0.5625rem;
+  --t-meta: 0.6875rem;
+  --track: 0.22em;
+
+  --ease: cubic-bezier(0.7, 0, 0.3, 1);
+  --dur: 200ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; border-radius: 0; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+.stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 620px;
+  overflow: hidden;
+}
+
+/* ── Top metadata strip ─────────────────────────────────────────────── */
+.meta-top {
+  position: absolute;
+  top: var(--m);
+  left: var(--m);
+  right: var(--m);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--m);
+  font-size: var(--t-micro);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--gray);
+  z-index: 6;
+}
+
+/* ── Masthead ───────────────────────────────────────────────────────────
+   Two copies. `--back` sits under the photograph, `--front` over it at
+   13%. Identical geometry, so they register exactly. */
+.mast {
+  position: absolute;
+  left: var(--m);
+  top: 16vh;
+  margin: 0;
+  font-family: var(--font-mast);
+  font-weight: 800;
+  font-size: clamp(3.6rem, 17vw, 15rem);
+  line-height: 0.82;
+  letter-spacing: -0.022em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.mast--back { z-index: 1; }
+.mast--front { z-index: 4; opacity: 0.10; }
+.mast em { font-style: normal; }
+
+/* ── Photograph ─────────────────────────────────────────────────────────
+   Stands on the bottom edge. Grayscale, no frame, no mask, no radius.
+   Aspect is fixed by the file — width and height only ever move together. */
+.figure {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-42%);
+  height: clamp(320px, 78vh, 820px);
+  z-index: 2;
+  pointer-events: none;
+}
+.figure img {
+  height: 100%;
+  width: auto;
+  display: block;
+  filter: grayscale(1) contrast(1.04);
+}
+
+/* ── Left caption rail ──────────────────────────────────────────────── */
+.rule {
+  position: absolute;
+  left: var(--m);
+  top: 45vh;
+  width: min(38vw, 470px);
+  height: 1px;
+  background: var(--ink);
+  z-index: 5;
+}
+
+.readout {
+  position: absolute;
+  left: var(--m);
+  top: calc(45vh + 10px);
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: var(--t-meta);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.readout__idx { font-weight: 700; }
+.readout__title { font-weight: 500; }
+.readout__sub { color: var(--gray); }
+
+.lede {
+  position: absolute;
+  left: var(--m);
+  top: calc(45vh + 46px);
+  width: 21ch;
+  margin: 0;
+  z-index: 5;
+  font-family: var(--font-edit);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  transition: opacity var(--dur) var(--ease);
+}
+
+/* Applied for one frame on section change — the "visual/content
+   transition". Transform only, so it costs nothing. */
+.is-swapping { opacity: 0; transform: translateY(6px); }
+
+/* ── The wheel ───────────────────────────────────────────────────────── */
+.wheel-zone {
+  position: absolute;
+  left: 0;
+  bottom: 76px;
+  width: min(52vw, 460px);
+  height: 40vh;
+  z-index: 5;
+}
+/* Hierarchy in the wheel comes from OPACITY, not from a lighter colour.
+   A lighter grey at 60% opacity lands around 2.8:1 on paper — under the
+   bar for text you can click. Ink at 58% is 5.2:1 at the furthest step,
+   so every option stays legible and the active one is separated by
+   weight, the tick mark, and blur instead. */
+.option-wheel {
+  --ow-text-color: #111111;
+  --ow-active-color: #111111;
+  --ow-focus: 1px solid #111111;
+}
+.option-wheel__item {
+  font-family: var(--font-mast);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+.option-wheel__item--selected::after {
+  content: "";
+  position: absolute;
+  left: -22px;
+  top: 0.46em;
+  width: 12px;
+  height: 2px;
+  background: currentColor;
+}
+
+.wheel-hint {
+  position: absolute;
+  left: var(--m);
+  bottom: var(--m);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--t-micro);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.wheel-hint kbd {
+  font: inherit;
+  border: 1px solid var(--hair);
+  padding: 3px 7px;
+  letter-spacing: 0.1em;
+}
+
+/* ── Right rail: vertical role line + hairline ──────────────────────── */
+.rail-right {
+  position: absolute;
+  right: var(--m);
+  top: calc(var(--m) + 44px);
+  height: min(46vh, 420px);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  z-index: 6;
+}
+.rail-right__line { width: 1px; height: 100%; background: var(--ink); }
+.rail-right__text {
+  writing-mode: vertical-rl;
+  font-size: var(--t-meta);
+  letter-spacing: var(--track);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── Stack block, lower right ────────────────────────────────────────────
+   This is where the reference puts its manifesto lines. Same position,
+   same weight in the composition — but the content is the real stack from
+   src/content/data.ts, not a slogan. No chips, no borders, no fill. */
+.stack {
+  position: absolute;
+  right: var(--m);
+  bottom: var(--m);
+  width: clamp(150px, 15vw, 210px);
+  text-align: right;
+  z-index: 6;
+  font-size: var(--t-meta);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.85;
+}
+.stack__label {
+  display: block;
+  font-size: var(--t-micro);
+  letter-spacing: var(--track);
+  color: var(--gray);
+  margin-bottom: 10px;
+}
+.stack ul { list-style: none; margin: 0; padding: 0; }
+.stack li { color: var(--gray); }
+.stack li.is-core { color: var(--ink); font-weight: 500; }
+.stack__tail {
+  display: block;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hair);
+  font-size: var(--t-micro);
+  letter-spacing: var(--track);
+  color: var(--gray);
+}
+
+.ow-advance {
+  position: absolute;
+  right: var(--m);
+  bottom: calc(var(--m) + 190px);
+  z-index: 7;
+  color: var(--ink);
+}
+
+/* ── Tablet and below ────────────────────────────────────────────────────
+   Below 1024 the stage stops being a poster and becomes a column. This is
+   deliberate and it is the same switch in all three directions: the
+   desktop compositions are built on absolute overlap, and overlap does not
+   survive a narrow viewport — you get type on top of a face, which is both
+   ugly and unreadable. So the absolute layer collapses to normal flow, the
+   photograph drops behind the column as the one bleeding element, and the
+   reading order (identity → module → stack → wheel) is the DOM order.
+
+   What is lost: the masthead no longer crosses the figure. What is kept:
+   the oversized name, the whitespace, the hairline, the caption rail, the
+   wheel, and the fact that nothing is a card. */
+@media (max-width: 1024px) {
+  body { overflow: hidden; }
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: var(--m);
+    height: 100dvh;
+    min-height: 560px;
+  }
+  .meta-top,
+  .mast,
+  .rule,
+  .readout,
+  .lede,
+  .stack,
+  .wheel-zone {
+    position: static;
+    inset: auto;
+    transform: none;
+  }
+  .meta-top { width: 100%; margin-bottom: 8vh; }
+  .mast--front, .rail-right, .wheel-hint { display: none; }
+  .mast { font-size: clamp(3rem, 15vw, 8.5rem); margin-bottom: 5vh; }
+  .rule { width: 100%; margin-bottom: 12px; }
+  .readout { margin: 0 0 14px; flex-wrap: wrap; gap: 6px 14px; }
+  .lede { width: min(38ch, 100%); margin: 0 0 26px; }
+  .stack {
+    width: 100%;
+    text-align: left;
+    line-height: 1.7;
+  }
+  .stack ul { display: flex; flex-wrap: wrap; gap: 0 16px; }
+  .stack__tail { border-top: 0; padding-top: 2px; margin-top: 2px; }
+  /* Pushed to the foot of the column, so the wheel is always within thumb
+     reach no matter how tall the viewport is. */
+  .wheel-zone {
+    width: 100%;
+    height: 30vh;
+    margin-top: auto;
+    margin-left: calc(var(--m) * -1);
+  }
+  /* The one bleeding element. Sits behind the column at z-index 0 and is
+     pushed far enough right that the type column never lands on the face. */
+  .figure {
+    position: absolute;
+    left: auto;
+    right: -24%;
+    bottom: 0;
+    transform: none;
+    height: clamp(300px, 52vh, 620px);
+    z-index: 0;
+  }
+  .ow-advance { position: absolute; right: var(--m); bottom: var(--m); }
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .meta-top { flex-direction: column; gap: 4px; margin-bottom: 5vh; }
+  .mast { font-size: clamp(2.6rem, 18vw, 5rem); margin-bottom: 3vh; }
+  .lede { width: 100%; margin-bottom: 0; }
+  .stack { font-size: var(--t-micro); margin-top: 16px; }
+  .figure { right: -30%; height: clamp(250px, 44vh, 400px); }
+  .wheel-zone { height: 26vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .readout, .lede { transition-duration: 0ms; }
+}
+</style>
+</head>
+<body>
+
+<main class="stage">
+  <div class="meta-top">
+    <span>Kevin Sebastián Frías García</span>
+    <span>Underground Portfolio — MX · 2026</span>
+  </div>
+
+  <!-- The heading is announced once, whole. The two painted copies below
+       are decorative fragments of it. -->
+  <h1 class="visually-hidden">Kevin Sebastián Frías García — Jr. Software Developer</h1>
+  <p class="mast mast--back" aria-hidden="true">GARC<em>Í</em>A</p>
+
+  <div class="figure">
+    <!-- Decorative: the photograph duplicates the heading and carries no
+         information the page does not already state in text. -->
+    <img src="../assets/portrait-sit.png" alt="" />
+  </div>
+
+  <p class="mast mast--front" aria-hidden="true">GARC<em>Í</em>A</p>
+
+  <div class="rule" aria-hidden="true"></div>
+
+  <p class="readout" id="readout">
+    <span class="readout__idx" id="r-idx">01</span>
+    <span class="readout__title" id="r-title">Profile</span>
+    <span class="readout__sub" id="r-sub">identity / experience</span>
+  </p>
+
+  <p class="lede" id="lede">Identity, experience, and the way the work actually gets made.</p>
+
+  <div class="wheel-zone"><div id="wheel"></div></div>
+
+  <p class="wheel-hint" aria-hidden="true"><kbd>Space</kbd> next module</p>
+
+  <div class="rail-right" aria-hidden="true">
+    <span class="rail-right__line"></span>
+    <span class="rail-right__text">Jr. Software Developer — Open to work</span>
+  </div>
+
+  <div class="stack">
+    <span class="stack__label">Stack</span>
+    <ul>
+      <li class="is-core">TypeScript</li>
+      <li class="is-core">React</li>
+      <li class="is-core">Next.js</li>
+      <li class="is-core">Node.js</li>
+      <li class="is-core">Tailwind</li>
+      <li class="is-core">Git</li>
+      <li>JavaScript</li>
+    </ul>
+    <span class="stack__tail">+4 filed in the archive</span>
+  </div>
+
+  <button class="ow-advance" type="button" id="advance">
+    <span class="visually-hidden">Next module</span>
+  </button>
+
+  <p class="ow-live" id="live" role="status" aria-live="polite"></p>
+</main>
+
+<script src="../option-wheel.js"></script>
+<script src="../sections.js"></script>
+<script>
+  mountDirection({
+    wheel: document.getElementById("wheel"),
+    fontSize: 2.1,
+    spacing: 1.55,
+    tilt: 4.5,
+    curve: 0.7,
+    blur: 0.9,
+    fade: 0.2,
+    minOpacity: 0.62,
+  });
+</script>
+</body>
+</html>

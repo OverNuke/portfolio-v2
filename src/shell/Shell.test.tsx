@@ -2,13 +2,13 @@ import { act, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ABOUT_PROFILE } from "../content/data";
-import { ROUTES } from "../routes/routes";
+import { WheelProvider } from "./wheel/WheelContext";
 import { TurnProvider } from "../turn/TurnProvider";
 import { Shell } from "./Shell";
 
 /**
  * Task 2.5 (sdd/phase2-app-shell). `Shell` = Home (design "There is no
- * routes/Home.tsx"): renders the Frame (SystemHeader + StatusBar), owns
+ * routes/Home.tsx"): renders the Frame (StatusBar), owns
  * `<main id="main-content" tabIndex={-1}>`, and — critically for the
  * orchestrator's accessibility constraint — carries the identity
  * (name/role) content UNCONDITIONALLY, regardless of whether
@@ -17,13 +17,28 @@ import { Shell } from "./Shell";
  * `registerShell` on the OUTER wrapper (not just `<main>`) so the Frame
  * chrome also goes `inert`/`aria-hidden` while a page is open — advisor
  * flagged this: attaching `registerShell` to `<main>` alone would leave
- * SystemHeader/StatusBar outside the inert subtree.
+ * StatusBar outside the inert subtree.
+ *
+ * `SystemHeader` was removed 2026-08-10 (editorial-Home refinement pass) —
+ * no functionality, branding relocated into `Canvas.tsx`'s `.hm-meta__end`.
+ * The `.system-header` assertion below is kept as an explicit "retired, not
+ * re-pinned" regression guard rather than deleted outright.
+ *
+ * 2026-08-11: the module wheel was promoted OUT of `Shell`'s subtree
+ * entirely (`shell/wheel/`, mounted as a DOM sibling from `App.tsx`) so it
+ * keeps working while `.shell` is `inert`. `Shell` no longer renders it, so
+ * the wheel/gate/ArrowLeft-on-the-wheel assertions this file used to carry
+ * moved to `App.test.tsx`, which composes the real thing. `useTurnKeyboard`
+ * (called from `Shell`) now reads `useWheelOpen()`, so `renderShell` wraps
+ * in a `WheelProvider` — without one the hook throws.
  */
 function renderShell(initialPath = "/") {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
       <TurnProvider>
-        <Shell />
+        <WheelProvider>
+          <Shell />
+        </WheelProvider>
       </TurnProvider>
     </MemoryRouter>,
   );
@@ -48,46 +63,23 @@ describe("Shell", () => {
     expect(screen.getByText(ABOUT_PROFILE.role)).toBeInTheDocument();
   });
 
-  // Contact left the module index on 2026-08-06 (its channels live on Home
-  // itself); the route is still reachable by deep link and from Profile's
-  // status chip, which Canvas.test.tsx covers.
-  it("renders the module index, with one row per routed module", () => {
-    renderShell();
-
-    for (const route of ROUTES.filter((r) => r.pageId !== "contact")) {
-      expect(
-        screen.getByRole("button", { name: new RegExp(route.title, "i") }),
-      ).toBeInTheDocument();
-    }
-  });
-
   it("puts registerShell on the OUTER wrapper, not just <main> — Frame chrome goes inert too", () => {
     renderShell();
     const shellEl = document.querySelector(".shell")!;
     expect(shellEl).not.toHaveAttribute("inert");
     expect(shellEl.contains(document.getElementById("main-content"))).toBe(true);
-    expect(shellEl.querySelector(".system-header")).toBeInTheDocument();
+    expect(shellEl.querySelector(".system-header")).not.toBeInTheDocument();
     expect(shellEl.querySelector(".status-bar")).toBeInTheDocument();
-
-    act(() => {
-      screen.getByRole("button", { name: /profile/i }).click();
-    });
-
-    expect(shellEl).toHaveAttribute("inert");
-    expect(shellEl).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("wires ArrowLeft on a focused index row to opening its page", () => {
-    renderShell();
-    const profileButton = screen.getByRole("button", { name: /profile/i });
-    profileButton.focus();
-
+  it("goes inert when a page turn opens (deep-link path, no wheel involved)", () => {
+    renderShell("/profile");
     act(() => {
-      profileButton.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true, cancelable: true }),
-      );
+      vi.advanceTimersByTime(200);
     });
 
-    expect(document.querySelector(".shell")).toHaveAttribute("inert");
+    const shellEl = document.querySelector(".shell")!;
+    expect(shellEl).toHaveAttribute("inert");
+    expect(shellEl).toHaveAttribute("aria-hidden", "true");
   });
 });
