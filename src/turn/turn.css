@@ -66,7 +66,7 @@
 
 .page-title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--text-display-sm);
   letter-spacing: 0.03em;

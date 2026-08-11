@@ -67,7 +67,7 @@
 }
 
 .identity-plate .identity {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-weight: 700;
   text-transform: uppercase;
   font-size: var(--text-display-xl);
@@ -78,7 +78,7 @@
 }
 
 .identity-plate .role {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-weight: 500;
   font-size: var(--text-display-sm);
   letter-spacing: 0.03em;
@@ -222,7 +222,7 @@
 
 .nav-label {
   display: block;
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-weight: 600;
   font-size: 1.25rem;
   letter-spacing: 0.04em;

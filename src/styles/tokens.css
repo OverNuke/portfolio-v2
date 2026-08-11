@@ -46,10 +46,18 @@
   --oxblood-hi: #5c2a22;
 
   /* ---- Typography ---------------------------------------------------
-     --font-display: wordmark, nav labels, identity, role, page titles.
-     --font-mono: everything else (metadata, body, labels, status).
+     Three roles (2026-08-11, font-unification pass — the old Archivo
+     Narrow display token is retired; see src/styles/tokens.test.ts's
+     retiredTokens guard, same pattern as the signal-red retirement. Its
+     name is deliberately not spelled out here, same reason as that guard's
+     own note: it should not have to special-case its own doc comment):
+     --font-serif-display: the masthead, and only that.
+     --font-serif-edit: the editorial voice (headings, prose emphasis).
+     --font-mono: everything else — wordmark, nav labels, identity, role,
+     page titles, metadata, body, labels, status. Dense tracked uppercase
+     (every site that used the retired display token) always belongs here,
+     never in either serif — see src/styles/fonts.css.
      --font-hand: annotation only (doc 12). */
-  --font-display: "Archivo Narrow", "Arial Narrow", Haettenschweiler, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
   --font-hand: "Segoe Script", "Bradley Hand", "Snell Roundhand", cursive;
   /* Editorial faces, self-hosted 2026-08-06 with the Home redesign

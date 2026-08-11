@@ -138,7 +138,7 @@
 
 .cert-wall__head h3 {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: clamp(15px, 2.4cqw, 34px);
   font-weight: 700;
   line-height: 0.9;
@@ -275,7 +275,7 @@
   display: -webkit-box;
   overflow: hidden;
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: clamp(10px, 1.45cqw, 19px);
   font-weight: 700;
   line-height: 1.04;
@@ -510,7 +510,7 @@
 
 .cert-row__title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 1.25rem;
   font-weight: 700;
   line-height: 1;

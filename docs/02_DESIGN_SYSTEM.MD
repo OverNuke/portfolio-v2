@@ -208,41 +208,35 @@ this doc's 7:1 preferred bar, not just the 4.5:1 minimum.
 
 # Typography
 
+> Updated 2026-08-11 (font-unification pass) — this section previously
+> listed candidate fonts under evaluation. The type system is now LOCKED to
+> three roles, decided with the Home redesign (2026-08-06, self-hosted in
+> `src/styles/fonts.css`) and enforced by `src/styles/tokens.css` +
+> `src/styles/tokens.test.ts`'s retired-token guard. Do not reintroduce
+> Bebas Neue, Oswald, Space Grotesk, Google Sans Code, IBM Plex Mono, or
+> Archivo Narrow as a fourth display face — Archivo Narrow was the previous
+> primary font and is now retired outright, not deprecated-but-present.
 
-## Primary Font
-
-Purpose:
-
-Titles
-Headings
-Large labels
-
-
-Recommended:
-
-- Bebas Neue
-- Archivo Narrow
-- Oswald
-- Space Grotesk
-
-
----
-
-## Technical Font
+## Superior Serif (LT Superior Serif)
 
 Purpose:
 
-Metadata
-System information
-Code labels
+The masthead, and only that. One instance per screen.
 
+## Remark (LT Remark)
 
-Recommended:
+Purpose:
 
-- Google Sans Code 
-- JetBrains Mono
-- IBM Plex Mono
+The editorial voice — headings and prose emphasis outside the masthead.
 
+## Mono (JetBrains Mono)
+
+Purpose:
+
+Everything else: wordmark, nav labels, identity, role, page titles,
+metadata, system information, code labels, body, status. Dense tracked
+uppercase always belongs here, never in either serif — see
+`src/styles/fonts.css`'s header comment for the full rationale.
 
 ---
 

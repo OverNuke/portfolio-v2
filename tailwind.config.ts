@@ -29,7 +29,8 @@ export default {
         "oxblood-hi": "var(--oxblood-hi)",
       },
       fontFamily: {
-        display: ["var(--font-display)"],
+        "serif-display": ["var(--font-serif-display)"],
+        "serif-edit": ["var(--font-serif-edit)"],
         mono: ["var(--font-mono)"],
         hand: ["var(--font-hand)"],
       },

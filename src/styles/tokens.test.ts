@@ -44,7 +44,9 @@ describe("tokens.css", () => {
   it.each([
     "--paper",
     "--paper-white",
-    "--font-display",
+    "--font-serif-display",
+    "--font-serif-edit",
+    "--font-mono",
     "--space-md",
     "--dur-turn",
     "--rot-max",
@@ -65,6 +67,10 @@ describe("tokens.css", () => {
     // Retired 2026-08-05 with the red family; --oxblood replaces both.
     "--signal-red",
     "--signal-red-text",
+    // Retired 2026-08-11: bifurcated with the editorial serif faces added
+    // 2026-08-06. --font-mono replaces every former --font-display site
+    // (all were tracked uppercase — see src/styles/fonts.css).
+    "--font-display",
   ];
 
   it.each(retiredTokens)("no file under src/ references the retired %s token", (token) => {

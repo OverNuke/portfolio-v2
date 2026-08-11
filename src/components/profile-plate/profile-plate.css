@@ -150,7 +150,7 @@
    clear AA at any size. Ink on either fails (2.57 / 2.25); never use it. */
 .profile-plate__wordmark {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-weight: 400;
   font-size: clamp(2rem, 6.4cqw, 4rem);
   line-height: 0.98;

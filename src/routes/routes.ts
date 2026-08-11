@@ -65,7 +65,7 @@ export const ROUTES: RouteConfig[] = [
   {
     path: "/certifications",
     pageId: "certifications",
-    short: "ARCHIVE",
+    short: "DISTINCTIONS",
     title: "CERTIFICATE ARCHIVE",
     tag: "PAGE 02",
     index: "02",
