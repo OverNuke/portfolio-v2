@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 import { CertificationsPage } from "./CertificationsPage";
 import { ContactPage } from "./ContactPage";
 import { NotFound } from "./NotFound";
-import { ProfilePage } from "./ProfilePage";
 import { ProjectsPage } from "./ProjectsPage";
 import { ROUTES } from "./routes";
 import { TurnProvider } from "../turn/TurnProvider";
@@ -23,7 +22,6 @@ function TestRoutes() {
     <TurnProvider>
       <Routes>
         <Route path="/" element={null} />
-        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/certifications" element={<CertificationsPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/contact" element={<ContactPage />} />

@@ -16,9 +16,7 @@ describe("CertificationsPage", () => {
       const link = screen.getByRole("link", { name: new RegExp(certificate.title, "i") });
       expect(link).toHaveAttribute("href", certificate.href);
     }
-    expect(container.querySelectorAll(".certifications-page__list > li")).toHaveLength(
-      CERTIFICATES.length,
-    );
+    expect(container.querySelectorAll(".cert-mat")).toHaveLength(CERTIFICATES.length);
   });
 
   it("keeps the nav route's record count in sync with CERTIFICATES.length", () => {

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MOCKUP — /contact editorial redesign</title>
+<link rel="stylesheet" href="../fonts.css" />
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   /contact — GENUINELY NEW MOCKUP (2026-08-12)
+
+   Unlike certifications/projects, there is no existing composition to
+   preserve here — the real ContactPage.tsx is a 15-line placeholder
+   (<p>Contact terminal placeholder…</p>), no channel content at all. This
+   is the first real design for the page.
+
+   Three channels, one per SOCIAL_LINKS entry (src/content/data.ts) — no
+   form, matching the route's own lede. Icons are the exact path data from
+   src/components/social-icon/SocialIcon.tsx (GithubIcon/LinkedinIcon/
+   MailIcon), currently orphaned — nothing in src/ imports that file today.
+   Per that component's own doc comment ("always rendered aria-hidden
+   beside visible label text — they carry no accessible name of their
+   own"), each icon here is aria-hidden and paired with visible label +
+   href text; the link's accessible name comes from that visible text, not
+   from the icon.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --paper: #e4e4e2;
+  --paper-white: #f6f6f4;
+  --ink: #111111;
+  --gray: #635d54;
+  --field-olive: #4f5a3c;
+  --oxblood: #4a1f1a;
+
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  --font-serif-display: "LT Superior Serif", Georgia, "Times New Roman", serif;
+  --font-serif-edit: "LT Remark", Georgia, "Times New Roman", serif;
+
+  --text-display-xl: clamp(2.5rem, 5.4vw, 4.75rem);
+  --text-display-sm: clamp(1.25rem, 2.1vw, 1.875rem);
+  --text-meta: 0.6875rem;
+  --text-micro: 0.5625rem;
+  --track-label: 0.22em;
+
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  --rule-hair: 1px;
+  --rule-thick: 2px;
+  --hit-min: 24px;
+  --dur-micro: 90ms;
+  --ease-hard: cubic-bezier(0.7, 0, 0.3, 1);
+}
+*, *::before, *::after { box-sizing: border-box; border-radius: 0 !important; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-mono); -webkit-font-smoothing: antialiased; }
+
+.proof-note { padding: var(--space-xs) var(--space-sm); background: var(--oxblood); color: var(--paper-white); font-size: var(--text-micro); letter-spacing: var(--track-label); text-transform: uppercase; }
+
+.fake-page-head { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-xs) var(--space-sm); border-bottom: var(--rule-thick) solid var(--ink); background: var(--paper); }
+.fake-close { display: inline-flex; align-items: center; gap: 6px; min-height: var(--hit-min); padding: 4px var(--space-xs); background: var(--paper-white); color: var(--ink); border: var(--rule-hair) solid var(--ink); font-size: var(--text-micro); letter-spacing: var(--track-label); text-transform: uppercase; }
+.fake-title { margin: 0; font-weight: 700; font-size: var(--text-display-sm); letter-spacing: 0.03em; text-transform: uppercase; }
+.fake-tag { margin-left: auto; font-size: var(--text-meta); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--field-olive); }
+
+.m-header { padding: var(--space-xl) var(--space-lg) var(--space-lg); max-width: 46rem; }
+.m-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2xs) var(--space-md); margin: 0 0 var(--space-sm); font-size: var(--text-meta); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--gray); }
+.m-meta__idx { font-weight: 700; color: var(--ink); }
+.m-title { margin: 0 0 var(--space-md); font-family: var(--font-serif-display); font-weight: 800; font-size: var(--text-display-xl); line-height: 0.96; letter-spacing: -0.01em; text-transform: uppercase; }
+.m-lede { max-width: 36ch; margin: 0; font-family: var(--font-serif-edit); font-size: 1.0625rem; line-height: 1.55; }
+
+.channels { padding: 0 var(--space-lg) var(--space-2xl); max-width: 40rem; }
+.channel {
+  display: flex; align-items: center; gap: var(--space-md);
+  min-height: calc(var(--hit-min) * 2.2);
+  padding: var(--space-md) var(--space-sm);
+  margin: 0 calc(var(--space-sm) * -1);
+  border-top: var(--rule-hair) solid rgba(17, 17, 17, 0.14);
+  text-decoration: none; color: var(--ink);
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+.channel:first-of-type { border-top: var(--rule-thick) solid var(--ink); }
+.channel:last-of-type { border-bottom: var(--rule-thick) solid var(--ink); }
+.channel:hover { background: var(--paper-white); }
+.channel:focus-visible { outline: var(--rule-thick) solid var(--oxblood); outline-offset: -2px; background: var(--paper-white); }
+.channel__icon { flex: 0 0 auto; width: 28px; height: 28px; color: var(--field-olive); }
+.channel__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.channel__label { font-family: var(--font-serif-edit); font-size: 1.25rem; }
+.channel__href { font-size: var(--text-meta); letter-spacing: 0.06em; color: var(--gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.no-form {
+  margin: var(--space-xl) var(--space-lg) 0;
+  padding-top: var(--space-md);
+  border-top: var(--rule-hair) solid rgba(17, 17, 17, 0.14);
+  max-width: 40rem;
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+@media (max-width: 640px) {
+  .m-title { font-size: clamp(2rem, 11vw, 3rem); }
+  .channel__label { font-size: 1.05rem; }
+}
+</style>
+</head>
+<body>
+
+<p class="proof-note">MOCKUP — not wired into the app. Everything below (header + channel list) is new; ContactPage.tsx today is a one-line placeholder.</p>
+
+<header class="fake-page-head" aria-hidden="true">
+  <span class="fake-close">▶ BACK / ESC</span>
+  <span class="fake-title">CONTACT TERMINAL</span>
+  <span class="fake-tag">PAGE 03</span>
+</header>
+
+<main>
+  <header class="m-header">
+    <p class="m-meta">
+      <span class="m-meta__idx">03</span>
+      <span>channels open</span>
+    </p>
+    <h2 class="m-title">Contact Terminal</h2>
+    <p class="m-lede">GitHub, LinkedIn, email. No form, no funnel.</p>
+  </header>
+
+  <section class="channels" aria-label="Contact channels">
+    <a class="channel" href="https://github.com/OverNuke">
+      <svg class="channel__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false">
+        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+      </svg>
+      <span class="channel__body">
+        <span class="channel__label">GitHub</span>
+        <span class="channel__href">github.com/OverNuke</span>
+      </span>
+    </a>
+    <a class="channel" href="https://www.linkedin.com/in/keffwontwakeup/">
+      <svg class="channel__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false">
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+        <rect x="2" y="9" width="4" height="12" />
+        <circle cx="4" cy="4" r="2" />
+      </svg>
+      <span class="channel__body">
+        <span class="channel__label">LinkedIn</span>
+        <span class="channel__href">linkedin.com/in/keffwontwakeup</span>
+      </span>
+    </a>
+    <a class="channel" href="mailto:ksfgarcia24@gmail.com">
+      <svg class="channel__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" focusable="false">
+        <rect x="2" y="4" width="20" height="16" />
+        <polyline points="22,6 12,13 2,6" />
+      </svg>
+      <span class="channel__body">
+        <span class="channel__label">Email</span>
+        <span class="channel__href">ksfgarcia24@gmail.com</span>
+      </span>
+    </a>
+  </section>
+
+  <p class="no-form">No contact form. Every channel above opens directly.</p>
+</main>
+
+</body>
+</html>

@@ -32,11 +32,11 @@ function Harness() {
       <main id="main-content" tabIndex={-1} ref={registerShell}>
         <button
           type="button"
-          data-testid="nav-profile"
-          data-page="profile"
-          onClick={(e) => go("/profile", e.currentTarget)}
+          data-testid="nav-certifications"
+          data-page="certifications"
+          onClick={(e) => go("/certifications", e.currentTarget)}
         >
-          Open profile
+          Open certifications
         </button>
       </main>
       <button type="button" data-testid="open-wheel" onClick={() => setWheelOpen(true)}>
@@ -49,8 +49,8 @@ function Harness() {
           "passes" because jsdom lets you focus an inert subtree. */}
       <input data-testid="text-input" />
       {layerMounted && (
-        <PageLayer title="PROFILE" tag="PAGE 01">
-          <p>Profile body</p>
+        <PageLayer title="CERTIFICATE ARCHIVE" tag="PAGE 01">
+          <p>Certifications body</p>
         </PageLayer>
       )}
     </div>
@@ -83,7 +83,7 @@ describe("useTurnKeyboard", () => {
     const shell = document.getElementById("main-content")!;
 
     act(() => {
-      screen.getByTestId("nav-profile").click();
+      screen.getByTestId("nav-certifications").click();
     });
     act(() => {
       vi.advanceTimersByTime(200);
@@ -105,7 +105,7 @@ describe("useTurnKeyboard", () => {
     const shell = document.getElementById("main-content")!;
 
     act(() => {
-      screen.getByTestId("nav-profile").click();
+      screen.getByTestId("nav-certifications").click();
     });
     act(() => {
       vi.advanceTimersByTime(200);
@@ -125,7 +125,7 @@ describe("useTurnKeyboard", () => {
   it("ArrowLeft at Home opens the focused NavItem's page (reads data-page off document.activeElement)", () => {
     renderHarness("/");
     const shell = document.getElementById("main-content")!;
-    const navButton = screen.getByTestId("nav-profile") as HTMLButtonElement;
+    const navButton = screen.getByTestId("nav-certifications") as HTMLButtonElement;
 
     act(() => {
       navButton.focus();
@@ -140,7 +140,7 @@ describe("useTurnKeyboard", () => {
     });
 
     expect(shell).toHaveAttribute("inert");
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("PROFILE");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("CERTIFICATE ARCHIVE");
   });
 
   it("ignores ArrowLeft when focus is inside a text input", () => {
@@ -166,7 +166,7 @@ describe("useTurnKeyboard", () => {
   it("ignores ArrowLeft when a modifier key is held", () => {
     renderHarness("/");
     const shell = document.getElementById("main-content")!;
-    const navButton = screen.getByTestId("nav-profile") as HTMLButtonElement;
+    const navButton = screen.getByTestId("nav-certifications") as HTMLButtonElement;
 
     act(() => {
       navButton.focus();
@@ -187,7 +187,7 @@ describe("useTurnKeyboard", () => {
     const shell = document.getElementById("main-content")!;
 
     act(() => {
-      screen.getByTestId("nav-profile").click();
+      screen.getByTestId("nav-certifications").click();
     });
     act(() => {
       vi.advanceTimersByTime(200);
@@ -223,7 +223,7 @@ describe("useTurnKeyboard", () => {
     const input = screen.getByTestId("text-input") as HTMLInputElement;
 
     act(() => {
-      screen.getByTestId("nav-profile").click();
+      screen.getByTestId("nav-certifications").click();
     });
     act(() => {
       vi.advanceTimersByTime(200);

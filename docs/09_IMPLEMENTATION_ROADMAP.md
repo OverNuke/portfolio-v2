@@ -25,7 +25,11 @@ Create:
 
 Build:
 
-- Profile module
+- ~~Profile module~~ — merged into Home, 2026-08-12: the editorial Home
+  redesign (`Canvas.tsx`, 2026-08-10/11) already carries the identity
+  content a Profile page would show (name via masthead, role, photo), so
+  `/profile` as a separate route was redundant. Routes reduced to
+  `/certifications`, `/projects`, `/contact`.
 - Project database
 - ~~Skills module~~ — removed 2026-07-31: ships as part of the Home
   collage instead (Skills badge field + ~~Certificate/Award plates~~), not
@@ -36,6 +40,18 @@ Build:
   ships as part of the Home collage as described.)_
 
 ---j
+
+## Phase 3.5
+
+Update module and components to use an editorial design style (added
+2026-08-12): redesign `/certifications`, `/projects`, `/contact` to match
+Home's editorial language (serif-display/serif-edit type roles + the
+module readout pattern from `src/shell/wheel/wheel.css`). Mock up in
+`docs/design-exploration/` before porting to React, per the existing
+three-directions convention — nothing in `src/` changes until a direction
+is picked.
+
+---
 
 ## Phase 4
 

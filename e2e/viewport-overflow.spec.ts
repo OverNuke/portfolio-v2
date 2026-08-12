@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { gotoHome } from "./helpers";
+import { gotoHome, openModule } from "./helpers";
 
 /**
  * Task 4.2 (sdd/phase4-audit-e2e-docs), design #68 Testing Strategy row:
@@ -33,7 +33,11 @@ test.describe("no horizontal overflow at 320px", () => {
 test("an open page's content wrapper scrolls internally while staying clipped open", async ({ page }) => {
   await gotoHome(page);
 
-  await page.locator('[data-page="profile"]').click();
+  // Not "certifications" — its wall composition is deliberately
+  // never-scrolling and overrides `.page-content` to `overflow-y: hidden`
+  // (`certifications-page.css`). "projects" keeps the default from
+  // `turn.css`, which is what this test is actually asserting.
+  await openModule(page, "projects");
   await expect(page.locator(".page-layer")).toBeVisible();
 
   const content = page.locator(".page-content");

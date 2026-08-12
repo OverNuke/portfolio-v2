@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { gotoHome, preparePage } from "./helpers";
+import { gotoHome, openModule, preparePage } from "./helpers";
 
 /**
  * Task 4.2 (sdd/phase4-audit-e2e-docs), spec #67 domain "page-turn-navigation"
@@ -16,7 +16,7 @@ test("home page loads with the expected document title", async ({ page }) => {
 test("opening a page makes the shell inert and unreachable by keyboard", async ({ page }) => {
   await gotoHome(page);
 
-  await page.locator('[data-page="profile"]').click();
+  await openModule(page, "certifications");
   await expect(page.locator(".page-layer")).toBeVisible();
   await expect(page.locator(".shell")).toHaveAttribute("inert", "");
 
@@ -31,19 +31,22 @@ test("opening a page makes the shell inert and unreachable by keyboard", async (
   }
 });
 
-test("closing a page returns focus to the exact opener", async ({ page }) => {
+test("closing a page opened via the wheel returns focus to #main-content", async ({ page }) => {
   await gotoHome(page);
 
-  // The opener is the row that was clicked: `NavItem` hands `go()` its own
-  // button, so the reverse turn puts focus back exactly there.
-  await page.locator('[data-page="projects"]').click();
+  // The wheel closes itself as soon as the route changes (`ModuleWheel`'s
+  // own `useLocation` effect), which detaches the `.option-wheel` node `go()`
+  // captured as the opener — by the time the page closes, `document.contains`
+  // on that stale opener is false, so `TurnProvider` falls back to
+  // `#main-content`, same as the no-opener deep-link case below.
+  await openModule(page, "projects");
   await expect(page.locator(".page-layer")).toBeVisible();
 
   await page.locator(".page-close").click();
   await expect(page.locator(".shell")).not.toHaveAttribute("inert", "");
 
-  const focusedClass = await page.evaluate(() => document.activeElement?.className ?? "");
-  expect(focusedClass).toContain("nav-item");
+  const focusedId = await page.evaluate(() => document.activeElement?.id);
+  expect(focusedId).toBe("main-content");
 });
 
 test("deep link with no opener falls back to #main-content on close", async ({ page }) => {
@@ -63,8 +66,8 @@ test("direct page-to-page navigation keeps the shell inert and never reveals Hom
   // open, only the content wrapper clips" invariant (design D3).
   await gotoHome(page, { reducedMotion: false });
 
-  await page.locator('[data-page="profile"]').click();
-  await expect(page.locator(".page-title")).toHaveText("PROFILE");
+  await openModule(page, "certifications");
+  await expect(page.locator(".page-title")).toHaveText("CERTIFICATE ARCHIVE");
 
   // Simulates a typed URL / history navigation — no in-app opener.
   await page.goto("/projects");

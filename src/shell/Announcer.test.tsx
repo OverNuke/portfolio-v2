@@ -17,7 +17,7 @@ import { useTurn } from "../turn/useTurn";
 function OpenButton() {
   const { go } = useTurn();
   return (
-    <button type="button" onClick={(e) => go("/profile", e.currentTarget)}>
+    <button type="button" onClick={(e) => go("/certifications", e.currentTarget)}>
       open
     </button>
   );
@@ -71,6 +71,6 @@ describe("Announcer", () => {
       vi.advanceTimersByTime(200);
     });
 
-    expect(screen.getByRole("status")).toHaveTextContent(/profile module opened/i);
+    expect(screen.getByRole("status")).toHaveTextContent(/certificate archive module opened/i);
   });
 });

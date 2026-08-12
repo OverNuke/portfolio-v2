@@ -30,3 +30,31 @@ export async function gotoHome(page: Page, options: { reducedMotion?: boolean } 
     .waitFor({ state: "detached", timeout: 3000 })
     .catch(() => {});
 }
+
+/**
+ * Opens a module via the global `ModuleWheel` (`src/shell/wheel/`) — Home
+ * has no per-item clickable nav rows anymore (that idiom, `NavItem`/
+ * `data-page` directly on a grid button, was retired 2026-08-11 when the
+ * wheel was promoted to a `.shell`-sibling). The wheel is closed by
+ * default (`.wheel-trigger` button); opening it focuses the listbox, and
+ * `ArrowDown` steps through options while `data-page` on `.option-wheel`
+ * tracks the current selection (`ModuleWheel.tsx`) — stepping to a match
+ * and committing with Enter is the one interaction path that works
+ * regardless of which route is currently first in `ROUTES`.
+ */
+export async function openModule(page: Page, pageId: string): Promise<void> {
+  const trigger = page.locator(".wheel-trigger");
+  if (await trigger.count()) {
+    await trigger.click();
+  }
+  const wheel = page.locator(".option-wheel");
+  await wheel.waitFor({ state: "visible" });
+  await wheel.focus();
+
+  for (let i = 0; i < 10; i++) {
+    if ((await wheel.getAttribute("data-page")) === pageId) break;
+    await page.keyboard.press("ArrowDown");
+  }
+
+  await page.keyboard.press("Enter");
+}
