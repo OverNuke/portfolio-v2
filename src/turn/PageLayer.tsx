@@ -27,6 +27,13 @@ export interface PageLayerProps {
  * D8: focus target is this component's own `<h1 tabindex="-1">`, not
  * anything inside the routed page content — `role="dialog" aria-modal
  * aria-labelledby` point at it.
+ *
+ * 2026-08-14: `.page-head` is visually hidden (not removed) across every
+ * route — it still renders the BACK/ESC button and the `<h1>` this file's
+ * D8 focus/aria-labelledby target depends on. Deleting the markup instead
+ * of hiding it would drop the only Tab+Enter-reachable close control and
+ * break the dialog's accessible name (CLAUDE.md: arrow-key shortcuts must
+ * stay reachable via Tab+Enter too).
  */
 export function PageLayer({ title, tag, children }: PageLayerProps) {
   const { turn, go, registerTitle } = useTurn();
@@ -43,7 +50,7 @@ export function PageLayer({ title, tag, children }: PageLayerProps) {
       aria-modal="true"
       aria-labelledby={titleId}
     >
-      <header className="page-head">
+      <header className="page-head visually-hidden">
         <button type="button" className="page-close" onClick={() => go("/")}>
           <span aria-hidden="true">{"▶"}</span> BACK / ESC
         </button>

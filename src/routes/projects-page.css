@@ -1,29 +1,88 @@
 /**
- * The paper margin around the panel sheet. The composition itself is
- * `src/components/project-sheet/project-sheet.css` — nothing here should
- * reach into it. Panel size is tuned there, via `--sheet-max`.
+ * The paper margin around the editorial field. The composition itself is
+ * `src/components/project-field/project-field.css` — nothing here should
+ * reach into it. Field size is tuned there, via `--pf-max`.
  *
- * The old `.projects-page__grid` (an auto-fill card grid that extended
- * horizontally) is gone; see ProjectsPage.tsx for why it existed and why
- * it didn't need to.
+ * Updated 2026-08-13 with the field redesign: the file's job is unchanged
+ * (it is a height chain and a paper background, nothing more), only the
+ * name of the thing it wraps. The old `.projects-page__grid` and
+ * `.projects-page__lede` are both gone — see ProjectsPage.tsx.
+ *
+ * The height chain is what lets the composition be SIZED to fit rather
+ * than CLIPPED to fit at >=768px. Unlike `certifications-page.css`'s
+ * equivalent `:has()` chain, this one does NOT override `.page-content` to
+ * `overflow-y: hidden` — `/projects` keeps the `turn.css` default
+ * (`overflow-y: auto`), which stays the safety net if a future rung ever
+ * doesn't fit. `e2e/viewport-overflow.spec.ts` asserts this explicitly,
+ * contrasting `/projects` with `/certifications`. Desktop no-scroll comes
+ * entirely from `project-field.css`'s bounded `container-type: size`
+ * sizing, not from clipping.
  */
+
+.page-layer:has(.projects-page) {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.page-layer:has(.projects-page) .page-content {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+/* `.projects-page` is the `content` prop PASSED INTO `<Panel>`
+   (ProjectsPage.tsx), so `.panel`/`.panel__content` are its ANCESTORS, not
+   its descendants — the opposite nesting from `certifications-page.css`,
+   where `.certifications` wraps a `<Panel>` rather than being wrapped by
+   one. Both `.panel` (already `display: flex; flex-direction: column` in
+   panel.css) and `.panel__content` (plain by default) need to become
+   growable flex columns here so the sizing budget actually reaches
+   `.projects-page`. */
+.page-layer:has(.projects-page) .page-content > .panel {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.page-layer:has(.projects-page) .panel__content {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
 
 .projects-page {
   display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: var(--space-lg);
 
-  /* The field has to be --paper, not the Panel's --paper-white, or the
-     spread panel disappears: the spread IS Paper White, and Paper White on
-     Paper White is 1:1. This one declaration is what makes the gutter read
-     as paper showing between panels rather than as nothing at all.
-     The sheet is a printed sheet, and a printed sheet has a size — past its
-     own max-width it centres in this field rather than growing. */
+  /* --paper, not the Panel's --paper-white. The composition's title, foot
+     index and the margin around the band are all ink on this surface, and
+     the band's crop of the title only reads if there is a tone difference
+     between the paper and the raised Panel stock behind it. The field is a
+     printed field and a printed field has a size — past its own max-width
+     it centres in this margin rather than growing. */
   background: var(--paper);
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-md) var(--space-md) var(--space-sm);
 }
 
+/* Releases at the same width as `project-field.css`'s stacked tier, and
+   for the same reason — see that file's RESPONSIVE section. If the two
+   drift apart, the page keeps a flex height budget the stack no longer
+   fits inside. */
 @media (max-width: 900px) {
+  .page-layer:has(.projects-page),
+  .page-layer:has(.projects-page) .page-content,
+  .page-layer:has(.projects-page) .page-content > .panel,
+  .page-layer:has(.projects-page) .panel__content,
+  .projects-page {
+    display: block;
+    min-height: 0;
+  }
+
   .projects-page {
     gap: var(--space-md);
     padding: var(--space-md) var(--space-xs);

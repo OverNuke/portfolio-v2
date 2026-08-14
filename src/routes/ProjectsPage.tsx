@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router";
 import { Panel } from "../components/panel/Panel";
-import { ProjectSheet } from "../components/project-sheet/ProjectSheet";
-import { clampSheet, paginate, RECORDS_PER_SHEET } from "../components/project-sheet/sheetLayout";
-import { useSheetKeyboard } from "../components/project-sheet/useSheetKeyboard";
+import { ProjectField } from "../components/project-field/ProjectField";
+import { clampField, paginate, RECORDS_PER_FIELD } from "../components/project-field/fieldLayout";
+import { useFieldKeyboard } from "../components/project-field/useFieldKeyboard";
 import { ABOUT_PROFILE, PROJECTS } from "../content/data";
 import { ROUTES } from "./routes";
 import "./projects-page.css";
@@ -20,32 +20,36 @@ function yearSpan(years: readonly string[]): string | undefined {
 }
 
 /**
- * Rebuilt 2026-08-05 as a panel sheet — see `ProjectSheet` and the project
- * doc `claude/projects-module-manga-sheet-2026-08-05.md`.
+ * Rebuilt 2026-08-13 as an editorial field — see `ProjectField` and
+ * `fieldLayout.ts`. It replaces the panel sheet (2026-08-05, rescattered
+ * 2026-08-12), which put one olive panel per record on a 12x12 grid;
+ * Keff's reference has no panels in it, only a band and three shapes.
+ * `ProjectField.tsx`'s header comment records the full reasoning.
  *
- * The old `projects-page__grid` list extended horizontally because Home's
- * no-scroll rule had been applied one level too far. docs/03_UX_ARCHITECTURE.MD
- * settles it: "the shell never scrolls, content is always free to." A module
- * page was never bound by Home's constraint, so the list was solving a
- * problem the architecture had already solved.
+ * The shell contract this page depends on is unchanged: docs/03_UX_
+ * ARCHITECTURE.MD's "the shell never scrolls, content is always free to"
+ * is why `/projects` keeps `.page-content`'s `overflow-y: auto` rather
+ * than clipping. The desktop no-scroll requirement is met by the field's
+ * bounded size, not by hiding overflow.
  *
- * PAGINATION LIVES IN A QUERY PARAM, NOT A PATH SEGMENT. The spec asks for
- * `/projects/2`; this ships `?sheet=2` instead, deliberately. App.tsx
- * resolves both `PageLayer`'s title/tag and its `<Routes location>` by
- * exact pathname match against `ROUTES`, so a second path segment would
- * fall through to NOT FOUND until the turn machine's route matching is
- * reworked — a shell change, well outside a module wiring pass. The query
- * form is still a real URL: deep-linkable, and browser back/forward walk
- * the sheets. Flagged in the doc's open items.
+ * PAGINATION LIVES IN A QUERY PARAM, NOT A PATH SEGMENT, and keeps the
+ * name `?sheet=` it has always had so existing links still resolve. The
+ * spec asks for `/projects/2`; App.tsx resolves both `PageLayer`'s
+ * title/tag and its `<Routes location>` by exact pathname match against
+ * `ROUTES`, so a second path segment falls through to NOT FOUND until the
+ * turn machine's route matching is reworked — a shell change, well outside
+ * this module. The query form is still a real URL: deep-linkable, and
+ * browser back/forward walk the fields. Unreachable today regardless
+ * (3 records, cap 5).
  */
 export function ProjectsPage() {
   const [params, setParams] = useSearchParams();
 
-  const sheets = useMemo(() => paginate(PROJECTS, RECORDS_PER_SHEET), []);
-  const sheetIndex = clampSheet(params.get("sheet"), sheets.length);
-  const current = sheets[sheetIndex - 1] ?? [];
+  const fields = useMemo(() => paginate(PROJECTS, RECORDS_PER_FIELD), []);
+  const fieldIndex = clampField(params.get("sheet"), fields.length);
+  const current = fields[fieldIndex - 1] ?? [];
 
-  const goToSheet = useCallback(
+  const goToField = useCallback(
     (next: number) => {
       const nextParams = new URLSearchParams(params);
       if (next <= 1) nextParams.delete("sheet");
@@ -55,17 +59,17 @@ export function ProjectsPage() {
     [params, setParams],
   );
 
-  const hasNext = sheetIndex < sheets.length;
-  const hasPrev = sheetIndex > 1;
+  const hasNext = fieldIndex < fields.length;
+  const hasPrev = fieldIndex > 1;
 
-  const onNext = useCallback(() => goToSheet(sheetIndex + 1), [goToSheet, sheetIndex]);
-  const onPrev = useCallback(() => goToSheet(sheetIndex - 1), [goToSheet, sheetIndex]);
+  const onNext = useCallback(() => goToField(fieldIndex + 1), [goToField, fieldIndex]);
+  const onPrev = useCallback(() => goToField(fieldIndex - 1), [goToField, fieldIndex]);
 
-  // Left = forward = next sheet; Right = back = previous sheet, and only
+  // Left = forward = next field; Right = back = previous field, and only
   // when there IS one — otherwise it falls through to the shell's own
   // handler and closes the page, which is exactly the documented
-  // behaviour. See useSheetKeyboard for why that fall-through is automatic.
-  useSheetKeyboard({
+  // behaviour. See useFieldKeyboard for why that fall-through is automatic.
+  useFieldKeyboard({
     onForward: hasNext ? onNext : undefined,
     onBack: hasPrev ? onPrev : undefined,
   });
@@ -77,16 +81,23 @@ export function ProjectsPage() {
       metadata={<span>{route.sub}</span>}
       content={
         <div className="projects-page">
-          <ProjectSheet
+          {/* `.projects-page__lede` is gone with the redesign. It printed
+              `route.lede` above the composition, which Home already prints
+              under the module readout, and the foot index now names all
+              three projects concretely a few centimetres below it. It was
+              costing roughly forty pixels of the desktop no-scroll budget
+              to say something twice. */}
+          <ProjectField
             projects={current}
-            sheetIndex={sheetIndex}
-            sheetCount={sheets.length}
+            fieldIndex={fieldIndex}
+            fieldCount={fields.length}
             totalRecords={PROJECTS.length}
             span={span}
             colophonName={`${ABOUT_PROFILE.firstName} ${ABOUT_PROFILE.lastName}`}
             colophonRole={ABOUT_PROFILE.role}
             onNext={hasNext ? onNext : undefined}
             onPrev={hasPrev ? onPrev : undefined}
+            macroWord={route.short}
           />
         </div>
       }

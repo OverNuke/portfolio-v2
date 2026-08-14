@@ -8,12 +8,12 @@ export type { CertMode } from "./useCertMode";
 export {
   PER_SHEET_LANDSCAPE,
   PER_SHEET_PORTRAIT,
-  ROT_MAX,
   WALL_LANDSCAPE,
   WALL_PORTRAIT,
   assertCertLayouts,
   assignSlots,
   getCertLayout,
   perSheet,
+  recordSlots,
 } from "./certLayouts";
-export type { CertLayout, CertSlot, Orientation } from "./certLayouts";
+export type { CertLayout, CertSlot, Orientation, SlotKind } from "./certLayouts";

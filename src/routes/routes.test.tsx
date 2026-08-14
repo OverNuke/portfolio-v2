@@ -42,22 +42,35 @@ describe("routes", () => {
     ).not.toThrow();
   });
 
-  it.each(ROUTES.map((route) => [route.path, route.sub] as const))(
-    "renders the placeholder Panel at %s",
-    (path, sub) => {
-      // Panel no longer carries `route.title`/`route.tag` (PageLayer, not
-      // present in this standalone route tree, owns that heading now — see
-      // the Panel/PageLayer dedup). `route.sub` still reaches Panel's
-      // `metadata` slot on every page, so it's what proves routing renders
-      // real per-route content here.
-      render(
-        <MemoryRouter initialEntries={[path]}>
-          <TestRoutes />
-        </MemoryRouter>,
-      );
-      expect(screen.getByText(sub)).toBeInTheDocument();
-    },
-  );
+  // Certifications dropped its `route.sub` metadata line (2026-08-14) —
+  // Panel's `metadata` slot only still reaches the DOM on the other routes.
+  it.each(
+    ROUTES.filter((route) => route.pageId !== "certifications").map(
+      (route) => [route.path, route.sub] as const,
+    ),
+  )("renders the placeholder Panel at %s", (path, sub) => {
+    // Panel no longer carries `route.title`/`route.tag` (PageLayer, not
+    // present in this standalone route tree, owns that heading now — see
+    // the Panel/PageLayer dedup). `route.sub` still reaches Panel's
+    // `metadata` slot on these pages, so it's what proves routing renders
+    // real per-route content here.
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <TestRoutes />
+      </MemoryRouter>,
+    );
+    expect(screen.getByText(sub)).toBeInTheDocument();
+  });
+
+  it("renders certifications without the route.sub metadata line", () => {
+    const certRoute = ROUTES.find((route) => route.pageId === "certifications")!;
+    render(
+      <MemoryRouter initialEntries={[certRoute.path]}>
+        <TestRoutes />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByText(certRoute.sub)).not.toBeInTheDocument();
+  });
 
   it("renders NotFound for an unknown path", () => {
     render(

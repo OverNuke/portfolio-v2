@@ -55,28 +55,40 @@
   }
 }
 
+/**
+ * Updated 2026-08-14: `.page-head` is now `visually-hidden` (see
+ * `PageLayer.tsx`, applied in JSX) on every route — the flex/gap/padding
+ * rules below still apply to the header's internal layout but no longer
+ * put it on screen. Same three text nodes as before — `<h1>` title,
+ * `.page-tag`, the close button's "BACK / ESC" label — are unchanged in
+ * markup and stay in the accessibility tree and Tab order; only the
+ * paint is gone. `TurnProvider.test.tsx` still asserts the close button's
+ * accessible name matches /back \/ esc/i, and `App.test.tsx` still asserts
+ * the route's `tag` string exists as its own exact-match text node — both
+ * queries look at the accessibility tree, which visual hiding doesn't
+ * touch. Keep both intact.
+ */
 .page-head {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-xs) var(--space-sm);
-  border-bottom: var(--rule-thick) solid var(--ink);
-  background: var(--paper);
+  padding: var(--space-2xs) var(--space-sm);
 }
 
 .page-title {
   margin: 0;
   font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: var(--text-display-sm);
-  letter-spacing: 0.03em;
+  font-weight: 500;
+  font-size: var(--text-meta);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
+  color: var(--ink);
 }
 
 .page-tag {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: var(--text-meta);
+  font-size: var(--text-micro);
   letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--field-olive);
@@ -89,23 +101,33 @@
   min-height: var(--hit-min);
   min-width: var(--hit-min);
   padding: 4px var(--space-xs);
-  background: var(--paper-white);
-  color: var(--ink);
-  border: var(--rule-hair) solid var(--ink);
+  /* No border, no fill — the min-height/min-width above is what still
+     guarantees a real >=24x24 hit target (WCAG 2.2 SC 2.5.8); the visible
+     mark just gets padding around it instead of a smaller target, per
+     docs/05_ACCESSIBILITY.MD. */
+  background: transparent;
+  color: var(--gray);
+  border: none;
   font: inherit;
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   letter-spacing: var(--track-label);
   text-transform: uppercase;
   cursor: pointer;
-  transition:
-    background var(--dur-micro) var(--ease-hard),
-    color var(--dur-micro) var(--ease-hard);
+  transition: color var(--dur-micro) var(--ease-hard);
 }
 
 .page-close:hover {
-  background: var(--ink);
-  color: var(--ink-inverse);
+  color: var(--ink);
+}
+
+/* Removing the filled/bordered hover state above took the previous focus
+   affordance with it — restate it explicitly. On-paper oxblood ring, same
+   convention as the project field's `.pf-chip:focus-visible`
+   (renamed 2026-08-13 with the /projects redesign). */
+.page-close:focus-visible {
+  outline: 2px solid var(--oxblood);
+  outline-offset: 2px;
 }
 
 /* Two clip targets (D3): during forward-page the LAYER above stays pinned

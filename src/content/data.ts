@@ -1,15 +1,12 @@
 import {
-  SiCss,
-  SiFigma,
   SiGit,
-  SiHtml5,
   SiJavascript,
-  SiNextdotjs,
+  SiMysql,
   SiNodedotjs,
-  SiReact,
-  SiTailwindcss,
-  SiTypescript,
+  SiPython,
 } from "@icons-pack/react-simple-icons";
+
+import { FaJava } from "react-icons/fa6";
 
 import barbershopUserImg from "../assets/plates/projects/barbershop/user.png";
 import acopiatechMainImg from "../assets/plates/projects/acopiatech/main.png";
@@ -21,6 +18,10 @@ import notaCertUrl from "../assets/certificates/notaLaudatoria.pdf?url";
 import exaverCertUrl from "../assets/certificates/exaver.pdf?url";
 import angloCertUrl from "../assets/certificates/anglo.pdf?url";
 import toeflCertUrl from "../assets/certificates/sepToelf.pdf?url";
+import aiFundamentalsCertUrl from "../assets/certificates/AI Fundamentals - DataCamp.pdf?url";
+import powerbiCertUrl from "../assets/certificates/CONISOFT25 Taller Kevin Sebastián.pdf?url";
+import aiInitiationCertUrl from "../assets/certificates/Certificado-BIG-School-Kevin-Sebastian-Frias-Garcia.pdf?url";
+import propadeuticCertUrl from "../assets/certificates/Certificado TecNM CPFCDE-CPF _ Cursos MOOC TecNM 2026.pdf?url";
 
 // Halftone archive plates of each document (tools/halftone.py --preset plate,
 // page 1). Separate from the `*Url` imports above because four of the five
@@ -149,26 +150,79 @@ export const CERTIFICATES: Certificate[] = [
       "TOEFL certificate issued by SEP",
     scanOrientation: "portrait",
   },
+  {
+    id: "aifundamentals",
+    title: "AI Fundamentals Certificate",
+    issuer: "DataCamp",
+    date: "2026",
+    href: aiFundamentalsCertUrl,
+    category: "academic",
+    icon: "scroll",
+    scanAlt:
+      "AI Fundamentals certificate issued by DataCamp",
+    scanOrientation: "landscape",
+  },
+  {
+    id: "powerbi",
+    title: "Introduction to Power BI",
+    issuer: "CONISOFT",
+    date: "2025",
+    href: powerbiCertUrl,
+    category: "academic",
+    icon: "scroll",
+    scanAlt:
+      "Introduction to Power BI certificate issued at the 13th International Conference in Software Engineering Research and Innovation (CONISOFT)",
+    scanOrientation: "landscape",
+  },
+  {
+    id: "aiinitiation",
+    title: "AI Initiation Certificate",
+    issuer: "MoureDev",
+    date: "2026",
+    href: aiInitiationCertUrl,
+    category: "academic",
+    icon: "scroll",
+    scanAlt:
+      "AI Initiation certificate issued by MoureDev",
+    scanOrientation: "landscape",
+  },
+  {
+    id: "propadeutic",
+    title: "Propadeutic Certificate",
+    issuer: "Tecnm and The Public Capacitation Center in Artifical Intelligence",
+    date: "2026",
+    href: propadeuticCertUrl,
+    category: "academic",
+    icon: "scroll",
+    scanAlt:
+      "Propadeutic certificate for finishing the propadeutic program",
+    scanOrientation: "landscape",
+  },
+  
+  // The following is yet to be achived SO DO NOT ADD yet to the project
+  // {
+  //   id: "genai",
+  //   title: "AI for Future Workforce- GenAI",
+  //   issuer: "Intel",
+  //   date: "2026",
+  //   href: ,
+  //   category: "academic",
+  //   icon: "",
+  //   scan: ,
+  //   scanAlt:
+  //     "AI for Future Workforce- GenAI certificate issued by Intel",
+  //   scanOrientation: "portrait",
+  // },
 ];
 
-/**
- * `core: true` selects the seven chips Home's stack rail shows; the rest
- * are counted by its tail marker. Seven is what a 26px margin column holds
- * at 1440x900 — see `Skill.core`. HTML/CSS are assumed rather than
- * announced, and VS Code and Figma are tools rather than stack.
- */
 export const SKILLS: Skill[] = [
-  { name: "TypeScript", category: "language", icon: SiTypescript, core: true },
+  { name: "Python", category: "language", icon: SiPython, core: true },
   { name: "JavaScript", category: "language", icon: SiJavascript, core: true },
-  { name: "HTML", category: "language", icon: SiHtml5 },
-  { name: "CSS", category: "language", icon: SiCss },
-  { name: "React", category: "framework", icon: SiReact, core: true },
-  { name: "Next.js", category: "framework", icon: SiNextdotjs, core: true },
-  { name: "Tailwind CSS", category: "framework", icon: SiTailwindcss, core: true },
+  { name: "Java", category: "language", icon: FaJava, core: true },
+  { name: "MySQL", category: "language", icon: SiMysql, core: true },
   { name: "Node.js", category: "framework", icon: SiNodedotjs, core: true },
   { name: "Git", category: "tool", icon: SiGit, core: true },
   { name: "VS Code", category: "tool" },
-  { name: "Figma", category: "tool", icon: SiFigma },
 ];
 
 export const SOCIAL_LINKS: SocialLink[] = [
@@ -182,11 +236,11 @@ export const ABOUT_PROFILE: AboutProfile = {
   lastName: "F. García",
   fullName: "Kevin Sebastián Frías García",
   mark: ["K.S", "F.G"],
-  summary: "Builds interface systems through engineering, design, and archival practice.",
+  summary: "Just an alien, who loves to code, between human begins",
   role: "Jr. Software Developer",
   status: "ONLINE · OPEN TO WORK",
   statusOnline: true,
-  bio: "Want to know more about me? I might not be the most experienced nor the flashiest player, but I always give my best and I'm eager to learn new skills and take on challenges.",
+  bio: "Whoami? Tough for me to say. But if I have to say something, I must say I'm a hard-working and dedicated guy.",
   bodyText: "Open to junior roles and internships where I can grow and contribute.",
   location: "Mexico",
   openTo: "Junior roles · internships",

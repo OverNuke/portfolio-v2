@@ -4,8 +4,8 @@
  * Two ladders, because the module must never scroll at 768px and up (Keff,
  * 2026-08-06) and a landscape sheet cannot fill a tablet held in portrait:
  *
- *   W1–W6  landscape sheet, `--cw-ar` 8/5   — desktop and tablet landscape
- *   P1–P4  portrait sheet,  `--cw-ar` 4/5   — tablet portrait
+ *   W1–W9  landscape sheet, `--cw-ar` 8/5   — desktop and tablet landscape
+ *   P1–P6  portrait sheet,  `--cw-ar` 4/5   — tablet portrait
  *
  * Below 768px neither applies: the wall hands over to the ledger, which is
  * the one place scrolling is permitted (WCAG 1.4.10 reflow release, the
@@ -17,139 +17,202 @@
  * placement at runtime makes the page different every visit, which reads as
  * broken rather than as handmade.
  *
- * Each slot declares the orientation it WANTS. Keff's certificates are three
- * portrait A4s and two landscape, so slots are not interchangeable — the same
- * principle as `Project.sheetSlot`. `assignSlots` matches records to slots by
- * scan orientation so a portrait certificate never lands in a 2:1 letterbox.
+ * > Updated 2026-08-13. This module is a scoped, documented exception to two
+ * > otherwise-locked conventions — see `docs/12_COLLAGE_SYSTEM.md` and
+ * > `docs/02_DESIGN_SYSTEM.MD` for the full rationale:
+ * >   1. No rotation. Every slot is grid-aligned; `rot`/`ROT_MAX` are gone.
+ * >   2. Cards render with rounded corners via a locally-scoped override in
+ * >      `cert-wall.css` (`--cw-radius`) — `tokens.css`'s global
+ * >      `border-radius: 0 !important` and `tailwind.config.ts` are untouched.
+ * > Every other collage module (Projects, Home) keeps the rotated, square-
+ * > cornered vocabulary unchanged; this is a single-module deviation, not a
+ * > system-wide reversal.
+ *
+ * Each layout is a flat "bento" composition instead of a rotated pile,
+ * spanning the full 12×12 canvas — no reserved masthead band, no derived-
+ * stats card, every cell carries a certificate. Slots are discriminated by
+ * `kind`:
+ *   - `visual` — carries a certificate's scan (`CertScan` + caption)
+ *   - `micro`  — carries a certificate's data only, no scan
+ *
+ * `count` (the ladder key) equals the total slot count — every slot is
+ * record-bearing, so it is exactly `perSheet`'s pagination unit.
+ *
+ * Each `visual` slot declares the orientation it WANTS. Keff's certificates
+ * are three portrait A4s and two landscape, so slots are not interchangeable
+ * — the same principle as `Project.sheetSlot`. `assignSlots` matches records
+ * to slots by scan orientation so a portrait certificate never lands in a
+ * cell shaped for a landscape scan. `micro` slots carry no scan, so they
+ * have no orientation preference and simply take whatever record is left.
  */
 
 export type Orientation = "portrait" | "landscape";
+export type SlotKind = "visual" | "micro";
 
 export interface CertSlot {
   /** `row-start / col-start / row-end / col-end` on the 12×12 grid. */
   area: string;
-  /** Authored per position. |rot| <= ROT_MAX, asserted by `assertCertLayouts`. */
-  rot: number;
-  /** The orientation this cell is shaped for. */
-  wants: Orientation;
+  kind: SlotKind;
+  /** Only meaningful for `kind: "visual"`. Ignored for `micro`. */
+  wants?: Orientation;
 }
 
 export interface CertLayout {
   slots: CertSlot[];
-  /** Annotation scrap position, or null when the sheet has no air to spare. */
-  scrap: string | null;
-  /** Tightened at the top of a ladder, where no empty cell is left to spend. */
+  /** Tightened at the densest rung of a ladder, where no air is left to spend. */
   gutter?: string;
 }
 
-export const ROT_MAX = 2;
-
-/** Sheet capacity. Past this the page turns; the sheet never densifies further. */
-export const PER_SHEET_LANDSCAPE = 6;
-export const PER_SHEET_PORTRAIT = 4;
+/** Sheet capacity, record-bearing slots only. Past this the page turns. */
+export const PER_SHEET_LANDSCAPE = 9;
+export const PER_SHEET_PORTRAIT = 6;
 
 /**
- * Reserved cells, identical across every layout in both ladders, so the sheet
- * chrome never moves as the record count changes.
+ * Landscape ladder — the full 12×12 canvas is content; there is no reserved
+ * masthead band and no derived-stats accent slot (2026-08-14: both were
+ * chrome, not certificates — `PageLayer`'s own `<h1>` and "BACK / ESC"
+ * control already cover what the masthead said, and the pager dots already
+ * convey sheet position). Low counts read as a wide hero; high counts read
+ * as a dense bento grid. `visual` slots want `landscape` uniformly — a
+ * quarter cell's aspect (~1.2 at `--cw-ar` 1.6) sits close to the landscape
+ * target, and `object-fit: contain` letterboxes a portrait scan gracefully
+ * rather than cropping it.
  */
-export const RESERVED: ReadonlyArray<readonly [string, string]> = [
-  ["head", "1 / 1 / 3 / 5"],
-  ["meta", "1 / 9 / 2 / 13"],
-  ["chrome", "2 / 5 / 3 / 9"],
-];
-
-/** Landscape ladder — `aspect-ratio: 8/5`, so one grid cell is 1.6 : 1.
- *  Mat aspect = 1.6 x cols / rows. A mat is scan + caption bar, so the mat
- *  runs TALLER than the document it frames: target ~1.25 for a landscape
- *  certificate (A4 landscape is 1.41) and ~0.62 for a portrait A4 (0.707).
- *  Standard cells: landscape 4c x 5r = 1.28 or 6c x 8r = 1.20;
- *                  portrait  2c x 5r = 0.64 or 3c x 8r = 0.60. */
 export const WALL_LANDSCAPE: Record<number, CertLayout> = {
   1: {
-    slots: [{ area: "3 / 1 / 11 / 7", rot: -1.1, wants: "landscape" }],
-    scrap: "4 / 8 / 7 / 12",
+    slots: [{ area: "1 / 1 / 13 / 13", kind: "visual", wants: "landscape" }],
   },
   2: {
     slots: [
-      { area: "3 / 1 / 11 / 7", rot: -1.1, wants: "landscape" },
-      { area: "3 / 8 / 11 / 11", rot: 0.9, wants: "portrait" },
+      { area: "1 / 1 / 13 / 8", kind: "visual", wants: "landscape" },
+      { area: "1 / 8 / 13 / 13", kind: "visual", wants: "landscape" },
     ],
-    scrap: "11 / 1 / 13 / 5",
   },
   3: {
     slots: [
-      { area: "3 / 1 / 11 / 7", rot: -1.1, wants: "landscape" },
-      { area: "3 / 7 / 11 / 10", rot: 0.9, wants: "portrait" },
-      { area: "3 / 10 / 11 / 13", rot: -1.7, wants: "portrait" },
+      { area: "1 / 1 / 13 / 8", kind: "visual", wants: "landscape" },
+      { area: "1 / 8 / 7 / 13", kind: "visual", wants: "landscape" },
+      { area: "7 / 8 / 13 / 13", kind: "micro" },
     ],
-    scrap: "11 / 1 / 13 / 5",
   },
   4: {
     slots: [
-      { area: "3 / 1 / 8 / 5", rot: -1.1, wants: "landscape" },
-      { area: "3 / 5 / 8 / 7", rot: 0.9, wants: "portrait" },
-      { area: "3 / 8 / 8 / 10", rot: -1.7, wants: "portrait" },
-      { area: "8 / 1 / 13 / 5", rot: 1.4, wants: "landscape" },
+      { area: "1 / 1 / 8 / 7", kind: "visual", wants: "landscape" },
+      { area: "1 / 7 / 8 / 13", kind: "visual", wants: "landscape" },
+      { area: "8 / 1 / 13 / 7", kind: "micro" },
+      { area: "8 / 7 / 13 / 13", kind: "micro" },
     ],
-    scrap: "9 / 6 / 12 / 10",
   },
-  // W5 is Keff's live set: ANFECA + anglo are landscape, the three A4s portrait.
   5: {
     slots: [
-      { area: "3 / 1 / 8 / 5", rot: -1.1, wants: "landscape" },
-      { area: "3 / 5 / 8 / 7", rot: 0.9, wants: "portrait" },
-      { area: "3 / 10 / 8 / 12", rot: -1.7, wants: "portrait" },
-      { area: "4 / 8 / 9 / 10", rot: 1.2, wants: "portrait" },
-      { area: "8 / 1 / 13 / 5", rot: 1.4, wants: "landscape" },
+      { area: "1 / 1 / 8 / 5", kind: "visual", wants: "landscape" },
+      { area: "1 / 5 / 8 / 9", kind: "visual", wants: "landscape" },
+      { area: "1 / 9 / 8 / 13", kind: "visual", wants: "landscape" },
+      { area: "8 / 1 / 13 / 7", kind: "micro" },
+      { area: "8 / 7 / 13 / 13", kind: "micro" },
     ],
-    scrap: "9 / 6 / 12 / 10",
   },
   6: {
     slots: [
-      { area: "3 / 1 / 8 / 5", rot: -1.1, wants: "landscape" },
-      { area: "3 / 5 / 8 / 7", rot: 1.2, wants: "portrait" },
-      { area: "3 / 7 / 8 / 9", rot: -1.5, wants: "portrait" },
-      { area: "3 / 9 / 8 / 11", rot: 0.8, wants: "portrait" },
-      { area: "8 / 3 / 13 / 7", rot: 1.4, wants: "landscape" },
-      { area: "8 / 7 / 13 / 11", rot: -0.9, wants: "landscape" },
+      { area: "1 / 1 / 8 / 5", kind: "visual", wants: "landscape" },
+      { area: "1 / 5 / 8 / 9", kind: "visual", wants: "landscape" },
+      { area: "1 / 9 / 8 / 13", kind: "visual", wants: "landscape" },
+      { area: "8 / 1 / 13 / 5", kind: "micro" },
+      { area: "8 / 5 / 13 / 9", kind: "micro" },
+      { area: "8 / 9 / 13 / 13", kind: "micro" },
     ],
-    scrap: null,
+  },
+  7: {
+    slots: [
+      { area: "1 / 1 / 7 / 7", kind: "visual", wants: "landscape" },
+      { area: "1 / 7 / 7 / 13", kind: "visual", wants: "landscape" },
+      { area: "7 / 1 / 10 / 5", kind: "micro" },
+      { area: "7 / 5 / 10 / 9", kind: "micro" },
+      { area: "7 / 9 / 10 / 13", kind: "micro" },
+      { area: "10 / 1 / 13 / 7", kind: "micro" },
+      { area: "10 / 7 / 13 / 13", kind: "micro" },
+    ],
+  },
+  8: {
+    slots: [
+      { area: "1 / 1 / 8 / 4", kind: "visual", wants: "landscape" },
+      { area: "1 / 4 / 8 / 7", kind: "visual", wants: "landscape" },
+      { area: "1 / 7 / 8 / 10", kind: "visual", wants: "landscape" },
+      { area: "1 / 10 / 8 / 13", kind: "visual", wants: "landscape" },
+      { area: "8 / 1 / 13 / 4", kind: "micro" },
+      { area: "8 / 4 / 13 / 7", kind: "micro" },
+      { area: "8 / 7 / 13 / 10", kind: "micro" },
+      { area: "8 / 10 / 13 / 13", kind: "micro" },
+    ],
+    gutter: ".85cqw",
+  },
+  9: {
+    slots: [
+      { area: "1 / 1 / 6 / 7", kind: "visual", wants: "landscape" },
+      { area: "1 / 7 / 6 / 13", kind: "visual", wants: "landscape" },
+      { area: "6 / 1 / 9 / 5", kind: "visual", wants: "landscape" },
+      { area: "6 / 5 / 9 / 9", kind: "visual", wants: "landscape" },
+      { area: "6 / 9 / 9 / 13", kind: "visual", wants: "landscape" },
+      { area: "9 / 1 / 13 / 4", kind: "micro" },
+      { area: "9 / 4 / 13 / 7", kind: "micro" },
+      { area: "9 / 7 / 13 / 10", kind: "micro" },
+      { area: "9 / 10 / 13 / 13", kind: "micro" },
+    ],
     gutter: ".85cqw",
   },
 };
 
-/** Portrait ladder — `aspect-ratio: 4/5`, one cell is 0.8 : 1.
- *  Mat aspect = 0.8 x cols / rows. Same targets as above.
- *  Standard cells: landscape 8c x 5r = 1.28 or 12c x 8r = 1.20;
- *                  portrait  4c x 5r = 0.64 or 6c x 8r = 0.60. */
+/**
+ * Portrait ladder — content area split into two half-columns (cols 1–7 /
+ * 7–13) instead of four; a portrait sheet is too narrow for quarter cells.
+ * Row-bands are sized per count, growing denser toward the bottom of the
+ * ladder. No reserved masthead band and no accent slot — see the landscape
+ * ladder's header note for why.
+ */
 export const WALL_PORTRAIT: Record<number, CertLayout> = {
   1: {
-    slots: [{ area: "3 / 1 / 11 / 13", rot: -1.1, wants: "landscape" }],
-    scrap: "11 / 1 / 13 / 7",
+    slots: [{ area: "1 / 1 / 13 / 13", kind: "visual", wants: "landscape" }],
   },
   2: {
     slots: [
-      { area: "3 / 1 / 8 / 9", rot: -1.1, wants: "landscape" },
-      { area: "8 / 4 / 13 / 12", rot: 0.9, wants: "landscape" },
+      { area: "1 / 1 / 7 / 13", kind: "visual", wants: "landscape" },
+      { area: "7 / 1 / 13 / 13", kind: "visual", wants: "landscape" },
     ],
-    scrap: "3 / 9 / 6 / 13",
   },
   3: {
     slots: [
-      { area: "3 / 1 / 8 / 9", rot: -1.1, wants: "landscape" },
-      { area: "8 / 1 / 13 / 5", rot: 0.9, wants: "portrait" },
-      { area: "8 / 6 / 13 / 10", rot: -1.4, wants: "portrait" },
+      { area: "1 / 1 / 8 / 13", kind: "visual", wants: "landscape" },
+      { area: "8 / 1 / 13 / 7", kind: "micro" },
+      { area: "8 / 7 / 13 / 13", kind: "micro" },
     ],
-    scrap: "3 / 9 / 6 / 13",
   },
   4: {
     slots: [
-      { area: "3 / 1 / 8 / 9", rot: -1.1, wants: "landscape" },
-      { area: "3 / 9 / 8 / 13", rot: 1.2, wants: "portrait" },
-      { area: "8 / 1 / 13 / 5", rot: 0.9, wants: "portrait" },
-      { area: "8 / 5 / 13 / 9", rot: -1.4, wants: "portrait" },
+      { area: "1 / 1 / 8 / 7", kind: "visual", wants: "landscape" },
+      { area: "1 / 7 / 8 / 13", kind: "visual", wants: "landscape" },
+      { area: "8 / 1 / 13 / 7", kind: "micro" },
+      { area: "8 / 7 / 13 / 13", kind: "micro" },
     ],
-    scrap: "9 / 9 / 12 / 13",
+  },
+  5: {
+    slots: [
+      { area: "1 / 1 / 6 / 7", kind: "visual", wants: "landscape" },
+      { area: "1 / 7 / 6 / 13", kind: "visual", wants: "landscape" },
+      { area: "6 / 1 / 10 / 7", kind: "micro" },
+      { area: "6 / 7 / 10 / 13", kind: "micro" },
+      { area: "10 / 1 / 13 / 13", kind: "micro" },
+    ],
+    gutter: ".85cqw",
+  },
+  6: {
+    slots: [
+      { area: "1 / 1 / 6 / 7", kind: "visual", wants: "landscape" },
+      { area: "1 / 7 / 6 / 13", kind: "visual", wants: "landscape" },
+      { area: "6 / 1 / 9 / 7", kind: "micro" },
+      { area: "6 / 7 / 9 / 13", kind: "micro" },
+      { area: "9 / 1 / 13 / 7", kind: "micro" },
+      { area: "9 / 7 / 13 / 13", kind: "micro" },
+    ],
     gutter: ".85cqw",
   },
 };
@@ -164,11 +227,22 @@ export function getCertLayout(sheet: Orientation, count: number): CertLayout {
   return ladder[n];
 }
 
+/** Every slot in a layout carries a record — kept as its own accessor since
+ * callers used to need it to exclude the (now-removed) accent slot. */
+export function recordSlots(layout: CertLayout): CertSlot[] {
+  return layout.slots;
+}
+
 /**
- * Match records to slots by orientation, preserving reading order as far as
- * the shapes allow. Greedy and stable: each slot takes the first unused record
- * whose scan matches its `wants`, then falls back to the first unused record of
- * any orientation, so a set with no portrait scans still fills every slot.
+ * Match records to record-bearing slots, preserving reading order as far as
+ * the shapes allow. Greedy and stable: a `visual` slot takes the first
+ * unused record whose scan orientation matches `wants`, then falls back to
+ * the first unused record of any orientation; a `micro` slot (no `wants`)
+ * always takes the first unused record. So a set with no portrait scans
+ * still fills every slot.
+ *
+ * `slots` are the layout's record-bearing slots (`recordSlots`) — every slot
+ * in a layout carries a record, so this is currently the full slot list.
  *
  * Returns indices INTO `orientations`, one per slot.
  */
@@ -180,7 +254,9 @@ export function assignSlots(
   const out: number[] = [];
 
   for (const slot of slots) {
-    let pick = orientations.findIndex((o, i) => !used[i] && o === slot.wants);
+    let pick = slot.wants
+      ? orientations.findIndex((o, i) => !used[i] && o === slot.wants)
+      : -1;
     if (pick === -1) pick = used.findIndex((u) => !u);
     if (pick === -1) break;
     used[pick] = true;
@@ -219,21 +295,15 @@ export function assertCertLayouts(): void {
   for (const [prefix, ladder] of ladders) {
     for (const [count, layout] of Object.entries(ladder)) {
       const id = `${prefix}${count}`;
-      const named: Array<[string, string]> = [
-        ...RESERVED.map((r) => [r[0], r[1]] as [string, string]),
-        ...layout.slots.map((s, i) => [`mat${i + 1}`, s.area] as [string, string]),
-        ...(layout.scrap ? ([["scrap", layout.scrap]] as Array<[string, string]>) : []),
-      ];
+      const records = recordSlots(layout);
 
-      if (Number(count) !== layout.slots.length) {
-        throw new Error(`${id}: declares ${layout.slots.length} slots`);
+      if (Number(count) !== records.length) {
+        throw new Error(`${id}: declares ${records.length} record-bearing slots`);
       }
 
-      for (const s of layout.slots) {
-        if (Math.abs(s.rot) > ROT_MAX) {
-          throw new Error(`${id}: rotation ${s.rot}deg exceeds +/-${ROT_MAX}deg (${s.area})`);
-        }
-      }
+      const named: Array<[string, string]> = layout.slots.map(
+        (s, i) => [`${s.kind}${i + 1}`, s.area] as [string, string],
+      );
 
       for (const [name, area] of named) {
         const [r1, c1, r2, c2] = parseArea(area);

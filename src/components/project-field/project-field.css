@@ -1,0 +1,1317 @@
+/**
+ * PROJECT DATABASE — the editorial field.
+ * Component: `ProjectField.tsx`. Geometry: `fieldLayout.ts`.
+ *
+ * Written 2026-08-13 against Keff's brief and `image_01`, replacing
+ * `project-sheet.css` wholesale. That file painted one olive panel per
+ * record, scattered across a 12x12 grid. The reference has no panels: one
+ * dark band, three shapes on it in descending scale, the largest bleeding
+ * past the band's top and bottom edges, and four small blocks of type in
+ * the corners. Restyling panels could not get there.
+ *
+ * WHAT SURVIVED THE REWRITE, because it was never about panels:
+ *   - The FIELD is paper, the band is olive. The reference's black
+ *     artboard inverts to `--field-olive-deep` (Keff, 2026-08-05) and the
+ *     paper shows around it. Unchanged.
+ *   - THE RULE THAT WILL BITE SOMEONE: oxblood on olive is 1.90:1. Every
+ *     oxblood focus ring on this composition is in the foot index, which
+ *     is on paper. The one focusable control that sits ON the band (the
+ *     pager, and only when there is more than one field — unreachable at
+ *     three records) takes a Paper White ring instead, 7.74:1.
+ *   - Hard-edged clip wipes only, no curl, no spring
+ *     (docs/07_ANIMATION_GUIDELINES.md).
+ *   - No-scroll on desktop comes from a BOUNDED SIZE, never from
+ *     `overflow: hidden`. `routes/projects-page.css` deliberately leaves
+ *     `.page-content`'s `overflow-y: auto` in place, and
+ *     `e2e/viewport-overflow.spec.ts` asserts that it does.
+ *
+ * THE COORDINATE SYSTEM. `.pf__stage` is the containing block for
+ * everything. Percentages in the style attribute come straight out of
+ * `fieldLayout.ts` — x and diameters are percentages of stage width, y is
+ * a percentage of stage height, which is exactly how CSS resolves
+ * `left`/`width` and `top`. No conversion math exists in the component.
+ * The three constants that CSS and TS both need — the band's top edge and
+ * height, and the foot index's top edge — are declared in both places and
+ * are asserted equal by `fieldLayout.test.ts`. Change one, change both.
+ */
+
+.pf {
+  /* THE ONE KNOB. Every type size, gutter and rule on the composition is a
+     container-query unit against this element, so changing this rescales
+     the whole thing. The field is a printed field: past its own width it
+     centres in the paper rather than growing. */
+  --pf-max: 1120px;
+  /* Stage aspect (width / height). Mirrors `STAGE_AR` in fieldLayout.ts. */
+  --pf-ar: 1.62;
+  /* Band geometry, in percent of stage height. Mirrors `BAND_TOP`/`BAND_H`. */
+  --pf-band-top: 13%;
+  --pf-band-h: 57%;
+  /* Foot index top edge, percent of stage height. Mirrors `INDEX_TOP`. */
+  --pf-index-top: 78%;
+  /* THE POSTER TIER'S TWO COLOURS, and the only knob it needs. The disc is
+     Field Olive because that is the module's field colour and keeps the
+     stacked tier reading as the same module as the band above it; the
+     corner bar is the other family, because a bar in the disc's own colour
+     disappears. Swapping the two here flips the whole poster. */
+  --pf-poster-accent: var(--field-olive);
+  --pf-bar: var(--oxblood);
+
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: var(--pf-max);
+  margin-inline: auto;
+  place-items: center;
+  font-family: var(--font-mono);
+
+  /* Bounded on BOTH axes, so `.pf__stage` below has a definite height to
+     size against. This is where the desktop no-scroll guarantee comes
+     from. Requires every ancestor down from `.page-content` to carry
+     `min-height: 0` — see routes/projects-page.css. */
+  container-type: size;
+}
+
+/**
+ * The stage. Sized by a min() pair rather than `aspect-ratio` because a
+ * plain aspect-ratio can only satisfy one axis at a time in a viewport
+ * shorter than it is wide (the same reasoning cert-wall's `--cw-ar` gives).
+ *
+ * It is ALSO a size container, which is the point: every percentage below
+ * and every `cqw`/`cqh` inside resolves against this element, so the
+ * numbers in `fieldLayout.ts` and the numbers in this file are in the same
+ * coordinate system. `container-type: size` brings `contain: layout` with
+ * it, which makes this the containing block for the absolutely positioned
+ * band, title and records — no separate `position: relative` needed, but
+ * it is declared anyway so the intent survives a future container-type
+ * change.
+ */
+.pf__stage {
+  container-type: size;
+  position: relative;
+  width: min(100cqw, calc(100cqh * var(--pf-ar)));
+  height: min(100cqh, calc(100cqw / var(--pf-ar)));
+}
+
+/* ------------------------------------------------------------------ title
+   "PROJECTS", oversized in the display serif, right-aligned on the paper
+   above the band — and running two-and-a-bit percent UNDER the band's top
+   edge, so the band crops the bottom of the letterforms. That crop is the
+   whole treatment: a printed word the next colour pass ran over.
+   `bottom: 85.5%` puts the box bottom at 14.5% of stage height; the band
+   starts at 13%.
+
+   It is REAL, VISIBLE, READABLE TEXT — one `<h2>`, no decorative fragments
+   with a visually-hidden twin. `left` is floored at 52% so the word can
+   never grow left into the primary shape, which bleeds up into this strip
+   on every rung. */
+.pf__title {
+  position: absolute;
+  left: 52%;
+  right: 2%;
+  bottom: 85.5%;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-serif-display);
+  font-weight: 800;
+  font-size: clamp(1.25rem, 11.5cqh, 6rem);
+  line-height: 0.78;
+  letter-spacing: -0.01em;
+  text-align: right;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+/* ======================================================================= BAND
+   The artboard. Everything printed on it is either a label for something
+   the foot index states in full or the module's own colophon — nothing on
+   the band is the only copy of anything, which is why the mobile tier can
+   demote it without losing information.
+
+   `overflow: hidden` clips the band's OWN chrome only. The records are not
+   children of the band (they are children of the stage), so the primary
+   shape's bleed past the top and bottom edges is untouched by it — that
+   bleed is the single most recognisable thing about the reference. */
+.pf__band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--pf-band-top);
+  height: var(--pf-band-h);
+  z-index: 2;
+  overflow: hidden;
+  background: var(--field-olive-deep);
+  color: var(--paper-white); /* 7.74:1 */
+}
+
+/* Vertical because the reference's mark sits in a strip about seven
+   percent of the band wide, and the primary shape starts at eight. Real
+   text set with `writing-mode`, never a transform on a text node — but
+   `aria-hidden` regardless, since PageLayer's <h1> already says
+   "PROJECT DATABASE" and this is the same string as ornament. */
+.pf__mark {
+  position: absolute;
+  left: 1.4%;
+  top: 5%;
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-size: clamp(6px, 0.62cqw, 9px);
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  /* Decorative chrome, so the 3:1 non-text floor applies rather than the
+     4.5:1 text floor — see tokens.css's opacity-floor note. */
+  opacity: var(--on-olive-chrome);
+}
+
+.pf__meta {
+  position: absolute;
+  right: 2%;
+  top: 5%;
+  width: 19%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+}
+
+.pf__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  margin: 0;
+  border-bottom: 1px solid rgba(246, 246, 244, 0.22);
+  padding-bottom: 0.35em;
+  font-size: clamp(6px, 0.62cqw, 9px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: var(--on-olive-dim);
+}
+
+.pf__row b {
+  font-weight: 500;
+  opacity: 1;
+}
+
+/**
+ * The reference's bottom-left micro block, carrying the module's colophon.
+ *
+ * IT FITS IN A POCKET, AND THE POCKET IS CURVED. The primary's lobe is a
+ * semicircle centred on the shape's midline, so near the band's bottom
+ * edge the shape's left boundary has swung right and left a wedge of empty
+ * band behind it. At the 3-record rung the lobe's left edge is at ~12.6%
+ * of stage width where this block's top sits, and this block ends at
+ * 10.5%. That ~2% is the clearance, and it is why the width is 9% and not
+ * a rounder number. Widening it, or raising it, walks it under the disc.
+ */
+.pf__note {
+  position: absolute;
+  left: 1.5%;
+  bottom: 4%;
+  width: 9%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  margin: 0;
+  font-size: clamp(5.5px, 0.56cqw, 8px);
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: var(--on-olive-chrome);
+}
+
+/* Only reachable above five records, which the live archive is nowhere
+   near. It is the one focusable control that sits on the olive, hence the
+   Paper White ring — oxblood here would be 1.90:1, an invisible focus
+   indicator dressed up as a colour choice. */
+.pf__pager {
+  display: flex;
+  gap: 0.4em;
+  margin: 0.2em 0 0;
+}
+
+.pf__pager button {
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  padding: 0.25em 0.6em;
+  border: 1px solid var(--paper-white);
+  background: transparent;
+  color: var(--paper-white);
+  font: inherit;
+  font-size: clamp(7px, 0.66cqw, 10px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+
+.pf__pager button:hover:not(:disabled) {
+  background: var(--paper-white);
+  color: var(--field-olive-deep);
+}
+
+.pf__pager button:focus-visible {
+  outline: 2px solid var(--paper-white);
+  outline-offset: 2px;
+}
+
+.pf__pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ===================================================================== RECORD
+   `display: contents` — a ref and inert target only (`ProjectField.tsx`'s
+   `useInert`). It generates no box, so the records inside stay positioned
+   against `.pf__stage` exactly as if this wrapper weren't here. */
+.pf__records {
+  display: contents;
+}
+
+/**
+ * One record covers the WHOLE stage and paints nothing itself; its two
+ * children carry the positioning. That is what lets a disc up on the band
+ * and a caption down on the paper be one `<article>` for assistive tech —
+ * see `FieldRecord.tsx`'s header comment.
+ *
+ * Every record's box therefore overlaps every other record's box, which
+ * would be an occlusion bug if any of them took the pointer.
+ * `pointer-events: none` here, taken back only on the chip, is what makes
+ * that structure legal rather than clever. Do not remove it without
+ * shrinking the boxes first.
+ */
+.pf-record {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/**
+ * The wipe carrier. The entrance animation has to clip a rectangle, and
+ * the shape inside is already clipped to a circle — one element cannot
+ * hold two clip-paths, so this wrapper animates and `.pf-shape` inside
+ * stays static. Splitting them is also what makes the reduced-motion
+ * reset safe: it can null out `clip-path` here without dissolving the
+ * circles.
+ */
+.pf-record__figure {
+  position: absolute;
+  transform: translateY(-50%);
+  /**
+   * THE EDGE. A stacked drop-shadow outline, and it has to be a filter on
+   * THIS element rather than a border on the shape inside, for a reason
+   * worth writing down: a clipped element cannot paint its own boundary.
+   * `border`, `outline` and `box-shadow` are all drawn on the shape's
+   * RECTANGLE and then clipped away with everything else outside the
+   * circle, and a filter declared on the same element as a `clip-path`
+   * runs before the clip and gets erased too. `drop-shadow` on the parent
+   * traces the child's alpha silhouette after it has been clipped, which
+   * is the only thing here that follows a circle.
+   *
+   * It earns its keep twice. The project plates are near-white halftones,
+   * so where two discs overlap — and they do, that descending chain is
+   * near-tangent by design — the two shapes merge into one blob without
+   * it. And the primary bleeds off the band onto paper, which is also
+   * pale, so its silhouette would dissolve at exactly the moment the
+   * composition most wants it read as a cut-out plate.
+   */
+  filter: drop-shadow(1.5px 0 0 var(--olive-edge)) drop-shadow(-1.5px 0 0 var(--olive-edge))
+    drop-shadow(0 1.5px 0 var(--olive-edge)) drop-shadow(0 -1.5px 0 var(--olive-edge));
+}
+
+.pf-shape {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  color: var(--paper-white);
+}
+
+.pf-shape > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The dither IS the image (docs/13_ASSET_SPEC.md, tools/halftone.py):
+     these are 1-bit halftone plates, and smooth-scaling one turns the dot
+     screen to grey mush. */
+  image-rendering: pixelated;
+}
+
+/* `closest-side`, not `circle(50%)` — a percentage radius resolves against
+   a value derived from the box's diagonal, not its shorter side, and
+   overflows a non-square box. */
+.pf-shape--circle {
+  clip-path: circle(closest-side at 50% 50%);
+}
+
+/* Square box, left half a true semicircular lobe, right half flat. The
+   `aspect-ratio: 1` above is load-bearing: `FieldShapeDefs.tsx`'s path is
+   in normalised object-bounding-box units, so a non-square box would turn
+   the lobe into an ellipse. */
+.pf-shape--fused {
+  clip-path: url(#pf-fused);
+}
+
+/* The registration seam where the lobe meets the flat half. Deliberately
+   NOT part of the clip — a clipped element cannot paint its own boundary,
+   so the seam has to be drawn on top. `left: 50%` matches the path's
+   midline; move the two together or not at all. */
+.pf-shape--fused::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 50%;
+  width: 1px;
+  background: currentColor;
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+/**
+ * NO REPO AND NO IMAGE — the brief's third interaction case. No record
+ * exercises this today; it is a real code path rather than a promise, so
+ * nothing has to change the day one does. Deliberately slow and quiet: a
+ * registration screen drifting across the disc, not an attention-getter,
+ * and gated twice (the `[data-motion]` hook React sets, plus the media
+ * query, for the frame before React has read it).
+ */
+.pf-shape--empty {
+  clip-path: circle(closest-side at 50% 50%);
+  background:
+    repeating-linear-gradient(135deg, currentColor 0 1px, transparent 1px 11px), var(--field-olive);
+  opacity: 0.32;
+}
+
+[data-motion="full"] .pf-shape--empty {
+  animation: pf-drift 9s linear infinite;
+}
+
+@keyframes pf-drift {
+  to {
+    background-position:
+      31px 31px,
+      0 0;
+  }
+}
+
+/* ================================================================ FOOT INDEX
+   The paper strip under the band. Three micro columns, each left-aligned
+   under its own shape, their widths descending with the shapes — the
+   hierarchy is stated twice, once in scale and once in measure. This is
+   the only place on the composition that carries a project's real name,
+   and the only place that carries an interactive control. Nothing may
+   cover it; `assertFieldLayouts` proves no disc reaches it. */
+.pf-record__cap {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.pf-record__lead {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0;
+  font-size: clamp(5.5px, 0.58cqw, 8px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--field-olive); /* 5.77:1 on paper */
+}
+
+.pf-record__rule {
+  flex: 1 1 auto;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.pf-record__kind {
+  flex: 0 0 auto;
+}
+
+.pf-record__title {
+  margin: 0.15em 0 0;
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.35cqw, 18px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+[data-primary="1"] .pf-record__title {
+  font-family: var(--font-serif-edit);
+  font-size: clamp(15px, 2.6cqw, 38px);
+  line-height: 0.94;
+  letter-spacing: -0.01em;
+}
+
+.pf-record__sub {
+  margin: 0;
+  font-size: clamp(6px, 0.62cqw, 9px);
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray); /* 5.12:1 on paper */
+}
+
+[data-primary="1"] .pf-record__sub {
+  font-size: clamp(6.5px, 0.7cqw, 11px);
+}
+
+.pf-record__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  margin: 0.2em 0 0;
+  font-size: clamp(5.5px, 0.58cqw, 9px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--field-olive);
+}
+
+.pf-record__meta > span {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* POSTER FURNITURE, DORMANT. These four draw nothing at this width; the
+   whole of the stacked tier's composition hangs off them. Declared here
+   rather than only inside the media query so the default is "invisible"
+   and a new width tier cannot accidentally inherit half a poster. */
+.pf-record__bar,
+.pf-record__corner,
+.pf-record__disc,
+.pf-record__badges {
+  display: none;
+}
+
+/* The head group is only a box in the poster tier. Here the caption is one
+   column and this wrapper must not exist at all. */
+.pf-record__body {
+  display: contents;
+}
+
+/* The registration line reads as one sentence at this width — "DEPLOYED ·
+   2025" — exactly as it did before the year was split into two elements
+   for the poster's stamp. `display: inline` is what puts it back
+   together. */
+.pf-record__reg,
+.pf-record__year,
+.pf-record__yr {
+  display: inline;
+}
+
+/* The GitHub mark belongs to the poster's CTA. The foot index chip is a
+   6px-tall letterspaced label and a glyph beside it reads as debris, so it
+   is withheld here rather than added everywhere — this tier stays exactly
+   as it was signed off. */
+.pf-chip svg {
+  display: none;
+}
+
+.pf-record__action {
+  margin: 0.5em 0 0;
+}
+
+/* On paper, so oxblood is legal here — and this is the only surface on the
+   composition where it is. */
+.pf-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--hit-min);
+  padding: 0.3em 0.7em;
+  border: 1px solid var(--field-olive);
+  background: transparent;
+  color: var(--field-olive);
+  font: inherit;
+  font-size: clamp(6px, 0.6cqw, 9px);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    background var(--dur-micro) var(--ease-hard),
+    color var(--dur-micro) var(--ease-hard);
+}
+
+.pf-chip:hover {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+.pf-chip:focus-visible {
+  outline: 2px solid var(--oxblood);
+  outline-offset: 2px;
+}
+
+/* ================================================================ EMPTY STATE
+   Never a blank field. A field with nothing on it still has to be a field. */
+.pf--empty {
+  container-type: normal;
+}
+
+.pf--empty .pf__stage {
+  container-type: normal;
+  width: 100%;
+  height: auto;
+  min-height: 220px;
+}
+
+.pf__empty {
+  position: absolute;
+  left: 12%;
+  top: 30%;
+  z-index: 3;
+  color: var(--paper-white);
+}
+
+.pf__empty h3 {
+  margin: 0;
+  font-size: clamp(16px, 2.4vw, 28px);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.pf__empty p {
+  margin: 0.6em 0 0;
+  font-size: var(--text-meta);
+  opacity: var(--on-olive-dim);
+}
+
+/* ==================================================================== OVERLAY
+   Image-expand for a record with no repo (`ImageExpandOverlay.tsx`) — the
+   brief's "no public GitHub repository" interaction. `role="dialog"`
+   WITHOUT `aria-modal`; actual modal-ness is `useInert` on `.pf__records`.
+   See that component's header comment. */
+.pf-overlay {
+  position: absolute;
+  inset: 0;
+  /* Local to `.pf__stage`, which is already its own containing block — the
+     overlay only ever needs to clear this module's own records. */
+  z-index: 100;
+  display: grid;
+  place-items: center;
+}
+
+.pf-overlay__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.82);
+}
+
+.pf-overlay__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: min(88%, 720px);
+  max-height: 88%;
+  padding: var(--space-lg);
+  background: var(--paper-white);
+  color: var(--ink);
+}
+
+.pf-overlay__close {
+  align-self: flex-end;
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--field-olive);
+  background: transparent;
+  color: var(--field-olive);
+  font: inherit;
+  font-size: clamp(7px, 0.8vw, 11px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+
+.pf-overlay__close:hover {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+.pf-overlay__close:focus-visible {
+  outline: 2px solid var(--oxblood);
+  outline-offset: 2px;
+}
+
+.pf-overlay__title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(16px, 2vw, 24px);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.pf-overlay__img {
+  display: block;
+  max-width: 100%;
+  max-height: 58vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+@keyframes pf-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pf-overlay[data-motion="full"] {
+  animation: pf-overlay-in var(--dur-micro) var(--ease-hard) both;
+}
+
+/* ===================================================================== MOTION
+   Hard-edged clip wipes only (docs/07_ANIMATION_GUIDELINES.md): no curl,
+   no spring, no overshoot. The wipe runs right to left, matching the
+   forward turn, and is staggered so the composition assembles in reading
+   order — band first, then the shapes and their captions in descending
+   scale — rather than all at once. */
+@keyframes pf-wipe {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+[data-motion="full"] .pf__band,
+[data-motion="full"] .pf-record__figure,
+[data-motion="full"] .pf-record__cap {
+  animation: pf-wipe var(--dur-turn) var(--ease-hard) both;
+}
+
+[data-motion="full"] .pf-record[data-record="1"] .pf-record__figure,
+[data-motion="full"] .pf-record[data-record="1"] .pf-record__cap {
+  animation-delay: 60ms;
+}
+[data-motion="full"] .pf-record[data-record="2"] .pf-record__figure,
+[data-motion="full"] .pf-record[data-record="2"] .pf-record__cap {
+  animation-delay: 110ms;
+}
+[data-motion="full"] .pf-record[data-record="3"] .pf-record__figure,
+[data-motion="full"] .pf-record[data-record="3"] .pf-record__cap {
+  animation-delay: 160ms;
+}
+[data-motion="full"] .pf-record[data-record="4"] .pf-record__figure,
+[data-motion="full"] .pf-record[data-record="4"] .pf-record__cap {
+  animation-delay: 210ms;
+}
+[data-motion="full"] .pf-record[data-record="5"] .pf-record__figure,
+[data-motion="full"] .pf-record[data-record="5"] .pf-record__cap {
+  animation-delay: 260ms;
+}
+
+/**
+ * `data-motion="reduced"` simply never adds the animation — an omission,
+ * not an override, so no half-animated state is reachable. This query is
+ * the belt to that hook's braces, for the frame before React reads the
+ * media query.
+ *
+ * THE SELECTOR LIST IS EXACT ON PURPOSE. It resets the three WIPE CARRIERS
+ * and never `.pf-shape`, because `clip-path: none !important` on a shape
+ * would dissolve the circles and the fused lobe — the composition's entire
+ * subject — into rectangles for every reduced-motion user. A blanket
+ * `.pf * { clip-path: none }` here would be a silent, total design
+ * failure for exactly the audience least able to report it.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .pf__band,
+  .pf-record__figure,
+  .pf-record__cap,
+  .pf-overlay {
+    animation: none !important;
+    clip-path: none !important;
+  }
+
+  .pf-shape--empty {
+    animation: none !important;
+  }
+}
+
+/* ================================================================ RESPONSIVE */
+
+/* Between 1100 and 768 the composition holds — the bounded stage keeps it
+   on one screen — but the type is running out of measure, so the chrome
+   sheds first and the content keeps its size. Still no scroll here. */
+@media (max-width: 1100px) and (min-width: 901px) {
+  .pf {
+    --pf-max: 900px;
+  }
+
+  .pf__mark {
+    letter-spacing: var(--track-label);
+  }
+
+  .pf__note {
+    display: none;
+  }
+}
+
+/**
+ * Below 900px the field stops being a field: one column, no bleed, no
+ * absolute positioning, and the page scrolls. That is permitted and always
+ * was — docs/03_UX_ARCHITECTURE.MD, "the shell never scrolls, content is
+ * always free to."
+ *
+ * WHY 900 AND NOT 768. 768 is the WCAG 1.4.10 reflow floor and remains the
+ * hard obligation; this releases earlier, by choice, because of what a
+ * PORTRAIT tablet does to a 1.62 composition. The stage preserves its
+ * aspect, so on a tall narrow viewport it is width-limited and centres
+ * with several hundred pixels of empty paper above and below it — which
+ * reads as a rendering fault rather than as margin. A portrait iPad
+ * (820x1180) lands squarely in that band. Stacking there fills the page
+ * honestly and keeps the caption columns at a readable measure. The
+ * matching `:has()` chain in `routes/projects-page.css` releases at the
+ * same width; the two must move together or the page keeps a flex height
+ * budget the stack no longer fits in.
+ *
+ * `.pf` drops `container-type: size` because size containment requires an
+ * explicit height and this tier's whole point is letting the content set
+ * its own. Leaving it on would collapse the stage to zero.
+ *
+ * The hierarchy survives the reflow: the primary keeps the serif title,
+ * the larger disc and the first position; the others follow in descending
+ * order, which is already their DOM order, so nothing has to be reordered
+ * to say it.
+ */
+@media (max-width: 900px) {
+  .pf {
+    display: block;
+    max-width: none;
+    container-type: inline-size;
+  }
+
+  /* `width: 100%`, NOT `width: auto`. Measured, not assumed: `auto` here
+     resolves shrink-to-fit against the stack's widest single item (the
+     title at its max-content measure) instead of filling `.pf`, which
+     collapses the whole stack to roughly 330px on a 768px-wide tablet and
+     leaves every caption wrapping at a third of the column it has. Being
+     explicit costs nothing and cannot be re-broken by accident. */
+  .pf__stage {
+    container-type: normal;
+    display: flex;
+    flex-direction: column;
+    /* Zero, not a gutter: the posters run flush and are separated by their
+       own top rule, the way printed plates are. The two blocks above them
+       carry their own bottom margin instead. */
+    gap: 0;
+    width: 100%;
+    height: auto;
+  }
+
+  .pf__title {
+    position: static;
+    order: -2;
+    margin-bottom: var(--space-md);
+    font-size: clamp(28px, 11vw, 52px);
+    text-align: left;
+    line-height: 0.9;
+  }
+
+  /* Demoted to a strip, not deleted: it still carries the record count and
+     (above five records) the pager, which is a real control. */
+  .pf__band {
+    position: static;
+    order: -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    height: auto;
+    margin-bottom: var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .pf__mark {
+    position: static;
+    writing-mode: horizontal-tb;
+    font-size: 9px;
+    letter-spacing: var(--track-label);
+  }
+
+  .pf__meta {
+    position: static;
+    width: auto;
+    min-width: 46%;
+    gap: 0.4em;
+  }
+
+  .pf__row {
+    font-size: 9px;
+  }
+
+  .pf__note {
+    display: none;
+  }
+
+  /* ================================================================ POSTER
+     Below 900px every record becomes a POSTER, not a stacked card. Keff's
+     reference (2026-08-14) is a Bath Abbey study: one accent disc bleeding
+     off an outer edge, one masked photograph on the diagonal from it, a
+     hairline bar in the top outer corner, a solid block in the bottom
+     outer one, and the type pushed out to the margins the shapes leave.
+
+     WHAT CHANGED FROM THE FIRST PASS, and why, because both were his call:
+       - The reference's third shape, a rectangle crossing the disc, is
+         GONE. It needed a second plate per record and not every project
+         has one — a slot that fills for some records and not others looks
+         broken for the rest.
+       - Records ALTERNATE. Odd composes left, even mirrors right (see
+         `data-side` in `FieldRecord.tsx`), so a scroll of three posters
+         reads as a sequence rather than a repeat.
+       - The stack line is drawn as brand marks. The words are still there
+         and still accessible — see `.pf-record__stack` below.
+
+     5:7, NOT 3:4. The reference is 842x1191 and its two circles sit far
+     enough apart that the photograph keeps most of its own tone. Squash
+     the card and the same percentages pull them together: the disc then
+     covers over half the plate and the halftone under it reads as flat
+     olive. The aspect ratio is part of the composition.
+
+     Records become flex items of `.pf__stage` directly — `.pf__records` is
+     `display: contents`, so there is no wrapper between them. */
+  .pf-record {
+    /* One knob per shape, so the composition can be re-proportioned
+       without hunting through the rules below. */
+    --pp-disc-d: 84%;
+    --pp-disc-bleed: -17%;
+    --pp-disc-top: 10%;
+    --pp-photo-d: 73%;
+    --pp-photo-top: 41.9%;
+    --pp-photo-in: 4.5%;
+    --pp-out: 7%;
+
+    position: relative;
+    display: block;
+    aspect-ratio: 5 / 7;
+    overflow: hidden;
+    background: var(--paper);
+    border-top: var(--rule-thick) solid var(--ink);
+    pointer-events: auto;
+    /* Keeps the disc's `multiply` inside the poster instead of letting it
+       reach the paper field and the page behind it. */
+    isolation: isolate;
+  }
+
+  .pf-record__bar {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 4;
+    width: 2.8%;
+    height: 36%;
+    background: var(--pf-bar);
+  }
+
+  .pf-record__corner {
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 4;
+    width: 9%;
+    height: 5%;
+    background: var(--ink);
+  }
+
+  /* THE DISC, AND THE TRICK IS THE BLEND. It paints ABOVE the plate, in
+     `multiply`: over paper it reads as flat accent, over the photograph it
+     tints the halftone instead of hiding it — which is what the
+     reference's circle does to the architecture underneath. Painting it
+     below the plate instead, or at full opacity, loses the whole effect.
+
+     `clip-path`, not `border-radius`: tokens.css zeroes radii globally
+     with `!important` and that law is worth more than an override. */
+  .pf-record__disc {
+    display: block;
+    position: absolute;
+    left: var(--pp-disc-bleed);
+    top: var(--pp-disc-top);
+    z-index: 3;
+    width: var(--pp-disc-d);
+    aspect-ratio: 1;
+    background: var(--pf-poster-accent);
+    clip-path: circle(closest-side at 50% 50%);
+    mix-blend-mode: multiply;
+  }
+
+  /* The three decorative boxes must never take a click. Above 900px they
+     inherit `pointer-events: none` from `.pf-record`; the poster tier turns
+     that back on for the card, so they have to say it themselves — a disc
+     that swallows taps over a third of the poster is a worse bug than a
+     disc that is painted wrong, because it is invisible. */
+  .pf-record__bar,
+  .pf-record__corner,
+  .pf-record__disc {
+    pointer-events: none;
+  }
+
+  /* `!important` is load-bearing, not laziness. `FieldRecord.tsx` writes
+     the desktop ladder's percentages into the INLINE style attribute —
+     that is what keeps the geometry in one file instead of duplicated
+     across a stylesheet — and an inline declaration outranks any selector
+     in this sheet. The poster has to beat it explicitly or the plate keeps
+     its desktop position and lands nowhere near the disc. */
+  .pf-record__figure {
+    position: absolute;
+    left: var(--pp-photo-in) !important;
+    top: var(--pp-photo-top) !important;
+    width: var(--pp-photo-d) !important;
+    z-index: 2;
+    max-width: none;
+    transform: none;
+    /* The outline ring is a desktop device: up there the discs overlap
+       each other and bleed onto pale paper. Here a single plate sits under
+       the accent disc, and a ring would read as a drawn border. */
+    filter: none;
+  }
+
+  /* One shape language on the poster: plain circles. The fused lobe is the
+     desktop composition's way of marking the primary, and at this width
+     the primary is marked by being first instead. */
+  .pf-shape--circle,
+  .pf-shape--fused {
+    aspect-ratio: 1;
+    clip-path: circle(closest-side at 50% 50%);
+    /* Some plates carry alpha (`tools/halftone.py`'s hero and lineart
+       presets write transparent backgrounds — doc 13). Without stock
+       behind them the disc's multiply lands on nothing and the circle
+       renders as the browser's transparency checkerboard. */
+    background: var(--paper-white);
+  }
+
+  .pf-shape--fused::after {
+    display: none;
+  }
+
+  /* NO `image-rendering: pixelated` HERE, and it is a deliberate departure
+     from doc 13's "the dither IS the image". That rule protects the dot
+     grid at or above 1:1. The poster does the opposite: it DOWNSCALES an
+     ~800px plate into a ~230px circle, and nearest-neighbour downsampling
+     of a 1-bit dither is a textbook moire generator — the Odoo plate,
+     half modal overlay, came out as a black-and-white chessboard. Smooth
+     downscaling resolves the dither back into the grey it encodes, which
+     is also what lets the disc's multiply read as a tint over a
+     photograph. */
+  .pf-shape > img {
+    image-rendering: auto;
+    filter: grayscale(1) contrast(1.04);
+  }
+
+  /* The caption stops being a column in a foot index and becomes the whole
+     poster's coordinate space, so the tick, the kind and the title can
+     each leave for their own corner while the head stays a stack. */
+  .pf-record__cap {
+    position: absolute;
+    inset: 0 !important;
+    /* ABOVE THE DISC. The disc is a positioned element at z-index 3, so an
+       `auto`-stacked caption paints underneath it — invisible until a chip
+       happens to reach the disc's edge, which the badge row does at 390px.
+       Every piece of type on the poster lives inside this element, so one
+       declaration here covers the tick, the rail, the title and the head. */
+    z-index: 5;
+    width: auto !important;
+    display: block;
+    gap: 0;
+  }
+
+  .pf-record__lead {
+    display: contents;
+  }
+
+  .pf-record__rule {
+    display: none;
+  }
+
+  .pf-record__tick {
+    position: absolute;
+    left: 5%;
+    top: 4.5%;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--gray); /* 5.12:1 on paper */
+  }
+
+  /* The rotated rail in the outer margin. `display: flex` inside
+     `writing-mode: vertical-rl` stacks its items top to bottom, which is
+     what puts the "c" above the hairline and the category below it. */
+  .pf-record__kind {
+    position: absolute;
+    right: 1.5%;
+    top: 41%;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    writing-mode: vertical-rl;
+    font-family: var(--font-serif-edit);
+    font-weight: 700;
+    font-size: 9px;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .pf-record__kind::before {
+    content: "c";
+    padding-bottom: 5px;
+    border-bottom: 1px solid currentColor;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .pf-record__title {
+    position: absolute;
+    right: 6.5%;
+    bottom: 5%;
+    margin: 0;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: var(--font-serif-edit);
+    font-weight: 700;
+    font-size: clamp(19px, 7cqw, 34px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--pf-poster-accent); /* Field Olive on paper: 5.77:1 */
+    /* A long title ("Odoo Custom Module") wraps to a second vertical
+       column rather than running off the top of the card or into the
+       rail. */
+    max-height: 66%;
+  }
+
+  /* ---------------------------------------------------------- head block
+     Stamp, status, description, action, marks — the one group that stays a
+     stack. `__meta` and `__reg` collapse to `display: contents` so the
+     status and the year become flex children here and can be ordered
+     independently of the DOM, which still reads in caption order. */
+  .pf-record__body {
+    position: absolute;
+    top: 4%;
+    right: var(--pp-out);
+    width: 66%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .pf-record__meta,
+  .pf-record__reg {
+    display: contents;
+  }
+
+  .pf-record__sep {
+    display: none;
+  }
+
+  /* THE WORDS SURVIVE, CLIPPED. The badge row below is decorative, so this
+     is the only accessible copy of the stack at any width — it must stay
+     in the accessibility tree, which means clipping it out of sight rather
+     than `display: none`. Same off-screen-clip idiom `.visually-hidden`
+     uses, scoped here because it is width-conditional. */
+  .pf-record__stack {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* "c" over a fraction — the reference's century stamp. Ours splits the
+     record's own year, so 2025 sets as 20 over 25. `data-split` is written
+     by `FieldRecord.tsx` and is 0 for anything that is not a bare
+     four-digit year, in which case this prints whole and the rule between
+     the halves never draws. */
+  .pf-record__year {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    font-size: 9px;
+    line-height: 1.15;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+
+  .pf-record__year[data-split="1"]::before {
+    content: "c";
+    margin-bottom: 3px;
+  }
+
+  .pf-record__year[data-split="1"] .pf-record__yr + .pf-record__yr {
+    border-top: 1px solid var(--ink);
+    padding-top: 1px;
+  }
+
+  .pf-record__status {
+    order: 2;
+    margin-top: 5px;
+    font-family: var(--font-serif-edit);
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    /* `STATUS_LABEL` is uppercase for the foot index's label voice; the
+       poster sets it as an editorial word, so it is lowercased here rather
+       than duplicated in the data. */
+    text-transform: lowercase;
+    color: var(--ink); /* 17.45:1 on paper */
+  }
+
+  /* THE MEASURE IS MEASURED, NOT CHOSEN. This is the one piece of small
+     grey type on the poster, and grey on Field Olive is about 1.4:1 —
+     illegible. At the height this line sits, the disc's edge is at ~59% of
+     the card width and the head's outer edge is at 93%, so ~34% of the
+     card is the paper it may occupy; `__body` is 66% wide, hence 47% of
+     it. The `min()` keeps that honest at every phone width instead of
+     working at 390 and failing at 320, which a bare `ch` value did. */
+  .pf-record__sub {
+    order: 3;
+    margin: 7px 0 0;
+    max-width: min(24ch, 47%);
+    font-size: 8.5px;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    text-transform: none;
+    color: var(--gray); /* 5.12:1 on paper */
+  }
+
+  .pf-record__action {
+    order: 4;
+    margin: 9px 0 0;
+  }
+
+  /* PAPER WHITE STOCK, not the transparent chip the foot index uses, and
+     for a measured reason. The head is aligned to the outer edge and grows
+     inward; at ~30% down the card the disc's edge is at 64.6% of the width
+     while a two-word chip reaches 62%. A transparent chip loses its border
+     and its label to the olive in that last 3%. */
+  .pf-chip {
+    background: var(--paper-white);
+    color: var(--field-olive-deep); /* 7.9:1 on Paper White */
+    border-color: var(--field-olive-deep);
+    font-size: 8.5px;
+    gap: 6px;
+  }
+
+  .pf-chip svg {
+    display: block;
+    flex: 0 0 auto;
+  }
+
+  .pf-chip:hover {
+    background: var(--field-olive-deep);
+    color: var(--paper-white);
+  }
+
+  .pf-record__badges {
+    order: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: flex-end;
+    margin: 9px 0 0;
+  }
+
+  .pf-record__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 24px is the WCAG 2.2 SC 2.5.8 floor. These are not interactive
+       today; sizing them to it now means they can become so without a
+       relayout. */
+    width: 24px;
+    height: 24px;
+    background: var(--paper-white);
+    border: 1px solid var(--field-olive-deep);
+    color: var(--field-olive-deep);
+  }
+
+  .pf-record__mono {
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ------------------------------------------------------------- mirror
+     EVERY PROPERTY IS FLIPPED EXPLICITLY. The tempting one-liner is
+     `transform: scaleX(-1)` on the record, and it is wrong: it would
+     mirror the photograph, the brand marks and every letterform along with
+     the geometry. Mirroring a composition means moving the pieces, not
+     reversing the pixels. Type keeps its normal reading direction on both
+     sides — including the rotated title, which stays bottom-to-top so the
+     scroll has one reading direction rather than two. */
+  [data-side="right"] .pf-record__bar {
+    right: auto;
+    left: 0;
+  }
+
+  [data-side="right"] .pf-record__corner {
+    left: auto;
+    right: 0;
+  }
+
+  [data-side="right"] .pf-record__disc {
+    left: auto;
+    right: var(--pp-disc-bleed);
+  }
+
+  [data-side="right"] .pf-record__figure {
+    left: auto !important;
+    right: var(--pp-photo-in);
+  }
+
+  [data-side="right"] .pf-record__tick {
+    left: auto;
+    right: 5%;
+  }
+
+  [data-side="right"] .pf-record__kind {
+    right: auto;
+    left: 1.5%;
+  }
+
+  [data-side="right"] .pf-record__title {
+    right: auto;
+    left: 6.5%;
+  }
+
+  [data-side="right"] .pf-record__body {
+    right: auto;
+    left: var(--pp-out);
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  [data-side="right"] .pf-record__badges {
+    justify-content: flex-start;
+  }
+
+  .pf-overlay {
+    position: fixed;
+  }
+}

@@ -131,6 +131,19 @@
 > bounding box is always slightly taller than its unrotated box — had just
 > enough clearance from the canvas's bottom edge to matter once the channel
 > row's own footprint grew; a small `margin-bottom: 4px` absorbs it.
+>
+> **Updated 2026-08-12.** `/projects` (`src/components/project-sheet/`) is
+> now a second consumer of this doc's overlap/rotation/z-index-as-meaning
+> vocabulary — previously that module deliberately opted out (see
+> `project-sheet.css`'s header comment, 2026-08-05 through 2026-08-12).
+> It's a stricter instance than Home: `projectLayouts.ts`'s
+> `assertProjectLayouts()` proves at build time that no two cards' own
+> footprint ever overlaps another card's — only the decorative giant-type
+> layer (this doc's "one exception is the hero" idiom, reapplied as
+> `.sheet-kg`) may sit under a card. Home's collage carries no equivalent
+> per-plate non-overlap guarantee. Scatter/asymmetry there comes from
+> irregular block sizes and whole-panel rotation (capped at this doc's
+> `--rot-max` 2deg), not from cards overlapping each other.
 
 ---
 

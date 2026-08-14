@@ -4,6 +4,19 @@ Status: exploration, awaiting a decision. Nothing here is wired into the
 app. `certifications.html`, `projects.html`, `contact.html` are standalone
 static pages — open any of them directly off disk, no server needed.
 
+**Status update, same day.** The `/projects` header item (port checklist
+item 2) has been ported, with one deviation from the plan below: `.m-title`
+was dropped (see `Panel.tsx`'s own doc comment on the duplicate-heading
+regression this would repeat), only `.m-meta`'s reasoning survives as
+`.projects-page__lede`. More significantly, this HANDOFF's own premise that
+"the wall/sheet compositions themselves... do NOT change" is **no longer
+true for `/projects` specifically** — Keff separately sanctioned overturning
+`project-sheet.css`'s tiled-only rule for that module, and its composition
+was rebuilt as a scattered layout (`projectLayouts.ts`). See
+`project-sheet.css`'s header comment for the full record.
+`/certifications` and `/contact` (checklist items 1 and 3) are unaffected
+and still pending, under this file's original scope.
+
 ## Overview
 
 Three routed pages (`/certifications`, `/projects`, `/contact`) get the same

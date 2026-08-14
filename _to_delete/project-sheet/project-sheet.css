@@ -1,0 +1,992 @@
+/**
+ * PROJECT DATABASE — panel sheet.
+ * Spec: `claude/projects-module-manga-sheet-2026-08-05.md`.
+ *
+ * Originally: the system's SECOND composition mode. Doc 12's collage (Home)
+ * gets its order from depth: plates stacked, shadowed, rotated, deliberately
+ * overlapping. This got its order from division: panels tiled with a
+ * gutter, never touching, never rotated. Home is a pile of paper; this was a
+ * printed page.
+ *
+ * Colour, in one sentence: the reference sheet's black artboards are
+ * inverted to olive, but the FIELD stays paper (Keff, 2026-08-05), so the
+ * gutter is the paper showing between panels rather than black showing
+ * between tiles.
+ *
+ * THE RULE THAT WILL BITE SOMEONE: oxblood on Field Olive is 1.90:1.
+ * Focus rings inside an olive panel are Paper White (6.79:1). Oxblood
+ * focus rings exist only out on the paper margin — which is the whole
+ * reason the pocket, and the pager it carries, live there.
+ *
+ * Updated 2026-08-12: Keff explicitly sanctioned overturning the "never
+ * touching, never overlapping" decision above for THIS module — the
+ * editorial-index redesign asks for a scattered, asymmetric composition at
+ * 1100px and up, matching doc 12's overlap idiom, and that is no longer a
+ * violation here. What still stands, and is stricter than Home's collage:
+ * cards themselves never overlap each other (`projectLayouts.ts`'s
+ * `assertProjectLayouts` proves it at the data layer) — only the
+ * decorative giant-type layer (`.sheet-title__frag`, `aria-hidden`) may
+ * sit under a card. Panels may now rotate as a whole (previously only the
+ * image mat inside one could), capped at the same `--rot-max` 2deg
+ * cert-wall uses. Below 1100px rotation relaxes; below 768px (not 900px,
+ * the WCAG 1.4.10 floor per docs/05_ACCESSIBILITY.MD, not just a rotation
+ * cutoff) the sheet releases to the single-column stack this file always
+ * used — the "never touching, never rotated" text above is accurate for
+ * that tier only. Layout data moved to `projectLayouts.ts`; the grid-area
+ * rules that used to live in this file's TEMPLATE LADDER section are gone,
+ * replaced by inline `style={{ gridArea, "--rot" }}` per panel.
+ *
+ * Updated 2026-08-13 — circular editorial redesign (`image_01`): the
+ * rectangular image mats (`.sheet-plate`, `.sheet-panel__plates`) are
+ * replaced by three `clip-path`/SVG discs (`.sheet-disc`, DISCS section
+ * below) — a fused circle+rect for the feature, plain circles for spread
+ * and record. `projectLayouts.ts`'s grid-area/rotation ladder is
+ * UNCHANGED: a circle inscribed in a non-overlapping rectangle is itself
+ * non-overlapping, so the existing assertion already covers the new
+ * shapes for free. New this pass: an image-expand overlay for a
+ * no-repo/has-image record (`.sheet-overlay`, `ImageExpandOverlay.tsx`),
+ * and a real `<h2 className="sheet-title">` replacing the old
+ * `.sheet-kg` paragraphs (still decorative fragments + one accessible
+ * string, just a real heading now instead of two `aria-hidden` `<p>`s).
+ */
+
+.project-sheet {
+  /* PANEL SIZE. Keff 2026-08-05: the panels read a little large, so the
+     sheet is capped well below the page width and centred, leaving real
+     paper margin around the whole composition — the reference sheet's tiles
+     occupy roughly three quarters of their field, not all of it.
+     THIS IS THE ONE KNOB: change --sheet-max and every panel, gutter, rail
+     and type size scales with it, because everything inside is expressed in
+     container-query units against this element. */
+  --sheet-max: 1040px;
+  /* Aspect target for the min()-pair sizing below — replaces a plain
+     `aspect-ratio` on the grid, which can only satisfy one axis at a time
+     in a viewport shorter than it is wide (same reasoning cert-wall's own
+     header comment gives for its `--cw-ar`). */
+  --ps-ar: 1.6;
+
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: var(--sheet-max);
+  margin-inline: auto;
+  place-items: center;
+  font-family: var(--font-mono);
+
+  /* Updated 2026-08-12: bounded on BOTH axes now (was `inline-size`), so
+     `.project-sheet__grid` below has a definite height to size against —
+     the no-scroll guarantee comes from that definite size, never from
+     `overflow: hidden` (routes/projects-page.css leaves `.page-content`'s
+     `overflow-y: auto` in place on purpose; e2e/viewport-overflow.spec.ts
+     asserts it). Requires every ancestor from `.page-content` down to carry
+     `min-height: 0` — see projects-page.css. */
+  container-type: size;
+}
+
+.project-sheet__grid {
+  --gutter: 1.05cqw;
+  --rail: 2.4cqw;
+  /* Local to this stacking-context root (this element is `position:
+     relative`, just below), NOT one of `tokens.css`'s global z-bands —
+     the image-expand overlay only ever needs to sit above this module's
+     own panels (`--z-plate-content`, 10). */
+  --z-sheet-overlay: 100;
+
+  container-type: inline-size;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  gap: var(--gutter);
+  width: min(100cqw, calc(100cqh * var(--ps-ar)));
+  height: min(100cqh, calc(100cqw / var(--ps-ar)));
+  padding-left: var(--rail);
+}
+
+/* A ref/inert target ONLY (`ProjectSheet.tsx`'s `useInert`, gating the
+   image-expand overlay). `display: contents` drops this wrapper from the
+   box tree entirely, so pocket/panels/colophon stay DIRECT children of
+   `.project-sheet__grid` for `grid-area` purposes — exactly as if the
+   wrapper weren't there — while still being real DOM children React can
+   attach a ref to and the `inert` attribute can walk into. */
+.project-sheet__panels {
+  display: contents;
+}
+
+/* -------------------------------------------------------------- title
+   `<h2 className="sheet-title">` (`ProjectSheet.tsx`): giant decorative
+   fragments + one real, visually-hidden accessible string — same idiom
+   `ProfilePlate`'s wordmark uses for `profile.mark` + `fullName`. The
+   wrapper is `position: absolute; inset: 0` (not `position: static`) so
+   it is, like the old `.sheet-kg` paragraphs it replaces, exempt from the
+   grid's auto-placement algorithm — an absolutely positioned grid item
+   never consumes an auto-placed cell. */
+.sheet-title {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+  z-index: var(--z-plate-decor);
+}
+
+.sheet-title__frag {
+  position: absolute;
+  margin: 0;
+  font-family: var(--font-serif-display);
+  font-weight: 800;
+  line-height: 0.65;
+  text-transform: uppercase;
+}
+
+.sheet-title__frag--a {
+  inset: auto auto 4% 2%;
+  font-size: clamp(2.5rem, 22cqh, 8rem);
+  color: var(--ink);
+  opacity: 0.08;
+}
+
+.sheet-title__frag--b {
+  inset: 4% 2% auto auto;
+  font-size: clamp(2rem, 18cqh, 6.5rem);
+  color: var(--field-olive-deep);
+  opacity: 0.1;
+}
+
+/* Off-screen-clip technique, scoped here rather than reusing the global
+   `.visually-hidden` utility class — this one needs to become a normal
+   visible heading at 768px (see RESPONSIVE), and overriding a shared
+   global utility from inside one component's media query would be a
+   specificity trap for whoever touches it next. */
+.sheet-title__full {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ rail */
+.project-sheet__rail {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: var(--z-plate-content);
+  width: var(--rail);
+  display: grid;
+  grid-template-rows: repeat(12, 1fr);
+  align-items: center;
+  font-size: clamp(6px, 0.62cqw, 9px);
+  letter-spacing: 0.08em;
+  color: var(--field-olive); /* 5.77:1 on paper */
+  pointer-events: none;
+}
+
+.project-sheet__rail span::after {
+  content: "";
+  display: block;
+  width: 0.7em;
+  height: 1px;
+  margin-top: 0.25em;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* ---------------------------------------------------------------- pocket */
+.project-sheet__pocket {
+  position: relative;
+  z-index: var(--z-plate-content);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  overflow: hidden;
+  border-left: 1px solid var(--field-olive);
+  padding: clamp(6px, 0.9cqw, 16px) 0 clamp(6px, 0.9cqw, 16px) clamp(6px, 0.9cqw, 14px);
+}
+
+/* Counts 1–2 give the pocket a wide, short footprint (a full- or half-width
+   strip) rather than a narrow column — row layout suits that shape better,
+   same call the pre-2026-08-12 T1 template made for the same reason. */
+[data-layout="1"] .project-sheet__pocket,
+[data-layout="2"] .project-sheet__pocket {
+  flex-direction: row;
+  align-items: end;
+  gap: 1.2em;
+  border-left: 0;
+  border-bottom: 1px solid var(--field-olive);
+  padding: 0 0 0.7em;
+}
+
+[data-layout="1"] .project-sheet__row,
+[data-layout="2"] .project-sheet__row {
+  flex: 0 1 auto;
+  gap: 0.7em;
+}
+
+[data-layout="1"] .project-sheet__pager,
+[data-layout="2"] .project-sheet__pager {
+  margin-left: auto;
+}
+
+.project-sheet__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  margin: 0;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.14);
+  padding-bottom: 0.4em;
+  font-size: clamp(6px, 0.64cqw, 9px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray); /* 5.12:1 on paper */
+}
+
+.project-sheet__row b {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.project-sheet__pager {
+  display: flex;
+  gap: 0.4em;
+  margin: 0;
+}
+
+.project-sheet__pager button {
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  padding: 0.25em 0.6em;
+  border: 1px solid var(--field-olive);
+  background: transparent;
+  color: var(--field-olive);
+  font: inherit;
+  font-size: clamp(7px, 0.7cqw, 10px);
+  cursor: pointer;
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+
+.project-sheet__pager button:hover:not(:disabled) {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+/* On paper, so oxblood is legal here — and ONLY here. */
+.project-sheet__pager button:focus-visible {
+  outline: 2px solid var(--oxblood);
+  outline-offset: 2px;
+}
+
+.project-sheet__pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ================================================================== PANEL
+   Print, not UI. No hover, no lift — rotation only, from `--rot` (an
+   inline custom property from `projectLayouts.ts`, capped at ROT_MAX
+   2deg — see project-sheet.css's header comment for the 2026-08-12
+   reversal that allows this). */
+.sheet-panel {
+  position: relative;
+  z-index: var(--z-plate-content);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: clamp(10px, 1.5cqw, 26px);
+  color: var(--paper-white);
+  transform: rotate(var(--rot, 0deg));
+}
+
+/* The two olive tones are near-identical on purpose (1.14:1): the seam
+   should read as registration drift between print passes, not as two
+   different colours. Pulling them apart to "improve contrast" would
+   destroy the effect and improve nothing — no text is set in one on the
+   other. */
+.sheet-panel--record {
+  background: var(--field-olive);
+} /* Paper White type: 6.79:1 */
+
+.sheet-panel--feature,
+.sheet-panel--colophon {
+  background: var(--field-olive-deep);
+} /* Paper White type: 7.74:1 */
+
+.sheet-panel--spread {
+  background: var(--paper-white);
+  color: var(--ink); /* 17.45:1 */
+}
+
+.sheet-panel__tick {
+  flex: 0 0 auto;
+  font-size: clamp(7px, 0.68cqw, 10px);
+  letter-spacing: 0.1em;
+  opacity: 0.62;
+}
+
+.sheet-panel--spread .sheet-panel__tick {
+  color: var(--gray);
+  opacity: 1;
+}
+
+.sheet-panel__rail {
+  display: flex;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: clamp(5.5px, 0.58cqw, 8px);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* ------------------------------------------------------------- typography */
+.sheet-panel__display {
+  margin: 0.42em 0 0;
+  font-family: var(--font-mono);
+  font-size: clamp(22px, 4.5cqw, 58px);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.sheet-panel__title {
+  margin: 0.5em 0 0.4em;
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 1.85cqw, 26px);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.sheet-panel__sub {
+  margin: 0.9em 0 0;
+  font-size: clamp(6.5px, 0.72cqw, 11px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.sheet-panel__note {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(6.5px, 0.7cqw, 10px);
+  line-height: 1.55;
+}
+
+.sheet-panel--spread .sheet-panel__note {
+  color: var(--gray);
+}
+
+/* The reference sheet's jammed label blocks, inverted: Paper White fill
+   carrying olive type. The staggered indents do more work than any
+   rotation would — they are what makes the stack read as hand-set. */
+.sheet-panel__blocks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.26em;
+  margin: auto 0 0;
+}
+
+.sheet-panel__blk {
+  max-width: 100%;
+  padding: 0.28em 0.5em;
+  background: var(--paper-white);
+  color: var(--field-olive); /* 6.79:1 */
+  font-size: clamp(6px, 0.66cqw, 10px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-panel--colophon .sheet-panel__blk {
+  color: var(--field-olive-deep); /* 7.74:1 */
+}
+
+.sheet-panel__blk:nth-child(2) {
+  margin-left: 7%;
+}
+.sheet-panel__blk:nth-child(3) {
+  margin-left: 2.5%;
+}
+.sheet-panel__blk:nth-child(4) {
+  margin-left: 11%;
+}
+
+/* ------------------------------------------------------------------ chips */
+.sheet-panel__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin: 0.9em 0 0;
+}
+
+.sheet-panel__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--hit-min);
+  padding: 0.3em 0.65em;
+  background: var(--paper-white);
+  color: var(--field-olive);
+  font-size: clamp(6px, 0.62cqw, 9px);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+
+.sheet-panel--colophon .sheet-panel__chip,
+.sheet-panel--feature .sheet-panel__chip {
+  color: var(--field-olive-deep);
+}
+
+/* `.sheet-panel__chip` styled an `<a>` only until now. The expand button
+   (`ActionRow`, `SheetPanels.tsx`) reuses the same class for its look —
+   the record panel's existing chip color/background/focus-ring rules
+   already apply unmodified — but a `<button>` needs its UA-agent border
+   and background reset for that look to actually show through. */
+.sheet-panel__expand {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sheet-panel__chip:hover {
+  background: #fff;
+}
+
+/* Inside an olive panel the ring MUST be Paper White. Oxblood here is
+   1.90:1 — an invisible focus indicator, which is a failure of SC 2.4.7
+   dressed up as a colour choice. */
+.sheet-panel__chip:focus-visible {
+  outline: 2px solid var(--paper-white);
+  outline-offset: 2px;
+}
+
+/* The spread is Paper White stock, so it inverts — and oxblood becomes
+   legal again, because it is no longer touching olive. */
+.sheet-panel--spread .sheet-panel__chip {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+.sheet-panel--spread .sheet-panel__chip:hover {
+  background: var(--field-olive-deep);
+}
+
+.sheet-panel--spread .sheet-panel__chip:focus-visible {
+  outline: 2px solid var(--oxblood);
+}
+
+/* ================================================================ DISCS
+   The three circular/fused shapes the editorial reference (`image_01`)
+   asks for. Clipped here, on this inner element — never on `.sheet-panel`,
+   which already owns the sheet-wipe entrance `clip-path` and its
+   `prefers-reduced-motion` reset (see MOTION, below); a second static
+   clip-path on that same element would collide with both.
+
+   Box-shadow is dropped on every disc variant (`.sheet-plate` used to
+   carry `var(--plate-shadow)`): a shadow doesn't render outside a
+   clip-path, and cards never overlap each other, so there is no "what's
+   on top" cue a shadow would need to signal here. */
+.sheet-disc {
+  position: relative;
+  aspect-ratio: 1;
+  margin: 4% auto;
+  overflow: hidden;
+  /* No local `rotate()` here on purpose: the disc rotates WITH the panel,
+     as part of the same rigid `transform: rotate(var(--rot))` on
+     `.sheet-panel` — the whole-panel-rotates-as-one behaviour the
+     2026-08-12 redesign introduced. A circle rotating is visually a
+     no-op; the fused shape's flat edge and seam are what actually show
+     it (see RESPONSIVE below). */
+}
+
+.sheet-disc > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The dither IS the image (docs/13_ASSET_SPEC.md, tools/halftone.py):
+     these are 1-bit halftone plates, and smooth-scaling one turns the dot
+     screen to grey mush. Same reasoning as the Home plate stack. */
+  image-rendering: pixelated;
+}
+
+/* `closest-side`, not `circle(50%)` — a percentage radius on `circle()`
+   resolves against a value derived from the box's diagonal, not its
+   shorter side, and overflows a non-square box. `aspect-ratio: 1` above
+   plus `closest-side` here is what guarantees a true circle regardless of
+   the panel's own (rectangular) grid-area proportions. */
+.sheet-disc--circle-md,
+.sheet-disc--circle-sm {
+  clip-path: circle(closest-side at 50% 50%);
+}
+
+/* `clip-path` has no union of `polygon()` + `circle()` in one declaration,
+   so the fused shape is a real SVG path instead — see
+   `SheetShapeDefs.tsx`, whose header comment documents exactly why this
+   element's `aspect-ratio` (1.08) is coupled to that path's coordinates
+   and must be tuned together with it. */
+.sheet-disc--fused {
+  aspect-ratio: 1.08;
+  clip-path: url(#ps-fused);
+}
+
+/* The thin registration seam from the reference image — NOT part of the
+   clip, so it is never clipped away with the shape. Positioned at 58%,
+   matching `SheetShapeDefs.tsx`'s path where the flat edge ends and the
+   arc begins; move both together. */
+.sheet-disc--fused::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 58%;
+  width: 1px;
+  background: currentColor;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* The hook a future no-repo/no-image project lands on (spec section 9) —
+   dormant today, no current record exercises it. A subtle,
+   `[data-motion]`-gated animation belongs on this one selector when a
+   real project needs it; no component change required then. */
+.sheet-disc--empty {
+  clip-path: circle(closest-side at 50% 50%);
+  background: repeating-linear-gradient(135deg, currentColor 0 1px, transparent 1px 10px);
+  opacity: 0.25;
+}
+
+/* ---------------------------------------------------------- feature stage */
+.sheet-panel__stage {
+  position: relative;
+  flex: 1 1 auto;
+  margin: 4% 0;
+}
+
+.sheet-panel__stage-caption {
+  margin: 0.6em 0 0;
+  font-size: clamp(5.5px, 0.56cqw, 8px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-white);
+  opacity: 0.72;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Outlined registration circles — authored positions, never randomised.
+   A page that is different every visit reads as broken, not as handmade. */
+/* Drawn as SVG circles rather than round-cornered boxes. tokens.css
+   zeroes border-radius globally with !important, and that law is worth more
+   than the convenience of an override — an <svg><circle> is a shape, not a
+   rounded card, so nothing has to be won back. */
+.sheet-panel__marks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.sheet-panel__marks circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9;
+  opacity: 0.42;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ----------------------------------------------------------------- spread */
+.sheet-panel--spread {
+  display: grid;
+  grid-template-columns: 40% 1fr;
+  gap: 3%;
+  align-items: center;
+}
+
+.sheet-panel__body {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 4%;
+  align-items: start;
+}
+
+/* Real text, rotated by writing-mode — never an image, never a transform
+   on a text node. It stays selectable, searchable, and is read normally by
+   assistive tech. */
+.sheet-panel__vertical {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-family: var(--font-mono);
+  font-size: clamp(15px, 2.3cqw, 32px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.sheet-panel__column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+}
+
+.sheet-panel__vmeta {
+  margin: 0;
+  writing-mode: vertical-rl;
+  font-size: clamp(5.5px, 0.58cqw, 8px);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+/* ================================================================ DENSITY
+   The cap rung (5 cards) packs the grid tighter — same adjustment the old
+   template ladder made for its T4 rung, ported forward. Grid-area values
+   themselves now live in `projectLayouts.ts`, not here. */
+[data-layout="5"] .project-sheet__grid {
+  --gutter: 0.85cqw;
+}
+
+/* The 3-record rung (the reference distribution — see `projectLayouts.ts`)
+   is where the medium (spread) and small (record) circles sit adjacent.
+   `assertProjectLayouts()` and the a11y "no card obscures another" rule
+   together rule out true edge overlap, so this only TIGHTENS the gap —
+   reading as near-touching, matching the reference's descending staircase,
+   not literal tangency. That ceiling is intentional. */
+[data-layout="3"] .project-sheet__grid {
+  --gutter: 0.9cqw;
+}
+
+/* ============================================================== EMPTY STATE
+   Never a blank grid. A sheet with nothing on it still has to be a sheet.
+   Sizes to its content instead of the bounded min()-pair the populated
+   sheet uses — there is no aspect-ratio worth enforcing on one card. */
+.project-sheet--empty {
+  container-type: normal;
+}
+
+.project-sheet--empty .project-sheet__grid {
+  display: block;
+  width: auto;
+  height: auto;
+  padding-left: 0;
+}
+
+.project-sheet--empty .sheet-panel--record {
+  grid-area: auto;
+  min-height: 160px;
+}
+
+/* ============================================================== OVERLAY
+   Image-expand for a record with no repo (`ImageExpandOverlay.tsx`) — the
+   brief's "no public GitHub repository" interaction. Absolutely positioned
+   within `.project-sheet__grid`, already its own stacking-context root, so
+   `--z-sheet-overlay` above is purely local. `role="dialog"` WITHOUT
+   `aria-modal` — actual modal-ness is `useInert` on `.project-sheet__panels`,
+   not this element; see the component's own header comment. */
+.sheet-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-sheet-overlay);
+  display: grid;
+  place-items: center;
+}
+
+.sheet-overlay__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.82);
+}
+
+.sheet-overlay__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: min(88%, 720px);
+  max-height: 88%;
+  padding: var(--space-lg);
+  background: var(--paper-white);
+  color: var(--ink);
+}
+
+.sheet-overlay__close {
+  align-self: flex-end;
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--field-olive);
+  background: transparent;
+  color: var(--field-olive);
+  font: inherit;
+  font-size: clamp(7px, 0.8vw, 11px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+
+.sheet-overlay__close:hover {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+/* On Paper White stock, so oxblood is legal — same reasoning
+   `.sheet-panel--spread .sheet-panel__chip:focus-visible` already relies
+   on for the same background. */
+.sheet-overlay__close:focus-visible {
+  outline: 2px solid var(--oxblood);
+  outline-offset: 2px;
+}
+
+.sheet-overlay__title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(16px, 2vw, 24px);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.sheet-overlay__img {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+@keyframes sheet-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sheet-overlay[data-motion="full"] {
+  animation: sheet-overlay-in var(--dur-micro) var(--ease-hard) both;
+}
+
+/* Omission, not override — same belt-and-braces reasoning as the sheet
+   wipe's own reduced-motion rule below. */
+@media (prefers-reduced-motion: reduce) {
+  .sheet-overlay {
+    animation: none !important;
+  }
+}
+
+/* ================================================================== MOTION
+   Hard-edged clip wipes only (docs/07_ANIMATION_GUIDELINES.md): no curl,
+   no spring, no overshoot. The wipe runs right -> left, matching the
+   forward turn. Staggered in DOM order so the sheet assembles in reading
+   order rather than all at once. */
+@keyframes sheet-wipe {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+[data-motion="full"] .sheet-panel {
+  animation: sheet-wipe var(--dur-turn) var(--ease-hard) both;
+}
+
+[data-motion="full"] .sheet-panel--feature {
+  animation-delay: 0ms;
+}
+[data-motion="full"] .sheet-panel--record[data-record="1"] {
+  animation-delay: 45ms;
+}
+[data-motion="full"] .sheet-panel--record[data-record="2"] {
+  animation-delay: 90ms;
+}
+[data-motion="full"] .sheet-panel--record[data-record="3"] {
+  animation-delay: 135ms;
+}
+[data-motion="full"] .sheet-panel--spread {
+  animation-delay: 180ms;
+}
+[data-motion="full"] .sheet-panel--colophon {
+  animation-delay: 225ms;
+}
+
+/* `data-motion="reduced"` simply never adds the animation — an omission,
+   not an override, so no half-animated state is reachable. The
+   prefers-reduced-motion query below is the belt to that hook's braces,
+   for the frame before React reads the media query. */
+@media (prefers-reduced-motion: reduce) {
+  .sheet-panel {
+    animation: none !important;
+    clip-path: none !important;
+  }
+}
+
+/* ============================================================== RESPONSIVE */
+
+/* Rotation relaxes on the panel (and, since the disc rotates with it as
+   one rigid unit, on the disc too); the decorative marks and giant-type
+   fragments shrink. Overlap turns into occlusion as things narrow, so
+   what can be lost is lost early — chrome sheds, cards stay full size and
+   legible. Still no scroll at this tier.
+
+   Note: `rotate()` on a plain circle is visually a no-op — the surviving,
+   visible effect of this relax is confined to the fused shape's flat edge
+   + seam angle (`.sheet-disc--fused`), and to the panel copy around it.
+   The plumbing still applies uniformly (and is still asserted by
+   `projectLayouts.test.ts`); it just has nothing to show on the two plain
+   circles. */
+@media (max-width: 1100px) {
+  .sheet-panel {
+    transform: rotate(calc(var(--rot, 0deg) * 0.55));
+  }
+  .sheet-panel__marks {
+    display: none;
+  }
+  .sheet-title__frag--a {
+    font-size: clamp(2rem, 16cqh, 5rem);
+  }
+  .sheet-title__frag--b {
+    font-size: clamp(1.6rem, 13cqh, 4rem);
+  }
+}
+
+/* Below 768px (the WCAG 1.4.10 reflow floor, not just a rotation cutoff —
+   docs/05_ACCESSIBILITY.MD) the sheet stops being a sheet: single column,
+   no rotation, no giant-type layer, and the page scrolls. Permitted, and
+   always was — docs/03_UX_ARCHITECTURE.MD, "the shell never scrolls,
+   content is always free to". WCAG 1.4.10 reflow beats the composition
+   here, per MASTER_AGENT.md's conflict order.
+
+   `.project-sheet` drops its `container-type: size` here on purpose: size
+   containment requires an explicit height, and this tier's whole point is
+   to let the sheet grow to its natural (stacked) content height instead —
+   leaving `size` on would collapse it to 0. */
+@media (max-width: 768px) {
+  .project-sheet {
+    display: block;
+    max-width: none;
+    container-type: inline-size;
+  }
+
+  .project-sheet__grid {
+    /* Reverts to a non-container below 768px: the two-tier container split
+       (this element sizing itself off `.project-sheet` via cqw/cqh, then
+       becoming its OWN container for descendants) only exists to solve
+       "a container can't query itself" for the >=768px bounded-size case.
+       In stacked mode nothing here is sized via cqw/cqh anymore, so cqw
+       inside `.sheet-panel__*` (font-size clamps, etc.) resolves against
+       `.project-sheet` instead — same single-container arrangement this
+       file used before the 2026-08-12 redesign. */
+    container-type: normal;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    width: auto;
+    height: auto;
+    padding-left: 0;
+  }
+
+  /* Flip which half of the title is visible, rather than hiding the whole
+     `<h2>` the way `.sheet-kg` used to — the accessible name must not
+     depend on viewport width. Fragments (decorative, aria-hidden) shed;
+     the visually-hidden full string becomes a normal, static, visible
+     heading at the top of the stack instead. */
+  .sheet-title {
+    position: static;
+    margin: 0 0 var(--space-sm);
+    /* Re-enabled: at every wider tier this is a decorative overlay behind
+       real cards and rightly ignores the pointer, but here it's the only
+       visible heading text on the page and should stay selectable. */
+    pointer-events: auto;
+  }
+
+  .sheet-title__frag {
+    display: none;
+  }
+
+  .sheet-title__full {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
+    display: block;
+    font-family: var(--font-mono);
+    font-size: clamp(20px, 7vw, 28px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .project-sheet__rail {
+    display: none;
+  }
+
+  .project-sheet__pocket {
+    border-left: 0;
+    border-bottom: 1px solid var(--field-olive);
+    padding: 0 0 var(--space-sm);
+  }
+
+  .sheet-panel {
+    gap: var(--space-sm);
+    transform: none;
+    /* Stacked panels must not be squeezed by an ancestor's height. A flex
+       item shrinks by default, and `overflow: hidden` turns that squeeze
+       into silently clipped copy rather than a visible overflow. */
+    flex: 0 0 auto;
+  }
+
+  .sheet-panel__blocks {
+    margin-top: 0;
+  }
+
+  /* Circle shape stays — it reads fine as a small figure at this size and
+     avoids adding a third visual mode (rectangular-on-mobile) on top of
+     "fused at desktop, plain circle at desktop" already in play. Only the
+     size shrinks, capped rather than filling the stacked column's width. */
+  .sheet-disc {
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  .sheet-panel__stage {
+    margin: var(--space-sm) 0;
+  }
+
+  .sheet-panel--spread {
+    display: block;
+  }
+
+  .sheet-panel__body {
+    display: block;
+  }
+
+  .sheet-panel__vertical {
+    writing-mode: horizontal-tb;
+    font-size: clamp(20px, 7vw, 30px);
+  }
+
+  .sheet-panel__vmeta {
+    writing-mode: horizontal-tb;
+    margin-top: var(--space-sm);
+  }
+}

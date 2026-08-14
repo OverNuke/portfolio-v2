@@ -105,29 +105,17 @@ export function GhostKanji() {
   );
 }
 
-export function SheetChrome({ serial }: { serial: string }) {
+/**
+ * Decorative stand-in for the masthead this sheet no longer renders. Real
+ * text set with `writing-mode`, never a transform on a text node — same
+ * pattern as `project-field.css`'s `.pf__mark`. `aria-hidden` regardless,
+ * since `PageLayer`'s own `<h1>` already says "Certifications" and this is
+ * the same string as ornament.
+ */
+export function GhostTitleMark() {
   return (
-    <div className="cert-wall__chrome" aria-hidden="true">
-      <div className="cert-wall__barcode">
-        {Array.from({ length: 22 }, (_, i) => (
-          <i key={i} />
-        ))}
-      </div>
-      <div className="cert-wall__serial">{serial}</div>
-    </div>
-  );
-}
-
-/** Exactly one per sheet — two reads as a gimmick (doc 12). */
-export function AnnotationScrap({ area, text }: { area: string; text: string }) {
-  return (
-    <aside
-      className="cert-wall__scrap"
-      aria-hidden="true"
-      style={{ gridArea: area, "--cw-rot": "1.8deg" } as React.CSSProperties}
-    >
-      <p>{text}</p>
-      <small>ANNOTATION · 01 OF 01</small>
-    </aside>
+    <p className="cert-wall__ghost-title" aria-hidden="true" data-texture="true">
+      Certificate archive
+    </p>
   );
 }

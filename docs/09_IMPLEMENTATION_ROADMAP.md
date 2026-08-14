@@ -51,6 +51,15 @@ module readout pattern from `src/shell/wheel/wheel.css`). Mock up in
 three-directions convention — nothing in `src/` changes until a direction
 is picked.
 
+_(Updated 2026-08-12: `/projects` went beyond the page-frame-only scope
+this phase describes above. Keff sanctioned overturning
+`project-sheet.css`'s "never touch, never rotate, never overlap" rule for
+this module specifically — the composition itself was rebuilt as a
+scattered, asymmetric layout (`projectLayouts.ts`), not just given a new
+header. See `project-sheet.css`'s own header comment for the full record.
+`/certifications` and `/contact` are unaffected and still follow this
+phase's original page-frame-only scope.)_
+
 ---
 
 ## Phase 4

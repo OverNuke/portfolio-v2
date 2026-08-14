@@ -4,10 +4,7 @@ import { CertWall } from "../components/cert-wall/CertWall";
 import { useCertMode } from "../components/cert-wall/useCertMode";
 import { Panel } from "../components/panel/Panel";
 import { CERTIFICATES } from "../content/data";
-import { ROUTES } from "./routes";
 import "./certifications-page.css";
-
-const route = ROUTES.find((r) => r.pageId === "certifications")!;
 
 /** react-router's `Link` takes `to`; CertWall's pager passes `href`. */
 function RouterPagerLink({ href, ...rest }: { href: string } & Record<string, unknown>) {
@@ -33,7 +30,6 @@ export function CertificationsPage() {
   return (
     <div className="certifications" data-mode={mode}>
       <Panel
-        metadata={<span>{route.sub}</span>}
         content={
           mode === "ledger" ? (
             <CertLedger certificates={CERTIFICATES} />
@@ -43,7 +39,6 @@ export function CertificationsPage() {
               sheet={mode === "wall-portrait" ? "portrait" : "landscape"}
               page={current}
               LinkComponent={RouterPagerLink}
-              serial={`SER. CRT—${String(CERTIFICATES.length).padStart(4, "0")}—MX`}
             />
           )
         }
