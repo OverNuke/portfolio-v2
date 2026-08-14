@@ -6,8 +6,6 @@ import {
   SiPython,
 } from "@icons-pack/react-simple-icons";
 
-import { FaJava } from "react-icons/fa6";
-
 import barbershopUserImg from "../assets/plates/projects/barbershop/user.png";
 import acopiatechMainImg from "../assets/plates/projects/acopiatech/main.png";
 import acopiatechPickupImg from "../assets/plates/projects/acopiatech/pickup.png";
@@ -218,7 +216,7 @@ export const CERTIFICATES: Certificate[] = [
 export const SKILLS: Skill[] = [
   { name: "Python", category: "language", icon: SiPython, core: true },
   { name: "JavaScript", category: "language", icon: SiJavascript, core: true },
-  { name: "Java", category: "language", icon: FaJava, core: true },
+  { name: "Java", category: "language", core: true }, // Add a SVG JAVA
   { name: "MySQL", category: "language", icon: SiMysql, core: true },
   { name: "Node.js", category: "framework", icon: SiNodedotjs, core: true },
   { name: "Git", category: "tool", icon: SiGit, core: true },
