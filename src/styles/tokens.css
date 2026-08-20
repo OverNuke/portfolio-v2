@@ -114,6 +114,12 @@
   --dur-micro: 90ms;
   --dur-cut: 140ms;
   --dur-turn: 200ms;
+  /* Scoped exception for the certificates bento redesign (2026-08-17): a
+     softer curve for tile hover-lift and the scan-viewer modal's rise, the
+     one place in the system that departs from doc 07's "hard cut" default.
+     Matches NameRevealIntro.tsx's unexported SOFT_CUT constant. */
+  --dur-soft: 320ms;
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* ---- Plate ------------------------------------------------------- */
   --plate-border: 2px;

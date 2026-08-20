@@ -4,7 +4,7 @@
  * Two ladders, because the module must never scroll at 768px and up (Keff,
  * 2026-08-06) and a landscape sheet cannot fill a tablet held in portrait:
  *
- *   W1–W9  landscape sheet, `--cw-ar` 8/5   — desktop and tablet landscape
+ *   W1–W6  landscape sheet, `--cw-ar` 12/7  — desktop and tablet landscape
  *   P1–P6  portrait sheet,  `--cw-ar` 4/5   — tablet portrait
  *
  * Below 768px neither applies: the wall hands over to the ledger, which is
@@ -28,33 +28,78 @@
  * > cornered vocabulary unchanged; this is a single-module deviation, not a
  * > system-wide reversal.
  *
+ * > Updated 2026-08-17. Bento redesign of the LANDSCAPE ladder only (desktop
+ * > wide/tall-box regime), re-skinning `CertWall` to a Claude-Design bento
+ * > mockup (`design_handoff_certificates_bento`) while keeping this module's
+ * > count-keyed, data-driven architecture:
+ * >   - `WALL_LANDSCAPE` drops the `visual`/`micro` scan-thumbnail split —
+ * >     the redesign is text-only on the grid, scans live only in the new
+ * >     `CertScanModal`. Slots now carry `tone`/`anatomy` (the bento tile's
+ * >     visual family) instead, and `wantsHero` replaces `wants: Orientation`
+ * >     as the matching axis, since there's no scan shape to match against
+ * >     anymore.
+ * >   - `PER_SHEET_LANDSCAPE` drops from 9 to 6 (a 3-row bento rhythm, not
+ * >     the old 12×12 dense grid) — today's 9 certificates now page 6+3
+ * >     instead of fitting on one sheet. Intentional: this is literally the
+ * >     "paged bento" design the handoff names itself after.
+ * >   - `WALL_PORTRAIT` is UNCHANGED — still `visual`/`micro`, still
+ * >     orientation-matched, still capped at 6. The mockup is desktop/
+ * >     landscape-only; the portrait (tablet) ladder keeps its scan
+ * >     thumbnails and inherits only the shared tile CSS refresh.
+ * >   - The 8px radius allowlist in `cert-wall.css` is reversed for the
+ * >     landscape bento tiles specifically (square corners, full mockup
+ * >     fidelity) but left in place for `WALL_PORTRAIT` and `CertLedger`,
+ * >     which are out of scope for this pass.
+ *
  * Each layout is a flat "bento" composition instead of a rotated pile,
  * spanning the full 12×12 canvas — no reserved masthead band, no derived-
- * stats card, every cell carries a certificate. Slots are discriminated by
- * `kind`:
+ * stats card, every cell carries a certificate. `WALL_PORTRAIT` slots are
+ * discriminated by `kind`:
  *   - `visual` — carries a certificate's scan (`CertScan` + caption)
  *   - `micro`  — carries a certificate's data only, no scan
+ * `WALL_LANDSCAPE` slots are discriminated by `anatomy` instead (see below)
+ * and always render text-only, regardless of whether the record has a scan.
  *
  * `count` (the ladder key) equals the total slot count — every slot is
  * record-bearing, so it is exactly `perSheet`'s pagination unit.
  *
- * Each `visual` slot declares the orientation it WANTS. Keff's certificates
- * are three portrait A4s and two landscape, so slots are not interchangeable
- * — the same principle as `Project.sheetSlot`. `assignSlots` matches records
- * to slots by scan orientation so a portrait certificate never lands in a
- * cell shaped for a landscape scan. `micro` slots carry no scan, so they
- * have no orientation preference and simply take whatever record is left.
+ * `WALL_PORTRAIT`'s `visual` slots declare the orientation they WANT (Keff's
+ * certificates are three portrait A4s and two landscape, so slots are not
+ * interchangeable — the same principle as `Project.sheetSlot`). `assignSlots`
+ * matches records to slots by scan orientation there, and by the `hero` flag
+ * for `WALL_LANDSCAPE`'s `wantsHero` slots — never both on the same slot.
  */
 
 export type Orientation = "portrait" | "landscape";
 export type SlotKind = "visual" | "micro";
 
+/** The three bento tile fills — `WALL_LANDSCAPE` only. Mapped to real tokens
+ * in `cert-wall.css` (never the mockup's own placeholder hex values):
+ * light -> --paper-white bg / --ink text, dark -> --ink bg / --ink-inverse
+ * text, mid -> --field-olive bg / --paper-white text (Ink on Field Olive is
+ * 2.57:1 and banned, so "mid" can never carry dark-toned text). */
+export type TileTone = "light" | "mid" | "dark";
+
+/** The three bento tile shapes — `WALL_LANDSCAPE` only, per the handoff's
+ * "tile anatomy" section. `standard` is the default when omitted. */
+export type TileAnatomy = "standard" | "lead" | "baseline";
+
 export interface CertSlot {
   /** `row-start / col-start / row-end / col-end` on the 12×12 grid. */
   area: string;
-  kind: SlotKind;
-  /** Only meaningful for `kind: "visual"`. Ignored for `micro`. */
+  /** `WALL_PORTRAIT` only — which scan-bearing shell to render. Ignored by
+   * `WALL_LANDSCAPE`, whose tiles are always text-only. */
+  kind?: SlotKind;
+  /** `WALL_PORTRAIT` only. Ignored by `WALL_LANDSCAPE`. */
   wants?: Orientation;
+  /** `WALL_LANDSCAPE` only. */
+  tone?: TileTone;
+  /** `WALL_LANDSCAPE` only. Defaults to `"standard"` when omitted. */
+  anatomy?: TileAnatomy;
+  /** `WALL_LANDSCAPE` only — at most one `true` per rung (enforced by
+   * `assertCertLayouts`). Claims the first unused `hero`-flagged record,
+   * falling back to positional order when no hero is present on this page. */
+  wantsHero?: boolean;
 }
 
 export interface CertLayout {
@@ -64,101 +109,68 @@ export interface CertLayout {
 }
 
 /** Sheet capacity, record-bearing slots only. Past this the page turns. */
-export const PER_SHEET_LANDSCAPE = 9;
+export const PER_SHEET_LANDSCAPE = 6;
 export const PER_SHEET_PORTRAIT = 6;
 
 /**
- * Landscape ladder — the full 12×12 canvas is content; there is no reserved
- * masthead band and no derived-stats accent slot (2026-08-14: both were
- * chrome, not certificates — `PageLayer`'s own `<h1>` and "BACK / ESC"
- * control already cover what the masthead said, and the pager dots already
- * convey sheet position). Low counts read as a wide hero; high counts read
- * as a dense bento grid. `visual` slots want `landscape` uniformly — a
- * quarter cell's aspect (~1.2 at `--cw-ar` 1.6) sits close to the landscape
- * target, and `object-fit: contain` letterboxes a portrait scan gracefully
- * rather than cropping it.
+ * Landscape ladder — bento redesign (2026-08-17). Row-bands approximate the
+ * mockup's `1fr 1fr 1.22fr` 3-row grid as three 4-row bands over the shared
+ * 12-row canvas (rows 1–5 / 5–9 / 9–13) — the coarser integer grid can't
+ * reproduce the `1.22fr` taller third row exactly, and exact reproduction
+ * isn't architecturally significant (flagged for visual sign-off, not a
+ * blocking concern). One dominant `lead` cell scales down as record count
+ * rises; tone counts stay as close to even as the count allows.
  */
 export const WALL_LANDSCAPE: Record<number, CertLayout> = {
   1: {
-    slots: [{ area: "1 / 1 / 13 / 13", kind: "visual", wants: "landscape" }],
+    slots: [
+      { area: "1 / 1 / 13 / 13", tone: "light", anatomy: "lead", wantsHero: true },
+    ],
   },
   2: {
     slots: [
-      { area: "1 / 1 / 13 / 8", kind: "visual", wants: "landscape" },
-      { area: "1 / 8 / 13 / 13", kind: "visual", wants: "landscape" },
+      { area: "1 / 1 / 13 / 8", tone: "light", anatomy: "lead", wantsHero: true },
+      { area: "1 / 8 / 13 / 13", tone: "dark", anatomy: "standard" },
     ],
   },
   3: {
+    // Shape of the mockup's page 2 — the codebase's own record order (not
+    // the mockup's hand-curated one) decides which three certificates land
+    // here whenever a page's remainder is exactly 3.
     slots: [
-      { area: "1 / 1 / 13 / 8", kind: "visual", wants: "landscape" },
-      { area: "1 / 8 / 7 / 13", kind: "visual", wants: "landscape" },
-      { area: "7 / 8 / 13 / 13", kind: "micro" },
+      { area: "1 / 1 / 13 / 6", tone: "light", anatomy: "lead", wantsHero: true },
+      { area: "1 / 6 / 9 / 13", tone: "dark", anatomy: "lead" },
+      { area: "9 / 6 / 13 / 13", tone: "mid", anatomy: "baseline" },
     ],
   },
   4: {
     slots: [
-      { area: "1 / 1 / 8 / 7", kind: "visual", wants: "landscape" },
-      { area: "1 / 7 / 8 / 13", kind: "visual", wants: "landscape" },
-      { area: "8 / 1 / 13 / 7", kind: "micro" },
-      { area: "8 / 7 / 13 / 13", kind: "micro" },
+      { area: "1 / 1 / 8 / 7", tone: "light", anatomy: "lead", wantsHero: true },
+      { area: "1 / 7 / 8 / 13", tone: "mid", anatomy: "standard" },
+      { area: "8 / 1 / 13 / 7", tone: "dark", anatomy: "standard" },
+      { area: "8 / 7 / 13 / 13", tone: "light", anatomy: "standard" },
     ],
   },
   5: {
     slots: [
-      { area: "1 / 1 / 8 / 5", kind: "visual", wants: "landscape" },
-      { area: "1 / 5 / 8 / 9", kind: "visual", wants: "landscape" },
-      { area: "1 / 9 / 8 / 13", kind: "visual", wants: "landscape" },
-      { area: "8 / 1 / 13 / 7", kind: "micro" },
-      { area: "8 / 7 / 13 / 13", kind: "micro" },
+      { area: "1 / 1 / 13 / 6", tone: "light", anatomy: "lead", wantsHero: true },
+      { area: "1 / 6 / 5 / 13", tone: "mid", anatomy: "standard" },
+      { area: "5 / 6 / 13 / 9", tone: "dark", anatomy: "standard" },
+      { area: "5 / 9 / 9 / 13", tone: "light", anatomy: "standard" },
+      { area: "9 / 9 / 13 / 13", tone: "mid", anatomy: "standard" },
     ],
   },
   6: {
+    // Shape of the mockup's page 1 — tone balance 2 light / 2 mid / 2 dark,
+    // matching the handoff's own table.
     slots: [
-      { area: "1 / 1 / 8 / 5", kind: "visual", wants: "landscape" },
-      { area: "1 / 5 / 8 / 9", kind: "visual", wants: "landscape" },
-      { area: "1 / 9 / 8 / 13", kind: "visual", wants: "landscape" },
-      { area: "8 / 1 / 13 / 5", kind: "micro" },
-      { area: "8 / 5 / 13 / 9", kind: "micro" },
-      { area: "8 / 9 / 13 / 13", kind: "micro" },
+      { area: "1 / 1 / 9 / 8", tone: "light", anatomy: "lead", wantsHero: true },
+      { area: "1 / 8 / 5 / 13", tone: "mid", anatomy: "standard" },
+      { area: "5 / 8 / 9 / 13", tone: "dark", anatomy: "standard" },
+      { area: "9 / 1 / 13 / 5", tone: "dark", anatomy: "standard" },
+      { area: "9 / 5 / 13 / 9", tone: "light", anatomy: "standard" },
+      { area: "9 / 9 / 13 / 13", tone: "mid", anatomy: "standard" },
     ],
-  },
-  7: {
-    slots: [
-      { area: "1 / 1 / 7 / 7", kind: "visual", wants: "landscape" },
-      { area: "1 / 7 / 7 / 13", kind: "visual", wants: "landscape" },
-      { area: "7 / 1 / 10 / 5", kind: "micro" },
-      { area: "7 / 5 / 10 / 9", kind: "micro" },
-      { area: "7 / 9 / 10 / 13", kind: "micro" },
-      { area: "10 / 1 / 13 / 7", kind: "micro" },
-      { area: "10 / 7 / 13 / 13", kind: "micro" },
-    ],
-  },
-  8: {
-    slots: [
-      { area: "1 / 1 / 8 / 4", kind: "visual", wants: "landscape" },
-      { area: "1 / 4 / 8 / 7", kind: "visual", wants: "landscape" },
-      { area: "1 / 7 / 8 / 10", kind: "visual", wants: "landscape" },
-      { area: "1 / 10 / 8 / 13", kind: "visual", wants: "landscape" },
-      { area: "8 / 1 / 13 / 4", kind: "micro" },
-      { area: "8 / 4 / 13 / 7", kind: "micro" },
-      { area: "8 / 7 / 13 / 10", kind: "micro" },
-      { area: "8 / 10 / 13 / 13", kind: "micro" },
-    ],
-    gutter: ".85cqw",
-  },
-  9: {
-    slots: [
-      { area: "1 / 1 / 6 / 7", kind: "visual", wants: "landscape" },
-      { area: "1 / 7 / 6 / 13", kind: "visual", wants: "landscape" },
-      { area: "6 / 1 / 9 / 5", kind: "visual", wants: "landscape" },
-      { area: "6 / 5 / 9 / 9", kind: "visual", wants: "landscape" },
-      { area: "6 / 9 / 9 / 13", kind: "visual", wants: "landscape" },
-      { area: "9 / 1 / 13 / 4", kind: "micro" },
-      { area: "9 / 4 / 13 / 7", kind: "micro" },
-      { area: "9 / 7 / 13 / 10", kind: "micro" },
-      { area: "9 / 10 / 13 / 13", kind: "micro" },
-    ],
-    gutter: ".85cqw",
   },
 };
 
@@ -166,8 +178,8 @@ export const WALL_LANDSCAPE: Record<number, CertLayout> = {
  * Portrait ladder — content area split into two half-columns (cols 1–7 /
  * 7–13) instead of four; a portrait sheet is too narrow for quarter cells.
  * Row-bands are sized per count, growing denser toward the bottom of the
- * ladder. No reserved masthead band and no accent slot — see the landscape
- * ladder's header note for why.
+ * ladder. No reserved masthead band and no accent slot. UNCHANGED by the
+ * 2026-08-17 bento pass — see the header note above for why.
  */
 export const WALL_PORTRAIT: Record<number, CertLayout> = {
   1: {
@@ -235,28 +247,37 @@ export function recordSlots(layout: CertLayout): CertSlot[] {
 
 /**
  * Match records to record-bearing slots, preserving reading order as far as
- * the shapes allow. Greedy and stable: a `visual` slot takes the first
- * unused record whose scan orientation matches `wants`, then falls back to
- * the first unused record of any orientation; a `micro` slot (no `wants`)
- * always takes the first unused record. So a set with no portrait scans
+ * the shapes allow. Greedy and stable, per slot in order:
+ *   - `wantsHero` slot (`WALL_LANDSCAPE`) — first unused record with
+ *     `hero: true`, falling back to the first unused record when no hero is
+ *     present on this page (identical fallback behavior to a plain slot).
+ *   - `wants` (orientation) slot (`WALL_PORTRAIT`) — first unused record
+ *     whose scan orientation matches, falling back to the first unused
+ *     record of any orientation.
+ *   - plain slot — first unused record.
+ * A slot never sets both `wantsHero` and `wants` — the two ladders use one
+ * axis each. So a set with no hero-flagged or no portrait-oriented records
  * still fills every slot.
  *
  * `slots` are the layout's record-bearing slots (`recordSlots`) — every slot
  * in a layout carries a record, so this is currently the full slot list.
  *
- * Returns indices INTO `orientations`, one per slot.
+ * Returns indices INTO `records`, one per slot.
  */
 export function assignSlots(
-  orientations: ReadonlyArray<Orientation>,
+  records: ReadonlyArray<{ orientation: Orientation; hero: boolean }>,
   slots: ReadonlyArray<CertSlot>,
 ): number[] {
-  const used = new Array(orientations.length).fill(false);
+  const used = new Array(records.length).fill(false);
   const out: number[] = [];
 
   for (const slot of slots) {
-    let pick = slot.wants
-      ? orientations.findIndex((o, i) => !used[i] && o === slot.wants)
-      : -1;
+    let pick = -1;
+    if (slot.wantsHero) {
+      pick = records.findIndex((r, i) => !used[i] && r.hero);
+    } else if (slot.wants) {
+      pick = records.findIndex((r, i) => !used[i] && r.orientation === slot.wants);
+    }
     if (pick === -1) pick = used.findIndex((u) => !u);
     if (pick === -1) break;
     used[pick] = true;
@@ -301,8 +322,13 @@ export function assertCertLayouts(): void {
         throw new Error(`${id}: declares ${records.length} record-bearing slots`);
       }
 
+      const heroSlots = records.filter((s) => s.wantsHero).length;
+      if (heroSlots > 1) {
+        throw new Error(`${id}: declares ${heroSlots} wantsHero slots, at most 1 allowed`);
+      }
+
       const named: Array<[string, string]> = layout.slots.map(
-        (s, i) => [`${s.kind}${i + 1}`, s.area] as [string, string],
+        (s, i) => [`${s.anatomy ?? s.kind ?? "slot"}${i + 1}`, s.area] as [string, string],
       );
 
       for (const [name, area] of named) {

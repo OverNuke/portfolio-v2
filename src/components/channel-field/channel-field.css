@@ -1,0 +1,547 @@
+/**
+ * CONTACT — the channel field.
+ * Spec: `claude/contact-channel-field-2026-08-20.md`.
+ * Proof: `docs/contact.design-proof-v2.html` — every coordinate below is
+ * measured off that file.
+ *
+ * THE SURFACE RULE THAT GOVERNS THIS WHOLE STYLESHEET. The plates are
+ * `--field-olive` sitting on the page's `--paper`. That fill is a hard
+ * boundary on what may be printed on it, and all three of these are real
+ * bans, not preferences:
+ *
+ *     Paper White on Field Olive     6.79:1   the only type colour here
+ *     Paper White @ --on-olive-dim   4.89:1   the only dimmed one
+ *     Ink on Field Olive             2.57:1   BANNED
+ *     Gray on Field Olive            1.13:1   BANNED
+ *     Oxblood on Field Olive         1.90:1   BANNED — and tokens.css says
+ *                                             so outright: "accent and
+ *                                             plate must never touch"
+ *
+ * So: every glyph and letter on a plate is Paper White. `--gray` lives on
+ * Paper only. Both connectors are Ink and both pass BEHIND the plates rather
+ * than onto them. The single Oxblood element is the marker, which sits on the
+ * photograph with roughly 100px of clear paper between it and the nearest
+ * plate at desktop, 20px at the narrow tiers.
+ */
+
+.cf {
+  /* Stage aspect, w/h. Retuned per tier — the tracks are ratios, so the
+     whole composition scales with this one number. */
+  --cf-ar: 1.5;
+  --cf-gap: var(--space-sm);
+
+  /* The focus ring is drawn OUTSIDE the plate at a 3px offset, so it lands on
+     Paper, not on the olive. Ink at 14.83:1.
+
+     `.pf-chip` uses `--oxblood` for the equivalent ring and that is correct
+     there, because nothing olive is near it. Here an Oxblood ring would sit
+     3px from a Field Olive plate edge — not touching, but close enough that
+     the 1.90:1 pair becomes something a reviewer has to reason about every
+     time. Ink removes the question. */
+  --cf-focus: var(--ink);
+
+  position: relative;
+  /* No background. Paper is the page and the plates are the only colour —
+     this is the whole point of the 2026-08-20 revision, so if you are adding
+     a `background` here, read the spec's v2 note first. */
+  isolation: isolate;
+  overflow: hidden;
+  max-width: 1240px;
+  margin: 0 auto;
+  /* Not decoration: this padding is the margin the floating accents live in,
+     outside the column bounds. */
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+  font-family: var(--font-mono);
+}
+
+.cf__stage {
+  position: relative;
+  display: grid;
+  /* SIX UNEQUAL TRACKS. The ratios are the composition, not a container
+     choice. c4 carries nothing — a narrow open track next to a bold image is
+     the density relaxation doc 12 granted Home on 2026-08-03, not an
+     oversight. */
+  grid-template-columns: 1.2fr 0.62fr 1.45fr 0.5fr 1.1fr 0.85fr;
+  grid-template-rows: repeat(12, 1fr);
+  aspect-ratio: var(--cf-ar);
+  gap: var(--cf-gap);
+}
+
+/* ---- HEAD -------------------------------------------------------------- */
+
+.cf__head {
+  margin: 0 0 var(--space-md);
+}
+
+.cf__title {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-display-md);
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+/* ---- THE FIGURE (decorative band) -------------------------------------- */
+
+/* SQUARE, because the source is square. See ChannelField.tsx's header,
+   point 2 — this is what makes the marker's percentages exact. */
+.cf__figure {
+  position: absolute;
+  z-index: var(--z-plate-decor);
+  bottom: -5%;
+  left: 50%;
+  height: 104%;
+  transform: translateX(-50%);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.cf__figure-img {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: contain;
+  inset: 0;
+  /* `auto`, NOT `pixelated`. Doc 13's "the dither IS the image" protects a
+     dot grid; this plate has none (tools/editorial_mono.py) and the layout
+     downscales it hard, where nearest-neighbour only adds aliasing. */
+  image-rendering: auto;
+}
+
+/* ---- THE MARKER --------------------------------------------------------
+   The composition's single accent. Percentages of the FIGURE's square box,
+   placed on the subject's RIGHT eye — the lens on the left of the screen,
+   measured off the source at x 46-53.5%, y 14.5-21%. The subject's other eye
+   stays uncovered, which is what keeps the portrait a portrait. */
+
+.cf__mark {
+  position: absolute;
+  top: 13%;
+  left: 45.5%;
+  display: flex;
+  width: 9.8%;
+  flex-direction: column;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.cf__mark-box {
+  width: 100%;
+  aspect-ratio: 1.05;
+  background: var(--oxblood);
+  outline: var(--rule-hair) solid var(--paper-white);
+  /* A TINT, not a patch: the eye reads through it. Safe only because this box
+     is decorative — the label below carries the actual information on its own
+     opaque fill, so nothing legible depends on whatever tone lands under it. */
+  opacity: 0.72;
+}
+
+/* Sits BELOW the box and carries its own Oxblood ground rather than printing
+   onto the photograph. The tone under it is jaw and collar: mid-grey in one
+   crop, near-white in another, and no single text colour is safe on both. On
+   its own fill it is a fixed 12.92:1. */
+.cf__mark-label {
+  width: max-content;
+  padding: 2px var(--space-2xs);
+  margin-top: var(--rule-thick);
+  background: var(--oxblood);
+  color: var(--paper-white);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---- CROSS-COLUMN CONNECTORS ------------------------------------------
+   Below the plates. Each is placed so one end sits in an open track and the
+   other runs under a plate, so it appears to pass BEHIND one strip and emerge
+   in the next. That tuck is the entire effect — a bar floating in open paper
+   reads as debris, which is what both did before they were repositioned.
+   Because they sit under opaque plates they obscure nothing, which satisfies
+   doc 12's guardrail 1 without needing an exception. */
+
+.cf__conn {
+  z-index: calc(var(--z-plate-decor) + 4);
+  height: var(--rule-thick);
+  align-self: center;
+  background: var(--ink);
+  pointer-events: none;
+}
+
+.cf__conn--thick {
+  height: var(--space-xs);
+}
+
+/* ---- CHANNEL PLATES ---------------------------------------------------- */
+
+.cf-card {
+  position: relative;
+  z-index: var(--z-plate-interactive);
+  display: flex;
+  padding: var(--space-md);
+  background: var(--field-olive);
+  box-shadow: var(--plate-shadow);
+  color: var(--paper-white);
+  /* No border. Field Olive on Paper is 5.77:1 — the plate edge is already its
+     own boundary and a rule around it would only add weight. */
+  text-decoration: none;
+  transition:
+    transform var(--dur-micro) var(--ease-hard),
+    box-shadow var(--dur-micro) var(--ease-hard);
+}
+
+/* Raising z-index on hover is the affordance, not decoration: on an
+   overlapping composition the plate coming to the top of the stack IS the
+   feedback, which is why the shadow deepens with it (doc 12 guardrail 2).
+
+   Scoped to `a.cf-card` so a pending plate — which is a `div`, with no href
+   and no focus — never offers feedback for an interaction it cannot perform. */
+a.cf-card:hover,
+a.cf-card:focus-visible {
+  z-index: calc(var(--z-plate-interactive) + 10);
+  box-shadow: 5px 7px 18px rgb(17 17 17 / 30%);
+  transform: translateY(-3px);
+}
+
+a.cf-card:focus-visible {
+  outline: var(--rule-thick) solid var(--cf-focus);
+  outline-offset: 3px;
+}
+
+a.cf-card:active {
+  transform: translateY(0);
+}
+
+/* A channel with no address yet. Deliberately NOT dimmed: reducing opacity
+   would take Paper White on Field Olive below its 6.79:1, and the plate would
+   fail contrast to signal something the words "pending" already say. It reads
+   as flatter because it does not lift, which is the honest cue. */
+.cf-card--pending {
+  box-shadow: var(--plate-shadow-sm);
+  cursor: default;
+}
+
+/* `writing-mode` on real text — never a transform on a text node. Same rule
+   as `CertParts.tsx`'s `GhostTitleMark` and `project-field.css`'s `.pf__mark`. */
+.cf-card--banner {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  writing-mode: vertical-rl;
+}
+
+.cf-card--block {
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* A divider TICK across the banner's waist. A 1:4 strip with a word at each
+   end is an empty rectangle without it.
+
+   Inset and faint on purpose. Full-bleed at 0.45 the proof's Gray hairline
+   became a Paper White one when the plate turned olive, and a full-width rule
+   at that strength stops reading as a tick and starts reading as a seam —
+   the banner looks like two stacked plates. It is a mark, not a border. */
+.cf-card--banner::after {
+  position: absolute;
+  top: 38%;
+  right: 32%;
+  left: 32%;
+  height: var(--rule-hair);
+  background: var(--paper-white);
+  content: "";
+  opacity: 0.35;
+}
+
+.cf-card__name {
+  font-size: var(--text-body);
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.cf-card--block .cf-card__name {
+  font-size: 1.0625rem;
+}
+
+.cf-card--banner .cf-card__name {
+  align-self: flex-start;
+}
+
+.cf-card__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.cf-card__lines {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  /* In `vertical-rl` this is horizontal space between the two lines, which
+     they need: at a 123px track they set as two adjacent vertical columns and
+     without it the handle and the meta line touch. */
+  gap: var(--space-2xs);
+}
+
+.cf-card__meta {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  /* NOT `text-overflow: ellipsis`. Unlike `.nav-label` or
+     `.cert-plate__title`, the first of these lines is the address, and a
+     truncated address is a wrong address. It wraps. */
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+  opacity: var(--on-olive-dim);
+}
+
+.cf-card__glyph {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--paper-white);
+}
+
+/* In `vertical-rl` the TEXT rotates 90deg clockwise; a replaced element does
+   not. The glyph is rotated to match the type's apparent rotation — this is a
+   transform on an SVG, never on a text node. */
+.cf-card--banner .cf-card__glyph {
+  transform: rotate(90deg);
+}
+
+.cf-card__monogram {
+  flex-shrink: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+}
+
+/* ---- FLOATING ACCENTS --------------------------------------------------
+   Outside the column bounds, in `.cf`'s padding. Each carries its own Paper
+   ground so it never has to print onto the photograph. */
+
+.cf__accent {
+  position: absolute;
+  z-index: calc(var(--z-plate-decor) + 1);
+  padding: 2px var(--space-2xs);
+  background: var(--paper);
+  color: var(--gray);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-micro);
+  pointer-events: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cf__accent--coord {
+  top: var(--space-md);
+  right: var(--space-lg);
+}
+
+.cf__accent--sn {
+  right: var(--space-lg);
+  bottom: var(--space-2xs);
+}
+
+/* ---- PLACEMENT ---------------------------------------------------------
+   One block, in composition order, so the layout can be read as a whole
+   (doc 12 §Implementation notes). There is not one pixel coordinate in it:
+   if a plate needs to move, it moves by a grid cell. */
+
+.a-rail-a {
+  grid-area: 1 / 2 / 9 / 3;
+}
+
+.a-rail-b {
+  grid-area: 2 / 6 / 10 / 7;
+}
+
+.a-primary {
+  grid-area: 3 / 1 / 8 / 2;
+}
+
+.a-aside {
+  grid-area: 4 / 5 / 9 / 6;
+}
+
+.a-feature {
+  grid-area: 7 / 3 / 12 / 4;
+}
+
+.a-conn-a {
+  grid-area: 8 / 1 / 9 / 3;
+}
+
+.a-conn-b {
+  grid-area: 9 / 4 / 10 / 7;
+}
+
+/* ==========================================================================
+   SHED ORDER — doc 12 §Shed order. As the field narrows, overlap becomes
+   occlusion, so the composition sheds in a fixed priority rather than
+   compressing. Nothing carrying unique content is ever shed: the five plates
+   and the marker's availability label are always present.
+   ========================================================================== */
+
+@media (max-width: 1180px) {
+  .cf {
+    --cf-ar: 1.34;
+  }
+
+  .cf__accent--coord {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .cf {
+    padding: var(--space-md) var(--space-xs) var(--space-lg);
+  }
+
+  .cf__stage {
+    display: grid;
+    /* Two tracks, still unequal. The children here are individual PLATES, not
+       column wrappers, so auto-flow fills across-then-down and visual order
+       equals DOM order for free. A per-column-wrapper layout reads
+       down-then-across and silently inverts the reading order — that is the
+       bug this shape exists to avoid. */
+    /* `minmax(0, …)`, not a bare `fr`. An `fr` track carries an automatic
+       min-content floor, so one unbreakable string — a long Instagram handle,
+       say — silently widens the track past the container instead of wrapping.
+       The desktop tier does not need this: its type is vertical, so a long
+       handle costs height there, not width. */
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    /* The base rule's twelve explicit rows MUST be released. Overriding only
+       the columns leaves them in place, they survive `grid-area: auto`
+       placement, and twelve empty tracks trail below the last plate. */
+    grid-template-rows: none;
+    /* `auto`, not `minmax(...)`. A track floor inflates any short item — the
+       marker caption — into a full-height block with a hole under it. The
+       floor belongs on the plates, below. */
+    grid-auto-rows: auto;
+    /* NEVER `dense`: it fills holes out of order, which decouples visual
+       order from DOM order. */
+    grid-auto-flow: row;
+    aspect-ratio: auto;
+    gap: var(--space-sm);
+  }
+
+  /* Listed explicitly rather than by wildcard. A block added upstairs without
+     a shed rule then breaks visibly and immediately here, instead of silently
+     inheriting one. */
+  .a-primary,
+  .a-rail-a,
+  .a-feature,
+  .a-aside,
+  .a-rail-b,
+  .a-conn-a,
+  .a-conn-b {
+    grid-area: auto;
+  }
+
+  .cf__conn,
+  .cf__accent--sn {
+    display: none;
+  }
+
+  .cf__figure {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    display: flex;
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+    aspect-ratio: auto;
+    grid-column: 1 / -1;
+    transform: none;
+  }
+
+  .cf__figure-img {
+    position: relative;
+    width: 100%;
+    height: 230px;
+    inset: auto;
+  }
+
+  /* The figure's box is no longer square, so the percentage that put the box
+     on the eye no longer maps there. The marker becomes a caption under the
+     banner — it is NOT `display: none`. Its label is unique content and doc
+     12 never sheds that. */
+  .cf__mark {
+    position: static;
+    top: auto;
+    left: auto;
+    width: auto;
+    flex-direction: row;
+    align-items: center;
+    margin-top: var(--space-xs);
+    gap: var(--space-2xs);
+  }
+
+  .cf__mark-box {
+    width: var(--space-sm);
+    aspect-ratio: 1.25;
+  }
+
+  .cf__mark-label {
+    margin-top: 0;
+  }
+
+  .cf-card {
+    width: 100%;
+    min-height: 124px;
+    padding: var(--space-md);
+  }
+
+  .cf-card--banner {
+    flex-direction: column;
+    /* Back to `stretch`. The base rule sets `flex-start` for the vertical
+       tier; left in place here it shrinks the foot to its content width, and
+       `space-between` then has no room to push the glyph to the plate edge —
+       it ends up sitting against the meta text while the block plates put
+       theirs on the right. */
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: var(--space-xs);
+    writing-mode: horizontal-tb;
+  }
+
+  .cf-card--banner::after {
+    display: none;
+  }
+
+  .cf-card--banner .cf-card__foot {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .cf-card--banner .cf-card__glyph {
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .cf__stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cf__figure-img {
+    height: 190px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-card {
+    transition: none;
+  }
+
+  a.cf-card:hover,
+  a.cf-card:focus-visible {
+    transform: none;
+  }
+}

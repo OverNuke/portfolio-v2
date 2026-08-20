@@ -32,6 +32,13 @@
 >    never touch. Field Olive was promoted in the same pass from a chrome
 >    accent to a full plate surface, so this pairing is now easy to reach for
 >    by accident.
+>
+> Updated 2026-08-19 (reverted same day) — a Marker Orange accent was added
+> and then cut, both scoped to the certifications page's doodle mark. The
+> mark itself (a hand-drawn ring/loop stamp) was replaced with a Field Olive
+> corner registration mark — reusing this doc's existing structural-chrome
+> accent instead of adding a fourth one-off decorative color. `cert-wall.css`'s
+> own header note has the full account.
 
 
 ## Color Palette
@@ -174,7 +181,9 @@ Usage:
   accent. Paper White on Field Olive is 6.79:1 — AA at any size.
 - neutral technical / structural accent — reticle corner marks,
   barcode + serial-number labels, spec/status icon rows, field-tag
-  borders (see the TS-26 manifest reference)
+  borders (see the TS-26 manifest reference), including the certifications
+  wall's own top-left corner registration mark
+  (`.cert-wall__sheet::before` in `src/components/cert-wall/cert-wall.css`)
 - does NOT communicate warning or urgency the way the accent does —
   it reads as "this is equipment," not "pay attention now"
 - keep it off Oxblood-carrying elements; the two should never both apply

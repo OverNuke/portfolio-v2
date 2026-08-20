@@ -60,6 +60,19 @@ export interface Certificate {
    * letterbox. Defaults to landscape.
    */
   scanOrientation?: "portrait" | "landscape";
+  /**
+   * Prose shown in the scan-viewer modal body (`CertScanModal`), set in
+   * `--font-serif-edit` — editorial voice, not the mono meta line. Kept
+   * factually consistent with this record's own `title`/`issuer`, never
+   * copied from an external design mockup's renamed copy.
+   */
+  note?: string;
+  /**
+   * Human-readable label for the modal's placeholder plate when `scan` is
+   * absent. Deliberately NOT derived from `href`: that's a Vite `?url`
+   * import, which resolves to a hashed build path in production.
+   */
+  sourceFile?: string;
 }
 
 export interface Skill {
@@ -81,9 +94,38 @@ export interface Skill {
   core?: boolean;
 }
 
+/**
+ * Named composition slots for the CONTACT channel field
+ * (`components/channel-field/`). Slots are NOT interchangeable — two are
+ * vertical banners setting their label with `writing-mode` and three are
+ * horizontal blocks — so the assignment is explicit data, never derived
+ * from array position. Same principle as `Project.sheetSlot`.
+ */
+export type ChannelSlot = "primary" | "rail-a" | "feature" | "aside" | "rail-b";
+
 export interface SocialLink {
   label: string;
   href: string;
+  /**
+   * The visible handle or address. Deliberately distinct from `href`:
+   * "@OverNuke" is not "https://github.com/OverNuke", and printing a bare
+   * URL in a 123px-wide banner is how a layout gets broken by its data.
+   */
+  handle: string;
+  /** The short line under the name. "Network · profile", "Direct chat". */
+  meta: string;
+  /**
+   * Which slot this channel takes in the field. Absent falls back to the
+   * first free slot in `CHANNEL_SLOTS` order — see `assignChannelSlots`.
+   */
+  channelSlot?: ChannelSlot;
+  /**
+   * Marks a placeholder `href` that must not ship. `ContactPage.test.tsx`
+   * asserts this list is empty, so the build fails loudly the day someone
+   * forgets rather than publishing a dead link. Remove the flag when the
+   * real address lands.
+   */
+  unresolved?: boolean;
 }
 
 export interface AboutProfile {
@@ -122,4 +164,11 @@ export interface AboutProfile {
   bodyText: string;
   location: string;
   openTo: string;
+  /**
+   * Two or three words, printed inside the CONTACT field's Oxblood marker.
+   * Separate from `status` ("ONLINE · OPEN TO WORK") because that string is
+   * two facts joined by a middot and the marker is a tag roughly 90px wide
+   * — it would wrap onto the face. Keep it under ~14 characters.
+   */
+  availability: string;
 }

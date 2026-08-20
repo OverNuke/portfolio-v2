@@ -1,5 +1,7 @@
 export { CertWall } from "./CertWall";
 export type { CertWallProps } from "./CertWall";
+export { CertScanModal } from "./CertScanModal";
+export type { CertScanModalProps } from "./CertScanModal";
 export { CertLedger } from "./CertLedger";
 export type { CertLedgerProps } from "./CertLedger";
 export { CertLink, CertScan } from "./CertParts";
@@ -16,4 +18,11 @@ export {
   perSheet,
   recordSlots,
 } from "./certLayouts";
-export type { CertLayout, CertSlot, Orientation, SlotKind } from "./certLayouts";
+export type {
+  CertLayout,
+  CertSlot,
+  Orientation,
+  SlotKind,
+  TileAnatomy,
+  TileTone,
+} from "./certLayouts";

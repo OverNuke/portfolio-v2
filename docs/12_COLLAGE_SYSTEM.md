@@ -321,6 +321,12 @@ rather than as handmade.
 > only — it is not a general reversal of the rule above, and it does not
 > apply to Certificates (which use a single fixed layout, same as every
 > other plate on Home) or anything else on the page.
+>
+> A 2026-08-19 exception briefly existed here for the certifications page's
+> hand-drawn doodle mark, which rotated past the cap. The mark was cut the
+> same day in favor of an axis-aligned Field Olive corner registration mark
+> (`cert-wall.css`'s own header note has the full account) — it needs no
+> rotation exception, so nothing replaces this paragraph.
 
 ---
 

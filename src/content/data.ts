@@ -95,6 +95,7 @@ export const CERTIFICATES: Certificate[] = [
     scanAlt:
       "ANFECA recognition: first place, XVIII Maraton Regional Zona 6 Sur, Informatica Administrativa, 2025",
     scanOrientation: "landscape",
+    note: "First place, XVIII Maratón Regional Zona 6 Sur — Administrative Informatics. Awarded by ANFECA, the national association of accounting and administration faculties.",
   },
   {
     id: "nota",
@@ -108,6 +109,7 @@ export const CERTIFICATES: Certificate[] = [
     scanAlt:
       "Nota Laudatoria from Universidad Veracruzana for a 9.40 general average in Software Engineering",
     scanOrientation: "portrait",
+    note: "An institutional citation from Universidad Veracruzana recognizing a 9.40 general average in Software Engineering.",
   },
   {
     id: "exaver",
@@ -118,9 +120,9 @@ export const CERTIFICATES: Certificate[] = [
     category: "language",
     icon: "globe",
     scan: exaverPlate,
-    scanAlt:
-      "EXAVER language proficiency certificate, Universidad Veracruzana",
+    scanAlt: "EXAVER language proficiency certificate, Universidad Veracruzana",
     scanOrientation: "portrait",
+    note: "English proficiency certification issued by Universidad Veracruzana's EXAVER examination board.",
   },
   {
     id: "anglo",
@@ -131,9 +133,9 @@ export const CERTIFICATES: Certificate[] = [
     category: "academic",
     icon: "scroll",
     scan: angloPlate,
-    scanAlt:
-      "English language certificate from Anglo Mexicano de Coatzacoalcos",
+    scanAlt: "English language certificate from Anglo Mexicano de Coatzacoalcos",
     scanOrientation: "landscape",
+    note: "General English certification issued after completing the full programme at Anglo Mexicano de Coatzacoalcos.",
   },
   {
     id: "toefl",
@@ -144,9 +146,9 @@ export const CERTIFICATES: Certificate[] = [
     category: "language",
     icon: "globe",
     scan: toeflPlate,
-    scanAlt:
-      "TOEFL certificate issued by SEP",
+    scanAlt: "TOEFL certificate issued by SEP",
     scanOrientation: "portrait",
+    note: "Standardised English test certification, issued through SEP (Secretaría de Educación Pública).",
   },
   {
     id: "aifundamentals",
@@ -156,9 +158,10 @@ export const CERTIFICATES: Certificate[] = [
     href: aiFundamentalsCertUrl,
     category: "academic",
     icon: "scroll",
-    scanAlt:
-      "AI Fundamentals certificate issued by DataCamp",
+    scanAlt: "AI Fundamentals certificate issued by DataCamp",
     scanOrientation: "landscape",
+    note: "Track completion covering the foundations of machine learning, model evaluation, and applied AI workflows.",
+    sourceFile: "AI Fundamentals - DataCamp.pdf",
   },
   {
     id: "powerbi",
@@ -171,6 +174,8 @@ export const CERTIFICATES: Certificate[] = [
     scanAlt:
       "Introduction to Power BI certificate issued at the 13th International Conference in Software Engineering Research and Innovation (CONISOFT)",
     scanOrientation: "landscape",
+    note: "Workshop on data modelling, DAX basics, and dashboard authoring at CONISOFT's 13th International Conference in Software Engineering Research and Innovation.",
+    sourceFile: "CONISOFT25 Taller Kevin Sebastián.pdf",
   },
   {
     id: "aiinitiation",
@@ -180,9 +185,10 @@ export const CERTIFICATES: Certificate[] = [
     href: aiInitiationCertUrl,
     category: "academic",
     icon: "scroll",
-    scanAlt:
-      "AI Initiation certificate issued by MoureDev",
+    scanAlt: "AI Initiation certificate issued by MoureDev",
     scanOrientation: "landscape",
+    note: "Applied introduction to AI tooling, prompting, and agent-assisted development, via MoureDev's Big School programme.",
+    sourceFile: "Certificado-BIG-School-Kevin-Sebastian-Frias-Garcia.pdf",
   },
   {
     id: "propadeutic",
@@ -192,11 +198,12 @@ export const CERTIFICATES: Certificate[] = [
     href: propadeuticCertUrl,
     category: "academic",
     icon: "scroll",
-    scanAlt:
-      "Propadeutic certificate for finishing the propadeutic program",
+    scanAlt: "Propadeutic certificate for finishing the propadeutic program",
     scanOrientation: "landscape",
+    note: "Propedeutic MOOC course completion, TecNM 2026 cycle, delivered with the Public Capacitation Center in Artificial Intelligence.",
+    sourceFile: "Certificado TecNM CPFCDE-CPF _ Cursos MOOC TecNM 2026.pdf",
   },
-  
+
   // The following is yet to be achived SO DO NOT ADD yet to the project
   // {
   //   id: "genai",
@@ -223,10 +230,64 @@ export const SKILLS: Skill[] = [
   { name: "VS Code", category: "tool" },
 ];
 
+/**
+ * Array order is DOM order in the CONTACT field, and DOM order is tab order,
+ * so this list is ranked by how much Keff actually wants to be reached that
+ * way — not by slot geometry. Where each one LANDS on the sheet is
+ * `channelSlot`; see `components/channel-field/channelLayout.ts`.
+ *
+ * Extended 2026-08-20 from three channels to five with the CONTACT module
+ * (`claude/contact-channel-field-2026-08-20.md`).
+ *
+ * TWO ENTRIES ARE NOT REAL YET. Instagram and WhatsApp carry `unresolved`
+ * and a placeholder `href`. `ChannelField` renders a flagged channel as a
+ * plate with NO link — it keeps its slot in the composition but cannot be
+ * clicked into a 404 — so nothing breaks while they wait. Clear the flag and
+ * fill in `href`/`handle` and the plate becomes a link again with no other
+ * change. A dead channel on a contact page is worse than a pending one.
+ *
+ * On the WhatsApp entry specifically: a `wa.me` link publishes a personal
+ * phone number in the page source, permanently and scrapeably. That is a
+ * different disclosure from an email address and wants a deliberate yes.
+ */
 export const SOCIAL_LINKS: SocialLink[] = [
-  { label: "GitHub", href: "https://github.com/OverNuke" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/keffwontwakeup/" },
-  { label: "Email", href: "mailto:ksfgarcia24@gmail.com" },
+  {
+    label: "Email",
+    href: "mailto:ksfgarcia24@gmail.com",
+    handle: "ksfgarcia24@gmail.com",
+    meta: "Send message",
+    channelSlot: "primary",
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/OverNuke",
+    handle: "@OverNuke",
+    meta: "Repositories",
+    channelSlot: "rail-a",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/keffwontwakeup/",
+    handle: "/keffwontwakeup",
+    meta: "Network · profile",
+    channelSlot: "feature",
+  },
+  {
+    label: "WhatsApp",
+    href: "https://wa.me/PLACEHOLDER",
+    handle: "Number pending",
+    meta: "Direct chat",
+    channelSlot: "aside",
+    unresolved: true,
+  },
+  {
+    label: "Instagram",
+    href: "https://instagram.com/PLACEHOLDER",
+    handle: "Handle pending",
+    meta: "Feed",
+    channelSlot: "rail-b",
+    unresolved: true,
+  },
 ];
 
 export const ABOUT_PROFILE: AboutProfile = {
@@ -241,5 +302,6 @@ export const ABOUT_PROFILE: AboutProfile = {
   bio: "Whoami? Tough for me to say. But if I have to say something, I must say I'm a hard-working and dedicated guy.",
   bodyText: "Open to junior roles and internships where I can grow and contribute.",
   location: "Mexico",
-  openTo: "Junior roles · internships",
+  openTo: "Junior roles · Internships",
+  availability: "Open to work",
 };

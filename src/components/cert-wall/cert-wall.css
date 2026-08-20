@@ -22,6 +22,41 @@
  * > The ledger below keeps its existing "machine-true, zero rotation" identity
  * > unchanged — it was never rotated to begin with.
  *
+ * > Updated 2026-08-17. Bento re-skin of `[data-sheet="landscape"]`
+ * > specifically (`certLayouts.ts`'s header note has the full picture), two
+ * > more scoped exceptions on top of the two above:
+ * >   3. Landscape bento tiles (`.cert-mat--light/mid/dark`) REVERSE
+ * >      exception 2 above — `border-radius: 0`, full fidelity to the
+ * >      Claude-Design handoff's "no border radius anywhere" tile spec. The
+ * >      8px allowlist stays in force for `[data-sheet="portrait"]` and
+ * >      `.cert-ledger`, which are out of scope for this pass.
+ * >   4. `.cert-mat__trigger` gets a hover lift (`translateY`) + shadow — a
+ * >      deliberate override of `FieldRecord.tsx`'s "A PANEL IS PRINT, NOT
+ * >      UI… no lift, no shadow change" house rule, scoped to this module
+ * >      only, per explicit user sign-off on full mockup interaction fidelity.
+ * >   Motion for both uses `--dur-soft`/`--ease-soft` (`tokens.css`), the
+ * >   project's one "soft cut" exception to doc 07's mechanical default.
+ *
+ * > Updated 2026-08-19 (reverted same day). The doodle mark
+ * > (`.cert-wall__doodle*`), the kanji wash (`.cert-wall__kanji`), and the
+ * > numbered rail (`.cert-wall__rail`) are gone — a hand-scribbled orange
+ * > mark plus two competing one-off decorative languages, none of which
+ * > matched the archive's own established Chrome vocabulary. Replaced with
+ * > ZERO new exceptions on top of the four above:
+ * >   - A single Field Olive corner-mark on `.cert-wall__sheet` (top-left),
+ * >     reusing the exact hairline-bracket pattern `.cert-mat__scan--empty`
+ * >     already uses below, and the same corner Home's own `.canvas::before`
+ * >     uses — not a new decorative idiom, one more instance of an existing
+ * >     one. Axis-aligned, so it needs no `--rot-max` exception.
+ * >   - A faint orthogonal hairline grid on `.cert-wall__sheet`'s own
+ * >     background (ink at ~3% alpha, straight only — never the diagonal
+ * >     hatch this file already retired once for the scan-stock placeholder,
+ * >     see the empty-scan comment below).
+ * >   The doodle's orange token is deleted from `tokens.css` outright (one
+ * >   consumer, lived less than a day) and added to `tokens.test.ts`'s
+ * >   retired-token guard — same pattern as the signal-red retirement,
+ * >   whose own note explains why the name isn't spelled out here either.
+ *
  * Spec: claude/certifications-module-2026-08-05.md
  */
 
@@ -48,13 +83,44 @@
   gap: var(--cw-gutter, 1.05cqw);
   padding-right: var(--cw-rail, 2.4cqw);
   padding-left: var(--cw-rail, 2.4cqw);
+  /* Straight only — never the diagonal hatch this file already retired once
+     for the scan-stock placeholder (see the empty-scan comment below). Ink
+     at 3% alpha: the same `rgb(17 17 17 / X%)` convention used throughout
+     this file, not a new pattern. Reads as graph/blueprint paper reinforcing
+     the 12x12 structure, well under any contrast-audit threshold. */
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      rgb(17 17 17 / 3%) 0 1px,
+      transparent 1px calc(100% / 12)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgb(17 17 17 / 3%) 0 1px,
+      transparent 1px calc(100% / 12)
+    );
 
   /* The whole no-scroll guarantee, in two lines. */
   width: min(100cqw, calc(100cqh * var(--cw-ar)));
   height: min(100cqh, calc(100cqw / var(--cw-ar)));
 }
 
-.cert-wall[data-sheet="landscape"] .cert-wall__sheet { --cw-ar: 1.6; }
+/* Landscape ratio derived from the bento handoff's 1200x700 static footprint
+   (1200/700 = 12/7 ~= 1.7143), replacing the old dense-grid ladder's 1.6.
+   A single decimal, not a "12 / 7" slash ratio: custom properties splice in
+   as raw tokens, so `calc(100cqw / var(--cw-ar))` with a slash-ratio value
+   parses as chained division (100cqw / 12 / 7), not the grouped
+   100cqw / (12/7) that was intended — same convention as the 1.6/0.8 values
+   below, which are plain numbers for exactly this reason. */
+.cert-wall[data-sheet="landscape"] .cert-wall__sheet {
+  --cw-ar: 1.7143;
+  /* The bento handoff reserves 34px of block padding on a 1200px canvas
+     (~2.83cqw); the old dense ladder had none. `--cw-rail` (left/right)
+     is untouched — it's the sheet's own inset gutter, not tied to any one
+     decoration. */
+  padding-top: 2.8cqw;
+  padding-bottom: 2.8cqw;
+}
 .cert-wall[data-sheet="portrait"] .cert-wall__sheet { --cw-ar: 0.8; }
 
 /* ============================================================
@@ -73,45 +139,33 @@
   border-radius: var(--cw-radius) !important;
 }
 
+/* Exception 3 (2026-08-17 header note): the landscape bento tiles reverse
+   the allowlist above — square corners, full fidelity to the design handoff.
+   Higher specificity than the rule above (attribute selector), so it wins
+   regardless of source order; scoped to `.cert-mat` only, never the pager
+   dots, which keep their existing rounded-dot pagination unchanged. */
+.cert-wall[data-sheet="landscape"] .cert-mat {
+  border-radius: 0 !important;
+}
+
 /* ============================================================
    CHROME — aria-hidden throughout, and it SHEDS rather than truncating.
+   One corner registration mark, top-left — the same hairline-bracket
+   pattern `.cert-mat__scan--empty` uses below, and the same corner Home's
+   own `.canvas::before` uses. Not a new decorative idiom, one more instance
+   of an existing one. Axis-aligned, so it needs no `--rot-max` exception.
    ============================================================ */
-.cert-wall__rail {
+.cert-wall__sheet::before {
   position: absolute;
-  inset: 0 auto 0 0;
+  top: 6px;
+  left: 6px;
   z-index: var(--z-plate-decor);
-  display: flex;
-  width: var(--cw-rail, 2.4cqw);
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 2px 0;
+  width: 16px;
+  height: 16px;
+  border-top: var(--rule-hair) solid var(--field-olive);
+  border-left: var(--rule-hair) solid var(--field-olive);
+  content: "";
   pointer-events: none;
-}
-
-.cert-wall__rail i {
-  font-size: clamp(6px, 0.62cqw, 8.5px);
-  font-style: normal;
-  letter-spacing: 0.12em;
-  color: var(--field-olive);
-  opacity: 0.85;
-}
-
-.cert-wall__kanji {
-  position: absolute;
-  right: 1.5%;
-  bottom: -2%;
-  z-index: var(--z-plate-decor);
-  font-family: var(--font-jp);
-  font-size: 26cqw;
-  font-weight: 700;
-  line-height: 0.8;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  /* A wash, not type. `data-texture` exempts it from the contrast audit
-     rather than the bar being lowered to accommodate it. */
-  opacity: 0.07;
-  pointer-events: none;
-  user-select: none;
 }
 
 /* ============================================================
@@ -133,7 +187,8 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--field-olive);
-  /* A wash, not type — same `data-texture` exemption as `.cert-wall__kanji`. */
+  /* A wash, not type — `data-texture` exempts it from the contrast audit
+     rather than the bar being lowered to accommodate it. */
   opacity: 0.16;
   pointer-events: none;
   user-select: none;
@@ -146,6 +201,7 @@
 .cert-mat {
   --focus: var(--oxblood);
 
+  position: relative;
   z-index: var(--z-plate-content);
   display: flex;
   min-width: 0;
@@ -155,6 +211,215 @@
   overflow: hidden;
   border: var(--rule-thick) solid var(--ink);
   background: var(--paper-white);
+  color: var(--ink);
+}
+
+/* ============================================================
+   BENTO TONES — `[data-sheet="landscape"]` only (exception 3/4, header
+   note). Three fills, cited AA ratios per docs/05_ACCESSIBILITY.MD:
+     light -> paper-white bg / ink text            (14.83:1+)
+     dark  -> ink bg / ink-inverse text             (16.87:1)
+     mid   -> field-olive bg / paper-white text     (6.79:1) — NEVER ink
+              text here (Ink on Field Olive is 2.57:1, banned), and the
+              focus ring can never be --oxblood on this tone (1.90:1,
+              forbidden pairing) — --paper-white instead.
+   `.cert-mat--light` restates the base `.cert-mat` colors explicitly rather
+   than relying on the cascade, so the tone is never silently dependent on
+   selector order.
+   ============================================================ */
+.cert-mat--light {
+  background: var(--paper-white);
+  color: var(--ink);
+}
+
+.cert-mat--dark {
+  background: var(--ink);
+  color: var(--ink-inverse);
+}
+
+.cert-mat--mid {
+  --focus: var(--paper-white);
+
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+
+/* ---- bento tile anatomy — padding per the handoff's tile-anatomy table -- */
+.cert-mat--standard,
+.cert-mat--lead {
+  padding: 0;
+}
+
+/* `.cert-mat__stack` groups kicker+title so baseline's row layout gets a
+   real two-column split (stack | meta) — `display: contents` makes it
+   transparent for standard/lead, where head/title/row already flow
+   correctly as direct column children of the trigger. */
+.cert-mat__stack {
+  display: contents;
+}
+
+.cert-mat--baseline .cert-mat__trigger {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.cert-mat--baseline .cert-mat__stack {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+/* The meta column: bounded width so a long issuer name truncates
+   (`.cert-mat__issuer`'s existing ellipsis rule) instead of overflowing
+   into the real CertLink's corner. */
+.cert-mat--baseline .cert-mat__row {
+  min-width: 0;
+  max-width: 42%;
+  flex: 0 1 auto;
+}
+
+.cert-mat--baseline .cert-mat__meta {
+  min-width: 0;
+}
+
+/* ---- the whole-tile trigger — exception 4 (header note): hover lift +
+   shadow, `--dur-soft`/`--ease-soft` (tokens.css), the module's one
+   departure from doc 07's mechanical default.
+
+   The transform/shadow live on `.cert-mat` (the figure), NOT on
+   `.cert-mat__trigger`: the figure has `overflow: hidden` (for title
+   clipping), which clips a DESCENDANT's box-shadow — an element's own
+   overflow never clips its own box-shadow, only a child's, so the effect
+   only becomes visible one level up. `:focus-within` covers keyboard focus
+   landing on the trigger button inside. ---- */
+.cert-mat--light,
+.cert-mat--mid,
+.cert-mat--dark {
+  transition:
+    transform var(--dur-soft) var(--ease-soft),
+    box-shadow var(--dur-soft) var(--ease-soft);
+}
+
+/* `cert-rise` (below, "MOTION") has `animation-fill-mode: both`, which holds
+   `transform: translateY(0)` at the Animations cascade tier — that outranks
+   a plain `:hover` declaration regardless of specificity, so the lift below
+   needs `!important` (Important-author tier, the one tier that beats a held
+   animation) to actually win.
+   A prior version cancelled the animation instead (`animation: none` on
+   `:hover`), on the theory that the entrance had already finished so
+   cancelling was a no-op. It was not: unsetting `animation-name` and then
+   letting the base rule re-apply it on hover-exit counts as assigning a NEW
+   animation-name per the CSS Animations spec, which restarts the animation
+   from its `from` keyframe every time hover ends — the card visibly
+   fades/drops out and re-enters instead of just losing its lift. `!important`
+   overrides the held value without ever touching `animation-name`, so the
+   animation is never cancelled and never restarts. */
+.cert-mat--light:hover,
+.cert-mat--light:focus-within,
+.cert-mat--dark:hover,
+.cert-mat--dark:focus-within {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 14px 32px rgb(17 17 17 / 22%);
+}
+
+.cert-mat--mid:hover,
+.cert-mat--mid:focus-within {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 14px 32px rgb(17 17 17 / 28%);
+}
+
+.cert-mat__trigger {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cert-mat--lead .cert-mat__trigger {
+  padding: var(--space-lg);
+}
+
+.cert-mat__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.cert-mat__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.cert-mat--mid .cert-mat__kicker,
+.cert-mat--mid .cert-mat__affordance {
+  opacity: var(--on-olive-dim);
+}
+
+.cert-mat--dark .cert-mat__kicker,
+.cert-mat--dark .cert-mat__affordance {
+  opacity: 0.62;
+}
+
+.cert-mat__affordance {
+  align-self: flex-end;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.55;
+}
+
+/* ---- the real "open the source file" link — a sibling of the trigger
+   button (never nested inside it, which would be invalid interactive
+   nesting), positioned over the tile so it reads as part of it. ---- */
+.cert-mat__link-slot {
+  position: absolute;
+  right: var(--space-sm);
+  bottom: var(--space-sm);
+  z-index: 1;
+}
+
+.cert-mat__link-slot--visual {
+  right: var(--space-2xs);
+  bottom: var(--space-2xs);
+}
+
+/* Lead bento tiles already show the decorative "View scan →" affordance in
+   the bottom-right corner (tile anatomy, handoff README) — the real link
+   moves to the empty top-right of the head row instead, so the two never
+   overlap. */
+.cert-mat--lead .cert-mat__link-slot {
+  top: var(--space-lg);
+  right: var(--space-lg);
+  bottom: auto;
+}
+
+/* Baseline's meta column already sits bottom-right (`align-items: flex-end`)
+   — same top-right reposition as lead, so the real link never collides with
+   the issuer/date text. */
+.cert-mat--baseline .cert-mat__link-slot {
+  top: var(--space-sm);
+  right: var(--space-sm);
+  bottom: auto;
 }
 
 /* ---- visual: scan + caption plate, same content contract as before ---- */
@@ -240,9 +505,16 @@
 .cert-mat__cap--deep { background: var(--field-olive-deep); }
 
 /* ---- micro: no scan, data direct on the paper-white card ---- */
-.cert-mat--micro {
+/* Padding lives on the trigger button now (it's the flex/padding host, the
+   figure itself is unpadded so the button fills the whole hit target). */
+.cert-mat__trigger--micro {
   padding: var(--space-xs) var(--space-sm);
   gap: var(--space-xs);
+}
+
+.cert-mat__trigger--visual {
+  padding: 0;
+  gap: 0;
 }
 
 .cert-mat__index {
@@ -266,6 +538,36 @@
   border-top-color: rgb(17 17 17 / 14%);
 }
 
+/* Bento tones: no meta-row hairline (the old rule's translucent-white border
+   assumed a dark caption plate). The handoff's own divider lives under the
+   HEAD row on lead tiles only. */
+.cert-mat--light .cert-mat__row,
+.cert-mat--dark .cert-mat__row,
+.cert-mat--mid .cert-mat__row {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* `.cert-mat__stack{display:contents}` (below) makes `.cert-mat__head` a
+   direct flex item of the column-flex `.cert-mat__trigger`, which stretches
+   it to the tile's full width by default — so its `border-bottom` divider
+   was running edge-to-edge, straight under the top-right
+   `.cert-mat__link-slot` (CertLink rests at `background: transparent`, so
+   the line showed right through the button's interior). `align-self:
+   flex-start` un-stretches the head so it — and the border it draws — hug
+   only the kicker's own content width; a `padding-right` reservation was
+   tried first and does NOT work here, because padding shrinks the content
+   box, never the border-box a `border-bottom` is drawn around. */
+.cert-mat--lead .cert-mat__head {
+  align-self: flex-start;
+  padding-bottom: var(--space-2xs);
+  border-bottom: var(--rule-hair) solid rgb(17 17 17 / 18%);
+}
+
+.cert-mat--dark.cert-mat--lead .cert-mat__head {
+  border-bottom-color: rgb(246 246 244 / 22%);
+}
+
 .cert-mat--micro .cert-mat__meta,
 .cert-mat--micro .cert-mat__title {
   color: var(--ink);
@@ -281,25 +583,53 @@
   color: var(--ink);
 }
 
+/* Bento light tiles: base `.cert-link` assumes a dark/olive surface
+   (paper-white text/border), invisible on paper-white. Ink-toned, same
+   treatment as the micro card above. Dark/mid bento tiles keep the base
+   paper-white styling — it already reads correctly there. */
+.cert-mat--light .cert-link {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.cert-mat--light .cert-link:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper-white);
+}
+
 .cert-mat--micro .cert-link:hover {
   border-color: var(--ink);
   background: var(--ink);
   color: var(--paper-white);
 }
 
+/* Titles use the editorial serif (LT Remark), not Superior Serif — that stays
+   masthead-only, one instance per screen (docs/02_DESIGN_SYSTEM.MD's
+   2026-08-11 typography pass). This is the shared, ladder-agnostic part of
+   the 2026-08-17 bento refresh: both WALL_LANDSCAPE and WALL_PORTRAIT titles
+   pick it up. */
+/* `-webkit-line-clamp` + `display: -webkit-box` collapses to 0 height once
+   the title is a flex-item descendant of `.cert-mat__trigger` (a real
+   Chromium quirk: -webkit-box's legacy layout mode doesn't reliably compute
+   intrinsic height when nested inside a modern flex container). Plain block
+   + `overflow: hidden` on the ancestor `.cert-mat` is the safety net for
+   text that doesn't fit — no ellipsis, but it always renders. */
 .cert-mat__title {
-  display: -webkit-box;
-  overflow: hidden;
+  display: block;
   margin: 0;
-  font-family: var(--font-mono);
-  font-size: clamp(10px, 1.45cqw, 19px);
+  font-family: var(--font-serif-edit);
+  font-size: clamp(13px, 1.9cqw, 24px);
   font-weight: 700;
-  line-height: 1.04;
-  letter-spacing: 0.005em;
-  text-transform: uppercase;
+  line-height: 1.05;
+  letter-spacing: -0.012em;
   overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+}
+
+.cert-mat--lead .cert-mat__title {
+  font-size: clamp(20px, 3.6cqw, 42px);
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .cert-mat--visual .cert-mat__title { padding: 0; }
@@ -399,6 +729,7 @@
   display: flex;
   flex: 0 0 auto;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-sm);
   padding-top: var(--space-xs);
 }
@@ -473,6 +804,193 @@
 
 .cert-pager__dot[data-inert="true"] {
   pointer-events: none;
+}
+
+/* ============================================================
+   SCAN MODAL — `CertScanModal.tsx`, added 2026-08-17 alongside the bento
+   redesign. Scrim and sheet are CSS SIBLINGS (component doc has the why);
+   both centered by this shared grid parent, positioned within the sheet's
+   own containing block (not the viewport) so it can never create a scroll
+   context, per the design handoff's modal spec.
+   ============================================================ */
+.cert-scan-modal {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-plate-interactive);
+  display: grid;
+  place-items: center;
+  padding: var(--space-xl);
+}
+
+.cert-scan-modal__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(17 17 17 / 62%);
+  backdrop-filter: blur(3px);
+  cursor: zoom-out;
+  animation: cert-modal-fade var(--dur-cut) ease both;
+}
+
+.cert-scan-modal__sheet {
+  position: relative;
+  width: min(100%, 62cqw, 760px);
+  max-height: 100%;
+  overflow: auto;
+  border: var(--rule-hair) solid var(--ink);
+  background: var(--paper-white);
+  color: var(--ink);
+  cursor: default;
+  animation: cert-modal-rise var(--dur-soft) var(--ease-soft) both;
+}
+
+.cert-scan-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-md) var(--space-sm);
+  border-bottom: var(--rule-hair) solid rgb(17 17 17 / 16%);
+}
+
+.cert-scan-modal__head-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.cert-scan-modal__kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.cert-scan-modal__title {
+  margin: 0;
+  font-family: var(--font-serif-edit);
+  font-size: clamp(18px, 2.4vw, 26px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.014em;
+}
+
+.cert-scan-modal__meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.cert-scan-modal__close {
+  --focus: var(--oxblood);
+
+  display: flex;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: var(--rule-hair) solid rgb(17 17 17 / 25%);
+  background: none;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  cursor: pointer;
+}
+
+.cert-scan-modal__body {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md);
+}
+
+.cert-scan-modal__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: var(--rule-hair) solid rgb(17 17 17 / 16%);
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.cert-scan-modal__plate {
+  display: flex;
+  height: 290px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  border: var(--rule-hair) solid rgb(17 17 17 / 20%);
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgb(17 17 17 / 5%) 0 1px,
+    transparent 1px 8px
+  );
+}
+
+.cert-scan-modal__plate-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-micro);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.cert-scan-modal__plate-file {
+  max-width: 38ch;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  text-align: center;
+  color: var(--ink);
+}
+
+.cert-scan-modal__note {
+  max-width: 62ch;
+  margin: var(--space-md) 0 0;
+  font-family: var(--font-serif-edit);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--gray);
+}
+
+.cert-scan-modal .cert-link {
+  align-self: flex-start;
+  margin-top: var(--space-sm);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.cert-scan-modal .cert-link:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper-white);
+}
+
+@keyframes cert-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cert-modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cert-scan-modal[data-motion="reduced"] .cert-scan-modal__scrim,
+.cert-scan-modal[data-motion="reduced"] .cert-scan-modal__sheet {
+  animation: none;
+  transform: none;
 }
 
 /* ============================================================
@@ -598,10 +1116,11 @@
 }
 
 /* Decorative texture, not entering content — a resting opacity below 1 is
-   the whole point of both, and `cert-rise`'s `to: opacity 1` would
-   permanently pin it at full strength once the animation finishes
-   (`fill-mode: both` holds the end keyframe forever). */
-.cert-wall__kanji,
+   the whole point, and `cert-rise`'s `to: opacity 1` would permanently pin
+   it at full strength once the animation finishes (`fill-mode: both` holds
+   the end keyframe forever). The corner mark (`.cert-wall__sheet::before`)
+   needs no entry here — `.cert-wall__sheet > *` only matches real element
+   children, never a pseudo-element, so it was never animated to begin with. */
 .cert-wall__ghost-title {
   animation: none;
 }
@@ -617,5 +1136,8 @@
 
   .cert-link,
   .cert-pager__btn,
-  .cert-pager__dot-glyph { transition: none; }
+  .cert-pager__dot-glyph,
+  .cert-mat--light,
+  .cert-mat--mid,
+  .cert-mat--dark { transition: none; }
 }

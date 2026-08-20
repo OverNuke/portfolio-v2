@@ -1,0 +1,73 @@
+/**
+ * The paper margin around the channel field. The composition itself is
+ * `src/components/channel-field/channel-field.css` — nothing here should
+ * reach into it. Field size is tuned there, via `--cf-ar` and the track
+ * ratios.
+ *
+ * Sibling of `projects-page.css`, and the same nesting applies: `.contact-page`
+ * is the `content` prop PASSED INTO `<Panel>`, so `.panel`/`.panel__content`
+ * are its ANCESTORS, not its descendants. Both have to become growable flex
+ * columns for the height budget to reach the field.
+ *
+ * Like `/projects` and unlike `/certifications`, this does NOT override
+ * `.page-content` to `overflow-y: hidden`. It keeps `turn.css`'s
+ * `overflow-y: auto` default, which stays the safety net if the composition
+ * ever doesn't fit. Desktop no-scroll comes from the field's own bounded
+ * `aspect-ratio`, not from clipping.
+ */
+
+.page-layer:has(.contact-page) {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.page-layer:has(.contact-page) .page-content {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.page-layer:has(.contact-page) .page-content > .panel {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.page-layer:has(.contact-page) .panel__content {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+/* --paper, not the Panel's --paper-white. The olive plates only read as
+   plates lying ON something if the ground behind them is the page tone, and
+   the field's own accents carry a --paper backing that would otherwise sit as
+   a visible patch on the raised Panel stock. */
+.contact-page {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: var(--space-md) var(--space-md) var(--space-sm);
+  background: var(--paper);
+}
+
+/* Releases at the same width as `channel-field.css`'s two-track tier, and for
+   the same reason. If the two drift apart, the page keeps a flex height
+   budget the stacked field no longer fits inside. */
+@media (max-width: 900px) {
+  .page-layer:has(.contact-page),
+  .page-layer:has(.contact-page) .page-content,
+  .page-layer:has(.contact-page) .page-content > .panel,
+  .page-layer:has(.contact-page) .panel__content,
+  .contact-page {
+    display: block;
+    min-height: 0;
+  }
+
+  .contact-page {
+    padding: var(--space-md) var(--space-xs);
+  }
+}

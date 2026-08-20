@@ -71,6 +71,11 @@ describe("tokens.css", () => {
     // 2026-08-06. --font-mono replaces every former --font-display site
     // (all were tracked uppercase — see src/styles/fonts.css).
     "--font-display",
+    // Retired 2026-08-19: lived less than a day. Sanctioned for the
+    // certifications doodle mark, then the doodle itself was cut in favor
+    // of the module's existing Field Olive corner-mark/registration
+    // vocabulary — see cert-wall.css's own header note.
+    "--marker-orange",
   ];
 
   it.each(retiredTokens)("no file under src/ references the retired %s token", (token) => {

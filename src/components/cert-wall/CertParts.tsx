@@ -81,30 +81,6 @@ export function CertLink({ certificate }: { certificate: Certificate }) {
   );
 }
 
-/** Numerals down the left margin — makes the 12-row grid legible. */
-export function TickRail() {
-  return (
-    <div className="cert-wall__rail" aria-hidden="true">
-      {Array.from({ length: 12 }, (_, i) => (
-        <i key={i}>{String(i + 1).padStart(2, "0")}</i>
-      ))}
-    </div>
-  );
-}
-
-/**
- * 証 — "proof". A wash at opacity .07, not type. `data-texture` marks it so
- * the contrast audit skips it by exemption rather than by lowering the bar.
- * Needs `--font-jp`: Archivo Narrow has no CJK coverage and renders tofu.
- */
-export function GhostKanji() {
-  return (
-    <div className="cert-wall__kanji" aria-hidden="true" data-texture="true">
-      証
-    </div>
-  );
-}
-
 /**
  * Decorative stand-in for the masthead this sheet no longer renders. Real
  * text set with `writing-mode`, never a transform on a text node — same
