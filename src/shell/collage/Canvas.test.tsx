@@ -47,12 +47,20 @@ describe("Canvas", () => {
     expect(screen.getByText(ABOUT_PROFILE.role)).toBeInTheDocument();
   });
 
-  it("marks the photograph decorative", () => {
+  it("holds the hero slot as a reserved, imageless placeholder (sdd/drop-intro-hero-placeholder)", () => {
     const { container } = render(<Canvas />);
 
-    // It duplicates the heading and carries nothing the heading does not.
-    expect(container.querySelector(".hm-hero img")).toHaveAttribute("alt", "");
-    expect(container.querySelector(".hm-hero")).toHaveAttribute("aria-hidden", "true");
+    // The seated-cutout photograph is gone — the slot is a transparent,
+    // footprint-holding placeholder (design D3) until the editorial Home
+    // redesign replaces it. No <img>, still aria-hidden.
+    const hero = container.querySelector(".hm-hero");
+    expect(hero).toHaveAttribute("aria-hidden", "true");
+    expect(hero?.querySelector("img")).toBeNull();
+
+    // .hm-shade (the contact-shade anti-sticker device under the cutout,
+    // design D4) is removed outright, not hidden — a shade under nothing
+    // reads as a rendering bug.
+    expect(container.querySelector(".hm-shade")).toBeNull();
   });
 
   it("does not render the module wheel or the retired index rows", () => {

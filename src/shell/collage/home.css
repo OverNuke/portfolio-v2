@@ -147,25 +147,6 @@
   opacity: 0.1;
 }
 
-/* The single most effective anti-sticker device on the page, and the only
-   gradient in it. A cutout with no contact shade floats; one with a shade
-   stands. Ink at 18% under the chair, dissolving outward — on the field
-   side it is nearly invisible, which is correct: a shadow on a dark ground
-   should be. */
-.hm-shade {
-  position: absolute;
-  inset: auto 18cqw 0 auto;
-  width: 40cqw;
-  height: 48px;
-  z-index: calc(var(--z-plate-decor) + 3);
-  background: radial-gradient(
-    ellipse 50% 60% at 50% 100%,
-    rgba(17, 17, 17, 0.18),
-    rgba(17, 17, 17, 0) 72%
-  );
-  pointer-events: none;
-}
-
 /* ============================================================
    2. TOP METADATA
    The right half runs onto the field, so it is split: the name stays ink
@@ -227,39 +208,85 @@
 }
 
 /* ============================================================
-   4. THE PHOTOGRAPH
-   `profile-farming-aura-02.png` (Keff, 2026-08-10) — the seated cutout.
+   4. THE RESERVED HERO SLOT (sdd/drop-intro-hero-placeholder, 2026-08-24)
 
-   No frame, no mask, no radius, no blur, no blend mode. It stands on the
-   seam and on the bottom edge, so it occludes the field edge AND the
-   masthead. Occlusion is the whole trick: an element that two structural
-   things pass behind is read as being in the scene; an element with
-   nothing behind it is read as pasted on.
+   The seated cutout (`profile-farming-aura-02.png`) that used to occupy
+   this slot is gone — design D3. This is an interim placeholder, not a
+   redesign: transparent interior, footprint held by two seam-aware crop
+   marks and one field-side status label. No fill, no texture, no image
+   element.
 
-   `height`/`width: auto` move together and nothing ever sets both — the
-   brief's "do not distort the portrait" is enforced by never giving the
-   image a second axis to be stretched on.
+   Two prior placeholders for this same slot were both rejected (doc 12):
+   a diagonal-stripe fill read as hazard tape, and a solid Paper White fill
+   "had no utility." Crop marks are this system's own print language
+   (registration marks, reticles — doc 12 "Chrome") and carry no repeating
+   pattern, so neither failure mode repeats; the label makes the slot state
+   its own temporary status.
+
+   Occlusion of the masthead and the field edge — the outgoing photograph's
+   whole trick, an element two structural things pass behind reads as being
+   "in the scene" — is an ACCEPTED, explicitly deferred regression here. Do
+   not attempt to reproduce it against a placeholder.
+
+   GEOMETRY IS LOAD-BEARING. `.hm-hero` has no intrinsic width without an
+   image, so width is explicit: `inset: auto 20cqw 0 auto` + `width: 34cqw`
+   puts the box at 46cqw → 80cqw — only ~8cqw of it is on paper, the rest
+   on the field, which is why the label anchors right and the two crop
+   marks take different colors for their side of the seam (--hm-seam is
+   54cqw).
    ============================================================ */
 .hm-hero {
   position: absolute;
-  /* Centred on the seam, not on the frame: about a third of him is on
-     paper and two thirds on the field, so the edge runs through his torso
-     rather than grazing an ankle. */
   inset: auto 20cqw 0 auto;
   height: 82%;
   z-index: calc(var(--z-plate-decor) + 4);
   pointer-events: none;
 }
 
-.hm-hero img {
-  height: 100%;
-  width: auto;
-  display: block;
-  /* Grayscale keeps the composition to paper, ink and olive. `brightness`
-     just above 1 lifts the figure's blacks off pure ink so he stops being
-     the single darkest thing in the frame — the tonal tell that made him
-     read as a cutout dropped onto a light page. */
-  filter: grayscale(1) brightness(1.06) contrast(0.98);
+.hm-hero--reserved {
+  width: 34cqw;
+}
+
+.hm-hero--reserved::before,
+.hm-hero--reserved::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+}
+
+/* Bottom-left corner sits at 46cqw — on paper, so Ink reads clearly. */
+.hm-hero--reserved::before {
+  inset: auto auto 0 0;
+  border-left: var(--rule-hair) solid var(--ink);
+  border-bottom: var(--rule-hair) solid var(--ink);
+}
+
+/* Top-right corner sits at 80cqw — on the field, so Paper White for the
+   compliant 7.74:1 pairing (Ink on olive is 2.57:1, BANNED). */
+.hm-hero--reserved::after {
+  inset: 0 0 auto auto;
+  border-top: var(--rule-hair) solid var(--paper-white);
+  border-right: var(--rule-hair) solid var(--paper-white);
+}
+
+/* Right-anchored so the text run sits entirely on the field (~69-80cqw) —
+   the box's ~8cqw of paper is too narrow for it. NO overflow: hidden and
+   NO white-space: nowrap — scripts/audit.mjs's clipped-text check only
+   flags elements with overflow: hidden, so leaving both off keeps this
+   label permanently out of that check's scope by construction, not by
+   coincidence. */
+.hm-hero__label {
+  position: absolute;
+  inset: auto var(--space-md) var(--space-lg) auto;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  text-align: right;
+  color: var(--paper-white);
+  opacity: var(--on-olive-dim);
 }
 
 /* ============================================================
@@ -327,14 +354,28 @@
 /* ============================================================
    7. TABLET AND BELOW
    The seam rotates: paper on top where the reading is, field at the foot
-   where the stack lives. The figure still stands on it.
+   where the stack lives. The reserved hero slot is SHED at this
+   breakpoint, not repositioned (design D5, sdd/drop-intro-hero-placeholder,
+   2026-08-24) — designing a mobile treatment for a placeholder would be
+   designing the mobile hero, which is out of that change's scope. It is
+   doc-12-sanctioned: "everything shed is decorative or duplicated
+   elsewhere," and the shed table's first entry is a placeholder that
+   "holds no information."
 
    This is a layout MODE change, not a scale-down. The desktop composition
    is built on overlap, and overlap does not survive a narrow viewport —
    you get a masthead across a face. So the grid collapses to one column in
-   reading order, the masthead stops being clipped (there is no vertical
-   seam left to clip against), and the photograph goes behind the column,
-   pushed far enough right that type never lands on the subject.
+   reading order and the masthead stops being clipped (there is no vertical
+   seam left to clip against).
+
+   The former `figure` row is now an unnamed `.` row — NOT deleted. Rows
+   are `auto auto auto minmax(0,1fr) auto`; that row carries the `1fr` flex
+   and `.hm-field`/`.hm-stack` share `stack`, which is `auto`. Moving the
+   `1fr` onto `stack` instead would grow the olive band and reopen the
+   ink-on-olive (2.25:1) hazard the first cut of this breakpoint hit — the
+   band's invariant is that it is the stack's own height by construction,
+   nothing else can fall onto it, and that only holds if `stack` stays
+   `auto`.
    ============================================================ */
 @media (max-width: 1024px) {
   .canvas {
@@ -344,7 +385,7 @@
       "meta"
       "mast"
       "role"
-      "figure"
+      "."
       "stack";
     row-gap: var(--space-md);
   }
@@ -365,19 +406,9 @@
     margin: 0 calc(var(--hm-bleed) * -1) calc(var(--hm-bleed) * -1);
   }
 
-  /* The figure stands on the band's top edge, so it is placed by the same
-     grid rather than by a length that would have to be kept in sync. */
+  /* Shed, not repositioned — design D5. The row it used to occupy stays
+     (renamed to unnamed `.` above) so `stack` doesn't inherit the flex. */
   .hm-hero {
-    position: static;
-    grid-area: figure;
-    justify-self: end;
-    align-self: end;
-    height: clamp(220px, 36vh, 360px);
-    margin-inline-end: -22cqw;
-  }
-
-  /* The band edge grounds the figure on its own here. */
-  .hm-shade {
     display: none;
   }
 
@@ -436,11 +467,6 @@
 
   .hm-stack {
     font-size: var(--text-micro);
-  }
-
-  .hm-hero {
-    height: clamp(180px, 28vh, 280px);
-    margin-inline-end: -34cqw;
   }
 }
 

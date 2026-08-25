@@ -350,10 +350,12 @@ deepens the shadow.
 
 **3. Visual order never overrides DOM order for content.**
 Plates are placed with `grid-area`, which does not affect tab order.
-Flex/grid `order` is used exactly once on Home — to move the hero on
-mobile — and only because the hero is `aria-hidden` decoration that holds
-no focus and carries no content. **Never use `order` on anything a user
-can read or reach.**
+**Stale as of the editorial Home** (re-grounded 2026-08-24,
+`sdd/drop-intro-hero-placeholder`): the editorial Home places everything
+with `grid-template-areas` and uses no flex/grid `order` at all — the
+"used exactly once, to move the hero on mobile" claim described an
+earlier Home. If a future breakpoint ever needs `order`, the rule below
+still applies: **never use it on anything a user can read or reach.**
 
 **4. Rotation stays off interactive geometry.**
 A rotated button's hit box is its rotated bounding box, so at ±2° the
@@ -425,7 +427,9 @@ broken page.
 **Where it lives:** module labels on hover/focus, and system readouts
 (header build/mode, status bar) on a slow ambient timer. The decay is on
 the parts where the machine talks about itself. The name is deliberately
-excluded — `NameRevealIntro` already owns that moment, and two
+excluded — the painted masthead already carries that visual weight on its
+own (previously framed as `NameRevealIntro`'s moment; that component was
+removed `sdd/drop-intro-hero-placeholder`, 2026-08-24), and two
 typographic effects on one string compete.
 
 **Mechanics.** A left-to-right scramble-settle: 5 frames at 55ms (275ms
@@ -434,7 +438,10 @@ total), each frame locking in one more character. Charset is ASCII-only
 never two at once, and pauses when the tab is hidden.
 
 Two rules make it safe rather than merely stylish, and both are the
-`NameRevealIntro` lesson applied earlier this time:
+decorative-animation lesson from `05_ACCESSIBILITY.MD`'s "Decorative /
+Auto-Playing Animations" section (originally learned fixing
+`NameRevealIntro`, now inlined there since that component's removal)
+applied earlier this time:
 
 1. **Only an `aria-hidden` visual copy scrambles.** A `.visually-hidden`
    twin carries the real string. Verified against the real accessibility
@@ -536,8 +543,10 @@ Warning Yellow as any text 1.35:1) remain absent.
 Unchanged from v1 and still binding: the token set, the page-turn
 (right-to-left, 200ms, hard cut, crease), the keyboard map (Left =
 forward), focus-return on close, `inert` on the shell, `#main-content`
-carrying the real name and role for the `NameRevealIntro` dependency, and
-the reflow release below 768px.
+carrying the real name and role (Home's only accessible identity carriers
+now that everything painted on the canvas is `aria-hidden` — re-grounded
+2026-08-24, `sdd/drop-intro-hero-placeholder`, after `NameRevealIntro`'s
+removal), and the reflow release below 768px.
 
 ---
 

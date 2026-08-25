@@ -133,19 +133,16 @@ async function main() {
 
   try {
     const page = await browser.newPage();
-    await page.addInitScript(() => sessionStorage.setItem("intro:played", "1"));
+    // NameRevealIntro's "intro:played" sessionStorage seed and the
+    // .nri-overlay detached-wait were removed here
+    // (sdd/drop-intro-hero-placeholder, 2026-08-24) along with the
+    // component itself. `emulateMedia({ reducedMotion: "reduce" })` is
+    // retained — it independently serves TurnProvider's synchronous settle.
     await page.emulateMedia({ reducedMotion: "reduce" });
 
     for (const seed of SKILLS_SEEDS) {
-      // One `goto` per seed (the seed is only picked once per mount) — the
-      // intro-overlay wait must happen after EACH goto, not once overall,
-      // or every seed after the first hit-tests against the still-mounted
-      // overlay instead of the real collage underneath it.
+      // One `goto` per seed — the seed is only picked once per mount.
       await page.goto(`${url}?collageSeed=${seed}`);
-      await page
-        .locator(".nri-overlay")
-        .waitFor({ state: "detached", timeout: 3000 })
-        .catch(() => {});
 
       const focusOrders = [];
 

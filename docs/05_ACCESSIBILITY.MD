@@ -190,9 +190,30 @@ should never mirror:
 
 # Decorative / Auto-Playing Animations (added 2026-07-27)
 
-`NameRevealIntro` was audited and fixed as the first case of this — treat
-its fix as the pattern for anything similar built later (a section-intro
-sting, a loading sequence, etc.):
+`NameRevealIntro` — a cinematic name/role reveal that used to mount once
+on Home's initial load — was audited and fixed as the first case of this.
+It was removed outright `sdd/drop-intro-hero-placeholder` (2026-08-24,
+last held at commit `12463dd`) once the editorial redesign no longer had
+a slot for it, but its fix is inlined here as the pattern for anything
+similar built later (a section-intro sting, a loading sequence, etc.),
+since the file itself is no longer on disk to read:
+
+- **Fully decorative, never partially.** The whole component tree was
+  `aria-hidden="true"` — no chrome-hidden-but-headline-exposed half
+  measure. Partial exposure reads as broken, not as a deliberate choice.
+- **Never focusable.** A fully `aria-hidden` element must never receive
+  focus; `NameRevealIntro` never put anything in the tab sequence.
+- **Dismiss on any keypress**, not just an "intended" skip key — a
+  keyboard user must never get stranded interacting with, or tabbing
+  behind, something they cannot perceive.
+- **The host page carried the same information independently**, in real
+  accessible markup, not as a fallback for when the animation was absent.
+  Home's `<main>` still does — see `src/shell/Shell.tsx` and
+  `src/shell/collage/Canvas.tsx`'s visually-hidden `<h1>` + `.hm-role`,
+  which are now Home's ONLY accessible carriers of name/role (everything
+  else painted on the collage canvas is itself `aria-hidden`).
+
+General rules, restated from that fix:
 
 - If an animation auto-cycles text or state on a timer that the user
   doesn't control, don't partially expose it to assistive tech (e.g.

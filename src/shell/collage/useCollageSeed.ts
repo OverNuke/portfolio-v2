@@ -22,7 +22,7 @@ function resolveSeed(overrideSeed?: SkillsSeedId): SkillsSeedId {
   return pickWeightedSeed();
 }
 
-/** Decided once per mount — same lazy-useState-initializer pattern App.tsx uses for `showIntro`. */
+/** Decided once per mount via a lazy `useState` initializer, which runs exactly once on first render. */
 export function useCollageSeed(overrideSeed?: SkillsSeedId): SkillsSeedId {
   const [seed] = useState(() => resolveSeed(overrideSeed));
   return seed;

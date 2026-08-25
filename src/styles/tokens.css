@@ -109,7 +109,19 @@
 
   /* ---- Motion ---------------------------------------------------------
      --dur-turn superseded to 200ms by design decision D10
-     (sdd/phase2-app-shell/design) — supersedes doc 07's 140ms; easing unchanged. */
+     (sdd/phase2-app-shell/design) — supersedes doc 07's 140ms; easing unchanged.
+
+     This block is now the SOLE source of truth for the hard/soft cut
+     values (sdd/drop-intro-hero-placeholder/design D2, 2026-08-24):
+     `NameRevealIntro.tsx` — deleted at commit 12463dd (2026-07-29) — used
+     to define these as its own `HARD_CUT`/`SOFT_CUT` constants:
+       HARD_CUT = { duration: 0.14, ease: [0.7, 0, 0.3, 1] }
+       SOFT_CUT = { duration: 0.32, ease: [0.22, 1, 0.36, 1] }
+     `--ease-hard`/`--dur-cut` below are HARD_CUT's literal values (the
+     140ms duration predates the 200ms `--dur-turn` supersession above);
+     `--ease-soft`/`--dur-soft` are SOFT_CUT's, unchanged since. Nothing
+     else in `src/` ever imported the file — see the D2 rationale in the
+     design doc for why no `lib/motion.ts` replaces it. */
   --ease-hard: cubic-bezier(0.7, 0, 0.3, 1);
   --dur-micro: 90ms;
   --dur-cut: 140ms;
@@ -117,9 +129,22 @@
   /* Scoped exception for the certificates bento redesign (2026-08-17): a
      softer curve for tile hover-lift and the scan-viewer modal's rise, the
      one place in the system that departs from doc 07's "hard cut" default.
-     Matches NameRevealIntro.tsx's unexported SOFT_CUT constant. */
+     Literal values match the deleted NameRevealIntro.tsx's SOFT_CUT
+     constant — see the provenance note above. */
   --dur-soft: 320ms;
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Reform — the geometry curve, for a layout that CHANGES under its own
+     parts rather than cutting to a new one (docs/14_REFORM_MOTION.md,
+     claude/projects-field-reform-2026-08-24.md). Deliberately NOT a third
+     easing: --ease-soft above already does this job, and doc 07's hard cut
+     stays the default for anything that cuts. Measured, 560ms is not slow —
+     --ease-soft front-loads the travel, so a part has visually arrived by
+     ~250ms and spends the rest settling, close to --dur-turn on purpose.
+     --stagger-rank is the authored per-part delay step; it replaces the
+     hand-written 50ms ladder that project-field.css used to carry. */
+  --dur-reform: 560ms;
+  --stagger-rank: 55ms;
 
   /* ---- Plate ------------------------------------------------------- */
   --plate-border: 2px;

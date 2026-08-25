@@ -21,7 +21,9 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       // sessionStorage/localStorage access throws in Safari private mode /
       // storage-disabled environments; intentional silent-catch is the
-      // correct behavior there (see name-reveal-intro), not a bug.
+      // correct behavior there, not a bug. (No live consumer of this
+      // pattern remains in src/ as of sdd/drop-intro-hero-placeholder,
+      // 2026-08-24 — the rule stays as defensive config for the next one.)
       "no-empty": ["error", { allowEmptyCatch: true }],
     },
   },

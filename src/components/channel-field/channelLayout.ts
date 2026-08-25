@@ -40,10 +40,28 @@ export const SLOT_VARIANT: Record<ChannelSlot, "block" | "banner"> = {
   "rail-b": "banner",
 };
 
+/**
+ * Same three fills `cert-wall` uses (`CertWall.tsx`'s `TileTone`) — light
+ * (Paper White / Ink), mid (Field Olive / Paper White, the field's original
+ * uniform tone), dark (Ink / Ink Inverse). Dark-mid-light-mid-dark: the
+ * largest plate (`feature`) is the one open, Paper-White tile; the two
+ * banners bracket it in Ink so the sheet doesn't read as five identical
+ * blocks. Not derived from rank or any other data — a fixed per-slot
+ * assignment, same pattern as `SLOT_VARIANT`.
+ */
+export const SLOT_TONE: Record<ChannelSlot, "light" | "mid" | "dark"> = {
+  primary: "dark",
+  "rail-a": "mid",
+  feature: "light",
+  aside: "mid",
+  "rail-b": "dark",
+};
+
 export interface PlacedChannel {
   link: SocialLink;
   slot: ChannelSlot;
   variant: "block" | "banner";
+  tone: "light" | "mid" | "dark";
 }
 
 export interface ChannelPlacement {
@@ -93,7 +111,7 @@ export function assignChannelSlots(links: readonly SocialLink[]): ChannelPlaceme
       overflow.push(link);
       continue;
     }
-    placed.push({ link, slot: claimed, variant: SLOT_VARIANT[claimed] });
+    placed.push({ link, slot: claimed, variant: SLOT_VARIANT[claimed], tone: SLOT_TONE[claimed] });
   }
 
   return { placed, overflow };

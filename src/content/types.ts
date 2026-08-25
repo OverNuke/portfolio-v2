@@ -167,8 +167,10 @@ export interface AboutProfile {
   /**
    * Two or three words, printed inside the CONTACT field's Oxblood marker.
    * Separate from `status` ("ONLINE · OPEN TO WORK") because that string is
-   * two facts joined by a middot and the marker is a tag roughly 90px wide
-   * — it would wrap onto the face. Keep it under ~14 characters.
+   * two facts joined by a middot. Keep it under ~14 characters: the marker
+   * label must fit its clear-zone budget (`labelWidth < 0.32 × figureWidth`),
+   * derived from where the illustrated figure's top-right anchor stays clear
+   * of the silhouette at every viewport.
    */
   availability: string;
 }

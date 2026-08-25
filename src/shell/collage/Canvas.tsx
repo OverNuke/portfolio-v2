@@ -1,14 +1,4 @@
 import { ABOUT_PROFILE, SKILLS } from "../../content/data";
-/**
- * The TIGHT CUT of `profile-farming-aura-02.png`, not the source. The
- * source is 3168x1344 and the figure occupies a 914x1011 region inside
- * it — the rest is transparent padding. Positioning the source means
- * positioning a mostly-empty box, which is exactly what made the first
- * pass of this composition look like the portrait had been dropped at
- * random. Regenerate with the same tight-alpha crop if the source ever
- * changes; do not "fix" placement in CSS against the padded original.
- */
-import heroImg from "../../assets/plates/portrait/seated-cut.png";
 import "./home.css";
 
 /**
@@ -20,12 +10,13 @@ import "./home.css";
  * React port). The proofs are still in `docs/design-exploration/`.
  *
  * ── THE FIELD ────────────────────────────────────────────────────────────
- * Paper on the left, FIELD OLIVE DEEP on the right, one hard seam, and the
- * photograph standing on it. This is a deliberate move back toward
- * direction 03 — 01 won partly by being accent-free paper-and-ink, so
- * adding a field is a decision, not a drift. What it buys is the thing 01
- * could not do: something for the figure to be IN FRONT OF and BEHIND at
- * the same time, which is what stops a cutout reading as a sticker.
+ * Paper on the left, FIELD OLIVE DEEP on the right, one hard seam. The
+ * seated-cutout photograph that used to stand on it was dropped
+ * `sdd/drop-intro-hero-placeholder` (2026-08-24) — the hero slot is now a
+ * reserved, imageless placeholder (design D3) holding the same footprint
+ * until the editorial Home redesign replaces it. This was a deliberate
+ * move back toward direction 03 — 01 won partly by being accent-free
+ * paper-and-ink, so adding a field is a decision, not a drift.
  *
  * ── TWO CONSTRAINTS GOVERN EVERYTHING DOWNSTREAM ─────────────────────────
  * From `claude/profile-plate-composition-2026-08-05.md`, site-wide:
@@ -45,18 +36,22 @@ import "./home.css";
  *
  * ── THE COMPOSITION, in the order it reads ───────────────────────────────
  *   1. A metadata line across the top.
- *   2. THE SURNAME at 16cqw, crossing the seam and passing BEHIND the
- *      photograph's head and shoulders.
- *   3. THE PHOTOGRAPH, seated, standing on the seam and on the bottom
- *      edge, with a contact shade under the chair. It occludes two
- *      structural things now — the masthead and the field edge — and that
- *      is what reads as "inside the world" rather than "on top of it".
+ *   2. THE SURNAME at 16cqw, crossing the seam. It used to pass BEHIND the
+ *      photograph's head and shoulders — with the photograph gone, the
+ *      masthead's own clip at the seam is unchanged, but nothing occludes
+ *      it any more (an accepted, explicitly deferred regression, per
+ *      `sdd/drop-intro-hero-placeholder`).
+ *   3. THE RESERVED HERO SLOT, standing on the seam and the bottom edge —
+ *      two crop marks and a status label, design D3. It is deliberately
+ *      MUTE rather than a texture (see `home.css` §4's header for why).
  *   4. THE STACK, lower right, on the field, in Paper White.
  *
- * BOTH MASTHEAD COPIES AND THE PHOTOGRAPH ARE `aria-hidden`. The accessible
- * identity is the visually-hidden `<h1>` plus the role line — design D6's
- * requirement that the shell independently carry the name is met by the
- * heading, not by the painted word.
+ * BOTH MASTHEAD COPIES AND THE RESERVED HERO SLOT ARE `aria-hidden`. The
+ * accessible identity is the visually-hidden `<h1>` plus the role line —
+ * everything painted on the canvas is decorative, so these two elements are
+ * Home's ONLY accessible carriers of name and role (not "the accessible
+ * equivalent of an intro" — there is no longer an intro for them to be
+ * equivalent to; see `docs/05_ACCESSIBILITY.MD`).
  *
  * ALL placement lives in `home.css` (design D5). This component applies
  * class names — never an inline style, never a pixel top/left.
@@ -94,8 +89,10 @@ const KG_LAST = MASTHEAD.charAt(0);
 export function Canvas() {
   return (
     <div className="canvas">
-      {/* The field, and the contact shade under the figure. Both decorative,
-          both placed with the `inset` shorthand, both below the figure. */}
+      {/* The field. Decorative, placed with the `inset` shorthand. (The
+          contact shade that used to sit under the figure was removed
+          outright, design D4 — `sdd/drop-intro-hero-placeholder` — a shade
+          under nothing reads as a rendering bug, not a device.) */}
       <div className="hm-field" aria-hidden="true" />
 
       {/* Oversized, low-opacity background texture — same design role as
@@ -103,15 +100,14 @@ export function Canvas() {
           paper/olive palette instead of ink-block. Clipped at the seam with
           the same technique as `.hm-mast`, so K can never paint ink onto
           the olive side and G can never paint paper white onto the paper
-          side. Decorative and aria-hidden, like the masthead and photo. */}
+          side. Decorative and aria-hidden, like the masthead and the
+          reserved hero slot. */}
       <p className="hm-kg hm-kg--k" aria-hidden="true">
         {KG_FIRST}
       </p>
       <p className="hm-kg hm-kg--g" aria-hidden="true">
         {KG_LAST}
       </p>
-
-      <div className="hm-shade" aria-hidden="true" />
 
       <p className="hm-meta">
         <span>{ABOUT_PROFILE.fullName}</span>
@@ -130,17 +126,21 @@ export function Canvas() {
         {MASTHEAD}
       </p>
 
-      {/* Decorative: the photograph duplicates the heading and carries no
-          information the page does not already state in text — same call
-          as the profile plate's portrait. */}
-      <div className="hm-hero" aria-hidden="true">
-        <img src={heroImg} alt="" />
+      {/* RESERVED — the seated-cutout photograph was dropped
+          `sdd/drop-intro-hero-placeholder` (2026-08-24, design D3). This
+          slot holds the same footprint (`--reserved` modifier, so a single
+          grep finds every removable piece) with two CSS-drawn crop marks
+          and a status label — transparent, no texture, no `<img>`. Fully
+          decorative, like the masthead. */}
+      <div className="hm-hero hm-hero--reserved" aria-hidden="true">
+        <p className="hm-hero__label">FIGURE / RESERVED</p>
       </div>
 
       {/* The role is its own element, not interpolated into a longer line:
-          it is the accessible identity content design D6 requires Home to
-          carry independently of the intro, so it has to be findable on its
-          own rather than as a fragment of a string. */}
+          along with the `<h1>` above, it is one of Home's only two
+          accessible identity carriers, since everything else painted on
+          the canvas is `aria-hidden` — so it has to be findable on its own
+          rather than as a fragment of a string. */}
       <p className="hm-role">{ABOUT_PROFILE.role}</p>
 
       <aside className="hm-stack" aria-label="Core stack">

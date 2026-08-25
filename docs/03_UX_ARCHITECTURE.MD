@@ -156,10 +156,12 @@ and motion are specified in **11_HANDOFF_HOME.md**, with a runnable
 mockup at **home.design-proof.html**. Two decisions made there that
 change rules on this page:
 
-- Home also serves as the accessible equivalent of `NameRevealIntro`.
-  Since that component is fully `aria-hidden`, Home's `#main-content`
-  must carry the name and role in real markup — it now does. This
-  closes the open item flagged in the 2026-07-27 style audit.
+- Home's `#main-content` carries the name and role in real markup,
+  because everything painted on the collage canvas is `aria-hidden`. This
+  closes the open item flagged in the 2026-07-27 style audit. (Re-grounded
+  2026-08-24, `sdd/drop-intro-hero-placeholder`: previously framed as the
+  accessible equivalent of `NameRevealIntro`, a cinematic name/role reveal
+  removed in that change.)
 - The no-scroll rule is released below 768px, where WCAG 1.4.10 reflow
   takes priority per MASTER_AGENT.md's conflict order. Between 769 and
   1100px the shell still doesn't scroll but the readout region does —

@@ -10,10 +10,12 @@ import { Shell } from "./Shell";
  * Task 2.5 (sdd/phase2-app-shell). `Shell` = Home (design "There is no
  * routes/Home.tsx"): renders the Frame (StatusBar), owns
  * `<main id="main-content" tabIndex={-1}>`, and — critically for the
- * orchestrator's accessibility constraint — carries the identity
- * (name/role) content UNCONDITIONALLY, regardless of whether
- * NameRevealIntro mounts (D6's whole point: the shell must independently
- * carry that information). Wraps everything in `.shell`, with
+ * accessibility constraint — carries the identity (name/role) content
+ * UNCONDITIONALLY. Everything painted on the collage canvas is
+ * `aria-hidden`, so this is the only accessible carrier of that
+ * information on Home (re-grounded `sdd/drop-intro-hero-placeholder`,
+ * 2026-08-24, after `NameRevealIntro`'s removal). Wraps everything in
+ * `.shell`, with
  * `registerShell` on the OUTER wrapper (not just `<main>`) so the Frame
  * chrome also goes `inert`/`aria-hidden` while a page is open — advisor
  * flagged this: attaching `registerShell` to `<main>` alone would leave

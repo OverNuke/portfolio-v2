@@ -20,14 +20,17 @@ single-viewport dashboard** — the shell never scrolls at desktop widths.
 Every module opens *over* Home via the right-to-left page turn and closes
 back to it.
 
-Home has a second, non-obvious job. `NameRevealIntro` is now fully
-`aria-hidden` (see `05_ACCESSIBILITY.MD` → *Decorative / Auto-Playing
-Animations*), which means the intro is invisible to assistive tech. Its
-README documents a dependency: **the host page must carry the name and
-role in real accessible markup on its own.** Home's `#main-content` is
-that host. The `<h1>`-adjacent identity block and PROFILE readout below
-are not decoration — they are the accessible equivalent of the intro, and
-must not be removed or reduced to an image.
+Home has a second, non-obvious job. Everything painted on the collage
+canvas (masthead, KG initials, the reserved hero slot) is `aria-hidden`
+(see `05_ACCESSIBILITY.MD` → *Decorative / Auto-Playing Animations*), so
+Home's `#main-content` must carry the name and role in real accessible
+markup on its own — the `<h1>`-adjacent identity block and PROFILE readout
+below are Home's ONLY accessible carriers of that information, and must
+not be removed or reduced to an image. (Corrected 2026-08-24,
+`sdd/drop-intro-hero-placeholder`: this requirement was previously framed
+as satisfying `NameRevealIntro`'s own dependency — that component has
+since been removed, and the requirement stands on its own merits, not as
+an equivalent to anything.)
 
 **Answers the open question from the 2026-07-27 style audit:** yes,
 `#main-content` now contains equivalent real content. Keep it that way.
@@ -186,20 +189,21 @@ label, or unique information at `--text-micro`.
 
 | Token | Value | Usage |
 |---|---|---|
-| `--ease-hard` | `cubic-bezier(0.7, 0, 0.3, 1)` | Every transition on Home. Matches `NameRevealIntro`'s `HARD_CUT`. |
+| `--ease-hard` | `cubic-bezier(0.7, 0, 0.3, 1)` | Every transition on Home. Literal values live in `src/styles/tokens.css`'s Motion block (provenance note there — `NameRevealIntro`, which originally defined this curve, was deleted `sdd/drop-intro-hero-placeholder`, 2026-08-24). |
 | `--dur-micro` | 90ms | Hover / focus state changes |
-| `--dur-cut` | 140ms | Small clip wipes (the existing `HARD_CUT` duration) |
+| `--dur-cut` | 140ms | Small clip wipes |
 | `--dur-turn` | 200ms | Full-viewport page turn |
 
 **Deviation flagged for your approval:** `07_ANIMATION_GUIDELINES.MD`
-specifies the page turn should match `HARD_CUT`'s `duration: 0.14`. That
-value was tuned for a text-height wipe inside `NameRevealIntro`. Applied
-to a full 1440px-wide viewport it reads as a dropped frame rather than a
-turn — the eye never registers the crease. **Recommend 200ms with the
-same curve**, which preserves the mechanical character while making the
-direction legible. The easing is unchanged, so nothing about the feel
-softens. If you'd rather stay literal to the doc, change `--dur-turn` to
-`140ms` and the two `setTimeout` values in the proof; nothing else moves.
+specifies the page turn should match the hard-cut curve's `duration: 0.14`.
+That value was tuned for a text-height wipe inside the now-deleted
+`NameRevealIntro` component. Applied to a full 1440px-wide viewport it
+reads as a dropped frame rather than a turn — the eye never registers the
+crease. **Recommend 200ms with the same curve**, which preserves the
+mechanical character while making the direction legible. The easing is
+unchanged, so nothing about the feel softens. If you'd rather stay literal
+to the doc, change `--dur-turn` to `140ms` and the two `setTimeout` values
+in the proof; nothing else moves.
 
 ---
 
@@ -212,7 +216,7 @@ softens. If you'd rather stay literal to the doc, change `--dur-turn` to
 | `NavModule` | — | `items[]` | Renders `NavItem` list + `SystemLog` + `SerialFooter`. |
 | `NavItem` | `default`, `disabled` | `index`, `label`, `sub`, `count`, `pageId`, `disabled` | `<button>`, never a `<div>`. Grid: `34px 1fr auto`. Min-height 62px desktop / 48px mobile. |
 | `SystemLog` | — | `lines[]` | Read-only. `[ok]` / `[--]` prefix in Field Olive, message in Gray. Decorative-adjacent but *true* — do not fabricate log lines that don't correspond to real build state. |
-| `IdentityBlock` | — | `given`, `family`, `role`, `bio`, `tags[]` | The accessible equivalent of `NameRevealIntro`. Given + family both `white-space: nowrap` and shrink via clamp — the family name must never wrap mid-name. |
+| `IdentityBlock` | — | `given`, `family`, `role`, `bio`, `tags[]` | Home's primary accessible carrier of name/role — everything else painted on the collage canvas is `aria-hidden` (re-grounded 2026-08-24, `sdd/drop-intro-hero-placeholder`; previously framed as the accessible equivalent of the now-removed `NameRevealIntro`). Given + family both `white-space: nowrap` and shrink via clamp — the family name must never wrap mid-name. |
 | `SpecSheet` | — | `rows[]` | The PROFILE MODULE field list from `MASTER_AGENT.md` §4. `116px 1fr` grid. |
 | `SpecRow` | `default`, `live` | `label`, `value`, `live` | `live` renders the value in `--signal-red-text` bold (used by `STATUS: AVAILABLE`). |
 | `PhotoPlate` | `placeholder`, `image` | `src`, `alt`, `label`, `tape` | 2px Ink frame, `aspect-ratio: 4/3` (16/9 ≤1100px). `placeholder` is a −45° hatch. `alt` is required and must be real; if there's no meaningful alt the plate is decorative and needs `role="presentation"` instead. |
@@ -399,9 +403,18 @@ durations to 0.001ms and removes the crease. Nothing else changes.
 
 - `<header>` → `<nav aria-label="Modules">` → `<main id="main-content">`
   → `<footer>`. One `<h1>` on the page; module names are `<h2>`.
-- `#main-content` is the intro's `focusTargetId`. It carries
-  `tabindex="-1"` so the intro can hand focus to it — and it must contain
-  the real name/role content, per the `NameRevealIntro` dependency.
+- `<main id="main-content" tabIndex={-1}>` — the id and the negative
+  tabindex belong to the page-turn focus-return contract: on close,
+  `TurnProvider` (`turn/TurnProvider.tsx` ~L108) calls
+  `getElementById("main-content").focus()` so focus lands back in the
+  shell instead of on `<body>`. `tabIndex={-1}` makes that element
+  programmatically focusable without adding it to the tab sequence. Proven
+  by `e2e/turn-focus.spec.ts` and the Escape-focus assertion in
+  `App.test.tsx` L100-118. (Corrected 2026-08-24: previously attributed to
+  `NameRevealIntro` handing off focus — the intro merely borrowed the id
+  via `focusTargetId`, and the contract predates and outlives it.) It must
+  also contain the real name/role content — Home's only accessible
+  identity carriers, since everything else on the canvas is `aria-hidden`.
 
 **Focus order**
 
@@ -472,12 +485,20 @@ on `change`. No flashing: the live dot's 2.4s step blink is far below the
   close control, via the turn machine's own `location.pathname` effect,
   not via anchor semantics. Drive `PageLayer` from the route, not from
   local state.
-- **Framer Motion.** The turn is one `motion.section` animating
-  `clipPath` inside `<AnimatePresence mode="wait">`. `mode="wait"` is
-  required — concurrent turns are the double-click dead state.
-  `useReducedMotion()` selects the instant variant. Reuse the existing
-  `HARD_CUT` constant from `NameRevealIntro.tsx`; export it to a shared
-  `lib/motion.ts` rather than redefining it.
+- **SUPERSEDED (`sdd/drop-intro-hero-placeholder/design` D2, 2026-08-24).**
+  This recommendation was never implemented — verified by grep, `gsap` and
+  `motion/react` were imported only by the now-deleted `NameRevealIntro.tsx`
+  and nothing else in `src/`; `src/lib/` does not exist. The page turn that
+  actually shipped is CSS (`clip-path` transition) plus the local
+  `src/shell/useReducedMotion.ts` hook, not `AnimatePresence`. Do not
+  restore a `lib/motion.ts` module on the strength of this paragraph — it
+  would have zero importers. Original text, preserved for history: "The
+  turn is one `motion.section` animating `clipPath` inside
+  `<AnimatePresence mode="wait">`. `mode="wait"` is required — concurrent
+  turns are the double-click dead state. `useReducedMotion()` selects the
+  instant variant. Reuse the existing `HARD_CUT` constant from
+  `NameRevealIntro.tsx`; export it to a shared `lib/motion.ts` rather than
+  redefining it."
 - **`inert`.** Supported in all current evergreen browsers. React 19
   supports it as a boolean prop. On React 18, set it imperatively via ref.
 - **Do not** reach for a scroll library, a carousel, or a modal package.

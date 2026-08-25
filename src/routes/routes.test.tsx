@@ -42,10 +42,11 @@ describe("routes", () => {
     ).not.toThrow();
   });
 
-  // Certifications dropped its `route.sub` metadata line (2026-08-14) —
-  // Panel's `metadata` slot only still reaches the DOM on the other routes.
+  // Certifications dropped its `route.sub` metadata line (2026-08-14), and
+  // contact followed (2026-08-23) — Panel's `metadata` slot only still
+  // reaches the DOM on the other routes.
   it.each(
-    ROUTES.filter((route) => route.pageId !== "certifications").map(
+    ROUTES.filter((route) => route.pageId !== "certifications" && route.pageId !== "contact").map(
       (route) => [route.path, route.sub] as const,
     ),
   )("renders the placeholder Panel at %s", (path, sub) => {
@@ -70,6 +71,16 @@ describe("routes", () => {
       </MemoryRouter>,
     );
     expect(screen.queryByText(certRoute.sub)).not.toBeInTheDocument();
+  });
+
+  it("renders contact without the route.sub metadata line", () => {
+    const contactRoute = ROUTES.find((route) => route.pageId === "contact")!;
+    render(
+      <MemoryRouter initialEntries={[contactRoute.path]}>
+        <TestRoutes />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByText(contactRoute.sub)).not.toBeInTheDocument();
   });
 
   it("renders NotFound for an unknown path", () => {

@@ -18,7 +18,10 @@ export type CertMode = "wall-landscape" | "wall-portrait" | "ledger";
  * This is JS rather than CSS because the LAYOUT LADDER differs per regime, not
  * just the styling. Rendering all three and hiding two with CSS would put
  * three copies of every certificate link in the accessibility tree, which is
- * the bug this project's own `NameRevealIntro` post-mortem warns about.
+ * the bug `docs/05_ACCESSIBILITY.MD`'s Decorative / Auto-Playing Animations
+ * section warns about (a post-mortem originally written for the now-deleted
+ * `NameRevealIntro` component — see `sdd/drop-intro-hero-placeholder`,
+ * 2026-08-24 — and inlined into that doc so the pattern survives it).
  *
  * Follows `useReducedMotion`'s shape: a `matchMedia` subscription with an
  * SSR/jsdom-safe default. The default is `wall-landscape` — the desktop case.

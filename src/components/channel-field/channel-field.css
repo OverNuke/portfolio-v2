@@ -1,27 +1,33 @@
 /**
  * CONTACT — the channel field.
- * Spec: `claude/contact-channel-field-2026-08-20.md`.
+ * Spec: `docs/design-exploration/contact-channel-field-2026-08-20.md`.
  * Proof: `docs/contact.design-proof-v2.html` — every coordinate below is
- * measured off that file.
+ * measured off that file. v2 shipped every plate in one fill,
+ * `--field-olive`; the plates now carry THREE fills instead — the same
+ * `light` / `mid` / `dark` system `cert-wall` uses (`CertWall.tsx`'s
+ * `TileTone`, `cert-wall.css`'s `.cert-mat--*`), assigned per slot in
+ * `channelLayout.ts`'s `SLOT_TONE`. Reusing that system, not inventing a
+ * fourth one, is what keeps the numbers below already-audited rather than
+ * new claims:
  *
- * THE SURFACE RULE THAT GOVERNS THIS WHOLE STYLESHEET. The plates are
- * `--field-olive` sitting on the page's `--paper`. That fill is a hard
- * boundary on what may be printed on it, and all three of these are real
- * bans, not preferences:
+ *     mid   Paper White on Field Olive       6.79:1   plate text
+ *     mid   Paper White @ --on-olive-dim     4.89:1   plate meta (dimmed)
+ *     light Ink on Paper White               14.83:1  plate text
+ *     light Ink @ .6 opacity on Paper White  ~4.81:1  plate meta (dimmed)
+ *     dark  Ink Inverse on Ink               16.87:1  plate text
+ *     dark  Ink Inverse @ .62 opacity on Ink ~6.91:1  plate meta (dimmed)
  *
- *     Paper White on Field Olive     6.79:1   the only type colour here
- *     Paper White @ --on-olive-dim   4.89:1   the only dimmed one
- *     Ink on Field Olive             2.57:1   BANNED
- *     Gray on Field Olive            1.13:1   BANNED
- *     Oxblood on Field Olive         1.90:1   BANNED — and tokens.css says
- *                                             so outright: "accent and
- *                                             plate must never touch"
- *
- * So: every glyph and letter on a plate is Paper White. `--gray` lives on
- * Paper only. Both connectors are Ink and both pass BEHIND the plates rather
- * than onto them. The single Oxblood element is the marker, which sits on the
- * photograph with roughly 100px of clear paper between it and the nearest
- * plate at desktop, 20px at the narrow tiers.
+ * Bans that hold regardless of which tone a given plate carries — Ink and
+ * Gray touching Field Olive are still banned (2.57:1, 1.13:1) wherever the
+ * mid tone appears, and Oxblood on Field Olive is still banned outright
+ * (1.90:1) — tokens.css: "accent and plate must never touch". `--gray`
+ * still lives on Paper only, never on any plate tone. Both connectors are
+ * Ink and both pass BEHIND the plates rather than onto them, unchanged by
+ * tone. The single Oxblood element is the marker: it never sits on a plate
+ * at all (light, mid, or dark) — anchored instead to the illustrated
+ * figure's clear zone with a geometric margin to the nearest plate, not a
+ * z-index fix. See the `.cf__mark` comment below for the derivation and its
+ * per-pose caveat; do not raise its z-index to solve occlusion.
  */
 
 .cf {
@@ -46,6 +52,26 @@
      a `background` here, read the spec's v2 note first. */
   isolation: isolate;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Bounded height, not content height — this is what lets `.cf__frame`
+     below give `.cf__stage` a real box to fit inside instead of the stage's
+     own `aspect-ratio` deciding the height unilaterally from width alone
+     (the old failure: a wide-but-short viewport computed a stage taller
+     than the actual space, silently clipped by `overflow: hidden` above,
+     with no way to reach the rest — `routes/contact-page.css` threads
+     `min-height: 0; flex: 1 1 auto` down from `.page-layer` for exactly
+     this). */
+  min-height: 0;
+  flex: 1 1 auto;
+  /* `width: 100%`, not just `max-width` + auto margins. `.cf__frame` below
+     is `container-type: size` — contained away from content for sizing
+     purposes — so if `.cf`'s own width came from the auto-margin fit-content
+     fallback (the pre-existing pattern here), it would compute `.cf__frame`'s
+     contribution as ~0 and collapse the whole column to a sliver. Explicit
+     `width: 100%` gives `.cf` a definite width outright, so there is no
+     fit-content calculation to break. */
+  width: 100%;
   max-width: 1240px;
   margin: 0 auto;
   /* Not decoration: this padding is the margin the floating accents live in,
@@ -60,17 +86,50 @@
   /* SIX UNEQUAL TRACKS. The ratios are the composition, not a container
      choice. c4 carries nothing — a narrow open track next to a bold image is
      the density relaxation doc 12 granted Home on 2026-08-03, not an
-     oversight. */
-  grid-template-columns: 1.2fr 0.62fr 1.45fr 0.5fr 1.1fr 0.85fr;
+     oversight. It also sits the open track dead centre now (2026-08-23):
+     tracks 1-3 sum to ~2.35fr, tracks 5-6 sum to ~2.25fr, so c4's midpoint
+     lands at ~51% of the stage instead of the old ~62% — see `.a-feature`
+     and `.a-aside` below, which trade columns to make this hold. Retune
+     both sides together; drifting one alone re-skews the field. */
+  grid-template-columns: 0.95fr 0.55fr 0.85fr 0.55fr 1.5fr 0.75fr;
   grid-template-rows: repeat(12, 1fr);
-  aspect-ratio: var(--cf-ar);
+  /* Fit `.cf__frame`'s box on whichever axis is tighter, at the FIXED
+     `--cf-ar` shape — never reshape the ratio to fit. Every plate-track
+     ratio, every `.cf__figure`/`.cf__mark` percentage and the marker's
+     verified-clear anchor are all proportional to this box; scaling it
+     uniformly preserves every one of them, changing its shape would not.
+     Same formula as `project-field.css`'s `.pf__stage`. */
+  width: min(100cqw, calc(100cqh * var(--cf-ar)));
+  height: min(100cqh, calc(100cqw / var(--cf-ar)));
   gap: var(--cf-gap);
 }
 
 /* ---- HEAD -------------------------------------------------------------- */
 
 .cf__head {
+  flex-shrink: 0;
   margin: 0 0 var(--space-md);
+}
+
+/* The size-query container `.cf__stage` fits inside — see `.cf`'s comment
+   and `ChannelField.tsx`'s comment on why this can't just be `.cf` itself.
+   Same pattern as `project-field.css`'s `.pf`: bounded on both axes via the
+   flex chain, `container-type: size`, so `cqw`/`cqh` below resolve against
+   THIS box. `align-items` + `justify-content` (2026-08-23, not
+   `place-items`) so a stage that shrank to fit (height was the limiting
+   axis) sits centred in the leftover space rather than pinned to a corner —
+   `justify-items` is a Grid-only property and silently does nothing on a
+   Flexbox container; `place-items: center` here was centring the cross axis
+   only, and every width-limited-by-height viewport (most real browser
+   windows) fell back to flex's default `justify-content: flex-start` and
+   read as pinned left, worse the wider the window. */
+.cf__frame {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
 }
 
 .cf__title {
@@ -84,8 +143,13 @@
 
 /* ---- THE FIGURE (decorative band) -------------------------------------- */
 
-/* SQUARE, because the source is square. See ChannelField.tsx's header,
-   point 2 — this is what makes the marker's percentages exact. */
+/* Carries the ACTIVE asset's aspect ratio for this tier — 912/1178 (the
+   stand pose) here, 1/1 (the sit pose) under the 900px override below. See
+   ChannelField.tsx's header, point 2: this is what makes the marker's
+   percentages land in the clear zone instead of drifting into letterboxed
+   bare element. D4 (design #135): `--cf-ar` is load-bearing for the anchor
+   derivation and must NOT be retuned without re-deriving the marker's
+   position — the two are coupled through the stage-to-figure mapping. */
 .cf__figure {
   position: absolute;
   z-index: var(--z-plate-decor);
@@ -93,36 +157,51 @@
   left: 50%;
   height: 104%;
   transform: translateX(-50%);
-  aspect-ratio: 1;
+  aspect-ratio: 912 / 1178;
   pointer-events: none;
 }
 
 .cf__figure-img {
   position: absolute;
+  background-image: var(--cf-plate-wide);
   background-repeat: no-repeat;
   background-position: center bottom;
   background-size: contain;
   inset: 0;
   /* `auto`, NOT `pixelated`. Doc 13's "the dither IS the image" protects a
-     dot grid; this plate has none (tools/editorial_mono.py) and the layout
-     downscales it hard, where nearest-neighbour only adds aliasing. */
+     dot grid; these plates have none and the layout downscales them hard,
+     where nearest-neighbour only adds aliasing. */
   image-rendering: auto;
 }
 
 /* ---- THE MARKER --------------------------------------------------------
-   The composition's single accent. Percentages of the FIGURE's square box,
-   placed on the subject's RIGHT eye — the lens on the left of the screen,
-   measured off the source at x 46-53.5%, y 14.5-21%. The subject's other eye
-   stays uncovered, which is what keeps the portrait a portrait. */
+   The composition's single accent. Percentages of the FIGURE's box, anchored
+   top-right. This rule is the STAND pose's clear zone: measured
+   silhouette-clear from x >= 65% through the top ~20% band on
+   `profile-animate-stand.png` (discovery #137). Marker rect in figure
+   coords: x 82.5-96%, y 5-13%. Mapped through `--cf-ar` to stage coordinates
+   this lands in the deliberately-open c4/c5 tracks, >10 points of stage
+   height clear of the nearest plate (`.a-aside`). That margin is geometric,
+   not a stacking trick — do NOT raise this element's z-index to fix
+   occlusion; see design #135's guardrail. Label budget: `labelWidth < 0.32 *
+   figureWidth` (see `types.ts`'s `availability` JSDoc).
+
+   Discovery #137's "shared clear band" claim does NOT hold for the SIT
+   pose's crouch once the label's actual rendered width is accounted for —
+   verified visually (not just by silhouette-band math), the label lands on
+   the character's ear/temple at this `top`. The narrow-tier override below
+   pushes it down past the head/collar instead. Per-pose branching, one rule
+   per tier — re-verify visually against BOTH assets if this anchor ever
+   moves again; the band math alone was not sufficient last time. */
 
 .cf__mark {
   position: absolute;
-  top: 13%;
-  left: 45.5%;
+  top: 5%;
+  right: 4%;
   display: flex;
-  width: 9.8%;
+  width: 9%;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   pointer-events: none;
 }
 
@@ -180,15 +259,47 @@
   z-index: var(--z-plate-interactive);
   display: flex;
   padding: var(--space-md);
-  background: var(--field-olive);
   box-shadow: var(--plate-shadow);
-  color: var(--paper-white);
-  /* No border. Field Olive on Paper is 5.77:1 — the plate edge is already its
-     own boundary and a rule around it would only add weight. */
   text-decoration: none;
+  /* `--dock-scale` is written by `ChannelField.tsx`'s pointer-tracked
+     "mechanical dock" — every real plate's distance to the cursor, applied
+     here so it composes with the hover/active transforms below instead of
+     fighting them. Defaults to 1 (untouched) when the effect is disabled
+     (reduced motion, coarse pointer) or the plate is a `pending` `div`,
+     which the hook never writes to. Same `--dur-micro`/`--ease-hard` pair
+     the hover lift already used — a spatial falloff, not a new time-domain
+     easing; see `dockHover.ts`'s header before reading this as a bounce. */
+  transform: scale(var(--dock-scale, 1));
   transition:
     transform var(--dur-micro) var(--ease-hard),
     box-shadow var(--dur-micro) var(--ease-hard);
+}
+
+/* ---- TONE — one of these three, always; `ChannelPlate` never renders
+   `.cf-card` bare. Same fills as `cert-wall`'s `.cert-mat--*`, see the file
+   header for the audited ratios. */
+
+.cf-card--mid {
+  background: var(--field-olive);
+  color: var(--paper-white);
+  /* No border. Field Olive on Paper is 5.77:1 — the plate edge is already its
+     own boundary and a rule around it would only add weight. */
+}
+
+.cf-card--light {
+  /* Paper White on Paper is ~1.09:1 — invisible without a border. Ink at
+     `--rule-thick`, same convention `cert-wall`'s `.cert-mat` uses
+     unconditionally (there every tone gets it; here only light needs it,
+     since mid and dark are already high-contrast against the page on their
+     own fill alone). */
+  border: var(--rule-thick) solid var(--ink);
+  background: var(--paper-white);
+  color: var(--ink);
+}
+
+.cf-card--dark {
+  background: var(--ink);
+  color: var(--ink-inverse);
 }
 
 /* Raising z-index on hover is the affordance, not decoration: on an
@@ -201,7 +312,7 @@ a.cf-card:hover,
 a.cf-card:focus-visible {
   z-index: calc(var(--z-plate-interactive) + 10);
   box-shadow: 5px 7px 18px rgb(17 17 17 / 30%);
-  transform: translateY(-3px);
+  transform: translateY(-3px) scale(var(--dock-scale, 1));
 }
 
 a.cf-card:focus-visible {
@@ -210,7 +321,7 @@ a.cf-card:focus-visible {
 }
 
 a.cf-card:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(var(--dock-scale, 1));
 }
 
 /* A channel with no address yet. Deliberately NOT dimmed: reducing opacity
@@ -254,6 +365,14 @@ a.cf-card:active {
   opacity: 0.35;
 }
 
+/* Only `dark` needs an override: `SLOT_TONE` never puts `light` on a banner
+   slot (`channelLayout.ts`), so a Paper White-on-Paper-White tick there
+   isn't a case that exists yet — if that mapping ever changes, this rule
+   needs a `--light` sibling too. */
+.cf-card--dark.cf-card--banner::after {
+  background: var(--ink-inverse);
+}
+
 .cf-card__name {
   font-size: var(--text-body);
   font-weight: 700;
@@ -294,14 +413,27 @@ a.cf-card:active {
      truncated address is a wrong address. It wraps. */
   overflow-wrap: anywhere;
   text-transform: uppercase;
+  /* Per-tone floor, not one shared value — `--on-olive-dim` only proves out
+     on Field Olive. `.cert-mat__kicker` sets the same three numbers for the
+     same three fills; see the file header for the ratios. */
+  opacity: 0.6;
+}
+
+.cf-card--mid .cf-card__meta {
   opacity: var(--on-olive-dim);
+}
+
+.cf-card--dark .cf-card__meta {
+  opacity: 0.62;
 }
 
 .cf-card__glyph {
   width: 15px;
   height: 15px;
   flex-shrink: 0;
-  color: var(--paper-white);
+  /* No color here — inherits `.cf-card--{tone}`'s `color`, same as the SVG
+     fill on `cert-wall`'s icons. Do not hardcode a fill; it was Paper White
+     unconditionally before tone existed, which is wrong on light and dark. */
 }
 
 /* In `vertical-rl` the TEXT rotates 90deg clockwise; a replaced element does
@@ -316,33 +448,6 @@ a.cf-card:active {
   font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: var(--track-label);
-}
-
-/* ---- FLOATING ACCENTS --------------------------------------------------
-   Outside the column bounds, in `.cf`'s padding. Each carries its own Paper
-   ground so it never has to print onto the photograph. */
-
-.cf__accent {
-  position: absolute;
-  z-index: calc(var(--z-plate-decor) + 1);
-  padding: 2px var(--space-2xs);
-  background: var(--paper);
-  color: var(--gray);
-  font-size: var(--text-micro);
-  letter-spacing: var(--track-micro);
-  pointer-events: none;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.cf__accent--coord {
-  top: var(--space-md);
-  right: var(--space-lg);
-}
-
-.cf__accent--sn {
-  right: var(--space-lg);
-  bottom: var(--space-2xs);
 }
 
 /* ---- PLACEMENT ---------------------------------------------------------
@@ -362,12 +467,17 @@ a.cf-card:active {
   grid-area: 3 / 1 / 8 / 2;
 }
 
+/* Trades columns with `.a-feature` (2026-08-23) — was c5, now c3 — as part
+   of the rebalance above. Row span unchanged. */
 .a-aside {
-  grid-area: 4 / 5 / 9 / 6;
+  grid-area: 4 / 3 / 9 / 4;
 }
 
+/* Trades columns with `.a-aside` (2026-08-23) — was c3, now c5, the widest
+   track (1.5fr), so the field's one open Paper-White tile stays the widest
+   plate even after the swap. Row span unchanged. */
 .a-feature {
-  grid-area: 7 / 3 / 12 / 4;
+  grid-area: 7 / 5 / 12 / 6;
 }
 
 .a-conn-a {
@@ -389,19 +499,31 @@ a.cf-card:active {
   .cf {
     --cf-ar: 1.34;
   }
-
-  .cf__accent--coord {
-    display: none;
-  }
 }
 
 @media (max-width: 900px) {
+  /* Same release `contact-page.css`'s `:has()` chain does one level up —
+     below this width the whole page drops the bounded-flex-height budget
+     for natural content height and ordinary page scroll (WCAG 1.4.10; see
+     CLAUDE.md's "no-scroll rule is released below 768px"). `.cf`/`.cf__frame`
+     have to release with it: staying `flex: 1 1 auto` inside a parent that
+     no longer hands down a definite height collapses both to zero, and
+     `container-type: size` on a zero-height box is exactly what would
+     collapse `.cf__stage` too. */
   .cf {
+    display: block;
     padding: var(--space-md) var(--space-xs) var(--space-lg);
+  }
+
+  .cf__frame {
+    display: block;
+    container-type: normal;
   }
 
   .cf__stage {
     display: grid;
+    width: 100%;
+    height: auto;
     /* Two tracks, still unequal. The children here are individual PLATES, not
        column wrappers, so auto-flow fills across-then-down and visual order
        equals DOM order for free. A per-column-wrapper layout reads
@@ -424,7 +546,6 @@ a.cf-card:active {
     /* NEVER `dense`: it fills holes out of order, which decouples visual
        order from DOM order. */
     grid-auto-flow: row;
-    aspect-ratio: auto;
     gap: var(--space-sm);
   }
 
@@ -441,55 +562,46 @@ a.cf-card:active {
     grid-area: auto;
   }
 
-  .cf__conn,
-  .cf__accent--sn {
+  .cf__conn {
     display: none;
   }
 
+  /* The figure is `grid-column: 1 / -1` and first in DOM order under
+     `grid-auto-flow: row`, so it owns a full-width row and every plate flows
+     into a LATER row — zero overlap with the marker by construction, no
+     clear-zone derivation needed at this tier (discovery
+     #136). `height: auto` is load-bearing: the base rule's `height: 104%`
+     still cascades here, and a definite height overrides `aspect-ratio`,
+     which would stop the figure matching the sit pose's 1:1 ratio, letterbox
+     it under `contain`, and land the marker on bare element padding instead
+     of paint — the exact failure the ratio-on-`.cf__figure` rule (see the
+     base block's comment) exists to prevent. Do not delete it. */
   .cf__figure {
     position: relative;
     bottom: auto;
     left: auto;
-    display: flex;
-    width: 100%;
     height: auto;
-    flex-direction: column;
-    align-items: center;
+    width: min(100%, 340px);
+    margin-inline: auto;
     margin-bottom: var(--space-xs);
-    aspect-ratio: auto;
+    aspect-ratio: 1;
     grid-column: 1 / -1;
     transform: none;
   }
 
   .cf__figure-img {
-    position: relative;
-    width: 100%;
-    height: 230px;
-    inset: auto;
+    background-image: var(--cf-plate-narrow);
   }
 
-  /* The figure's box is no longer square, so the percentage that put the box
-     on the eye no longer maps there. The marker becomes a caption under the
-     banner — it is NOT `display: none`. Its label is unique content and doc
-     12 never sheds that. */
+  /* The shared top-right anchor (base rule above) was derived against the
+     stand pose's silhouette and does not hold for the sit pose's crouch —
+     its head sits closer to that corner, so the label (wider than the box,
+     growing leftward under `align-items: flex-end`) lands on the character.
+     Pushed down clear of the head/collar; verified visually at 390px, not
+     just by silhouette-band math (see design #135's own caveat that this
+     needs a human look, not just e2e). */
   .cf__mark {
-    position: static;
-    top: auto;
-    left: auto;
-    width: auto;
-    flex-direction: row;
-    align-items: center;
-    margin-top: var(--space-xs);
-    gap: var(--space-2xs);
-  }
-
-  .cf__mark-box {
-    width: var(--space-sm);
-    aspect-ratio: 1.25;
-  }
-
-  .cf__mark-label {
-    margin-top: 0;
+    top: 24%;
   }
 
   .cf-card {
@@ -528,10 +640,6 @@ a.cf-card:active {
 @media (max-width: 640px) {
   .cf__stage {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .cf__figure-img {
-    height: 190px;
   }
 }
 

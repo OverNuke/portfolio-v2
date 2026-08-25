@@ -692,32 +692,109 @@
   }
 }
 
+/* THE BEATS. Six, in reading order: what the section is, then what is in
+   it, then what you can do about it, and only then the chrome — the one
+   part that is not information. Full write-up in docs/14_REFORM_MOTION.md.
+
+   Every beat is a clip wipe, never an opacity fade, and that is a rule
+   rather than a preference. Two parts of this composition carry an
+   opacity that MEANS something — `.pf__mark` and `.pf__meta` sit at
+   `--on-olive-chrome`, a documented contrast floor — and an opacity
+   keyframe with `both` would latch them to 1 permanently, quietly
+   raising chrome above the floor tokens.css computed for it. A wipe
+   cannot do that. */
+
+[data-motion="full"] .pf__title,
 [data-motion="full"] .pf__band,
 [data-motion="full"] .pf-record__figure,
-[data-motion="full"] .pf-record__cap {
+[data-motion="full"] .pf-record__cap,
+[data-motion="full"] .pf-record__bar,
+[data-motion="full"] .pf-record__corner,
+[data-motion="full"] .pf__mark,
+[data-motion="full"] .pf__meta,
+[data-motion="full"] .pf__note {
   animation: pf-wipe var(--dur-turn) var(--ease-hard) both;
 }
 
+/* Beat 1 — the title leads, undelayed. It is the largest thing on the
+   composition and it used to be the only thing that never arrived. */
+[data-motion="full"] .pf__title {
+  animation-delay: 0ms;
+}
+
+/* Beat 2 — the band, one step behind the title. */
+[data-motion="full"] .pf__band {
+  animation-delay: 60ms;
+}
+
+/* Beats 3 and 4 — the records, in descending scale. The ladder is
+   generated off `data-record` against --stagger-rank instead of the five
+   hand-written delays this block used to carry, so the step is a token
+   and a sixth record needs one rung, not a new pair of rules.
+   `.pf-record__bar` / `__corner` are poster-tier only (display: none
+   above 900px), and they trail their own record by half a step so the
+   accent lands after the plate it marks rather than with it. */
 [data-motion="full"] .pf-record[data-record="1"] .pf-record__figure,
 [data-motion="full"] .pf-record[data-record="1"] .pf-record__cap {
-  animation-delay: 60ms;
+  animation-delay: calc(60ms + 0 * var(--stagger-rank));
 }
 [data-motion="full"] .pf-record[data-record="2"] .pf-record__figure,
 [data-motion="full"] .pf-record[data-record="2"] .pf-record__cap {
-  animation-delay: 110ms;
+  animation-delay: calc(60ms + 1 * var(--stagger-rank));
 }
 [data-motion="full"] .pf-record[data-record="3"] .pf-record__figure,
 [data-motion="full"] .pf-record[data-record="3"] .pf-record__cap {
-  animation-delay: 160ms;
+  animation-delay: calc(60ms + 2 * var(--stagger-rank));
 }
 [data-motion="full"] .pf-record[data-record="4"] .pf-record__figure,
 [data-motion="full"] .pf-record[data-record="4"] .pf-record__cap {
-  animation-delay: 210ms;
+  animation-delay: calc(60ms + 3 * var(--stagger-rank));
 }
 [data-motion="full"] .pf-record[data-record="5"] .pf-record__figure,
 [data-motion="full"] .pf-record[data-record="5"] .pf-record__cap {
-  animation-delay: 260ms;
+  animation-delay: calc(60ms + 4 * var(--stagger-rank));
 }
+
+[data-motion="full"] .pf-record[data-record="1"] .pf-record__bar,
+[data-motion="full"] .pf-record[data-record="1"] .pf-record__corner {
+  animation-delay: calc(90ms + 0 * var(--stagger-rank));
+}
+[data-motion="full"] .pf-record[data-record="2"] .pf-record__bar,
+[data-motion="full"] .pf-record[data-record="2"] .pf-record__corner {
+  animation-delay: calc(90ms + 1 * var(--stagger-rank));
+}
+[data-motion="full"] .pf-record[data-record="3"] .pf-record__bar,
+[data-motion="full"] .pf-record[data-record="3"] .pf-record__corner {
+  animation-delay: calc(90ms + 2 * var(--stagger-rank));
+}
+[data-motion="full"] .pf-record[data-record="4"] .pf-record__bar,
+[data-motion="full"] .pf-record[data-record="4"] .pf-record__corner {
+  animation-delay: calc(90ms + 3 * var(--stagger-rank));
+}
+[data-motion="full"] .pf-record[data-record="5"] .pf-record__bar,
+[data-motion="full"] .pf-record[data-record="5"] .pf-record__corner {
+  animation-delay: calc(90ms + 4 * var(--stagger-rank));
+}
+
+/* Beat 5 — chrome last, unstaggered. It is the machine talking about
+   itself, and it should be the last voice in the room. */
+[data-motion="full"] .pf__mark,
+[data-motion="full"] .pf__meta,
+[data-motion="full"] .pf__note {
+  animation-delay: 420ms;
+}
+
+/* NOT ANIMATED, and each for its own reason — this list is the point of
+   the block, not an omission:
+   - `.pf-record__disc` owns a `clip-path: circle()`. A wipe is also a
+     clip-path, so it would replace the circle and paint a rectangle for
+     the length of the animation. An opacity fade is no better: the disc's
+     whole effect is `mix-blend-mode: multiply`, which a mid-fade alpha
+     turns to mush. It arrives with its poster.
+   - `.pf-shape` and its variants, same first reason. See the
+     reduced-motion note below, which has been guarding exactly this.
+   - `.pf-record__badges`, `.pf-record__year` — a sixth beat is one beat
+     past where the eye is still counting. */
 
 /**
  * `data-motion="reduced"` simply never adds the animation — an omission,
@@ -725,17 +802,23 @@
  * the belt to that hook's braces, for the frame before React reads the
  * media query.
  *
- * THE SELECTOR LIST IS EXACT ON PURPOSE. It resets the three WIPE CARRIERS
- * and never `.pf-shape`, because `clip-path: none !important` on a shape
+ * THE SELECTOR LIST IS EXACT ON PURPOSE. It resets every WIPE CARRIER and
+ * never `.pf-shape` or `.pf-record__disc`, because `clip-path: none !important` on a shape
  * would dissolve the circles and the fused lobe — the composition's entire
  * subject — into rectangles for every reduced-motion user. A blanket
  * `.pf * { clip-path: none }` here would be a silent, total design
  * failure for exactly the audience least able to report it.
  */
 @media (prefers-reduced-motion: reduce) {
+  .pf__title,
   .pf__band,
+  .pf__mark,
+  .pf__meta,
+  .pf__note,
   .pf-record__figure,
   .pf-record__cap,
+  .pf-record__bar,
+  .pf-record__corner,
   .pf-overlay {
     animation: none !important;
     clip-path: none !important;

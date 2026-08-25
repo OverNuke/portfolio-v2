@@ -44,13 +44,7 @@ describe("ContactPage", () => {
 
   it("keeps every decorative mark out of the accessibility tree", () => {
     const { container } = renderPage();
-    const decorative = [
-      ".cf__figure-img",
-      ".cf__mark-box",
-      ".cf__conn",
-      ".cf__accent--coord",
-      ".cf__accent--sn",
-    ];
+    const decorative = [".cf__figure-img", ".cf__mark-box", ".cf__conn"];
     for (const selector of decorative) {
       const el = container.querySelector(selector);
       expect(el, `${selector} should render`).not.toBeNull();
@@ -100,6 +94,16 @@ describe("ContactPage", () => {
       expect(plate?.tagName).toBe("DIV");
       expect(plate).not.toHaveAttribute("href");
     }
+  });
+
+  it("drops the ghost editorial accents and the Panel metadata line", () => {
+    // 2026-08-23: "channels open" (Panel metadata), "CH—FIELD / REV 02", and
+    // the lat/long accent all read as spec-plate dressing with no
+    // informational load against the editorial direction — dropped outright,
+    // not just hidden from the accessibility tree.
+    const { container } = renderPage();
+    expect(container.querySelector(".panel__metadata")).not.toBeInTheDocument();
+    expect(container.querySelector(".cf__accent")).not.toBeInTheDocument();
   });
 
   it("still has channels waiting on a real address", () => {

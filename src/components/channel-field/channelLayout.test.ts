@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assignChannelSlots, CHANNEL_SLOTS, SLOT_VARIANT } from "./channelLayout";
+import { assignChannelSlots, CHANNEL_SLOTS, SLOT_TONE, SLOT_VARIANT } from "./channelLayout";
 import { SOCIAL_LINKS } from "../../content/data";
 import type { SocialLink } from "../../content/types";
 
@@ -24,6 +24,11 @@ describe("assignChannelSlots", () => {
   it("gives each slot the variant its track shape requires", () => {
     const { placed } = assignChannelSlots(SOCIAL_LINKS);
     for (const entry of placed) expect(entry.variant).toBe(SLOT_VARIANT[entry.slot]);
+  });
+
+  it("gives each slot the tone the composition assigns it", () => {
+    const { placed } = assignChannelSlots(SOCIAL_LINKS);
+    for (const entry of placed) expect(entry.tone).toBe(SLOT_TONE[entry.slot]);
   });
 
   it("never puts two channels in the same slot", () => {

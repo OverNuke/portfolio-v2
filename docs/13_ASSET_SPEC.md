@@ -166,8 +166,12 @@ do on a white canvas.
 `05_ACCESSIBILITY.MD` applies:
 
 - `HERO` is `alt=""` + `aria-hidden="true"`. It is atmosphere, and the
-  identity block already carries the name and role — which is the
-  standing `NameRevealIntro` dependency.
+  identity block already carries the name and role independently — Home's
+  only accessible carriers of that information, since everything else on
+  the collage canvas (including the hero) is `aria-hidden`. (Note, added
+  2026-08-24, `sdd/drop-intro-hero-placeholder`: Home's own hero slot
+  currently holds a reserved, imageless placeholder rather than a photo —
+  this asset contract still governs whichever `HERO` plate replaces it.)
 - Every other plate needs real alt text describing what the image shows.
   `"Screenshot of the KEVIN_ARCHIVE_OS interface, screenprinted"` — not
   `"project screenshot"`.

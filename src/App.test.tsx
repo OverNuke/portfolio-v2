@@ -7,12 +7,16 @@ import { ROUTES } from "./routes/routes";
 
 /**
  * Task 2.5 (sdd/phase2-app-shell). `App` composes `TurnProvider` + `Shell`
- * (=Home) + `PageLayer` (gated on `layerMounted`) + `Announcer`, plus
- * `NameRevealIntro` gated per D6 (mounted only when the INITIAL location is
- * "/", decided once). `App` itself stays Router-agnostic (design file
- * layout: `main.tsx` owns `<BrowserRouter>`) — every test here supplies its
- * own `MemoryRouter`, same precedent as `TurnProvider.test.tsx`/
- * `Shell.test.tsx`.
+ * (=Home) + `PageLayer` (gated on `layerMounted`) + `Announcer`. `App`
+ * itself stays Router-agnostic (design file layout: `main.tsx` owns
+ * `<BrowserRouter>`) — every test here supplies its own `MemoryRouter`,
+ * same precedent as `TurnProvider.test.tsx`/`Shell.test.tsx`.
+ *
+ * `NameRevealIntro` (previously mounted once at "/" per design D6) was
+ * removed `sdd/drop-intro-hero-placeholder` (2026-08-24) — Home now renders
+ * content on first paint with no gating overlay. The identity assertions
+ * below survive that removal unchanged, since they were always pinning
+ * Home's own accessible markup (Fence A), never the intro itself.
  */
 function renderApp(initialPath = "/") {
   return render(
@@ -25,18 +29,13 @@ function renderApp(initialPath = "/") {
 describe("App", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    // NameRevealIntro persists "intro:played" in sessionStorage on dismiss —
-    // jsdom's sessionStorage survives across tests in this file, which would
-    // turn "intro mounts at /" into a false negative for every test after
-    // the first one that dismisses it.
-    sessionStorage.clear();
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  it("renders the accessible name/role content on Home, outside the decorative intro", () => {
+  it("renders the accessible name/role content on Home", () => {
     renderApp("/");
 
     expect(
@@ -45,24 +44,18 @@ describe("App", () => {
     expect(screen.getByText(ABOUT_PROFILE.role)).toBeInTheDocument();
   });
 
-  it("mounts NameRevealIntro when the initial location is '/' (D6)", () => {
-    renderApp("/");
-    expect(screen.getByText(/tap to skip/i)).toBeInTheDocument();
-  });
-
   it.each(ROUTES.map((route) => [route.path, route.title, route.tag] as const))(
-    "renders the placeholder Panel for %s inside the composed app, and does NOT mount the intro (D6)",
+    "renders the placeholder Panel for %s inside the composed app, with identity content still structurally present",
     (path, title, tag) => {
       renderApp(path);
 
-      // D6: initial location isn't "/", so the intro must not mount.
-      expect(screen.queryByText(/tap to skip/i)).not.toBeInTheDocument();
-
-      // The identity content still structurally exists in the Shell (D6's
-      // safety requirement — the host must independently carry name/role)
-      // even though the deep-link forward-home turn makes it `inert`
-      // synchronously in the same commit; query with `hidden: true` since
-      // `aria-hidden` excludes it from the default a11y-tree query.
+      // The identity content still structurally exists in the Shell (the
+      // accessibility requirement Home's identity carriers must satisfy
+      // unconditionally, independent of any intro — see
+      // sdd/drop-intro-hero-placeholder) even though the deep-link
+      // forward-home turn makes it `inert` synchronously in the same
+      // commit; query with `hidden: true` since `aria-hidden` excludes it
+      // from the default a11y-tree query.
       expect(
         screen.getByRole("heading", { name: "Kevin Sebastián Frías García", hidden: true }),
       ).toBeInTheDocument();

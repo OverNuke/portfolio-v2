@@ -34,8 +34,10 @@ describe("home.css", () => {
   // (a) Every block placed on the canvas must declare a grid-area. The
   // 2026-08-06 "ghost plate" Home is a 4-area grid rather than a 12x12
   // collage, but the rule it enforces is unchanged: placement is CSS's
-  // job, declared once, never an inline style. The photograph, the seam
-  // and the margin reticles are absolutely positioned instead — they are
+  // job, declared once, never an inline style. The reserved hero
+  // placeholder (the seated-cutout photograph, dropped
+  // `sdd/drop-intro-hero-placeholder`, 2026-08-24), the seam and the
+  // margin reticles are absolutely positioned instead — they are
   // decorative, aria-hidden, and outside the grid on purpose, which is
   // exactly what check (b) below pins down.
   const PLACEMENT_SELECTORS = [".hm-meta", ".hm-mast", ".hm-role", ".hm-stack"];
@@ -88,7 +90,7 @@ describe("home.css", () => {
   // (d) z-index values fall within the band matching what they carry —
   // interactive (the index plate and the channel strip, both real
   // controls) vs content (identity, stack rail — inert) vs decorative
-  // (photograph, seam, margin chrome) — docs/12_COLLAGE_SYSTEM.md's
+  // (hero placeholder, seam, margin chrome) — docs/12_COLLAGE_SYSTEM.md's
   // stack-order-follows-meaning rule (interactive > content > decorative).
   // An explicit table, not a single "nav" regex, so a mis-banded new plate
   // fails loudly instead of shipping unenforced.
@@ -96,9 +98,12 @@ describe("home.css", () => {
     // 2026-08-10: the painted masthead is DECORATIVE and belongs in the
     // bottom band. Not a demotion — the honest reading: both copies are
     // aria-hidden and the accessible name is the visually hidden <h1>. It
-    // is also what makes the composition work: --back at 2, the
-    // photograph at 5, the 10% overprint --over at 8.
-    { pattern: /hm-(field|shade|hero|mast|kg)/i, min: 1, max: 9 },
+    // is also what makes the composition work: --back at 2, the hero slot
+    // at 5, the 10% overprint --over at 8. `.hm-shade` (the contact-shade
+    // anti-sticker device the removed photograph stood on) was deleted
+    // outright `sdd/drop-intro-hero-placeholder` (design D4) — dropped from
+    // this band regex since no rule is left to match.
+    { pattern: /hm-(field|hero|mast|kg)/i, min: 1, max: 9 },
     { pattern: /hm-(meta|role|stack)/i, min: 10, max: 19 },
     // The interactive band (20-30) has no member left in this file — the
     // module wheel (formerly `.hm-wheel`/`.hm-gate`/`.hm-advance`) was
