@@ -1,4 +1,5 @@
 import { act, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, useNavigate } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ROUTES } from "../../routes/routes";
@@ -20,11 +21,35 @@ import { WheelProvider } from "./WheelContext";
  *     patching every call site that might navigate.
  *   · the global trigger has no onboarding copy and isn't
  *     `sessionStorage`-backed.
+ *
+ * `animejs/draggable` is mocked (sdd/animejs-wheel-trigger-drag) — jsdom
+ * has no `DOMPoint`, which the real `Draggable`'s `Transforms` class
+ * needs unconditionally, so every test here would throw on mount without
+ * this (`.wheel-trigger` renders in every closed-state test, and
+ * `useWheelTriggerDrag` now runs unconditionally while it does). Real
+ * drag geometry belongs to `e2e/wheel-trigger-drag.spec.ts` instead —
+ * click-vs-drag disambiguation is meaningless against a mock.
  */
 const goMock = vi.hoisted(() => vi.fn());
+const createDraggableMock = vi.hoisted(() =>
+  vi.fn(() => ({
+    setX: vi.fn(),
+    setY: vi.fn(),
+    refresh: vi.fn(),
+    revert: vi.fn(),
+    disable: vi.fn(),
+  })),
+);
 
 vi.mock("../../turn/useTurn", () => ({
   useTurn: () => ({ go: goMock }),
+}));
+
+vi.mock("animejs/draggable", () => ({
+  createDraggable: createDraggableMock,
+}));
+vi.mock("animejs", () => ({
+  cubicBezier: vi.fn(() => "mock-ease"),
 }));
 
 function RouteChanger({ to }: { to: string }) {
@@ -95,6 +120,28 @@ describe("ModuleWheel", () => {
 
     expect(wheel()).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Open navigation" })).not.toBeInTheDocument();
+    expect(goMock).not.toHaveBeenCalled();
+  });
+
+  it("Tab-focusing the trigger then pressing Enter opens the wheel via native <button> activation, not the document-level Space shortcut", async () => {
+    // Real timers for this one — user-event's internal delays don't play
+    // well with the suite's fake timers (beforeEach above), and nothing
+    // in this interaction depends on the turn/debounce timing they exist
+    // to control.
+    vi.useRealTimers();
+    const user = userEvent.setup();
+    renderWheel();
+
+    const trigger = screen.getByRole("button", { name: "Open navigation" });
+    // `renderWheel`'s own `RouteChanger` test button sits before the
+    // trigger in tab order — tab past it to reach the real trigger.
+    await user.tab();
+    await user.tab();
+    expect(trigger).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+
+    expect(wheel()).toBeInTheDocument();
     expect(goMock).not.toHaveBeenCalled();
   });
 

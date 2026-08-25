@@ -213,11 +213,27 @@ export function FieldRecord({ project, slot, position, primary, onExpand }: Fiel
       <span className="pf-record__corner" aria-hidden="true" />
       <span className="pf-record__disc" aria-hidden="true" />
 
-      <div className="pf-record__figure" style={figureStyle}>
+      {/* The two parts that survive the 900px line and are worth
+          following across it (docs/14_REFORM_MOTION.md). The plate SCALES
+          — it is a square, so the circle stays a circle under a uniform
+          scale — and the caption does not, because scaled type smears at
+          every intermediate frame. */}
+      <div
+        className="pf-record__figure"
+        style={figureStyle}
+        data-reform-id={`figure-${position}`}
+        data-reform-rank={position - 1}
+      >
         <Shape project={project} variant={primary ? "fused" : "circle"} />
       </div>
 
-      <div className="pf-record__cap" style={capStyle}>
+      <div
+        className="pf-record__cap"
+        style={capStyle}
+        data-reform-id={`cap-${position}`}
+        data-reform-rank={position - 1}
+        data-reform-scale="none"
+      >
         <p className="pf-record__lead" aria-hidden="true">
           <span className="pf-record__tick">{tick}</span>
           <span className="pf-record__rule" />

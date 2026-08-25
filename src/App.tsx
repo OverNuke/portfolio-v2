@@ -6,7 +6,6 @@ import { ProjectsPage } from "./routes/ProjectsPage";
 import { ROUTES } from "./routes/routes";
 import { Announcer } from "./shell/Announcer";
 import { Shell } from "./shell/Shell";
-// import { createDraggable } from "animejs/draggable"; // ADD ALSO A MODIFIER 
 import { ModuleWheel } from "./shell/wheel/ModuleWheel";
 import { WheelProvider } from "./shell/wheel/WheelContext";
 import { PageLayer } from "./turn/PageLayer";

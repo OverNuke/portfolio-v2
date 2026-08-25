@@ -17,7 +17,26 @@ import { ROUTES } from "./routes/routes";
  * content on first paint with no gating overlay. The identity assertions
  * below survive that removal unchanged, since they were always pinning
  * Home's own accessible markup (Fence A), never the intro itself.
+ *
+ * `animejs/draggable` is mocked (sdd/animejs-wheel-trigger-drag), same
+ * reasoning as `shell/wheel/ModuleWheel.test.tsx` — `App` renders the real
+ * `ModuleWheel`, whose closed-state trigger now calls
+ * `useWheelTriggerDrag` unconditionally, and jsdom has no `DOMPoint`
+ * (which the real `Draggable` needs).
  */
+vi.mock("animejs/draggable", () => ({
+  createDraggable: vi.fn(() => ({
+    setX: vi.fn(),
+    setY: vi.fn(),
+    refresh: vi.fn(),
+    revert: vi.fn(),
+    disable: vi.fn(),
+  })),
+}));
+vi.mock("animejs", () => ({
+  cubicBezier: vi.fn(() => "mock-ease"),
+}));
+
 function renderApp(initialPath = "/") {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>

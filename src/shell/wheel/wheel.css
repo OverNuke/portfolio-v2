@@ -111,8 +111,7 @@
   box-shadow: var(--plate-shadow-sm);
   transition:
     background-color var(--dur-cut) var(--ease-hard),
-    box-shadow var(--dur-cut) var(--ease-hard),
-    transform var(--dur-cut) var(--ease-hard);
+    box-shadow var(--dur-cut) var(--ease-hard);
 }
 
 .wheel-trigger:hover {
@@ -121,8 +120,12 @@
 }
 
 .wheel-trigger:active {
+  /* The plate pressing into the page — no translate here (sdd/
+     animejs-wheel-trigger-drag, D5): `transform` is JS-owned now
+     (`useWheelTriggerDrag`), including a passive `setX`/`setY` restore on
+     every remount with no grab in flight, so a CSS-transitioned transform
+     here would visibly slide the button on every wheel close. */
   box-shadow: none;
-  transform: translate(1px, 1px);
 }
 
 .wheel-trigger:focus-visible {
@@ -214,15 +217,21 @@
 
 /* The real focus indicator (see `--ow-focus: none` above) — hugs the
    selected LABEL itself, not the oversized container, so a keyboard user
-   still gets a clear, WCAG 2.4.7-compliant ring exactly where their
-   attention already is, without redrawing the "caged square" the
-   container-level outline would have made even more prominent than
-   before. `:focus-visible` on the ancestor (not `:focus`) so a mouse
-   click still doesn't show it — matches `ModuleWheel`'s own
-   keyboard-only focus-restoration behavior. */
+   still gets a clear, WCAG 2.4.7-compliant marker exactly where their
+   attention already is. A rule under the text, not a 4-sided outline
+   box: a bounding box read as an unwanted "hover card" appearing on
+   ordinary mouse use (a `<div>`-based listbox's `:focus-visible` isn't as
+   reliably click-suppressed as a native control's — see
+   `.option-wheel__item`'s `onMouseDown` guard in `OptionWheel.tsx`, which
+   handles the "shouldn't show on click" half of that), and its
+   `outline-offset` sat close enough to `.option-wheel`'s `overflow:
+   hidden` edge to read as clipping the label itself. An underline can't
+   extend past the text's own width, so it can't recreate either problem. */
 .wheel .option-wheel:focus-visible .option-wheel__item--selected {
-  outline: var(--rule-thick) solid var(--paper-white);
-  outline-offset: 6px;
+  text-decoration-line: underline;
+  text-decoration-color: var(--paper-white);
+  text-decoration-thickness: var(--rule-thick);
+  text-underline-offset: 0.35em;
 }
 
 /* The marker for the current option. Never colour alone. On the RIGHT of

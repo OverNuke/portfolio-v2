@@ -1,5 +1,7 @@
 import { useRef, useState, type MouseEvent } from "react";
 import type { Project } from "../../content/types";
+import { useReform } from "../../motion/useReform";
+import { readViewportTier, useViewportTier } from "../../motion/viewportTier";
 import { useReducedMotion } from "../../shell/useReducedMotion";
 import { useInert } from "../../turn/useInert";
 import { FieldRecord } from "./FieldRecord";
@@ -89,6 +91,17 @@ export function ProjectField({
   const recordsRef = useRef<HTMLDivElement>(null);
   useInert(recordsRef, expanded !== null);
 
+  // THE REFORM. Crossing 900px does not re-style this module, it
+  // re-composes it — the bounded stage releases and every record becomes a
+  // poster. `useReform` carries the parts that exist on both sides of that
+  // line across it instead of cutting; the parts that only exist on one
+  // side are faded by CSS. Crossing 1100px is free: same composition,
+  // smaller measure, so nothing moves relative to anything else and every
+  // delta comes out under the hook's epsilon.
+  const stageRef = useRef<HTMLDivElement>(null);
+  const tier = useViewportTier();
+  useReform(stageRef, tier, { readKey: readViewportTier });
+
   if (!slots) {
     return (
       <div className="pf pf--empty">
@@ -124,18 +137,21 @@ export function ProjectField({
       className="pf"
       data-layout={projects.length}
       data-motion={reducedMotion ? "reduced" : "full"}
+      data-tier={tier}
     >
-      <div className="pf__stage">
+      <div className="pf__stage" ref={stageRef}>
         <FieldShapeDefs />
 
-        <h2 className="pf__title">{fullTitle}</h2>
+        <h2 className="pf__title" data-reform-id="title" data-reform-scale="none">
+          {fullTitle}
+        </h2>
 
         {/* The band is the artboard, and it is decoration in the strict
             sense: every string printed on it is either a label for
             something the foot index already states in full, or the
             module's own colophon. Nothing here is the only copy of
             anything, which is why losing it below 768px costs nothing. */}
-        <div className="pf__band">
+        <div className="pf__band" data-reform-id="band">
           <p className="pf__mark" aria-hidden="true">
             Project database
           </p>

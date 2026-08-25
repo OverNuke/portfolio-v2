@@ -125,83 +125,61 @@ moment the box's aspect changes.
 
 ### 3b. The real version, for anything laid out by grid or flow
 
-Use FLIP. `src/motion/useReform.ts`:
+Use FLIP: `src/motion/useReform.ts`. It is shipped, tested and wired into
+`/projects` — read the file, do not re-derive it. The contract:
 
-```ts
-import { useLayoutEffect, useRef } from "react";
-
-/**
- * FLIP for a set of parts that keep their identity across a layout change.
- * Measure before, let the browser lay out, measure after, invert with a
- * transform, then release. Nothing here is module-specific — that is the
- * point.
- *
- * `key` is whatever changed the layout: a breakpoint tier, a view mode, a
- * page index. `parts` is a ref to the container; every descendant with
- * `[data-reform-id]` is tracked, and the id is the part's identity.
- */
-export function useReform(container: React.RefObject<HTMLElement>, key: string) {
-  const previous = useRef<Map<string, DOMRect>>(new Map());
-  const reduced = useRef(false);
-
-  useLayoutEffect(() => {
-    reduced.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  }, []);
-
-  useLayoutEffect(() => {
-    const root = container.current;
-    if (!root) return;
-
-    const parts = Array.from(root.querySelectorAll<HTMLElement>("[data-reform-id]"));
-    const next = new Map<string, DOMRect>();
-    for (const el of parts) next.set(el.dataset.reformId!, el.getBoundingClientRect());
-
-    const before = previous.current;
-    previous.current = next;
-
-    // First paint, or reduced motion: record positions, animate nothing.
-    if (before.size === 0 || reduced.current) return;
-
-    for (const el of parts) {
-      const id = el.dataset.reformId!;
-      const from = before.get(id);
-      const to = next.get(id);
-      if (!from || !to || from.width === 0 || to.width === 0) continue;
-
-      const dx = from.left - to.left;
-      const dy = from.top - to.top;
-      const sx = from.width / to.width;
-      const sy = from.height / to.height;
-      if (Math.abs(dx) < 1 && Math.abs(dy) < 1 && Math.abs(sx - 1) < 0.01) continue;
-
-      const rank = Number(getComputedStyle(el).getPropertyValue("--rank")) || 0;
-      const stagger = parseFloat(getComputedStyle(el).getPropertyValue("--stagger-rank")) || 55;
-
-      el.animate(
-        [{ transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` }, { transform: "none" }],
-        {
-          duration: 560,
-          delay: rank * stagger,
-          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-          fill: "both",
-        },
-      );
-    }
-  }, [key, container]);
-}
+```tsx
+const stageRef = useRef<HTMLDivElement>(null);
+const tier = useViewportTier();
+useReform(stageRef, tier, { readKey: readViewportTier });
 ```
 
-**`scale` distorts type and borders.** It is fine for a plate, a photo or
-a flat surface; it is wrong for a text block. Give text parts a
-`data-reform-id` but no size change — move them, do not resize them —
-or animate their container and let the text sit still inside it.
+and every part that should be followed across the change carries:
 
-**Do not read the durations from JS if you can avoid it.** The values
-above are duplicated from the tokens on purpose: `getComputedStyle` per
-part per reform is a measurable cost, and these two numbers change about
-once a year. If they drift, `tokens.test.ts` is the place to catch it.
+| Attribute                  | Meaning                                      |
+| -------------------------- | -------------------------------------------- |
+| `data-reform-id="band"`    | this part's identity; required to be tracked |
+| `data-reform-rank="2"`     | delay this part by 2 × `--stagger-rank`      |
+| `data-reform-scale="none"` | move it, do not resize it                    |
 
----
+Four things in there were not obvious, and each cost a fix:
+
+**Compose, do not overwrite, the transform.** Several parts already use
+`transform` for their own layout — `.pf-record__figure` centres itself
+with `translateY(-50%)`. A textbook FLIP writes over that and the element
+snaps to its untransformed position before it animates. The inverse is
+applied _on top of_ whatever the part computes to in its new layout, and
+released back to exactly that.
+
+**Take the delta between centres, not corners.** The scale runs about the
+default `transform-origin`, so a corner delta double-counts the size
+change.
+
+**Scale smears type.** A shape scales — a square plate stays a circle
+under a uniform scale — but a caption gets `data-reform-scale="none"` and
+moves without resizing.
+
+**`fill: "backwards"`, never `"forwards"`.** A forwards fill latches the
+final transform onto the element and wins over every later CSS layout —
+the same trap as the opacity one in §2.
+
+### 3c. The bug the tests exist for
+
+The first working version played nothing at all on an instant resize, and
+review would not have caught it — it took driving a real browser across
+900px and counting `document.getAnimations()`.
+
+The cause: the snapshot of "where the parts were" was refreshed on every
+`resize`. But by the time any listener runs, the media query has already
+applied and the DOM is in the _new_ layout, so the refresh destroyed the
+only record of the old one and every delta came out zero.
+
+The fix is the `readKey` option — a function that reads the key
+synchronously, without waiting for React. On resize the hook compares it
+to the key it last animated at; if they differ, a reform is already in
+flight and the refresh stands down. Omit `readKey` and the refresh is
+skipped entirely, which is safe but leaves the snapshot as old as the last
+render — fine for a mode toggle, wrong for a breakpoint.
 
 ## 4. Applying it to another section
 

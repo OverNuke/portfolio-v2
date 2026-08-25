@@ -6,6 +6,7 @@ import { useReducedMotion } from "../useReducedMotion";
 import { useMediaQuery } from "../useMediaQuery";
 import { useTurn } from "../../turn/useTurn";
 import { useWheelGate } from "./useWheelGate";
+import { useWheelTriggerDrag } from "./useWheelTriggerDrag";
 import { useSetWheelOpen } from "./WheelContext";
 import "./wheel.css";
 
@@ -118,6 +119,12 @@ export function ModuleWheel({ modules }: ModuleWheelProps) {
 
   const { open, viaKeyboard, openGate, closeGate } = useWheelGate({ onAdvance: advance });
 
+  // sdd/animejs-wheel-trigger-drag: `enabled: !open` — the trigger only
+  // exists in the DOM while the wheel is closed, and this consumes the
+  // SAME `triggerRef` already wired above for keyboard focus restoration,
+  // not a second ref (design's Technical Approach).
+  useWheelTriggerDrag(triggerRef, { enabled: !open, reducedMotion });
+
   const setWheelOpen = useSetWheelOpen();
   useEffect(() => {
     setWheelOpen(open);
@@ -130,11 +137,21 @@ export function ModuleWheel({ modules }: ModuleWheelProps) {
     closeGate();
   }, [location.pathname, closeGate]);
 
-  // Focus follows the state, but only for keyboard transitions — a pointer
-  // user who taps the trigger should not get a focus ring under their
-  // finger.
+  // Focus follows the state on every REAL transition, not just keyboard
+  // ones and not the initial mount: Enter only commits through the
+  // listbox's own `onKeyDown` (`OptionWheel.tsx`), which requires
+  // `.option-wheel` to actually hold focus — so a wheel opened by clicking
+  // the trigger has to land focus there too, or Enter has nowhere to fire.
+  // `viaKeyboard` still decides whether a *visible* ring should show for
+  // that focus move (see `.option-wheel__item`'s `onMouseDown` guard and
+  // wheel.css) — a pointer user who taps the trigger still shouldn't see a
+  // ring under their finger, they just also need Enter to work.
+  const mountedRef = useRef(false);
   useEffect(() => {
-    if (!viaKeyboard.current) return;
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
     viaKeyboard.current = false;
     const target = open
       ? zoneRef.current?.querySelector<HTMLElement>(".option-wheel")

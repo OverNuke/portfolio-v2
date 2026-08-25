@@ -83,6 +83,15 @@ import "./option-wheel.css";
  *    place a colour is written down. Leaving them unset lets the CSS own
  *    the skin; pass them explicitly if a caller really wants inline.
  *
+ * 12. `onMouseDown={(e) => e.preventDefault()}` on each item. Upstream
+ *    items carry no `tabindex`, so a click still moves DOM focus to the
+ *    nearest focusable ancestor (`.option-wheel`, `tabindex="0"`) —
+ *    showing the keyboard `:focus-visible` ring for an ordinary mouse
+ *    click, since a `<div>`-based listbox doesn't get the same
+ *    click-suppresses-the-ring treatment a native control would.
+ *    Suppressing the default focus shift on `mousedown` leaves `onClick`
+ *    (selection/activation) untouched.
+ *
  * ── KNOWN UPSTREAM QUIRK, deliberately preserved ─────────────────────────
  * With `loop`, the internal target grows without bound as you keep
  * advancing — it is never reduced modulo `count`. It is only ever used as
@@ -506,6 +515,13 @@ export const OptionWheel = forwardRef<OptionWheelHandle, OptionWheelProps>(funct
           className={`option-wheel__item${
             selectedIndex === index ? " option-wheel__item--selected" : ""
           }`}
+          // Deviation 12: an item has no `tabindex` of its own, so a click
+          // on it would otherwise still move DOM focus to the nearest
+          // focusable ancestor (`.option-wheel`, `tabindex="0"`) — showing
+          // the keyboard focus ring for a plain mouse click. `preventDefault`
+          // on `mousedown` suppresses that default focus shift without
+          // touching `onClick`, so selection/activation is unaffected.
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => handleItemClick(index)}
         >
           {label}
