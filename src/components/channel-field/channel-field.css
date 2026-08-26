@@ -262,14 +262,17 @@
   box-shadow: var(--plate-shadow);
   text-decoration: none;
   /* `--dock-scale` is written by `ChannelField.tsx`'s pointer-tracked
-     "mechanical dock" — every real plate's distance to the cursor, applied
-     here so it composes with the hover/active transforms below instead of
-     fighting them. Defaults to 1 (untouched) when the effect is disabled
-     (reduced motion, coarse pointer) or the plate is a `pending` `div`,
-     which the hook never writes to. Same `--dur-micro`/`--ease-hard` pair
-     the hover lift already used — a spatial falloff, not a new time-domain
-     easing; see `dockHover.ts`'s header before reading this as a bounce. */
-  transform: scale(var(--dock-scale, 1));
+     "mechanical dock" — the nearest plate's distance to the cursor, eased in
+     JS (`damping.ts`) frame by frame. Defaults to 1 (untouched) when the
+     effect is disabled (reduced motion, coarse pointer) or the plate is a
+     `pending` `div`, which the hook never writes to. On the independent
+     `scale` property, deliberately WITHOUT a CSS transition: JS already
+     eases this value every frame, so a transition here would ease an
+     already-eased target and read as sluggish. `transform`, below, stays
+     free for the hover lift's own `--dur-micro` transition — the two never
+     fight over the same property. See `dockHover.ts`'s header before
+     reading the spatial falloff itself as a bounce. */
+  scale: var(--dock-scale, 1);
   transition:
     transform var(--dur-micro) var(--ease-hard),
     box-shadow var(--dur-micro) var(--ease-hard);
@@ -312,7 +315,7 @@ a.cf-card:hover,
 a.cf-card:focus-visible {
   z-index: calc(var(--z-plate-interactive) + 10);
   box-shadow: 5px 7px 18px rgb(17 17 17 / 30%);
-  transform: translateY(-3px) scale(var(--dock-scale, 1));
+  transform: translateY(-3px);
 }
 
 a.cf-card:focus-visible {
@@ -321,7 +324,7 @@ a.cf-card:focus-visible {
 }
 
 a.cf-card:active {
-  transform: translateY(0) scale(var(--dock-scale, 1));
+  transform: translateY(0);
 }
 
 /* A channel with no address yet. Deliberately NOT dimmed: reducing opacity

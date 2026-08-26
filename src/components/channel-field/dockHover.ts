@@ -28,3 +28,61 @@ export function dockScale(distance: number, radius: number, maxScale: number): n
   const smoothed = t * t * (3 - 2 * t);
   return 1 + (maxScale - 1) * smoothed;
 }
+
+/**
+ * CONTACT — dock-hover nearest-wins selection.
+ *
+ * The stage packs plates close enough that a single pointer position can sit
+ * inside more than one plate's `radius` at once (measured: Email/GitHub/
+ * Whatsapp centers only 175-194px apart at the ≥1181px tier, well inside the
+ * 240px `DOCK_RADIUS_PX`). Scoring every card independently against the
+ * pointer — the original approach — let all of them react at once, which
+ * reads as the whole field twitching rather than one instrument acknowledging
+ * the cursor. Only the single nearest in-radius card gets a real target here;
+ * every other card's target is `1`, which the caller eases back toward over
+ * several frames rather than snapping (a snap is the other half of what made
+ * this feel rough).
+ *
+ * Pure and DOM-free like `dockScale` — `key` is generic so this is testable
+ * without touching `getBoundingClientRect`.
+ */
+export interface DockCard<T> {
+  key: T;
+  centerX: number;
+  centerY: number;
+}
+
+/**
+ * @param pointer Pointer position, or `null` when the pointer has left the
+ *   stage — every card then targets `1`.
+ * Ties resolve to whichever card appears first in `cards` (strict `<`
+ * comparison never displaces an already-found nearest card at equal
+ * distance), which in practice means DOM order.
+ */
+export function dockTargets<T>(
+  pointer: { x: number; y: number } | null,
+  cards: readonly DockCard<T>[],
+  radius: number,
+  maxScale: number,
+): Map<T, number> {
+  const targets = new Map<T, number>();
+  if (!pointer) {
+    for (const card of cards) targets.set(card.key, 1);
+    return targets;
+  }
+
+  let nearest: DockCard<T> | null = null;
+  let nearestDistance = Infinity;
+  for (const card of cards) {
+    const distance = Math.hypot(pointer.x - card.centerX, pointer.y - card.centerY);
+    if (distance < radius && distance < nearestDistance) {
+      nearest = card;
+      nearestDistance = distance;
+    }
+  }
+
+  for (const card of cards) {
+    targets.set(card.key, card === nearest ? dockScale(nearestDistance, radius, maxScale) : 1);
+  }
+  return targets;
+}

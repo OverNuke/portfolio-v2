@@ -78,7 +78,6 @@ export function ProjectsPage() {
 
   return (
     <Panel
-      metadata={<span>{route.sub}</span>}
       content={
         <div className="projects-page">
           {/* `.projects-page__lede` is gone with the redesign. It printed

@@ -8,7 +8,8 @@ import {
 } from "../social-icon/SocialIcon";
 import type { SocialLink } from "../../content/types";
 import { assignChannelSlots, type PlacedChannel } from "./channelLayout";
-import { dockScale } from "./dockHover";
+import { dockTargets, type DockCard } from "./dockHover";
+import { dampStep, isSettled } from "../../motion/damping";
 import { useReducedMotion } from "../../shell/useReducedMotion";
 import { useMediaQuery } from "../../shell/useMediaQuery";
 import "./channel-field.css";
@@ -21,6 +22,15 @@ const DOCK_RADIUS_PX = 240;
 /** 1.07, not a real dock's 1.4–2x — this is a HUD instrument acknowledging
  * the cursor, not an icon demanding attention. */
 const DOCK_MAX_SCALE = 1.07;
+/** Exponential-smoothing time constant for `--dock-scale` (`damping.ts`),
+ * deliberately shorter than the 90ms `--dur-micro` the hover lift uses —
+ * `tau`-based settling takes ~3×tau to read as "done", so matching 90ms
+ * would settle around 270ms and read soft against this system's mechanical,
+ * hard-cut motion philosophy (doc 07; this module's own Motion section in
+ * `docs/design-exploration/contact-channel-field-2026-08-20.md`). Tune by
+ * eye against that hover lift if this ever looks wrong — it is a judgment
+ * call, not a measured value. */
+const DOCK_TAU_MS = 52;
 
 /**
  * CONTACT — the channel field.
@@ -164,16 +174,24 @@ export interface ChannelFieldProps {
 }
 
 /**
- * Pointer-tracked "mechanical dock": every real channel plate's scale
- * follows its actual distance to the cursor (`dockHover.ts`'s falloff),
- * not a `:hover` pseudo-class alone — the field is a 2D collage, not a
- * single row, so DOM-adjacency selectors can't express real proximity.
+ * Pointer-tracked "mechanical dock": the single nearest real channel plate
+ * eases its scale toward the cursor's distance (`dockHover.ts`'s falloff and
+ * nearest-wins selection), not a `:hover` pseudo-class alone — the field is
+ * a 2D collage, not a single row, so DOM-adjacency selectors can't express
+ * real proximity, and several plates sit close enough that scoring them
+ * independently let more than one react to the same cursor position at once
+ * (see `dockHover.ts`'s header). Only the nearest plate ever gets a target
+ * above 1; everyone else eases back toward 1.
  *
- * Writes `--dock-scale` straight to each element via a ref, throttled to
- * one update per frame — not React state, which would re-render all five
- * plates on every pointermove. `a.cf-card` only: a `pending` plate is a
- * `div` with no interaction to acknowledge, same reasoning as the existing
- * hover-lift scoping below in channel-field.css.
+ * A continuous rAF loop — not a one-shot "compute and snap" per pointermove
+ * — steps every plate's current scale toward its target with frame-rate
+ * independent exponential smoothing (`damping.ts`, the same pattern
+ * `OptionWheel.tsx` already runs), stopping itself once every plate has
+ * settled. Writes `--dock-scale` straight to each element via a ref, not
+ * React state, which would re-render all five plates every frame.
+ * `a.cf-card` only: a `pending` plate is a `div` with no interaction to
+ * acknowledge, same reasoning as the existing hover-lift scoping below in
+ * channel-field.css.
  *
  * Does nothing at all — no listeners attached — when the visitor prefers
  * reduced motion or has no fine pointer (touch): the effect degrades to the
@@ -189,40 +207,52 @@ function useDockHover(stageRef: React.RefObject<HTMLDivElement | null>) {
     const stage = stageRef.current;
     if (!stage) return;
 
+    const current = new Map<HTMLElement, number>();
+    let targets = new Map<HTMLElement, number>();
     let frame: number | null = null;
-    let pointer: { x: number; y: number } | null = null;
+    let last = 0;
 
-    function apply() {
-      frame = null;
-      const cards = stage!.querySelectorAll<HTMLElement>("a.cf-card");
-      for (const card of cards) {
-        if (!pointer) {
-          card.style.removeProperty("--dock-scale");
-          continue;
+    function runFrame(now: number) {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      let settled = true;
+      for (const [card, target] of targets) {
+        const cur = current.get(card) ?? 1;
+        let next = dampStep(cur, target, dt, DOCK_TAU_MS / 1000);
+        if (isSettled(next, target)) {
+          next = target;
+        } else {
+          settled = false;
         }
-        const rect = card.getBoundingClientRect();
-        const dx = pointer.x - (rect.left + rect.width / 2);
-        const dy = pointer.y - (rect.top + rect.height / 2);
-        const distance = Math.hypot(dx, dy);
-        card.style.setProperty(
-          "--dock-scale",
-          String(dockScale(distance, DOCK_RADIUS_PX, DOCK_MAX_SCALE)),
-        );
+        current.set(card, next);
+        card.style.setProperty("--dock-scale", String(next));
+      }
+      frame = settled ? null : requestAnimationFrame(runFrame);
+    }
+
+    function retarget(pointer: { x: number; y: number } | null) {
+      const cards = [...stage!.querySelectorAll<HTMLElement>("a.cf-card")];
+      const dockCards: DockCard<HTMLElement>[] = cards.map((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          key: el,
+          centerX: rect.left + rect.width / 2,
+          centerY: rect.top + rect.height / 2,
+        };
+      });
+      targets = dockTargets(pointer, dockCards, DOCK_RADIUS_PX, DOCK_MAX_SCALE);
+      if (frame === null) {
+        last = performance.now();
+        frame = requestAnimationFrame(runFrame);
       }
     }
 
-    function schedule() {
-      if (frame === null) frame = requestAnimationFrame(apply);
-    }
-
     function onPointerMove(event: PointerEvent) {
-      pointer = { x: event.clientX, y: event.clientY };
-      schedule();
+      retarget({ x: event.clientX, y: event.clientY });
     }
 
     function onPointerLeave() {
-      pointer = null;
-      schedule();
+      retarget(null);
     }
 
     stage.addEventListener("pointermove", onPointerMove);
@@ -231,6 +261,7 @@ function useDockHover(stageRef: React.RefObject<HTMLDivElement | null>) {
       stage.removeEventListener("pointermove", onPointerMove);
       stage.removeEventListener("pointerleave", onPointerLeave);
       if (frame !== null) cancelAnimationFrame(frame);
+      for (const card of current.keys()) card.style.removeProperty("--dock-scale");
     };
   }, [enabled, stageRef]);
 }

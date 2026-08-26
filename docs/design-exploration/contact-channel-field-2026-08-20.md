@@ -519,6 +519,20 @@ which decouples visual order from DOM order.
 |---|---|---|---|---|
 | `.cf-card` | hover / focus | `translateY(0 → -3px)` + shadow deepen | `--dur-micro` `90ms` | `--ease-hard` |
 | `.cf-card` | active | `translateY(-3px → 0)` | `--dur-micro` | `--ease-hard` |
+| `.cf-card` (nearest to pointer) | pointer proximity | `scale` toward `dockScale(distance)`, up to `1.07` | JS-eased, `tau = 52ms` | exponential (`damping.ts`) |
+
+**The proximity scale is JS-driven, not a CSS transition** (2026-08-26 fix,
+`ChannelField.tsx`'s `useDockHover`). Scoring every plate independently
+against the pointer let more than one bulge at once — several plates sit
+within the shared 240px radius of each other — so only the single nearest
+in-radius plate ever gets a real target now (`dockHover.ts`'s
+`dockTargets`), and every plate's current scale eases toward its target with
+frame-rate-independent exponential smoothing (`src/motion/damping.ts`, the
+same pattern `OptionWheel.tsx` runs) rather than snapping every frame. `tau`
+is deliberately well under `--dur-micro`'s 90ms — `tau`-based settling takes
+~3×tau, so matching 90ms would settle around 270ms and read soft against the
+hard-cut default below. Do not read this as a `--dur-soft` exception; it is
+a *spatial* falloff being eased in time, not a new easing curve.
 
 Nothing else moves. No entrance animation, no stagger-in, no parallax on
 the figure. Doc 07's hard-cut default holds — the `--dur-soft`/`--ease-soft`

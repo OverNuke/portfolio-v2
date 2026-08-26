@@ -17,6 +17,25 @@
  * contrasting `/projects` with `/certifications`. Desktop no-scroll comes
  * entirely from `project-field.css`'s bounded `container-type: size`
  * sizing, not from clipping.
+ *
+ * 2026-08-26: `.panel` (the `Panel` wrapper's own stock, `--paper-white`)
+ * is overridden to `--paper` below, same fix and same reason as
+ * `contact-page.css`'s identical override — left at the Panel default it
+ * left a visible tone seam behind `.panel__metadata` ("N records") and
+ * around the field's outer padding. This replaces an earlier version of
+ * this file's comment that called the white stock intentional; that
+ * reasoning was about `.projects-page`'s OWN background needing to differ
+ * from something for the band's title crop to read, not about leaving
+ * `.panel` unstyled — the seam it left behind was never desired.
+ *
+ * Also mirrors `contact-page.css`'s mobile `.page-layer` `overflow-y: auto`
+ * fix below: `.page-layer` (`turn.css`) is `position: fixed; inset: 0`
+ * unconditionally, so once this file's `max-width: 900px` block switches it
+ * to `display: block` or `height: auto` and its content grows past
+ * viewport height, that excess is otherwise unreachable by any scroll
+ * (fixed boxes default to `overflow: visible`, which is not the same as
+ * scrollable) — see `contact-page.css`'s comment on the same rule for the
+ * empirically-confirmed mechanism.
  */
 
 .page-layer:has(.projects-page) {
@@ -43,6 +62,7 @@
 .page-layer:has(.projects-page) .page-content > .panel {
   min-height: 0;
   flex: 1 1 auto;
+  background: var(--paper);
 }
 
 .page-layer:has(.projects-page) .panel__content {
@@ -86,5 +106,12 @@
   .projects-page {
     gap: var(--space-md);
     padding: var(--space-md) var(--space-xs);
+  }
+
+  /* See header comment: `.page-layer` stays fixed/inset:0, so once it's
+     `display: block` above and its content can exceed viewport height,
+     this is what makes that excess actually reachable by scroll. */
+  .page-layer:has(.projects-page) {
+    overflow-y: auto;
   }
 }
