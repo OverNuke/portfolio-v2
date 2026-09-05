@@ -55,6 +55,11 @@ test("deep link with no opener falls back to #main-content on close", async ({ p
   await expect(page.getByRole("dialog")).toBeVisible();
 
   await page.locator(".page-close").click();
+  // Gate on the reverse turn actually settling before reading focus — same
+  // synchronisation the wheel-opener case above uses. Without it the focus
+  // read can race the un-inert + `#main-content` focus() that `settle()`
+  // performs, and observe `document.body` mid-cascade.
+  await expect(page.locator(".shell")).not.toHaveAttribute("inert", "");
 
   const focusedId = await page.evaluate(() => document.activeElement?.id);
   expect(focusedId).toBe("main-content");

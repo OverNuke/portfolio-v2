@@ -28,12 +28,23 @@ export interface PageLayerProps {
  * anything inside the routed page content — `role="dialog" aria-modal
  * aria-labelledby` point at it.
  *
- * 2026-08-14: `.page-head` is visually hidden (not removed) across every
- * route — it still renders the BACK/ESC button and the `<h1>` this file's
- * D8 focus/aria-labelledby target depends on. Deleting the markup instead
- * of hiding it would drop the only Tab+Enter-reachable close control and
- * break the dialog's accessible name (CLAUDE.md: arrow-key shortcuts must
- * stay reachable via Tab+Enter too).
+ * 2026-08-14: `.page-head` (the `<h1>` title + `.page-tag`) is visually
+ * hidden (not removed) across every route — the `<h1>` is still this
+ * file's D8 focus / `aria-labelledby` target, and `.page-tag` still has to
+ * stay in the accessibility tree (`App.test.tsx` asserts the route tag as
+ * an exact-match text node).
+ *
+ * 2026-09-05: `.page-close` is a DIRECT child of `.page-layer`, no longer
+ * nested inside the visually-hidden head. Nesting it there clipped it away
+ * for pointer input entirely — `overflow`/`clip`/`clip-path` clip
+ * hit-testing, not just paint, so `document.elementFromPoint` at the
+ * button's centre returned the routed page's `<section class="panel">`
+ * instead of the button (e2e/turn-focus.spec.ts). doc 03 lists an
+ * "explicit close control" alongside Escape / browser-back as a first-
+ * class close path, so it has to remain a real, hit-testable, visible
+ * control — it is pinned to the top-RIGHT corner (manga back direction,
+ * doc 03 "Turn direction") over its own paper chip so the gray-on-paper
+ * pairing holds regardless of what the routed page paints behind it.
  */
 export function PageLayer({ title, tag, children }: PageLayerProps) {
   const { turn, go, registerTitle } = useTurn();
@@ -50,10 +61,10 @@ export function PageLayer({ title, tag, children }: PageLayerProps) {
       aria-modal="true"
       aria-labelledby={titleId}
     >
+      <button type="button" className="page-close" onClick={() => go("/")}>
+        <span aria-hidden="true">{"▶"}</span> BACK / ESC
+      </button>
       <header className="page-head visually-hidden">
-        <button type="button" className="page-close" onClick={() => go("/")}>
-          <span aria-hidden="true">{"▶"}</span> BACK / ESC
-        </button>
         <h1 id={titleId} className="page-title" tabIndex={-1} ref={registerTitle}>
           {title}
         </h1>

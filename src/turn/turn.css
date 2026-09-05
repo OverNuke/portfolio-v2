@@ -56,17 +56,20 @@
 }
 
 /**
- * Updated 2026-08-14: `.page-head` is now `visually-hidden` (see
- * `PageLayer.tsx`, applied in JSX) on every route — the flex/gap/padding
- * rules below still apply to the header's internal layout but no longer
- * put it on screen. Same three text nodes as before — `<h1>` title,
- * `.page-tag`, the close button's "BACK / ESC" label — are unchanged in
- * markup and stay in the accessibility tree and Tab order; only the
- * paint is gone. `TurnProvider.test.tsx` still asserts the close button's
- * accessible name matches /back \/ esc/i, and `App.test.tsx` still asserts
- * the route's `tag` string exists as its own exact-match text node — both
- * queries look at the accessibility tree, which visual hiding doesn't
- * touch. Keep both intact.
+ * Updated 2026-08-14: `.page-head` is `visually-hidden` (see
+ * `PageLayer.tsx`, applied in JSX) on every route — only the paint is
+ * gone; the `<h1>` title and `.page-tag` stay in the accessibility tree
+ * and Tab order. `App.test.tsx` asserts the route's `tag` string exists
+ * as its own exact-match text node — that query looks at the
+ * accessibility tree, which visual hiding doesn't touch. Keep it intact.
+ *
+ * Updated 2026-09-05: `.page-close` MOVED OUT of this header (it is now a
+ * direct child of `.page-layer`, see below and `PageLayer.tsx`) — nesting
+ * a hit-testable control inside a `visually-hidden` (`overflow: hidden` +
+ * `clip` + `clip-path`) box clips it away for pointer input, so
+ * `.page-close` click was being swallowed by the routed page's `.panel`
+ * (e2e/turn-focus.spec.ts). The flex/gap rules below now only lay out the
+ * two hidden text nodes and never reach the screen.
  */
 .page-head {
   display: flex;
@@ -94,37 +97,47 @@
   color: var(--field-olive);
 }
 
+/* Direct child of `.page-layer` (2026-09-05), pinned to the top-right
+   corner — "back" turns toward the right in this system (doc 03 "Turn
+   direction"), so the explicit close control reads from there. `--z-frame`
+   lifts it over the routed page content; `.page-content`'s own `clip-path`
+   makes that a clean cross-stacking-context win regardless of what the
+   page paints. It sits on its own paper chip so the gray-on-paper pairing
+   (docs/05_ACCESSIBILITY.MD) holds over any page background. */
 .page-close {
+  position: absolute;
+  inset: var(--space-2xs) var(--space-2xs) auto auto;
+  z-index: var(--z-frame);
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: var(--hit-min);
   min-width: var(--hit-min);
   padding: 4px var(--space-xs);
-  /* No border, no fill — the min-height/min-width above is what still
-     guarantees a real >=24x24 hit target (WCAG 2.2 SC 2.5.8); the visible
-     mark just gets padding around it instead of a smaller target, per
-     docs/05_ACCESSIBILITY.MD. */
-  background: transparent;
+  background: var(--paper);
   color: var(--gray);
-  border: none;
+  border: var(--rule-hair) solid var(--ink);
   font: inherit;
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   letter-spacing: var(--track-label);
   text-transform: uppercase;
   cursor: pointer;
-  transition: color var(--dur-micro) var(--ease-hard);
+  transition:
+    background var(--dur-micro) var(--ease-hard),
+    color var(--dur-micro) var(--ease-hard);
 }
 
 .page-close:hover {
-  color: var(--ink);
+  background: var(--ink);
+  color: var(--ink-inverse);
 }
 
-/* Removing the filled/bordered hover state above took the previous focus
-   affordance with it — restate it explicitly. On-paper oxblood ring, same
-   convention as the project field's `.pf-chip:focus-visible`
-   (renamed 2026-08-13 with the /projects redesign). */
+/* Explicit focus ring — the filled hover state is not a reliable focus
+   affordance on its own (hover and focus-visible are different states).
+   On-paper oxblood ring, same convention as the project field's
+   `.pf-chip:focus-visible` (renamed 2026-08-13 with the /projects
+   redesign). */
 .page-close:focus-visible {
   outline: 2px solid var(--oxblood);
   outline-offset: 2px;
