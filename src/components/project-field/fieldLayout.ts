@@ -283,6 +283,40 @@ export function paginate(projects: readonly Project[], perField = RECORDS_PER_FI
   return fields;
 }
 
+/** How much of the stage a zoomed record fills, in percent. */
+export const ZOOM_W = 74;
+export const ZOOM_H = 82;
+/** Guard for the small rungs — rung 5's smallest shape would otherwise
+ *  scale 5.6x and resample the halftone plate to mush. */
+export const ZOOM_MAX_SCALE = 3;
+
+export interface ZoomTransform {
+  /** translateX, in percent of the FIGURE's own width. */
+  dx: number;
+  /** translateY, in percent of the FIGURE's own height. */
+  dy: number;
+  scale: number;
+}
+
+/**
+ * Move a shape's centre to the stage's centre and scale it to fill the
+ * zoom box, in the figure element's OWN units.
+ *
+ * The unit conversion is the only subtle part. `translate()` percentages
+ * resolve against the element's own border box, not its containing block.
+ * The figure's width is `d`% of stage width and it is square, so its
+ * height in percent of stage HEIGHT is `d * STAGE_AR` — the same
+ * conversion `shapeBottom` already writes down.
+ */
+export function zoomToCenter(shape: FieldShape): ZoomTransform {
+  const hPct = shape.d * STAGE_AR; // figure height, % of stage height
+  return {
+    dx: ((50 - shape.cx) / shape.d) * 100,
+    dy: ((50 - shape.cy) / hPct) * 100,
+    scale: Math.min(ZOOM_W / shape.d, ZOOM_H / hPct, ZOOM_MAX_SCALE),
+  };
+}
+
 /**
  * Clamps an arbitrary (URL-supplied) field number into range. A junk or
  * out-of-range `?sheet=` must land on a real field rather than an empty

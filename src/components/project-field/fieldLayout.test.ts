@@ -18,6 +18,10 @@ import {
   shapeBottom,
   shapeTop,
   STAGE_AR,
+  ZOOM_H,
+  ZOOM_MAX_SCALE,
+  ZOOM_W,
+  zoomToCenter,
 } from "./fieldLayout";
 
 /**
@@ -185,13 +189,13 @@ describe("the CSS contract", () => {
   });
 
   it("never lets a clip-path reset reach the shapes themselves", () => {
-    // `clip-path: none !important` on `.pf-shape` would turn every disc and
-    // the fused lobe — the composition's whole subject — into a rectangle
-    // for every reduced-motion user, which is exactly the audience least
-    // likely to report it. The reset exists (the wipe animates a
-    // clip-path, so it has to), but it may only ever name the wipe
-    // carriers. Checked structurally rather than by slicing the media
-    // block, so Prettier reformatting cannot quietly disarm this.
+    // `clip-path: none !important` on `.pf-shape` would turn every disc —
+    // the composition's whole subject — into a rectangle for every
+    // reduced-motion user, which is exactly the audience least likely to
+    // report it. The reset exists (the wipe animates a clip-path, so it
+    // has to), but it may only ever name the wipe carriers. Checked
+    // structurally rather than by slicing the media block, so Prettier
+    // reformatting cannot quietly disarm this.
     const rules = readRules();
     expect(rules).toContain("clip-path: none !important");
 
@@ -253,6 +257,70 @@ describe("paginate", () => {
 
   it("refuses a nonsense page size instead of looping forever", () => {
     expect(() => paginate(PROJECTS, 0)).toThrow(RangeError);
+  });
+});
+
+describe("zoomToCenter", () => {
+  // Values traced in the handoff doc (§3.3) for the live 3-record rung —
+  // asserted against the design's own worked table, not re-derived here.
+  it("matches the worked table for the live 3-record rung", () => {
+    const layout = getFieldLayout(3);
+    const [primary, acopiaTech, odoo] = [
+      layout.primary.shape,
+      layout.secondary[0].shape,
+      layout.secondary[1].shape,
+    ];
+
+    const t1 = zoomToCenter(primary);
+    expect(t1.dx).toBeCloseTo(47.2, 1);
+    expect(t1.dy).toBeCloseTo(12.2, 1);
+    expect(t1.scale).toBeCloseTo(1.177, 3);
+
+    const t2 = zoomToCenter(acopiaTech);
+    expect(t2.dx).toBeCloseTo(-58.9, 1);
+    expect(t2.dy).toBeCloseTo(25.4, 1);
+    expect(t2.scale).toBeCloseTo(2.041, 3);
+
+    const t3 = zoomToCenter(odoo);
+    expect(t3.dx).toBeCloseTo(-177.8, 1);
+    expect(t3.dy).toBeCloseTo(1.7, 1);
+    expect(t3.scale).toBeCloseTo(2.812, 3);
+  });
+
+  it("lands every shape in the live rung at the same on-screen height", () => {
+    // The zoom is for reading a screenshot, not for restating hierarchy —
+    // ZOOM_H is the binding term at every rung here, so all three land at
+    // exactly the same on-screen size regardless of the record's rank.
+    const layout = getFieldLayout(3);
+    const slots = [layout.primary, ...layout.secondary];
+
+    for (const slot of slots) {
+      const t = zoomToCenter(slot.shape);
+      const hPct = slot.shape.d * STAGE_AR;
+      expect(hPct * t.scale).toBeCloseTo(ZOOM_H, 5);
+    }
+  });
+
+  it("caps scale at ZOOM_MAX_SCALE rather than blowing up a very small shape", () => {
+    const t = zoomToCenter({ cx: 50, cy: 50, d: 1 });
+    expect(t.scale).toBe(ZOOM_MAX_SCALE);
+  });
+
+  it("moves a shape's centre to the stage centre, in the figure's own units", () => {
+    const t = zoomToCenter({ cx: 30, cy: 40, d: 20 });
+    const hPct = 20 * STAGE_AR;
+    expect(t.dx).toBeCloseTo(((50 - 30) / 20) * 100, 6);
+    expect(t.dy).toBeCloseTo(((50 - 40) / hPct) * 100, 6);
+  });
+
+  it("never scales past ZOOM_W or ZOOM_H relative to the shape's own box", () => {
+    const layout = getFieldLayout(3);
+    for (const slot of [layout.primary, ...layout.secondary]) {
+      const t = zoomToCenter(slot.shape);
+      const hPct = slot.shape.d * STAGE_AR;
+      expect(slot.shape.d * t.scale).toBeLessThanOrEqual(ZOOM_W + 1e-6);
+      expect(hPct * t.scale).toBeLessThanOrEqual(ZOOM_H + 1e-6);
+    }
   });
 });
 

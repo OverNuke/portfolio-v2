@@ -1,12 +1,9 @@
-import { useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { Project } from "../../content/types";
 import { useReform } from "../../motion/useReform";
 import { readViewportTier, useViewportTier } from "../../motion/viewportTier";
 import { useReducedMotion } from "../../shell/useReducedMotion";
-import { useInert } from "../../turn/useInert";
-import { FieldRecord } from "./FieldRecord";
-import { FieldShapeDefs } from "./FieldShapeDefs";
-import { ImageExpandOverlay } from "./ImageExpandOverlay";
+import { FieldRecord, type FieldRecordZoom } from "./FieldRecord";
 import { assertFieldLayouts, assignSlots, getFieldLayout } from "./fieldLayout";
 import "./project-field.css";
 
@@ -88,8 +85,6 @@ export function ProjectField({
   const layout = getFieldLayout(projects.length);
 
   const [expanded, setExpanded] = useState<{ project: Project; trigger: HTMLElement } | null>(null);
-  const recordsRef = useRef<HTMLDivElement>(null);
-  useInert(recordsRef, expanded !== null);
 
   // THE REFORM. Crossing 900px does not re-style this module, it
   // re-composes it — the bounded stage releases and every record becomes a
@@ -101,6 +96,41 @@ export function ProjectField({
   const stageRef = useRef<HTMLDivElement>(null);
   const tier = useViewportTier();
   useReform(stageRef, tier, { readKey: readViewportTier });
+
+  // ZOOM (P3, sdd/design-import-sections). A ≥900px feature: `cx`/`cy`/`d`
+  // are void in the poster tier (its `!important` layout overrides them),
+  // so the expand affordance is not rendered there at all — not CSS-hidden,
+  // because an affordance that computes a wrong transform is worse than an
+  // absent one.
+  const canZoom = tier !== "phone";
+
+  const onExpand = (project: Project) => (event: MouseEvent<HTMLButtonElement>) =>
+    setExpanded({ project, trigger: event.currentTarget });
+  const onCloseZoom = () => setExpanded(null);
+  const zoomStateFor = (project: Project): FieldRecordZoom =>
+    expanded === null ? "none" : expanded.project === project ? "self" : "other";
+
+  /**
+   * Focus returns to the trigger on close — DEFERRED BY A MICROTASK, ported
+   * from `ImageExpandOverlay.tsx` with its justification restated for the
+   * new mechanism. The original reason (the trigger sat inside the `inert`
+   * `.pf__records`) is gone under per-record inert, but an equivalent one
+   * takes its place: `.pf-chip--expand` lives inside `.pf-record__cap`,
+   * which is `visibility: hidden` while ITS OWN record is zoomed
+   * (project-field.css, ZOOM section) — and React runs effect cleanups
+   * BEFORE this commit's effects, so at cleanup time the caption is still
+   * hidden and an undeferred `.focus()` would be a silent no-op landing
+   * focus on `<body>`. A microtask runs after the whole commit, by which
+   * point `expanded` is `null`, the caption is visible again, and the chip
+   * is focusable. Same failure mode as before (silent, browser-only,
+   * invisible to jsdom), different mechanism.
+   */
+  useEffect(() => {
+    if (!expanded) return;
+    return () => {
+      queueMicrotask(() => expanded.trigger?.focus());
+    };
+  }, [expanded]);
 
   if (!slots) {
     return (
@@ -129,9 +159,6 @@ export function ProjectField({
   // stays the page's sole title — this <h2> labels the composition.
   const fullTitle = macroWord.charAt(0) + macroWord.slice(1).toLowerCase();
 
-  const onExpand = (project: Project) => (event: MouseEvent<HTMLButtonElement>) =>
-    setExpanded({ project, trigger: event.currentTarget });
-
   return (
     <div
       className="pf"
@@ -140,8 +167,6 @@ export function ProjectField({
       data-tier={tier}
     >
       <div className="pf__stage" ref={stageRef}>
-        <FieldShapeDefs />
-
         <h2 className="pf__title" data-reform-id="title" data-reform-scale="none">
           {fullTitle}
         </h2>
@@ -198,31 +223,32 @@ export function ProjectField({
           </p>
         </div>
 
-        {/* `display: contents` — a ref and inert target only. The records
-            inside stay direct children of `.pf__stage` for positioning
-            purposes, exactly as if this wrapper weren't here, while still
-            being a real element React can attach a ref to and the `inert`
-            attribute can walk into. */}
-        <div className="pf__records" ref={recordsRef}>
-          <FieldRecord project={primary} slot={layout.primary} position={1} primary />
+        {/* `display: contents` — the records inside stay direct children of
+            `.pf__stage` for positioning purposes, exactly as if this
+            wrapper weren't here. Per-record `inert` (P3) replaced this
+            container's own former `inert` target — see `FieldRecord.tsx`. */}
+        <div className="pf__records">
+          <FieldRecord
+            project={primary}
+            slot={layout.primary}
+            position={1}
+            primary
+            onExpand={canZoom ? onExpand(primary) : undefined}
+            zoom={zoomStateFor(primary)}
+            onCloseZoom={onCloseZoom}
+          />
           {secondary.map((project, i) => (
             <FieldRecord
               key={project.title}
               project={project}
               slot={layout.secondary[i]}
               position={i + 2}
-              onExpand={onExpand(project)}
+              onExpand={canZoom ? onExpand(project) : undefined}
+              zoom={zoomStateFor(project)}
+              onCloseZoom={onCloseZoom}
             />
           ))}
         </div>
-
-        {expanded && (
-          <ImageExpandOverlay
-            project={expanded.project}
-            onClose={() => setExpanded(null)}
-            returnFocusTo={expanded.trigger}
-          />
-        )}
       </div>
     </div>
   );

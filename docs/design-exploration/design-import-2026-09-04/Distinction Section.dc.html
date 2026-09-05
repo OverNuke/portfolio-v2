@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Permanent+Marker&family=Space+Grotesk:wght@400;500;700&display=swap">
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#d9d5c6}
+a{color:#4f5c2f;text-decoration:none}
+a:hover{color:#191b16}
+</style>
+</helmet>
+<div style="width:1440px;height:900px;position:relative;overflow:hidden;background:#efece1;background-image:repeating-linear-gradient(92deg,rgba(25,27,22,.028) 0 1px,transparent 1px 4px),repeating-linear-gradient(2deg,rgba(25,27,22,.022) 0 1px,transparent 1px 5px),radial-gradient(110% 80% at 88% 4%,rgba(111,127,69,.10),transparent 62%);font-family:'Space Grotesk',system-ui,sans-serif;color:#191b16">
+
+  <div style="position:absolute;right:14px;bottom:44px;transform:rotate(180deg);writing-mode:vertical-rl;font-family:'Permanent Marker',cursive;font-size:15px;letter-spacing:.1em;color:rgba(25,27,22,.34);pointer-events:none">certificate archive</div>
+
+  <div style="position:absolute;right:10px;top:44px;z-index:30;display:flex;flex-direction:column;gap:10px;align-items:center">
+    <button onClick="{{ goPage1 }}" style="{{ tab1Style }}" style-hover="transform:translateY(-2px) rotate(-2deg)">01</button>
+    <span style="width:3px;height:22px;background:rgba(25,27,22,.3)"></span>
+    <button onClick="{{ goPage2 }}" style="{{ tab2Style }}" style-hover="transform:translateY(-2px) rotate(2deg)">02</button>
+  </div>
+
+  <sc-if value="{{ isPage1 }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div ref="{{ setRef }}" data-card="anfeca" onClick="{{ open }}" style="position:absolute;left:40px;top:44px;width:856px;height:452px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(-2px,-7px) rotate(-.3deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0.3% 0,99.6% 1%,100% 98.6%,0 100%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:6px;right:5px;bottom:4px;left:7px;background:#f4f1e6;clip-path:polygon(0.3% 0,99.6% 1%,100% 98.6%,0 100%)"></div>
+      <div style="position:absolute;inset:0;padding:32px 38px 30px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'Permanent Marker',cursive;font-size:15px;color:#6f7f45">honors</span>
+            <span style="width:58px;height:3px;background:#191b16;transform:rotate(-1.6deg)"></span>
+          </div>
+          <span style="position:relative;display:block">
+            <span style="position:absolute;inset:-3px -3px -4px -3px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:8px 18px;background:#6f7f45;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#f4f1e6;transform:rotate(-1.2deg)">View scan ↗</span>
+          </span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;margin-top:-28px">
+          <h3 style="margin:0;max-width:680px;font-family:'Archivo Black',sans-serif;font-size:66px;line-height:.95;letter-spacing:-.028em;text-transform:uppercase;text-wrap:pretty">ANFECA Academic Recognition</h3>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span style="width:120px;height:4px;background:#191b16;transform:rotate(-.8deg)"></span>
+            <span style="width:52px;height:4px;background:#6f7f45;transform:rotate(-.8deg)"></span>
+            <span style="width:18px;height:4px;background:#191b16;transform:rotate(-.8deg)"></span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(25,27,22,.66)">
+          <span>ANFECA</span><span>2025</span>
+        </div>
+      </div>
+      <div style="position:absolute;right:46px;bottom:52px;pointer-events:none;font-family:'Archivo Black',sans-serif;font-size:44px;line-height:.9;letter-spacing:-.02em;transform:rotate(-7deg);color:#f4f1e6;text-shadow:3px 0 0 #191b16,-3px 0 0 #191b16,0 3px 0 #191b16,0 -3px 0 #191b16,2px 2px 0 #191b16,-2px 2px 0 #191b16,2px -2px 0 #191b16,-2px -2px 0 #191b16,8px 9px 0 rgba(25,27,22,.24)">Certified!!</div>
+    </div>
+
+    <div ref="{{ setRef }}" data-card="nota" onClick="{{ open }}" style="position:absolute;left:924px;top:44px;width:448px;height:212px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(3px,-7px) rotate(.35deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0 1.4%,99.5% 0,100% 88%,0.4% 100%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:4px;right:6px;bottom:7px;left:5px;background:#6f7f45;clip-path:polygon(0 1.4%,99.5% 0,100% 88%,0.4% 100%)"></div>
+      <div style="position:absolute;inset:0;padding:22px 26px 26px;display:flex;flex-direction:column;justify-content:space-between;color:#f4f1e6">
+        <span style="font-family:'Permanent Marker',cursive;font-size:14px;color:rgba(244,241,230,.86)">honors</span>
+        <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:32px;line-height:1;letter-spacing:-.02em;text-transform:uppercase">Nota Laudatoria</h3>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,230,.8)">
+            <span>Universidad</span><span>2025</span>
+          </div>
+          <span style="position:relative;display:block">
+            <span style="position:absolute;inset:-3px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:6px 15px;background:#f4f1e6;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#191b16;transform:rotate(1.4deg)">View ↗</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div ref="{{ setRef }}" data-card="exaver" onClick="{{ open }}" style="position:absolute;left:924px;top:284px;width:448px;height:212px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(4px,-7px) rotate(-.35deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0 7%,100% 0,99.6% 92%,0.4% 100%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:7px;right:4px;bottom:5px;left:6px;background:#20241c;clip-path:polygon(0 7%,100% 0,99.6% 92%,0.4% 100%)"></div>
+      <div style="position:absolute;inset:0;padding:26px 26px 24px;display:flex;flex-direction:column;justify-content:space-between;color:#f4f1e6">
+        <span style="font-family:'Permanent Marker',cursive;font-size:14px;color:#8a9a55">language</span>
+        <h3 style="margin:0;max-width:330px;font-family:'Archivo Black',sans-serif;font-size:28px;line-height:1.02;letter-spacing:-.02em;text-transform:uppercase">EXAVER Language Proficiency</h3>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,230,.7)">
+            <span>Universidad Veracruzana</span><span>2022</span>
+          </div>
+          <span style="position:relative;display:block">
+            <span style="position:absolute;inset:-3px;background:#f4f1e6;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:6px 15px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#f4f1e6;transform:rotate(-1.6deg)">View ↗</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div ref="{{ setRef }}" data-card="english" onClick="{{ open }}" style="position:absolute;left:40px;top:524px;width:426px;height:332px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(-2px,-8px) rotate(-.4deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0.4% 0,99% 2%,100% 99%,0.2% 98.6%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:5px;right:7px;bottom:6px;left:4px;background:#20241c;clip-path:polygon(0.4% 0,99% 2%,100% 99%,0.2% 98.6%)"></div>
+      <div style="position:absolute;inset:0;padding:26px 24px 24px;display:flex;flex-direction:column;justify-content:space-between;color:#f4f1e6">
+        <span style="font-family:'Permanent Marker',cursive;font-size:14px;color:#8a9a55">academic</span>
+        <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:30px;line-height:1.02;letter-spacing:-.02em;text-transform:uppercase">English Language Certificate</h3>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:3px;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,230,.7)">
+            <span>Anglo Mexicano de Coatzacoalcos</span><span>2021</span>
+          </div>
+          <span style="position:relative;display:block;flex:none">
+            <span style="position:absolute;inset:-3px;background:#f4f1e6;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:6px 15px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#f4f1e6;transform:rotate(1.6deg)">View ↗</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div ref="{{ setRef }}" data-card="toefl" onClick="{{ open }}" style="position:absolute;left:493px;top:524px;width:426px;height:332px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(1px,-8px) rotate(.45deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0 2%,99.6% 0,99% 98%,0.4% 100%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:6px;right:4px;bottom:5px;left:6px;background:#f4f1e6;clip-path:polygon(0 2%,99.6% 0,99% 98%,0.4% 100%)"></div>
+      <div style="position:absolute;inset:0;padding:26px 24px 24px;display:flex;flex-direction:column;justify-content:space-between">
+        <span style="font-family:'Permanent Marker',cursive;font-size:14px;color:#6f7f45">language</span>
+        <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1;letter-spacing:-.02em;text-transform:uppercase">TOEFL Certificate</h3>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(25,27,22,.66)">
+            <span>Sep</span><span>2018</span>
+          </div>
+          <span style="position:relative;display:block;flex:none">
+            <span style="position:absolute;inset:-3px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:6px 15px;background:#6f7f45;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#f4f1e6;transform:rotate(-1.4deg)">View ↗</span>
+          </span>
+        </div>
+      </div>
+      <div style="position:absolute;right:26px;top:96px;pointer-events:none;display:flex;flex-direction:column;gap:5px;align-items:flex-end;transform:rotate(-8deg)">
+        <span style="width:54px;height:3px;background:#191b16"></span>
+        <span style="width:36px;height:3px;background:#6f7f45"></span>
+        <span style="width:22px;height:3px;background:#191b16"></span>
+      </div>
+    </div>
+
+    <div ref="{{ setRef }}" data-card="ai" onClick="{{ open }}" style="position:absolute;left:946px;top:524px;width:426px;height:332px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(3px,-8px) rotate(-.35deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0 0,99% 1.6%,100% 100%,0.4% 98.4%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:4px;right:5px;bottom:7px;left:6px;background:#6f7f45;clip-path:polygon(0 0,99% 1.6%,100% 100%,0.4% 98.4%)"></div>
+      <div style="position:absolute;inset:0;padding:26px 24px 24px;display:flex;flex-direction:column;justify-content:space-between;color:#f4f1e6">
+        <span style="font-family:'Permanent Marker',cursive;font-size:14px;color:rgba(244,241,230,.86)">academic</span>
+        <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:32px;line-height:1.02;letter-spacing:-.02em;text-transform:uppercase">AI Fundamentals Certificate</h3>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,230,.8)">
+            <span>DataCamp</span><span>2026</span>
+          </div>
+          <span style="position:relative;display:block;flex:none">
+            <span style="position:absolute;inset:-3px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:6px 15px;background:#f4f1e6;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#191b16;transform:rotate(1.5deg)">View ↗</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:absolute;left:900px;top:498px;z-index:20;pointer-events:none;display:flex;align-items:center;gap:6px;transform:rotate(-4deg)">
+      <span style="display:grid;place-items:center;width:38px;height:38px;background:#f4f1e6;border:3px solid #191b16;border-radius:52% 48% 46% 54%/50% 54% 46% 50%;font-family:'Permanent Marker',cursive;font-size:17px">★</span>
+      <span style="display:grid;place-items:center;width:26px;height:26px;background:#6f7f45;border:3px solid #191b16;border-radius:50%;font-family:'Permanent Marker',cursive;font-size:12px;color:#f4f1e6">!</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isPage2 }}" hint-placeholder-val="{{ false }}">
+  <div>
+    <div ref="{{ setRef }}" data-card="powerbi" onClick="{{ open }}" style="position:absolute;left:40px;top:44px;width:620px;height:812px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(-2px,-8px) rotate(-.3deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0.5% 0,98.6% 1.2%,100% 99%,0 100%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:6px;right:4px;bottom:5px;left:7px;background:#f4f1e6;clip-path:polygon(0.5% 0,98.6% 1.2%,100% 99%,0 100%)"></div>
+      <div style="position:absolute;inset:0;padding:32px 34px 30px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'Permanent Marker',cursive;font-size:15px;color:#6f7f45">academic</span>
+            <span style="width:54px;height:3px;background:#191b16;transform:rotate(-1.8deg)"></span>
+          </div>
+          <span style="position:relative;display:block">
+            <span style="position:absolute;inset:-3px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:7px 16px;background:#6f7f45;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#f4f1e6;transform:rotate(-1.4deg)">View ↗</span>
+          </span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:62px;line-height:.94;letter-spacing:-.028em;text-transform:uppercase;text-wrap:pretty">Introduction to Power BI</h3>
+          <div style="display:flex;gap:9px;align-items:center">
+            <span style="width:104px;height:4px;background:#191b16;transform:rotate(-1deg)"></span>
+            <span style="width:44px;height:4px;background:#6f7f45;transform:rotate(-1deg)"></span>
+            <span style="width:16px;height:4px;background:#191b16;transform:rotate(-1deg)"></span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(25,27,22,.66)">
+            <span>CONISOFT</span><span>2025</span>
+          </div>
+          <span style="font-family:'Permanent Marker',cursive;font-size:16px;color:#6f7f45;transform:rotate(-2deg)">view scan →</span>
+        </div>
+      </div>
+    </div>
+
+    <div ref="{{ setRef }}" data-card="aiinit" onClick="{{ open }}" style="position:absolute;left:684px;top:44px;width:688px;height:532px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(3px,-8px) rotate(.3deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0 1.2%,99.6% 0,100% 98.8%,0.4% 100%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:5px;right:7px;bottom:6px;left:4px;background:#20241c;clip-path:polygon(0 1.2%,99.6% 0,100% 98.8%,0.4% 100%)"></div>
+      <div style="position:absolute;inset:0;padding:30px 32px 28px;display:flex;flex-direction:column;justify-content:space-between;color:#f4f1e6">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'Permanent Marker',cursive;font-size:15px;color:#8a9a55">academic</span>
+            <span style="width:52px;height:3px;background:#8a9a55;transform:rotate(1.4deg)"></span>
+          </div>
+          <span style="position:relative;display:block">
+            <span style="position:absolute;inset:-3px;background:#f4f1e6;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:7px 16px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#f4f1e6;transform:rotate(1.5deg)">View ↗</span>
+          </span>
+        </div>
+        <h3 style="margin:0;max-width:520px;font-family:'Archivo Black',sans-serif;font-size:56px;line-height:.96;letter-spacing:-.028em;text-transform:uppercase;text-wrap:pretty">AI Initiation Certificate</h3>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between">
+          <div style="display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,230,.72)">
+            <span>MoureDev</span><span>2026</span>
+          </div>
+          <span style="font-family:'Permanent Marker',cursive;font-size:16px;color:#8a9a55;transform:rotate(1.6deg)">view scan →</span>
+        </div>
+      </div>
+      <div style="position:absolute;left:-26px;top:344px;z-index:20;pointer-events:none;font-family:'Archivo Black',sans-serif;font-size:38px;line-height:.9;letter-spacing:-.02em;transform:rotate(-8deg);color:#f4f1e6;text-shadow:3px 0 0 #191b16,-3px 0 0 #191b16,0 3px 0 #191b16,0 -3px 0 #191b16,2px 2px 0 #191b16,-2px 2px 0 #191b16,2px -2px 0 #191b16,-2px -2px 0 #191b16,7px 8px 0 rgba(25,27,22,.24)">Level up!!</div>
+    </div>
+
+    <div ref="{{ setRef }}" data-card="propadeutic" onClick="{{ open }}" style="position:absolute;left:684px;top:600px;width:688px;height:256px;cursor:pointer;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(4px,-8px) rotate(-.35deg)">
+      <div style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0 4%,99.4% 0,100% 98%,0.4% 100%);filter:drop-shadow(5px 7px 0 rgba(25,27,22,.14))"></div>
+      <div style="position:absolute;top:7px;right:5px;bottom:4px;left:6px;background:#6f7f45;clip-path:polygon(0 4%,99.4% 0,100% 98%,0.4% 100%)"></div>
+      <div style="position:absolute;inset:0;padding:26px 30px 26px;display:flex;flex-direction:column;justify-content:space-between;color:#f4f1e6">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <span style="font-family:'Permanent Marker',cursive;font-size:14px;color:rgba(244,241,230,.86)">academic</span>
+          <span style="position:relative;display:block">
+            <span style="position:absolute;inset:-3px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+            <span style="position:relative;display:block;padding:6px 15px;background:#f4f1e6;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#191b16;transform:rotate(-1.4deg)">View ↗</span>
+          </span>
+        </div>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px">
+          <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:38px;line-height:1;letter-spacing:-.02em;text-transform:uppercase">Propadeutic Certificate</h3>
+          <div style="display:flex;flex-direction:column;gap:3px;text-align:right;font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,230,.8)">
+            <span>TecNM · Public Capacitation Center in AI</span><span>2026</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:absolute;inset:0;z-index:40;background:rgba(25,27,22,.74);background-image:repeating-linear-gradient(45deg,rgba(244,241,230,.05) 0 2px,transparent 2px 7px);cursor:zoom-out;display:grid;place-items:center">
+      <div style="width:640px;padding:46px 44px;background:#f4f1e6;border:5px solid #191b16;transform:rotate(-.6deg);box-shadow:9px 11px 0 rgba(25,27,22,.3)">
+        <div style="font-family:'Permanent Marker',cursive;font-size:15px;color:#6f7f45">scan viewer</div>
+        <div style="margin-top:10px;font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1.02;letter-spacing:-.02em;text-transform:uppercase">{{ openTitle }}</div>
+        <div style="margin-top:20px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:rgba(25,27,22,.6)">document loads here — esc to close</div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;lightbox&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behavior&quot;}}">
+const TITLES = {
+  anfeca: 'ANFECA Academic Recognition',
+  nota: 'Nota Laudatoria',
+  exaver: 'EXAVER Language Proficiency',
+  english: 'English Language Certificate',
+  toefl: 'TOEFL Certificate',
+  ai: 'AI Fundamentals Certificate',
+  powerbi: 'Introduction to Power BI',
+  aiinit: 'AI Initiation Certificate',
+  propadeutic: 'Propadeutic Certificate'
+};
+
+const TAB_BASE = 'width:40px;height:40px;display:grid;place-items:center;border:3px solid #191b16;font-family:\'Archivo Black\',sans-serif;font-size:12px;letter-spacing:.04em;cursor:pointer;padding:0;transition:transform .2s ease,background .2s ease;';
+
+class Component extends DCLogic {
+  state = { open: null, page: 1 };
+  setRef = (n) => { if (n) n.style.willChange = 'transform'; };
+  open = (e) => {
+    if (this.props.lightbox === false) return;
+    this.setState({ open: e.currentTarget.dataset.card });
+  };
+  close = () => this.setState({ open: null });
+  goPage1 = () => this.setState({ page: 1, open: null });
+  goPage2 = () => this.setState({ page: 2, open: null });
+  componentDidMount() {
+    this._k = (e) => {
+      if (e.key === 'Escape') this.close();
+      if (e.key === 'ArrowRight') this.goPage2();
+      if (e.key === 'ArrowLeft') this.goPage1();
+    };
+    window.addEventListener('keydown', this._k);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._k); }
+  tab(active, tilt) {
+    return TAB_BASE + 'transform:rotate(' + tilt + 'deg);' +
+      (active ? 'background:#191b16;color:#f4f1e6;' : 'background:#f4f1e6;color:#191b16;');
+  }
+  renderVals() {
+    const p = this.state.page;
+    return {
+      setRef: this.setRef,
+      open: this.open,
+      close: this.close,
+      goPage1: this.goPage1,
+      goPage2: this.goPage2,
+      isPage1: p === 1,
+      isPage2: p === 2,
+      tab1Style: this.tab(p === 1, -1.5),
+      tab2Style: this.tab(p === 2, 1.5),
+      isOpen: !!this.state.open,
+      openTitle: TITLES[this.state.open] || ''
+    };
+  }
+}
+
+</script>
+</body>
+</html>

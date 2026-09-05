@@ -247,6 +247,13 @@ metadata, system information, code labels, body, status. Dense tracked
 uppercase always belongs here, never in either serif — see
 `src/styles/fonts.css`'s header comment for the full rationale.
 
+> **Which role by surface (added 2026-09-02).** Mono metadata is spine — every
+> surface uses it for labels and meta. Display type is what varies:
+> `01_ART_DIRECTION.MD`'s "Surface Registers" section maps it — Expressive
+> (`/profile`) and Record (`/certifications`) use LT Remark; Instrument
+> (`/contact`) runs Mono only, no serif. Superior Serif stays masthead-only on
+> every surface; that doc says where the one instance lives per register.
+
 ---
 
 # Border Rules
@@ -268,3 +275,11 @@ Avoid:
 
 - rounded cards
 - floating glass panels
+
+> **Updated 2026-09-02 (surface registers).** `border-radius: 0` is spine —
+> `tailwind.config.ts` makes `rounded-*` utilities inert, and no surface
+> register overrides it (`01_ART_DIRECTION.MD`, "the Sheet"). One shipped
+> deviation exists: `/certifications`'s `cert-wall.css` sets `--cw-radius: 8px`
+> for an enumerated allowlist (portrait mats, ledger scans). That is withdrawn —
+> the CSS cleanup is tracked in `09_IMPLEMENTATION_ROADMAP.md` Phase 3.5. There
+> are no sanctioned `border-radius` exceptions.

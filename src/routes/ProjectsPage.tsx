@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router";
 import { Panel } from "../components/panel/Panel";
 import { ProjectField } from "../components/project-field/ProjectField";
 import { clampField, paginate, RECORDS_PER_FIELD } from "../components/project-field/fieldLayout";
-import { useFieldKeyboard } from "../components/project-field/useFieldKeyboard";
+import { useFieldKeyboard } from "../turn/useFieldKeyboard";
 import { ABOUT_PROFILE, PROJECTS } from "../content/data";
 import { ROUTES } from "./routes";
 import "./projects-page.css";

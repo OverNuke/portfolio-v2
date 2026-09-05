@@ -60,16 +60,39 @@ describe("assignChannelSlots", () => {
     expect(placed[1].slot).not.toBe("feature");
   });
 
-  it("surfaces a sixth channel as overflow instead of silently dropping it", () => {
-    // The field has five slots. A sixth is a composition change, not a data
-    // change — so it must be visible, not swallowed.
-    const six = Array.from({ length: 6 }, (_, i) => link(`c${i}`));
-    const { placed, overflow } = assignChannelSlots(six);
+  it("surfaces a fifth channel as overflow instead of silently dropping it", () => {
+    // The field has four slots (2026-09-04: Instagram/`rail-b` dropped). A
+    // fifth is a composition change, not a data change — so it must be
+    // visible, not swallowed.
+    const five = Array.from({ length: 5 }, (_, i) => link(`c${i}`));
+    const { placed, overflow } = assignChannelSlots(five);
     expect(placed).toHaveLength(CHANNEL_SLOTS.length);
-    expect(overflow.map((l) => l.label)).toEqual(["c5"]);
+    expect(overflow.map((l) => l.label)).toEqual(["c4"]);
   });
 
   it("fits every real channel on the field at the current count", () => {
     expect(SOCIAL_LINKS.length).toBeLessThanOrEqual(CHANNEL_SLOTS.length);
+  });
+
+  it("has exactly four slots — Instagram/rail-b was dropped 2026-09-04", () => {
+    expect(CHANNEL_SLOTS).toHaveLength(4);
+    expect(CHANNEL_SLOTS).not.toContain("rail-b");
+  });
+
+  it("resolves SOCIAL_LINKS to exactly Email, GitHub, LinkedIn, WhatsApp with no overflow", () => {
+    const { placed, overflow } = assignChannelSlots(SOCIAL_LINKS);
+    expect(overflow).toHaveLength(0);
+    expect(placed.map((p) => p.link.label)).toEqual(["Email", "GitHub", "LinkedIn", "WhatsApp"]);
+  });
+
+  it("has no unresolved channel left in SOCIAL_LINKS", () => {
+    expect(SOCIAL_LINKS.filter((l) => l.unresolved)).toHaveLength(0);
+  });
+
+  it("resolves WhatsApp to its real wa.me link, not the unresolved plate", () => {
+    const whatsapp = SOCIAL_LINKS.find((l) => l.label === "WhatsApp");
+    expect(whatsapp).toBeDefined();
+    expect(whatsapp?.href).toBe("https://wa.me/529212652693");
+    expect(whatsapp?.unresolved).toBeFalsy();
   });
 });

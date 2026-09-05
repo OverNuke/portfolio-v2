@@ -25,11 +25,15 @@ Create:
 
 Build:
 
-- ~~Profile module~~ — merged into Home, 2026-08-12: the editorial Home
-  redesign (`Canvas.tsx`, 2026-08-10/11) already carries the identity
-  content a Profile page would show (name via masthead, role, photo), so
-  `/profile` as a separate route was redundant. Routes reduced to
-  `/certifications`, `/projects`, `/contact`.
+- Profile module — merged into Home 2026-08-12 (the editorial Home
+  redesign carried the identity content, so `/profile` was briefly
+  redundant), then **reinstated as its own route 2026-08-28** as **PAGE
+  01**. This branch's editorial direction produced a real Profile screen —
+  a manga-panel portrait collage beside an identity type stack, from the
+  `Profile Page UI Mockups` handoff — that Home has no room for.
+  `src/components/profile-hero/` + `src/routes/ProfilePage.tsx`. Routes are
+  now `/profile`, `/certifications` (PAGE 02), `/projects` (PAGE 03),
+  `/contact` (PAGE 04).
 - Project database
 - ~~Skills module~~ — removed 2026-07-31: ships as part of the Home
   collage instead (Skills badge field + ~~Certificate/Award plates~~), not
@@ -59,6 +63,59 @@ scattered, asymmetric layout (`projectLayouts.ts`), not just given a new
 header. See `project-sheet.css`'s own header comment for the full record.
 `/certifications` and `/contact` are unaffected and still follow this
 phase's original page-frame-only scope.)_
+
+_(Updated 2026-09-02: the target is now stated precisely. `/certifications`,
+`/projects`, and `/contact` each conform to their **surface register**
+(`01_ART_DIRECTION.MD`) on the shared "Sheet" spine — not "match Home's
+editorial language" loosely. `/profile` (Expressive) and `/contact`
+(Instrument) already do. Open task: bring `/certifications` (Record) back
+onto the spine — it currently ships three deviations imported from the bento
+handoff:_
+- _`border-radius: 8px` on portrait mats + ledger scans → back to `0`
+  (`cert-wall.css`'s `--cw-radius` and its allowlist; `certifications-page.css`;
+  `CertLedger` scan style)._
+- _`320ms` `ease-soft` tile hover → `--dur-micro` / `--ease-hard`
+  (`cert-wall.css`; drop the "one soft-cut exception" comment)._
+- _zero rotation → **kept**, now a defined Record-register trait, no change._
+
+_This is a CSS-only follow-up; the specs above already record the ruling.
+Verify with `pnpm run audit:collage` and a browser pass at desktop /
+tablet-portrait / 390px.)_
+
+_(Updated 2026-09-04, `sdd/design-import-sections`. The three deviations above
+are now **resolved by reconciliation rather than by blind revert** — the Claude
+Design import of 2026-09-04 rebuilds the Record register's tile surface, which
+changes what two of the three deviations even mean.)_
+
+- _**`border-radius: 8px` — partly moot, partly still a revert.** The landscape
+  wall's mats no longer have corners to round: under the hand-cut `clip-path`
+  tiles (`01_ART_DIRECTION.MD`, "Hand-cut edges") the polygon **is** the corner
+  treatment, and `border-radius` on the host has nothing to act on. The
+  `--cw-radius` allowlist loses two of its three entries in the same change —
+  `.cert-mat` (superseded by the clip) and `.cert-pager__dot-glyph` (the dot
+  pager is replaced by square "01"/"02" number tabs). **Still open, unchanged,
+  and still a straight revert to `0`:** `[data-sheet="portrait"] .cert-mat__scan`
+  and `CertLedger`'s `.cert-row__scan`. The portrait ladder and the ledger are
+  out of scope for the import (the mockup is landscape-only), so they keep their
+  8px until someone reverts it deliberately._
+- _**`320ms` `ease-soft` tile hover → `--dur-micro` / `--ease-hard`. Unchanged;
+  execute as written.** Worth recording that the 2026-09-04 mockup asks for the
+  opposite — its card transition is `.32s cubic-bezier(.2,.85,.2,1)`, i.e.
+  exactly the soft cut currently shipped. **It was overruled.** Doc 07's
+  2026-09-02 withdrawal ("Mechanical hard-cut motion is spine, not a per-surface
+  choice … that exception is withdrawn") is a later-dated correction to a project
+  specification; a design mockup is not one, and the conflict order puts Project
+  Vision above Implementation. The hover keeps its lift and its shadow deepen —
+  only the duration and curve change._
+- _**zero rotation → kept**, now a defined Record-register trait, no change. The
+  import rotates all thirty-plus of its elements; every one of them ships at
+  `0deg`. The checklist is in
+  `docs/design-exploration/design-import-2026-09-04/HANDOFF.md` §2.4._
+
+_No longer CSS-only: the import also replaces the dot pager with numbered tabs,
+adds arrow-key sheet paging (which `/certifications` does not have today), and
+rebuilds `/contact` and `/projects`. Verify with `pnpm run audit:collage`,
+`pnpm e2e`, and a browser pass at desktop / tablet-portrait / 390px._
 
 ---
 

@@ -40,6 +40,21 @@ Avoid:
 - bouncing animations
 - playful motion
 - excessive effects
+- soft / eased / spring easing on hover and state changes — use `--ease-hard`
+
+> **Updated 2026-09-02 (surface registers).** Mechanical hard-cut motion is
+> **spine**, not a per-surface choice (`01_ART_DIRECTION.MD`, "the Sheet"). No
+> register runs soft motion. One shipped surface currently violates this:
+> `/certifications`'s bento tiles use a `320ms` `ease-soft` hover-lift, described
+> in `cert-wall.css` as "the one soft-cut exception." That exception is
+> withdrawn — the Record register uses `--dur-micro` / `--ease-hard` like every
+> other surface. The CSS change is tracked in `09_IMPLEMENTATION_ROADMAP.md`
+> Phase 3.5.
+>
+> **Landed 2026-09-04 in `sdd/design-import-sections`. `cert-wall.css` no longer
+> deviates.** Recorded because the design import of the same date asked for the
+> soft cut again (`.32s cubic-bezier(.2,.85,.2,1)`) and was overruled — see
+> `09_IMPLEMENTATION_ROADMAP.md` Phase 3.5.
 
 ---
 

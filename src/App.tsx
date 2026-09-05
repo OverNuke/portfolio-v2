@@ -2,6 +2,7 @@ import { Route, Routes, useLocation } from "react-router";
 import { CertificationsPage } from "./routes/CertificationsPage";
 import { ContactPage } from "./routes/ContactPage";
 import { NotFound } from "./routes/NotFound";
+import { ProfilePage } from "./routes/ProfilePage";
 import { ProjectsPage } from "./routes/ProjectsPage";
 import { ROUTES } from "./routes/routes";
 import { Announcer } from "./shell/Announcer";
@@ -52,6 +53,7 @@ function AppShell() {
         <PageLayer title={activeRoute?.title ?? "NOT FOUND"} tag={activeRoute?.tag ?? ""}>
           <Routes location={contentPath}>
             <Route path="/" element={null} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/certifications" element={<CertificationsPage />} />
           {/* Past the sheet cap the wall paginates rather than densifying, so
               each sheet is a real route and browser back walks the sheets. */}

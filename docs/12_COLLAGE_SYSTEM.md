@@ -144,6 +144,19 @@
 > per-plate non-overlap guarantee. Scatter/asymmetry there comes from
 > irregular block sizes and whole-panel rotation (capped at this doc's
 > `--rot-max` 2deg), not from cards overlapping each other.
+>
+> **Updated 2026-09-02 (surface registers).** This system is the **shared
+> substrate for every routed surface**, not a Home-only layout — `/profile`,
+> `/certifications`, `/contact`, and `/projects` all sit on it.
+> `01_ART_DIRECTION.MD`'s "Surface Registers" section names it "the Sheet" and
+> defines the two things that vary per surface (display type, decorative
+> vocabulary); everything in *this* doc — the 12×12 grid, `z-index`-as-meaning,
+> the ±2° cap, shadow-as-depth, the accessibility guardrails — is spine and does
+> not vary. A register may never buy itself a fourth controlled deviation. The
+> `--light` / `--mid` / `--dark` plate tri-tone (`.plate--*`, mirrored by
+> `cert-wall.css`'s `.cert-mat--*` and `channel-field.css`'s `.cf-card--*`) is
+> one such shared primitive — same tokens, same audited ratios, cited across
+> those files; treat it as spine, not as any one module's recipe.
 
 ---
 
@@ -250,7 +263,17 @@ New tokens:
 | `--plate-shadow` | `3px 4px 12px rgba(17,17,17,0.22)` | |
 | `--plate-shadow-sm` | `2px 3px 7px rgba(17,17,17,0.18)` | |
 | `--rot-max` | `2deg` | Documentation of the cap; enforce it in review |
-| `--font-hand` | `"Segoe Script","Bradley Hand","Snell Roundhand",cursive` | Annotation only |
+| `--font-hand` | `"Segoe Script","Bradley Hand","Snell Roundhand",cursive` | Annotation, and Chrome on the Expressive register — see note below |
+
+> **`--font-hand` scope (updated 2026-09-02, surface registers).** The
+> "Annotation only" rule — and Annotation's "exactly one per screen, two reads
+> as a gimmick" — still holds for the Annotation *role*. But `/profile` (the
+> Expressive register) legitimately carries the hand font twice: the creed
+> scrap is the one Annotation, and `.profile-hero__colophon-mark` is **Chrome**
+> (a decorative print mark, `aria-hidden`, no unique information) that happens
+> to be lettered in `--font-hand`. Chrome using the hand font is allowed on the
+> Expressive register and does not count against the one-Annotation limit.
+> Outside Expressive, `--font-hand` stays Annotation-only.
 
 **On shadows.** `02_DESIGN_SYSTEM.MD` bans "floating glass panels" and
 `MASTER_AGENT.md` says weight should come from structure, not decoration.
@@ -327,6 +350,13 @@ rather than as handmade.
 > same day in favor of an axis-aligned Field Olive corner registration mark
 > (`cert-wall.css`'s own header note has the full account) — it needs no
 > rotation exception, so nothing replaces this paragraph.
+>
+> **Updated 2026-09-02 (surface registers).** `/certifications` uses **zero
+> rotation on every mat** — not as an exception to the ±2° rule but as a
+> defining trait of the **Record register** (`01_ART_DIRECTION.MD`). An
+> archive wall reads as authoritative because it is square to the page; the
+> contrast with the rotated surfaces around it is deliberate. Read that as
+> "this register is axis-aligned," not "this module got a waiver."
 
 ---
 

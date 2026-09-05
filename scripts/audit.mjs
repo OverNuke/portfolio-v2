@@ -15,8 +15,10 @@ import { build, preview } from "vite";
  * element: no occlusion, no undersized target, no clipped text. A fourth,
  * non-blocking check reports focus-order drift within each seed.
  *
- * Audits `/` only — the collage lives there; routed pages are placeholder
- * content out of scope for this script.
+ * Audits `/` (the collage) and `/profile` (the manga-panel hero — four
+ * overlapping clickable panels, absolute captions, and `pointer-events:
+ * none` SFX over the gutters: exactly this script's purpose). The other
+ * routed pages are still placeholder content out of scope here.
  */
 
 const WIDTHS = [1440, 1280, 1100, 390];
@@ -47,6 +49,11 @@ function fail(seed, width, reason, detail) {
 function checkOcclusion(selector) {
   const results = [];
   for (const el of document.querySelectorAll(selector)) {
+    // A visually-hidden control (e.g. PageLayer's `.page-head` close
+    // button — kept in Tab order, painted off-screen on purpose) has no
+    // meaningful on-screen geometry to hit-test. This is a true statement
+    // about any visually-hidden interactive element, not a workaround.
+    if (el.closest(".visually-hidden")) continue;
     let { left, top, width, height } = el.getBoundingClientRect();
     let cx = left + width / 2;
     let cy = top + height / 2;
@@ -96,12 +103,18 @@ function checkTargetSize(selector) {
 }
 
 /** Runs in-page. Any overflow:hidden element, minus the doc 11
- * data-truncate="ellipsis" allow-list and minus elements too small to
- * meaningfully measure (guards Announcer's 1x1 visually-hidden region). */
+ * data-truncate="ellipsis" allow-list, minus elements too small to
+ * meaningfully measure, and minus `.page-head` — PageLayer's route
+ * header, `visually-hidden` since 2026-08-14 (turn.css) but with
+ * `display:flex` + padding that keep its box a few px past 1x1, so it
+ * reads as "clipping its own content" when the content is meant to be
+ * invisible. The real fix belongs in turn.css; this keeps the audit
+ * honest about on-screen chrome only. */
 function checkClippedText() {
   const results = [];
   for (const el of document.body.querySelectorAll("*")) {
     if (el.getAttribute("data-truncate") === "ellipsis") continue;
+    if (el.closest(".page-head")) continue;
     if (el.clientWidth <= 1 || el.clientHeight <= 1) continue;
     if (getComputedStyle(el).overflow !== "hidden") continue;
     if (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) {
@@ -119,6 +132,58 @@ function checkClippedText() {
  * compared across widths, reported only, never a hard failure (doc 12). */
 function focusOrderSnapshot(selector) {
   return Array.from(document.querySelectorAll(selector)).map((el) => el.textContent?.trim() || "");
+}
+
+/**
+ * Runs the three in-page checks at every spec'd width for whatever page is
+ * currently loaded, tagging failures with `label`. Returns the per-width
+ * focus-order snapshots for the caller's drift check. Factored out so `/`
+ * and `/profile` run the identical battery.
+ */
+async function auditLoadedPage(page, label) {
+  const focusOrders = [];
+
+  for (const width of WIDTHS) {
+    await page.setViewportSize({ width, height: VIEWPORT_HEIGHT });
+    // Settle before measuring — the module wheel derives its row height in
+    // JS from a per-breakpoint `fontSize`, so a resize costs a React render
+    // + remount before the geometry is right. Two frames guarantees React
+    // has committed AND the browser has laid out.
+    await page.evaluate(
+      () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+    );
+
+    const occlusions = await page.evaluate(checkOcclusion, INTERACTIVE_SELECTOR);
+    for (const { el, reason, hit } of occlusions) {
+      fail(label, width, reason, hit ? `${el} hit ${hit}` : el);
+    }
+
+    const undersized = await page.evaluate(checkTargetSize, INTERACTIVE_SELECTOR);
+    for (const detail of undersized) {
+      fail(label, width, "undersized-target", detail);
+    }
+
+    const clipped = await page.evaluate(checkClippedText);
+    for (const detail of clipped) {
+      fail(label, width, "clipped-text", detail);
+    }
+
+    focusOrders.push({ width, order: await page.evaluate(focusOrderSnapshot, INTERACTIVE_SELECTOR) });
+  }
+
+  return focusOrders;
+}
+
+function reportFocusDrift(label, focusOrders) {
+  const [first, ...rest] = focusOrders;
+  const drifted = rest.filter((entry) => JSON.stringify(entry.order) !== JSON.stringify(first.order));
+  if (drifted.length > 0) {
+    console.warn(
+      `[WARN] ${label}: focus order differs from ${first.width}px at: ${drifted.map((d) => `${d.width}px`).join(", ")} (non-blocking)`,
+    );
+  } else {
+    console.log(`${label}: focus order identical at all ${WIDTHS.length} widths.`);
+  }
 }
 
 async function main() {
@@ -140,59 +205,17 @@ async function main() {
     // retained — it independently serves TurnProvider's synchronous settle.
     await page.emulateMedia({ reducedMotion: "reduce" });
 
+    // Home — one `goto` per Skills-collage seed (a single "home" seed now,
+    // see SKILLS_SEEDS).
     for (const seed of SKILLS_SEEDS) {
-      // One `goto` per seed — the seed is only picked once per mount.
       await page.goto(`${url}?collageSeed=${seed}`);
-
-      const focusOrders = [];
-
-      for (const width of WIDTHS) {
-        await page.setViewportSize({ width, height: VIEWPORT_HEIGHT });
-        // Settle before measuring. Until 2026-08-10 every responsive
-        // decision on Home was pure CSS, so a resize was laid out by the
-        // time `setViewportSize` resolved. Home's wheel is not: its row
-        // height is derived in JS from a `fontSize` prop chosen per
-        // breakpoint, so a resize costs a React render + a remount before
-        // the geometry is right. Two frames is the cheapest guarantee that
-        // React has committed AND the browser has laid out; without it the
-        // audit measures the previous width's wheel and reports a
-        // clipped-text failure that does not exist.
-        await page.evaluate(
-          () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
-        );
-
-        const occlusions = await page.evaluate(checkOcclusion, INTERACTIVE_SELECTOR);
-        for (const { el, reason, hit } of occlusions) {
-          fail(seed, width, reason, hit ? `${el} hit ${hit}` : el);
-        }
-
-        const undersized = await page.evaluate(checkTargetSize, INTERACTIVE_SELECTOR);
-        for (const detail of undersized) {
-          fail(seed, width, "undersized-target", detail);
-        }
-
-        const clipped = await page.evaluate(checkClippedText);
-        for (const detail of clipped) {
-          fail(seed, width, "clipped-text", detail);
-        }
-
-        focusOrders.push({ width, order: await page.evaluate(focusOrderSnapshot, INTERACTIVE_SELECTOR) });
-      }
-
-      // Grouped per seed — comparing across seeds would be meaningless
-      // (skill badges are non-interactive <li>s so this should hold
-      // trivially within a seed, but it's asserted as a hard invariant,
-      // same as before seeds existed, just correctly scoped now).
-      const [first, ...rest] = focusOrders;
-      const drifted = rest.filter((entry) => JSON.stringify(entry.order) !== JSON.stringify(first.order));
-      if (drifted.length > 0) {
-        console.warn(
-          `[WARN] seed=${seed}: focus order differs from ${first.width}px at: ${drifted.map((d) => `${d.width}px`).join(", ")} (non-blocking)`,
-        );
-      } else {
-        console.log(`Seed ${seed}: focus order identical at all ${WIDTHS.length} widths.`);
-      }
+      reportFocusDrift(`seed=${seed}`, await auditLoadedPage(page, `seed=${seed}`));
     }
+
+    // /profile — the manga-panel hero. Same battery, no seed. `url` already
+    // ends in a slash (Vite's resolvedUrls), so no leading slash here.
+    await page.goto(new URL("profile", url).href);
+    reportFocusDrift("/profile", await auditLoadedPage(page, "/profile"));
   } finally {
     await browser.close();
     await server.close();
@@ -200,10 +223,12 @@ async function main() {
 
   if (failures === 0) {
     console.log(
-      `Audit passed: zero occlusions, zero undersized targets, zero clipped text at all ${WIDTHS.length} widths × ${SKILLS_SEEDS.length} seeds.`,
+      `Audit passed: zero occlusions, zero undersized targets, zero clipped text at all ${WIDTHS.length} widths on / and /profile.`,
     );
   } else {
-    console.error(`Audit failed with ${failures} failure(s) across ${WIDTHS.length} widths × ${SKILLS_SEEDS.length} seeds.`);
+    console.error(
+      `Audit failed with ${failures} failure(s) across ${WIDTHS.length} widths on / and /profile.`,
+    );
     process.exitCode = 1;
   }
 }

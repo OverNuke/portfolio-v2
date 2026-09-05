@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Permanent+Marker&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap">
+<script src="./image-slot.js"></script>
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#d9d5c6}
+a{color:#4f5c2f;text-decoration:none}
+a:hover{color:#191b16}
+</style>
+</helmet>
+<div style="width:1440px;height:900px;position:relative;overflow:hidden;background:#efece1;background-image:repeating-linear-gradient(92deg,rgba(25,27,22,.028) 0 1px,transparent 1px 4px),repeating-linear-gradient(2deg,rgba(25,27,22,.022) 0 1px,transparent 1px 5px),radial-gradient(110% 80% at 12% 4%,rgba(111,127,69,.10),transparent 62%);font-family:'Space Grotesk',system-ui,sans-serif;color:#191b16">
+
+  <div style="position:absolute;right:52px;top:22px;text-align:right;z-index:22;pointer-events:none">
+    <span style="display:block;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:rgba(25,27,22,.6)">panel 5a · channels</span>
+    <h2 style="margin:2px 0 0;font-family:'Archivo Black',sans-serif;font-size:96px;line-height:.86;letter-spacing:-.035em;text-transform:uppercase">Reach out</h2>
+  </div>
+
+  <div style="position:absolute;left:0;top:604px;width:344px;height:12px;background:#191b16;z-index:6"></div>
+  <div style="position:absolute;left:606px;top:678px;width:834px;height:12px;background:#191b16;z-index:6"></div>
+
+  <sc-if value="{{ showTone }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:392px;top:150px;width:300px;height:300px;border-radius:50%;background-image:radial-gradient(rgba(25,27,22,.42) 1.3px,transparent 1.4px);background-size:9px 9px;z-index:4;pointer-events:none"></div>
+    <div style="position:absolute;left:1016px;top:214px;width:216px;height:216px;border-radius:50%;background-image:radial-gradient(rgba(25,27,22,.32) 1.2px,transparent 1.3px);background-size:8px 8px;z-index:4;pointer-events:none"></div>
+  </sc-if>
+
+  <div style="position:absolute;left:96px;top:120px;width:242px;display:flex;flex-direction:column;gap:11px;z-index:16;pointer-events:none">
+    <div style="display:flex;align-items:center;gap:12px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(25,27,22,.7)">
+      <span>[04]</span><span style="flex:1;height:2px;background:rgba(25,27,22,.32)"></span><span>contact</span>
+    </div>
+    <p style="margin:0;font-size:14px;line-height:1.55;color:rgba(25,27,22,.88);text-wrap:pretty">Four ways in. Every plate is a live link — hover to bring one forward.</p>
+  </div>
+
+  <div style="position:absolute;left:770px;top:140px;width:364px;height:318px;z-index:18">
+    <image-slot id="ct-character" shape="rect" placeholder="Character illustration (transparent PNG)"></image-slot>
+  </div>
+
+  <div style="position:absolute;left:1180px;top:186px;z-index:20;pointer-events:none">
+    <span style="display:inline-block;background:#191b16;padding:5px 11px 6px;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#f4f1e6">open to work</span>
+  </div>
+
+  <div ref="{{ setDock }}" style="position:absolute;left:0;top:0;width:1440px;height:900px;z-index:12">
+
+    <a ref="{{ setCard }}" data-card="0" href="mailto:ksfgarcia24@gmail.com" style="position:absolute;left:96px;top:250px;width:214px;height:340px;transform-origin:50% 50%;transition:transform .2s cubic-bezier(.2,.85,.2,1);will-change:transform;text-decoration:none">
+      <span style="position:absolute;inset:-4px;background:#191b16;clip-path:polygon(0 1%,99.4% 0,100% 99%,.6% 100%)"></span>
+      <span style="position:absolute;inset:0;background:#191b16;clip-path:polygon(0 1%,99.4% 0,100% 99%,.6% 100%);box-shadow:8px 10px 0 rgba(25,27,22,.2)"></span>
+      <span style="position:absolute;left:16px;top:16px;font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.01em;text-transform:uppercase;color:#f4f1e6">Email</span>
+      <span style="position:absolute;right:14px;top:16px;font-size:10px;font-weight:700;letter-spacing:.2em;color:rgba(244,241,230,.6)">01</span>
+      <span style="position:absolute;left:16px;right:16px;top:52px;bottom:82px;display:block;background:#e7e3d4;overflow:hidden">
+        <image-slot id="ct-email" shape="rect" placeholder="Email — inbox screenshot"></image-slot>
+      </span>
+      <span style="position:absolute;left:16px;right:16px;bottom:62px;display:block;height:2px;background:rgba(244,241,230,.28)"></span>
+      <span style="position:absolute;left:16px;right:14px;bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px">
+        <span style="min-width:0;font-size:10px;font-weight:500;letter-spacing:.13em;line-height:1.4;text-transform:uppercase;color:rgba(244,241,230,.82)">ksfgarcia24@gmail.com<br>send message</span>
+        <span style="flex:none;font-family:'Archivo Black',sans-serif;font-size:14px;line-height:1;color:#f4f1e6">↗</span>
+      </span>
+    </a>
+
+    <a ref="{{ setCard }}" data-card="1" href="https://github.com/overnuke" target="_blank" rel="noreferrer" style="position:absolute;left:344px;top:120px;width:162px;height:520px;transform-origin:50% 50%;transition:transform .2s cubic-bezier(.2,.85,.2,1);will-change:transform;text-decoration:none">
+      <span style="position:absolute;inset:-4px;background:#191b16;clip-path:polygon(0 0,99.4% .6%,100% 100%,.6% 99.4%)"></span>
+      <span style="position:absolute;inset:0;background:#4f5c2f;clip-path:polygon(0 0,99.4% .6%,100% 100%,.6% 99.4%);box-shadow:8px 10px 0 rgba(25,27,22,.2)"></span>
+      <span style="position:absolute;right:14px;top:18px;writing-mode:vertical-rl;font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:.02em;text-transform:uppercase;color:#f4f1e6">GitHub</span>
+      <span style="position:absolute;left:16px;top:18px;font-size:10px;font-weight:700;letter-spacing:.2em;color:rgba(244,241,230,.66)">02</span>
+      <span style="position:absolute;left:16px;right:52px;top:44px;bottom:120px;display:block;background:#e7e3d4;overflow:hidden">
+        <image-slot id="ct-github" shape="rect" placeholder="GitHub — profile / repo"></image-slot>
+      </span>
+      <span style="position:absolute;right:16px;bottom:52px;writing-mode:vertical-rl;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,241,230,.88)">@overnuke · repositories</span>
+      <span style="position:absolute;left:16px;right:16px;bottom:38px;display:block;height:2px;background:rgba(244,241,230,.3)"></span>
+      <span style="position:absolute;left:16px;bottom:14px;font-family:'Archivo Black',sans-serif;font-size:14px;line-height:1;color:#f4f1e6">↗</span>
+    </a>
+
+    <a ref="{{ setCard }}" data-card="2" href="https://wa.me/" target="_blank" rel="noreferrer" style="position:absolute;left:534px;top:312px;width:214px;height:336px;transform-origin:50% 50%;transition:transform .2s cubic-bezier(.2,.85,.2,1);will-change:transform;text-decoration:none">
+      <span style="position:absolute;inset:-4px;background:#191b16;clip-path:polygon(0 1%,99.4% 0,100% 99.2%,.6% 100%)"></span>
+      <span style="position:absolute;inset:0;background:var(--olive,#6f7f45);clip-path:polygon(0 1%,99.4% 0,100% 99.2%,.6% 100%);box-shadow:8px 10px 0 rgba(25,27,22,.2)"></span>
+      <span style="position:absolute;left:16px;top:16px;font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.01em;text-transform:uppercase;color:#f4f1e6">WhatsApp</span>
+      <span style="position:absolute;right:14px;top:16px;font-size:10px;font-weight:700;letter-spacing:.2em;color:rgba(244,241,230,.66)">03</span>
+      <span style="position:absolute;left:16px;right:16px;top:52px;bottom:82px;display:block;background:#f4f1e6;overflow:hidden">
+        <image-slot id="ct-whatsapp" shape="rect" placeholder="WhatsApp — QR code"></image-slot>
+      </span>
+      <span style="position:absolute;left:16px;right:16px;bottom:62px;display:block;height:2px;background:rgba(244,241,230,.34)"></span>
+      <span style="position:absolute;left:16px;right:14px;bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px">
+        <span style="min-width:0;font-size:10px;font-weight:500;letter-spacing:.13em;line-height:1.4;text-transform:uppercase;color:#f4f1e6">scan qr<br>direct chat</span>
+        <span style="flex:none;font-family:'Archivo Black',sans-serif;font-size:14px;line-height:1;color:#f4f1e6">↗</span>
+      </span>
+    </a>
+
+    <a ref="{{ setCard }}" data-card="3" href="https://linkedin.com/in/keffwontwakeup" target="_blank" rel="noreferrer" style="position:absolute;left:790px;top:470px;width:334px;height:344px;transform-origin:50% 50%;transition:transform .2s cubic-bezier(.2,.85,.2,1);will-change:transform;text-decoration:none">
+      <span style="position:absolute;inset:-4px;background:#191b16;clip-path:polygon(0 0,99.6% 1%,100% 99%,.4% 100%)"></span>
+      <span style="position:absolute;inset:0;background:#f4f1e6;clip-path:polygon(0 0,99.6% 1%,100% 99%,.4% 100%);box-shadow:8px 10px 0 rgba(25,27,22,.2)"></span>
+      <span style="position:absolute;left:18px;top:16px;font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.01em;text-transform:uppercase;color:#191b16">LinkedIn</span>
+      <span style="position:absolute;right:16px;top:16px;font-size:10px;font-weight:700;letter-spacing:.2em;color:rgba(25,27,22,.5)">04</span>
+      <span style="position:absolute;left:18px;right:18px;top:54px;bottom:82px;display:block;background:#e7e3d4;overflow:hidden">
+        <image-slot id="ct-linkedin" shape="rect" placeholder="LinkedIn — profile card"></image-slot>
+      </span>
+      <span style="position:absolute;left:18px;right:18px;bottom:62px;display:block;height:2px;background:rgba(25,27,22,.24)"></span>
+      <span style="position:absolute;left:18px;right:16px;bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px">
+        <span style="min-width:0;font-size:10px;font-weight:500;letter-spacing:.13em;line-height:1.4;text-transform:uppercase;color:rgba(25,27,22,.78)">/keffwontwakeup<br>network · profile</span>
+        <span style="flex:none;font-family:'Archivo Black',sans-serif;font-size:14px;line-height:1;color:#191b16">↗</span>
+      </span>
+    </a>
+  </div>
+
+  <div style="position:absolute;left:1176px;top:462px;z-index:22;pointer-events:none">
+    <span style="display:inline-block;background:#f4f1e6;border:3px solid #191b16;padding:3px 12px 4px;font-family:'Permanent Marker',cursive;font-size:15px;transform:rotate(-2.4deg)">hover to lift</span>
+  </div>
+
+  <div style="position:absolute;left:96px;bottom:24px;display:flex;gap:10px;align-items:center;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(25,27,22,.5)">
+    <span>panel 5a</span><span style="width:24px;height:2px;background:rgba(25,27,22,.28)"></span><span>replies within 24h · mty, mx</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6f7f45&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#6f7f45&quot;,&quot;#4f5c2f&quot;,&quot;#8a9a55&quot;,&quot;#3f4a26&quot;],&quot;section&quot;:&quot;Ink &amp; paper&quot;},&quot;showTone&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Panels&quot;},&quot;dockStrength&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:26,&quot;min&quot;:0,&quot;max&quot;:60,&quot;step&quot;:2,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Dock&quot;},&quot;dockSpread&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:240,&quot;min&quot;:90,&quot;max&quot;:460,&quot;step&quot;:10,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Dock&quot;}}">
+class Component extends DCLogic {
+  cards = [];
+  raf = 0;
+  pt = null;
+
+  setDock = (n) => { this.dock = n; };
+  setCard = (n) => { if (n && n.dataset.card != null) this.cards[+n.dataset.card] = n; };
+
+  componentDidMount() {
+    this.apply();
+    this.onMove = (e) => {
+      const r = this.dock.getBoundingClientRect();
+      const k = this.dock.offsetWidth ? r.width / this.dock.offsetWidth : 1;
+      this.pt = { x: (e.clientX - r.left) / (k || 1), y: (e.clientY - r.top) / (k || 1) };
+      this.schedule();
+    };
+    this.onLeave = () => { this.pt = null; this.schedule(); };
+    this.frame = this.dock ? this.dock.parentElement : null;
+    if (this.frame) {
+      this.frame.addEventListener('mousemove', this.onMove);
+      this.frame.addEventListener('mouseleave', this.onLeave);
+    }
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    if (this.frame) {
+      this.frame.removeEventListener('mousemove', this.onMove);
+      this.frame.removeEventListener('mouseleave', this.onLeave);
+    }
+  }
+
+  componentDidUpdate() { this.apply(); }
+
+  schedule() {
+    cancelAnimationFrame(this.raf);
+    this.raf = requestAnimationFrame(() => this.paint());
+  }
+
+  apply() {
+    document.documentElement.style.setProperty('--olive', this.props.accent || '#6f7f45');
+    this.paint();
+  }
+
+  paint() {
+    const strength = (this.props.dockStrength ?? 26) / 100;
+    const spread = this.props.dockSpread ?? 240;
+    const pt = this.pt;
+    this.cards.forEach((n) => {
+      if (!n) return;
+      if (!pt) { n.style.transform = 'translateY(0) scale(1)'; n.style.zIndex = '1'; return; }
+      const cx = n.offsetLeft + n.offsetWidth / 2;
+      const cy = n.offsetTop + n.offsetHeight / 2;
+      // dock falloff: horizontal distance dominates, vertical softened
+      const dx = (pt.x - cx) / spread;
+      const dy = (pt.y - cy) / (spread * 2.2);
+      const f = Math.exp(-(dx * dx + dy * dy));
+      n.style.transform = 'translateY(' + (-46 * strength * f).toFixed(2) + 'px) scale(' + (1 + strength * f).toFixed(3) + ')';
+      n.style.zIndex = String(10 + Math.round(f * 12));
+    });
+  }
+
+  renderVals() {
+    return {
+      setDock: this.setDock,
+      setCard: this.setCard,
+      showTone: this.props.showTone !== false
+    };
+  }
+}
+</script>
+</body>
+</html>

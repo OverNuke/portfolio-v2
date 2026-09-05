@@ -345,28 +345,6 @@
   clip-path: circle(closest-side at 50% 50%);
 }
 
-/* Square box, left half a true semicircular lobe, right half flat. The
-   `aspect-ratio: 1` above is load-bearing: `FieldShapeDefs.tsx`'s path is
-   in normalised object-bounding-box units, so a non-square box would turn
-   the lobe into an ellipse. */
-.pf-shape--fused {
-  clip-path: url(#pf-fused);
-}
-
-/* The registration seam where the lobe meets the flat half. Deliberately
-   NOT part of the clip — a clipped element cannot paint its own boundary,
-   so the seam has to be drawn on top. `left: 50%` matches the path's
-   midline; move the two together or not at all. */
-.pf-shape--fused::after {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 50%;
-  width: 1px;
-  background: currentColor;
-  opacity: 0.38;
-  pointer-events: none;
-}
-
 /**
  * NO REPO AND NO IMAGE — the brief's third interaction case. No record
  * exercises this today; it is a real code path rather than a promise, so
@@ -553,6 +531,109 @@
   outline-offset: 2px;
 }
 
+/* ====================================================================== ZOOM
+   In-place zoom-to-centre (P3), replacing `ImageExpandOverlay`'s separate
+   modal. The transform is pure arithmetic on `fieldLayout.ts`'s data
+   (`zoomToCenter`) — `--pf-zoom-dx`/`--pf-zoom-dy`/`--pf-zoom-s` are set as
+   inline custom properties on the ARTICLE by `FieldRecord.tsx`, so this
+   rule only has to compose them with the figure's existing layout.
+
+   WHY THIS NEEDS NO `!important`, verified rather than assumed: the
+   figure's entrance animation (`pf-wipe`, below) animates `clip-path` only
+   — never `transform`/`filter` — so both stay plain author declarations and
+   `.pf-record[data-zoom="self"] .pf-record__figure` (0,2,1) simply outranks
+   `.pf-record__figure` (0,1,0) on specificity. */
+.pf-record[data-zoom="self"] .pf-record__figure {
+  transform: translate(var(--pf-zoom-dx), calc(-50% + var(--pf-zoom-dy))) scale(var(--pf-zoom-s));
+  /* THE EDGE exists to separate near-white discs that overlap; a zoomed
+     disc sits alone over the scrim, and at ~2.8x the 1.5px hairline would
+     read as a ~4px outline instead of vanishing. */
+  filter: none;
+  z-index: var(--z-plate-interactive);
+  transition: transform var(--dur-micro) var(--ease-hard);
+}
+
+/* The zoomed figure fills 82% of stage height centred at 50% (y ≈ 9-91%),
+   which overlaps `.pf-record__cap` (INDEX_TOP: 78%) — the record's own
+   caption sits under its own zoomed disc. `visibility: hidden`, not
+   `display: none`, so the foot index does not visibly reflow at the scrim
+   edges while zoomed. Two consequences, both load-bearing:
+     1. `aria-labelledby` still resolves through it — accessible-name
+        computation follows the reference even to an unrendered element.
+     2. `.pf-zoom__close` must live outside this element (a direct child of
+        the article instead) or focus-on-open would land on <body>. */
+.pf-record[data-zoom="self"] .pf-record__cap {
+  visibility: hidden;
+}
+
+/**
+ * STACKING. `.pf-record` is `position: absolute` with its own `z-index`
+ * (a stacking context), so a child's z-index alone cannot promise it paints
+ * above a SIBLING article — ties at the base `z-index: 3` break on DOM
+ * order, and any later sibling would silently paint its (still fully
+ * opaque) foot-index caption over the zoomed record's scrim. Elevating the
+ * whole zoomed article, not just its figure, is what makes it "always on
+ * top regardless of position in the descending chain."
+ *
+ * The dimmed siblings drop BELOW `.pf__band` (z-index: 2) instead of being
+ * hidden by opacity or `display: none` — `inert` already takes them out of
+ * the accessible tree and the tab order; sinking them under the band (and
+ * under the zoomed record's own scrim, for whatever a rung 4/5 caption
+ * would otherwise still show below the band) reads as backgrounded rather
+ * than removed.
+ */
+.pf-record[data-zoom="self"] {
+  z-index: 30;
+}
+
+.pf-record[data-zoom="other"] {
+  z-index: 1;
+}
+
+/* Covers the whole stage — reuses `.pf-record`'s own `inset: 0` box, which
+   already spans it. `pointer-events: auto` reinstates what the base
+   `.pf-record` rule (RECORD section) takes away for everything but a chip. */
+.pf-zoom__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(17, 17, 17, 0.82);
+  pointer-events: auto;
+}
+
+/* A direct child of the article, NOT of `.pf-record__cap` — see that
+   element's zoomed rule above for why. Positioned in the stage's corner
+   rather than beside the (hidden) caption. */
+.pf-zoom__close {
+  position: absolute;
+  top: 3%;
+  right: 3%;
+  z-index: var(--z-plate-interactive);
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--paper-white);
+  background: transparent;
+  color: var(--paper-white);
+  font: inherit;
+  font-size: clamp(7px, 0.8vw, 11px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background var(--dur-micro) var(--ease-hard);
+}
+
+.pf-zoom__close:hover {
+  background: var(--paper-white);
+  color: var(--field-olive-deep);
+}
+
+.pf-zoom__close:focus-visible {
+  outline: 2px solid var(--paper-white);
+  outline-offset: 2px;
+}
+
 /* ================================================================ EMPTY STATE
    Never a blank field. A field with nothing on it still has to be a field. */
 .pf--empty {
@@ -585,96 +666,6 @@
   margin: 0.6em 0 0;
   font-size: var(--text-meta);
   opacity: var(--on-olive-dim);
-}
-
-/* ==================================================================== OVERLAY
-   Image-expand for a record with no repo (`ImageExpandOverlay.tsx`) — the
-   brief's "no public GitHub repository" interaction. `role="dialog"`
-   WITHOUT `aria-modal`; actual modal-ness is `useInert` on `.pf__records`.
-   See that component's header comment. */
-.pf-overlay {
-  position: absolute;
-  inset: 0;
-  /* Local to `.pf__stage`, which is already its own containing block — the
-     overlay only ever needs to clear this module's own records. */
-  z-index: 100;
-  display: grid;
-  place-items: center;
-}
-
-.pf-overlay__scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(17, 17, 17, 0.82);
-}
-
-.pf-overlay__panel {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  max-width: min(88%, 720px);
-  max-height: 88%;
-  padding: var(--space-lg);
-  background: var(--paper-white);
-  color: var(--ink);
-}
-
-.pf-overlay__close {
-  align-self: flex-end;
-  min-width: var(--hit-min);
-  min-height: var(--hit-min);
-  padding: 0.4em 0.9em;
-  border: 1px solid var(--field-olive);
-  background: transparent;
-  color: var(--field-olive);
-  font: inherit;
-  font-size: clamp(7px, 0.8vw, 11px);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background var(--dur-micro) var(--ease-hard);
-}
-
-.pf-overlay__close:hover {
-  background: var(--field-olive);
-  color: var(--paper-white);
-}
-
-.pf-overlay__close:focus-visible {
-  outline: 2px solid var(--oxblood);
-  outline-offset: 2px;
-}
-
-.pf-overlay__title {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: clamp(16px, 2vw, 24px);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.pf-overlay__img {
-  display: block;
-  max-width: 100%;
-  max-height: 58vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-@keyframes pf-overlay-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.pf-overlay[data-motion="full"] {
-  animation: pf-overlay-in var(--dur-micro) var(--ease-hard) both;
 }
 
 /* ===================================================================== MOTION
@@ -804,10 +795,10 @@
  *
  * THE SELECTOR LIST IS EXACT ON PURPOSE. It resets every WIPE CARRIER and
  * never `.pf-shape` or `.pf-record__disc`, because `clip-path: none !important` on a shape
- * would dissolve the circles and the fused lobe — the composition's entire
- * subject — into rectangles for every reduced-motion user. A blanket
- * `.pf * { clip-path: none }` here would be a silent, total design
- * failure for exactly the audience least able to report it.
+ * would dissolve the circles — the composition's entire subject — into
+ * rectangles for every reduced-motion user. A blanket `.pf * { clip-path:
+ * none }` here would be a silent, total design failure for exactly the
+ * audience least able to report it.
  */
 @media (prefers-reduced-motion: reduce) {
   .pf__title,
@@ -818,8 +809,7 @@
   .pf-record__figure,
   .pf-record__cap,
   .pf-record__bar,
-  .pf-record__corner,
-  .pf-overlay {
+  .pf-record__corner {
     animation: none !important;
     clip-path: none !important;
   }
@@ -1069,11 +1059,10 @@
     filter: none;
   }
 
-  /* One shape language on the poster: plain circles. The fused lobe is the
-     desktop composition's way of marking the primary, and at this width
-     the primary is marked by being first instead. */
-  .pf-shape--circle,
-  .pf-shape--fused {
+  /* One shape language on the poster: plain circles. Desktop already marks
+     the primary this same way (P1 removed the fused lobe); at this width
+     it is marked by being first in DOM order instead. */
+  .pf-shape--circle {
     aspect-ratio: 1;
     clip-path: circle(closest-side at 50% 50%);
     /* Some plates carry alpha (`tools/halftone.py`'s hero and lineart
@@ -1081,10 +1070,6 @@
        behind them the disc's multiply lands on nothing and the circle
        renders as the browser's transparency checkerboard. */
     background: var(--paper-white);
-  }
-
-  .pf-shape--fused::after {
-    display: none;
   }
 
   /* NO `image-rendering: pixelated` HERE, and it is a deliberate departure
@@ -1394,7 +1379,7 @@
     justify-content: flex-start;
   }
 
-  .pf-overlay {
-    position: fixed;
-  }
+  /* No `.pf-zoom__*` rule needed here: the zoom is a ≥900px feature and
+     `ProjectField.tsx` does not render the expand control at all below it
+     (`canZoom`), so there is no zoom chrome to ever reach this tier. */
 }

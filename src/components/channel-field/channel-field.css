@@ -1,6 +1,9 @@
 /**
  * CONTACT — the channel field.
- * Spec: `docs/design-exploration/contact-channel-field-2026-08-20.md`.
+ * Spec: `docs/design-exploration/contact-channel-field-2026-08-20.md`,
+ * amended by `docs/design-exploration/design-import-2026-09-04/HANDOFF.md`
+ * §1 (Instagram/`rail-b` dropped, WhatsApp resolved, per-slot clip-path cut
+ * on `.cf-card::before`, background moved off `.cf-card--{tone}` onto it).
  * Proof: `docs/contact.design-proof-v2.html` — every coordinate below is
  * measured off that file. v2 shipped every plate in one fill,
  * `--field-olive`; the plates now carry THREE fills instead — the same
@@ -252,15 +255,45 @@
   height: var(--space-xs);
 }
 
-/* ---- CHANNEL PLATES ---------------------------------------------------- */
+/* ---- CHANNEL PLATES ----------------------------------------------------
+   Hand-cut edges, added 2026-09-04 (design import, HANDOFF §0 ADR-1..3 /
+   §1.3). Three-layer contract, identical to `cert-wall`'s `.cert-mat`:
+
+     HOST     (`.cf-card`)   hit area, focus ring, `transform`/`scale`, and
+                              the WHOLE filter chain. Never `clip-path`,
+                              `background`, or `border` — a clipped element
+                              cannot paint its own boundary (a `border` is
+                              drawn on the rectangle and clipped away with
+                              it), and `clip-path` on the focusable element
+                              would clip `:focus-visible`'s offset ring too.
+     FILL     (`::before`)   `background` (the tone) + `clip-path`. Never
+                              text, focus, or pointer events.
+     CONTENT  (existing children)  all type and glyphs.
+
+   `z-index: -1` on `::before` is safe: `.cf-card` already establishes a
+   stacking context (`position: relative` + `z-index:
+   var(--z-plate-interactive)`), so the fill cannot escape behind an
+   ancestor's background. */
 
 .cf-card {
   position: relative;
   z-index: var(--z-plate-interactive);
   display: flex;
   padding: var(--space-md);
-  box-shadow: var(--plate-shadow);
   text-decoration: none;
+  /* The ink edge — four zero-blur drop-shadows, one per direction. Traces
+     `::before`'s clipped alpha, so the edge FOLLOWS THE CUT, which a
+     `border` cannot do. Verbatim `.pf-record__figure`'s "THE EDGE", at
+     rule-thick instead of 1.5px. */
+  --cut-edge:
+    drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink))
+    drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink));
+  /* The plate shadow, converted 1:1 from `--plate-shadow` (tokens.css) to a
+     `drop-shadow()` — the token is a single layer with no spread, so it is a
+     valid `drop-shadow()` argument as-is. The token itself stays a
+     `box-shadow` value for modules that don't clip; this is not a second
+     token, just the same number read through `filter`. */
+  filter: var(--cut-edge) drop-shadow(var(--plate-shadow));
   /* `--dock-scale` is written by `ChannelField.tsx`'s pointer-tracked
      "mechanical dock" — the nearest plate's distance to the cursor, eased in
      JS (`damping.ts`) frame by frame. Defaults to 1 (untouched) when the
@@ -275,33 +308,58 @@
   scale: var(--dock-scale, 1);
   transition:
     transform var(--dur-micro) var(--ease-hard),
-    box-shadow var(--dur-micro) var(--ease-hard);
+    filter var(--dur-micro) var(--ease-hard);
+}
+
+/* The fill layer. `clip-path` keyed per SLOT (`--cf-cut`, set on the `.a-*`
+   placement classes below) — not per channel, since `channelLayout.ts` may
+   hand any channel any slot, and the cut is an outline concern orthogonal to
+   `--block`/`--banner`'s type-flow concern. `background` comes from the tone
+   rules below, moved here off `.cf-card`. Every cut is expressed in `px`
+   (ADR-2): a hand-cut edge deviates by millimetres regardless of the plate's
+   own size, so the depth stays constant at every breakpoint and there is
+   exactly one polygon per slot for the whole responsive range — no `@media`
+   override of any `--cf-cut` appears anywhere. */
+.cf-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  clip-path: var(--cf-cut);
 }
 
 /* ---- TONE — one of these three, always; `ChannelPlate` never renders
    `.cf-card` bare. Same fills as `cert-wall`'s `.cert-mat--*`, see the file
-   header for the audited ratios. */
+   header for the audited ratios. `background` lives on `::before` (the
+   clipped fill), never on `.cf-card` itself — see the three-layer contract
+   above. `color` stays on `.cf-card`: the type is not clipped. */
+
+.cf-card--mid::before {
+  background: var(--field-olive);
+}
 
 .cf-card--mid {
-  background: var(--field-olive);
   color: var(--paper-white);
-  /* No border. Field Olive on Paper is 5.77:1 — the plate edge is already its
-     own boundary and a rule around it would only add weight. */
+}
+
+/* Paper White on Paper is ~1.09:1 — invisible without a boundary. A
+   `border` can't provide it any more (ADR-3: a clipped element cannot paint
+   its own rectangle), so the ink edge in `--cut-edge` above takes over that
+   job — and per the mockup, every tone gets the same edge now, not just
+   `light`; that is an intended visual change to `mid`/`dark` too. */
+.cf-card--light::before {
+  background: var(--paper-white);
 }
 
 .cf-card--light {
-  /* Paper White on Paper is ~1.09:1 — invisible without a border. Ink at
-     `--rule-thick`, same convention `cert-wall`'s `.cert-mat` uses
-     unconditionally (there every tone gets it; here only light needs it,
-     since mid and dark are already high-contrast against the page on their
-     own fill alone). */
-  border: var(--rule-thick) solid var(--ink);
-  background: var(--paper-white);
   color: var(--ink);
 }
 
-.cf-card--dark {
+.cf-card--dark::before {
   background: var(--ink);
+}
+
+.cf-card--dark {
   color: var(--ink-inverse);
 }
 
@@ -314,10 +372,13 @@
 a.cf-card:hover,
 a.cf-card:focus-visible {
   z-index: calc(var(--z-plate-interactive) + 10);
-  box-shadow: 5px 7px 18px rgb(17 17 17 / 30%);
+  filter: var(--cut-edge) drop-shadow(5px 7px 18px rgb(17 17 17 / 30%));
   transform: translateY(-3px);
 }
 
+/* Focus ring: unchanged and unclipped. `a.cf-card:focus-visible`'s `outline`
+   is on the host, which carries no `clip-path` — this is the point of
+   ADR-3. */
 a.cf-card:focus-visible {
   outline: var(--rule-thick) solid var(--cf-focus);
   outline-offset: 3px;
@@ -332,7 +393,7 @@ a.cf-card:active {
    fail contrast to signal something the words "pending" already say. It reads
    as flatter because it does not lift, which is the honest cue. */
 .cf-card--pending {
-  box-shadow: var(--plate-shadow-sm);
+  filter: var(--cut-edge) drop-shadow(var(--plate-shadow-sm));
   cursor: default;
 }
 
@@ -456,24 +517,31 @@ a.cf-card:active {
 /* ---- PLACEMENT ---------------------------------------------------------
    One block, in composition order, so the layout can be read as a whole
    (doc 12 §Implementation notes). There is not one pixel coordinate in it:
-   if a plate needs to move, it moves by a grid cell. */
+   if a plate needs to move, it moves by a grid cell.
+
+   `.a-rail-b` (Instagram's slot) was deleted 2026-09-04 (design import, C1)
+   — `channelLayout.ts`'s `ChannelSlot` union drops it too, so a leftover
+   reference here would be dead CSS, not a type error. Track `c6` is
+   deliberately left EMPTY rather than rebalanced — see `.cf__stage`'s
+   `grid-template-columns` comment and HANDOFF §1.1 for why: rebalancing
+   would re-open `.cf__mark`'s verified clearance derivation, which depends
+   on `.a-aside`'s box staying exactly where it is. */
 
 .a-rail-a {
   grid-area: 1 / 2 / 9 / 3;
-}
-
-.a-rail-b {
-  grid-area: 2 / 6 / 10 / 7;
+  --cf-cut: polygon(0 0, calc(100% - 1px) 3px, 100% 100%, 1px calc(100% - 2px));
 }
 
 .a-primary {
   grid-area: 3 / 1 / 8 / 2;
+  --cf-cut: polygon(0 3px, calc(100% - 1px) 0, 100% calc(100% - 3px), 1px 100%);
 }
 
 /* Trades columns with `.a-feature` (2026-08-23) — was c5, now c3 — as part
    of the rebalance above. Row span unchanged. */
 .a-aside {
   grid-area: 4 / 3 / 9 / 4;
+  --cf-cut: polygon(0 4px, calc(100% - 2px) 0, 100% calc(100% - 2px), 1px 100%);
 }
 
 /* Trades columns with `.a-aside` (2026-08-23) — was c3, now c5, the widest
@@ -481,21 +549,27 @@ a.cf-card:active {
    plate even after the swap. Row span unchanged. */
 .a-feature {
   grid-area: 7 / 5 / 12 / 6;
+  --cf-cut: polygon(0 0, calc(100% - 1px) 3px, 100% calc(100% - 3px), 2px 100%);
 }
 
 .a-conn-a {
   grid-area: 8 / 1 / 9 / 3;
 }
 
+/* Was `9 / 4 / 10 / 7` — tucked behind `.a-rail-b` (Instagram), which is now
+   gone. Retucked 2026-09-04 to tuck under `.a-feature` (c5, rows 7-12)
+   instead: a bar with both ends in open paper reads as debris, and that tuck
+   is the entire effect. */
 .a-conn-b {
-  grid-area: 9 / 4 / 10 / 7;
+  grid-area: 9 / 4 / 10 / 6;
 }
 
 /* ==========================================================================
    SHED ORDER — doc 12 §Shed order. As the field narrows, overlap becomes
    occlusion, so the composition sheds in a fixed priority rather than
-   compressing. Nothing carrying unique content is ever shed: the five plates
-   and the marker's availability label are always present.
+   compressing. Nothing carrying unique content is ever shed: the four plates
+   (reduced from five 2026-09-04 — Instagram/`rail-b` dropped) and the
+   marker's availability label are always present.
    ========================================================================== */
 
 @media (max-width: 1180px) {
@@ -533,7 +607,7 @@ a.cf-card:active {
        down-then-across and silently inverts the reading order — that is the
        bug this shape exists to avoid. */
     /* `minmax(0, …)`, not a bare `fr`. An `fr` track carries an automatic
-       min-content floor, so one unbreakable string — a long Instagram handle,
+       min-content floor, so one unbreakable string — a long GitHub handle,
        say — silently widens the track past the container instead of wrapping.
        The desktop tier does not need this: its type is vertical, so a long
        handle costs height there, not width. */
@@ -559,7 +633,6 @@ a.cf-card:active {
   .a-rail-a,
   .a-feature,
   .a-aside,
-  .a-rail-b,
   .a-conn-a,
   .a-conn-b {
     grid-area: auto;

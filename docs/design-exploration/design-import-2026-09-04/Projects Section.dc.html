@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Permanent+Marker&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap">
+<script src="./image-slot.js"></script>
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#d9d5c6}
+a{color:#4f5c2f;text-decoration:none}
+a:hover{color:#191b16}
+</style>
+</helmet>
+<div style="width:1440px;height:900px;position:relative;overflow:hidden;background:#efece1;background-image:repeating-linear-gradient(92deg,rgba(25,27,22,.028) 0 1px,transparent 1px 4px),repeating-linear-gradient(2deg,rgba(25,27,22,.022) 0 1px,transparent 1px 5px),radial-gradient(110% 80% at 86% 4%,rgba(111,127,69,.10),transparent 62%);font-family:'Space Grotesk',system-ui,sans-serif;color:#191b16">
+
+  <div style="position:absolute;right:52px;top:22px;text-align:right;z-index:22;pointer-events:none">
+
+
+  <h2 style="margin: 2px 0 0; font-family: 'Archivo Black',sans-serif; font-size: 96px; line-height: .86; letter-spacing: -.035em; text-transform: uppercase">Projects</h2></div>
+
+  <div style="position:absolute;left:104px;top:150px;width:572px;height:372px;background:#333c1e;background-image:repeating-linear-gradient(45deg,rgba(244,241,230,.05) 0 2px,transparent 2px 7px);clip-path:polygon(0 .8%,99.7% 0,100% 99.2%,.3% 100%)"></div>
+  <div style="position:absolute;left:682px;top:150px;width:540px;height:372px;background:#333c1e;background-image:repeating-linear-gradient(45deg,rgba(244,241,230,.05) 0 2px,transparent 2px 7px);clip-path:polygon(0 0,99.6% 1%,100% 100%,.4% 99%)"></div>
+
+  <div style="position:absolute;left:116px;top:172px;writing-mode:vertical-rl;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;letter-spacing:.34em;text-transform:uppercase;color:rgba(244,241,230,.82);pointer-events:none">project database</div>
+
+
+
+  <div style="position:absolute;left:986px;top:176px;width:212px;z-index:16;pointer-events:none">
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(244,241,230,.34);font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#f4f1e6"><span>records</span><span>03</span></div>
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(244,241,230,.34);font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#f4f1e6"><span>field</span><span>01 / 01</span></div>
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(244,241,230,.34);font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#f4f1e6"><span>span</span><span>2025</span></div>
+  </div>
+
+  <sc-if value="{{ showTone }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:198px;top:104px;width:412px;height:412px;border-radius:50%;background-color:transparent;background-image:radial-gradient(rgba(25,27,22,.5) 1.3px,transparent 1.4px);background-size:9px 9px;z-index:4;pointer-events:none"></div>
+    <div style="position:absolute;left:928px;top:326px;width:196px;height:196px;border-radius:50%;background-image:radial-gradient(rgba(244,241,230,.42) 1.2px,transparent 1.3px);background-size:8px 8px;z-index:4;pointer-events:none"></div>
+  </sc-if>
+
+  <div data-panel="barbershop" ref="{{ setRef }}" style="position:absolute;left:224px;top:126px;width:396px;height:396px;z-index:8;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(-2px,-7px)">
+    <div style="position:absolute;inset:0;border-radius:50%;background:#191b16;filter:drop-shadow(6px 8px 0 rgba(25,27,22,.2))"></div>
+    <div style="position:absolute;inset:5px;border-radius:50%;background:#e7e3d4;overflow:hidden">
+      <image-slot id="pj-barbershop" shape="circle" placeholder="Barbershop — employee screen"></image-slot>
+    </div>
+    <div style="position:absolute;left:-16px;top:44px;display:flex;gap:8px;align-items:center;z-index:3;pointer-events:none">
+      <span style="background:#f4f1e6;border:3px solid #191b16;padding:3px 11px 4px;font-family:'Permanent Marker',cursive;font-size:15px;transform:rotate(-3deg)">flagship</span>
+    </div>
+
+  </div>
+
+  <div data-panel="acopiatech" ref="{{ setRef }}" style="position:absolute;left:716px;top:176px;width:228px;height:228px;z-index:8;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(3px,-7px)">
+    <div style="position:absolute;inset:0;border-radius:50%;background:#191b16;filter:drop-shadow(6px 8px 0 rgba(25,27,22,.2))"></div>
+    <div style="position:absolute;inset:5px;border-radius:50%;background:#f4f1e6;overflow:hidden">
+      <image-slot id="pj-acopiatech" shape="circle" placeholder="Acopiatech — app screen"></image-slot>
+    </div>
+    <div style="position:absolute;left:-14px;top:20px;z-index:3;pointer-events:none">
+      <span style="display:block;background:var(--olive,#6f7f45);border:3px solid #191b16;padding:3px 10px 4px;font-family:'Permanent Marker',cursive;font-size:14px;color:#f4f1e6;transform:rotate(-2.6deg)">mobile</span>
+    </div>
+
+  </div>
+
+  <div data-panel="odoo" ref="{{ setRef }}" style="position:absolute;left:900px;top:298px;width:212px;height:212px;z-index:9;transition:transform .32s cubic-bezier(.2,.85,.2,1)" style-hover="transform:translate(4px,-7px)">
+    <div style="position:absolute;inset:0;border-radius:50%;background:#191b16;filter:drop-shadow(6px 8px 0 rgba(25,27,22,.2))"></div>
+    <div style="position:absolute;inset:5px;border-radius:50%;background:#20241c;overflow:hidden">
+      <image-slot id="pj-odoo" shape="circle" placeholder="Odoo — module screen"></image-slot>
+    </div>
+    <div style="position:absolute;right:-12px;top:18px;z-index:3;pointer-events:none">
+      <span style="display:block;background:#f4f1e6;border:3px solid #191b16;padding:3px 10px 4px;font-family:'Permanent Marker',cursive;font-size:14px;transform:rotate(2.6deg)">module</span>
+    </div>
+
+  </div>
+
+  <div style="position:absolute;left:144px;top:566px;width:462px;display:flex;flex-direction:column;gap:11px;z-index:14">
+    <div style="display:flex;align-items:center;gap:12px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(25,27,22,.7)">
+      <span>[01]</span><span style="flex:1;height:2px;background:rgba(25,27,22,.32)"></span><span>backend</span>
+    </div>
+    <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:40px;line-height:.94;letter-spacing:-.028em;text-transform:uppercase">Barbershop</h3>
+    <p style="margin:0;max-width:430px;font-size:14px;line-height:1.5;color:rgba(25,27,22,.88);text-wrap:pretty">Final project for the web development course — employee and appointment records, built end to end.</p>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(25,27,22,.74)">
+      <span>Express · JavaScript · Docker · MySQL</span>
+      <span>Deployed · 2025</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;font-family:'Permanent Marker',cursive;font-size:15px;color:#4f5c2f">
+      <span style="width:22px;height:3px;background:#4f5c2f"></span>
+      <span>shipped to production, full CRUD</span>
+    </div>
+    <a href="#repo-barbershop" style="position:relative;display:block;align-self:flex-start;text-decoration:none;margin-top:4px">
+      <span style="position:absolute;inset:-3px -3px -4px -3px;background:#191b16;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+      <span style="position:relative;display:block;padding:10px 22px;background:var(--olive,#6f7f45);clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#f4f1e6;transform:rotate(-1.2deg)">Repository ↗</span>
+    </a>
+  </div>
+
+  <div style="position:absolute;left:684px;top:566px;width:230px;display:flex;flex-direction:column;gap:10px;z-index:14">
+    <div style="display:flex;align-items:center;gap:10px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(25,27,22,.7)">
+      <span>[02]</span><span style="flex:1;height:2px;background:rgba(25,27,22,.32)"></span><span>mobile</span>
+    </div>
+    <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;letter-spacing:-.022em;text-transform:uppercase">Acopiatech</h3>
+    <p style="margin:0;font-size:13px;line-height:1.5;color:rgba(25,27,22,.88);text-wrap:pretty">Mobile app for e-waste donation and collection routing.</p>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(25,27,22,.74)">
+      <span>Google Maps API · Flutter · Dart · Firebase</span>
+      <span>Deployed · 2025</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-family:'Permanent Marker',cursive;font-size:14px;color:#4f5c2f">
+      <span style="width:18px;height:3px;background:#4f5c2f"></span>
+      <span>field-tested on local routes</span>
+    </div>
+    <a href="#repo-acopiatech" style="position:relative;display:block;align-self:flex-start;text-decoration:none;margin-top:4px">
+      <span style="position:absolute;inset:-3px;background:#4f5c2f;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%)"></span>
+      <span style="position:relative;display:block;padding:9px 18px;background:#f4f1e6;clip-path:polygon(0 6%,97% 0,100% 92%,3% 100%);font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#191b16;transform:rotate(1.4deg)">Repository ↗</span>
+    </a>
+  </div>
+
+  <div style="position:absolute;left:944px;top:566px;width:264px;display:flex;flex-direction:column;gap:10px;z-index:14">
+    <div style="display:flex;align-items:center;gap:10px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(25,27,22,.7)">
+      <span>[03]</span><span style="flex:1;height:2px;background:rgba(25,27,22,.32)"></span><span>module</span>
+    </div>
+    <h3 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:24px;line-height:1;letter-spacing:-.022em;text-transform:uppercase">Odoo Custom Module</h3>
+    <p style="margin:0;font-size:13px;line-height:1.5;color:rgba(25,27,22,.88);text-wrap:pretty">Document management module built for a local company.</p>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(25,27,22,.74)">
+      <span>Odoo · Python · PostgreSQL</span>
+      <span>Private · 2025</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-family:'Permanent Marker',cursive;font-size:14px;color:#4f5c2f">
+      <span style="width:18px;height:3px;background:#4f5c2f"></span>
+      <span>document handoff in one flow</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:6px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(25,27,22,.58)">
+      <span>Private repository</span><span style="flex:1;height:2px;background:rgba(25,27,22,.22)"></span>
+    </div>
+  </div>
+
+  <div style="position:absolute;right:52px;bottom:24px;display:flex;gap:10px;align-items:center;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(25,27,22,.5)">
+    <span>panel 4b</span><span style="width:24px;height:2px;background:rgba(25,27,22,.28)"></span><span>click ⤢ to expand · esc to close</span>
+  </div>
+
+  <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:absolute;inset:0;z-index:40;background:rgba(25,27,22,.74);background-image:repeating-linear-gradient(45deg,rgba(244,241,230,.05) 0 2px,transparent 2px 7px);cursor:zoom-out">
+      <div style="position:absolute;left:50%;bottom:26px;transform:translateX(-50%);font-family:'Permanent Marker',cursive;font-size:17px;color:#f4f1e6">esc / click anywhere to close</div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6f7f45&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#6f7f45&quot;,&quot;#4f5c2f&quot;,&quot;#8a9a55&quot;,&quot;#3f4a26&quot;],&quot;section&quot;:&quot;Ink &amp; paper&quot;},&quot;showTone&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Panels&quot;},&quot;clickToExpand&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Panels&quot;}}">
+const RECTS = {
+  barbershop: [224, 126, 396, 396],
+  acopiatech: [716, 176, 228, 228],
+  odoo: [900, 298, 212, 212]
+};
+const BASE_Z = { barbershop: '8', acopiatech: '8', odoo: '9' };
+
+class Component extends DCLogic {
+  state = { open: null };
+  nodes = {};
+
+  setRef = (n) => { if (n && n.dataset.panel) this.nodes[n.dataset.panel] = n; };
+
+  openPanel = (e) => {
+    e.stopPropagation();
+    if (this.props.clickToExpand === false) return;
+    const k = e.currentTarget.dataset.panel;
+    this.setState(s => ({ open: s.open === k ? null : k }));
+  };
+
+  close = () => this.setState({ open: null });
+
+  componentDidMount() {
+    this._key = (e) => { if (e.key === 'Escape') this.close(); };
+    window.addEventListener('keydown', this._key);
+    this.apply();
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._key); }
+  componentDidUpdate() { this.apply(); }
+
+  apply() {
+    document.documentElement.style.setProperty('--olive', this.props.accent || '#6f7f45');
+    const open = this.state.open;
+    Object.keys(RECTS).forEach(k => {
+      const n = this.nodes[k];
+      if (!n) return;
+      if (open === k) {
+        const [x, y, w, h] = RECTS[k];
+        const s = Math.min(820 / w, 780 / h, 3);
+        n.style.transform = 'translate(' + (720 - (x + w / 2)) + 'px,' + (450 - (y + h / 2)) + 'px) scale(' + s.toFixed(3) + ')';
+        n.style.zIndex = '60';
+      } else {
+        n.style.transform = '';
+        n.style.zIndex = open ? '5' : BASE_Z[k];
+      }
+    });
+  }
+
+  renderVals() {
+    return {
+      setRef: this.setRef,
+      openPanel: this.openPanel,
+      close: this.close,
+      isOpen: !!this.state.open,
+      showTone: this.props.showTone !== false
+    };
+  }
+}
+
+</script>
+</body>
+</html>

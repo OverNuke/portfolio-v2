@@ -1,3 +1,4 @@
+import type { ElementType } from "react";
 import type { Certificate } from "../../content/types";
 
 /**
@@ -88,6 +89,65 @@ export function CertLink({ certificate }: { certificate: Certificate }) {
  * since `PageLayer`'s own `<h1>` already says "Certifications" and this is
  * the same string as ornament.
  */
+export interface CertPagerTabsProps {
+  /** Total sheets. 1 or fewer renders nothing — a single sheet needs no pager. */
+  pageCount: number;
+  /** 1-based, already clamped by the caller (`CertWall`). */
+  current: number;
+  pagerHref: (page: number) => string;
+  /** Router `Link`, so paging does not full-reload — same contract as `CertWall`'s own prop. */
+  LinkComponent: ElementType;
+}
+
+/**
+ * "01" / "02" vertical number tabs — replaces the dot pager (D3,
+ * `sdd/design-import-sections`, 2026-09-04). `LinkComponent` + `pagerHref`
+ * are kept, non-negotiably: this codebase routes `/certifications/2`
+ * (deep-links + browser back/forward), unlike the mockup's local-state
+ * paging.
+ *
+ * The current-page tab keeps the OLD dot-pager's exact inert-`<span>`
+ * treatment, not `aria-disabled` on a link: *"a disabled link still takes
+ * focus and still fires on Enter."* Stacked VERTICALLY, direction-neutral,
+ * so it carries no claim about which side "next" sits on — if ever laid out
+ * horizontally, `02` must sit left of `01` (doc 03: NEXT left of PREVIOUS).
+ *
+ * Zero rotation (Record register, ADR-5) — the mockup rotates the tab base
+ * `±1.5deg` and the hover `±2deg`; both ship at `0`, hover keeps only
+ * `translateY(-2px)`.
+ */
+export function CertPagerTabs({
+  pageCount,
+  current,
+  pagerHref,
+  LinkComponent,
+}: CertPagerTabsProps) {
+  if (pageCount <= 1) return null;
+
+  const Link = LinkComponent;
+
+  return (
+    <nav className="cert-pager" aria-label="Certificate sheets">
+      <div className="cert-pager__tabs">
+        {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => {
+          const label = String(n).padStart(2, "0");
+          return n === current ? (
+            <span key={n} className="cert-pager__tab" data-inert="true" aria-current="page">
+              <span aria-hidden="true">{label}</span>
+              <span className="visually-hidden">{`Sheet ${n}, current`}</span>
+            </span>
+          ) : (
+            <Link key={n} className="cert-pager__tab" href={pagerHref(n)}>
+              <span aria-hidden="true">{label}</span>
+              <span className="visually-hidden">{`Sheet ${n}`}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 export function GhostTitleMark() {
   return (
     <p className="cert-wall__ghost-title" aria-hidden="true" data-texture="true">

@@ -96,12 +96,17 @@ export interface Skill {
 
 /**
  * Named composition slots for the CONTACT channel field
- * (`components/channel-field/`). Slots are NOT interchangeable — two are
- * vertical banners setting their label with `writing-mode` and three are
+ * (`components/channel-field/`). Slots are NOT interchangeable — one is a
+ * vertical banner setting its label with `writing-mode` and three are
  * horizontal blocks — so the assignment is explicit data, never derived
  * from array position. Same principle as `Project.sheetSlot`.
+ *
+ * Reduced from five to four 2026-09-04 (design import): `"rail-b"`
+ * (Instagram's slot) was dropped. Removing it from this union makes the
+ * deletion type-checked — any leftover reference fails `pnpm typecheck`
+ * rather than lingering as dead data.
  */
-export type ChannelSlot = "primary" | "rail-a" | "feature" | "aside" | "rail-b";
+export type ChannelSlot = "primary" | "rail-a" | "feature" | "aside";
 
 export interface SocialLink {
   label: string;
@@ -173,4 +178,51 @@ export interface AboutProfile {
    * of the silhouette at every viewport.
    */
   availability: string;
+  /**
+   * The "You fail? Congrats!…" line — the handwritten scrap on the /profile
+   * hero (`components/profile-hero/`). Its own field: it is not the `bio`
+   * (conversational self-description) and not the `summary` (declarative
+   * plate line). Absent → the scrap is not rendered.
+   */
+  creed?: string;
+  /**
+   * Informal handle printed as the /profile colophon mark ("Kevon").
+   * Decorative — the accessible name is always `fullName`.
+   */
+  nickname?: string;
+  /** "est. 2003" — the /profile eyebrow note. Decorative print chrome. */
+  establishedNote?: string;
+  /**
+   * CV download. Absent → the /profile page renders a non-link placeholder
+   * chip that holds the slot until a real asset lands — the same
+   * "safe state is the default one" convention as `SocialLink.unresolved`.
+   */
+  cv?: { href: string; note: string };
+}
+
+/**
+ * One photo panel on the /profile manga-collage hero
+ * (`components/profile-hero/`, from the mockup at
+ * `docs/` handoff / `Profile Page UI Mockups`). The four panels are NOT
+ * interchangeable — each has an authored `clip-path` polygon and stage
+ * position keyed off `id` — so the set is explicit data, never derived
+ * from array position. Same principle as `Project.sheetSlot`.
+ */
+export interface ProfilePanel {
+  /** "keff" | "alien" | "cold" | "overnuke" — drives the panel's geometry. */
+  id: string;
+  /** Vite-imported asset (ink line-art on white). */
+  image: string;
+  /** Real alt — these are portraits of Kevin and carry content. */
+  alt: string;
+  /**
+   * "Keff" / "ALIEN" / "Cold" — the marker-hand caption. Decorative
+   * (aria-hidden); the panel `<button>` carries the accessible name.
+   */
+  caption?: string;
+  /**
+   * Manga "SFX" handle this panel drives ("OverNuke", "K3V1N"), rendered as
+   * an aria-hidden `pointer-events: none` overlay. Absent → no overlay.
+   */
+  handle?: string;
 }

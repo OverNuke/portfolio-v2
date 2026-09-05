@@ -1,11 +1,5 @@
 import { useEffect, useRef, type ComponentType, type SVGProps } from "react";
-import {
-  GithubIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  MailIcon,
-  WhatsappIcon,
-} from "../social-icon/SocialIcon";
+import { GithubIcon, LinkedinIcon, MailIcon, WhatsappIcon } from "../social-icon/SocialIcon";
 import type { SocialLink } from "../../content/types";
 import { assignChannelSlots, type PlacedChannel } from "./channelLayout";
 import { dockTargets, type DockCard } from "./dockHover";
@@ -34,12 +28,15 @@ const DOCK_TAU_MS = 52;
 
 /**
  * CONTACT — the channel field.
- * Spec: `docs/design-exploration/contact-channel-field-2026-08-20.md`.
+ * Spec: `docs/design-exploration/contact-channel-field-2026-08-20.md`,
+ * amended by `docs/design-exploration/design-import-2026-09-04/HANDOFF.md`
+ * §1 (Instagram dropped, WhatsApp resolved, per-card clip-path cut).
  * Proof: `docs/contact.design-proof-v2.html`.
  *
- * Five channels across six unequal tracks, an illustrated character figure
- * bleeding off the bottom, and one Oxblood marker anchored to its top-right
- * clear zone.
+ * Four channels across six unequal tracks (one, `c6`, deliberately empty —
+ * reduced from five channels 2026-09-04 when Instagram was dropped), an
+ * illustrated character figure bleeding off the bottom, and one Oxblood
+ * marker anchored to its top-right clear zone.
  *
  * THREE THINGS ABOUT THIS COMPOSITION THAT ARE EASY TO UNDO BY ACCIDENT:
  *
@@ -80,7 +77,6 @@ const CHANNEL_GLYPHS: Record<string, Glyph> = {
   github: GithubIcon,
   linkedin: LinkedinIcon,
   whatsapp: WhatsappIcon,
-  instagram: InstagramIcon,
 };
 
 function ChannelGlyph({ label }: { label: string }) {
@@ -124,9 +120,10 @@ function ChannelPlate({ link, slot, variant, tone }: PlacedChannel) {
 
   /**
    * A channel whose address has not been decided yet renders as a PLATE, not
-   * as a link. It keeps its place in the composition — five slots is the
-   * layout, and dropping to three leaves two holes — but it is not focusable,
-   * has no `href`, and cannot be clicked into a 404.
+   * as a link. It keeps its place in the composition — four slots is the
+   * layout, and no channel exercises this branch as of 2026-09-04 (WhatsApp
+   * resolved, Instagram dropped outright rather than left pending) — but it
+   * is not focusable, has no `href`, and cannot be clicked into a 404.
    *
    * The alternative considered and rejected: ship the placeholder `href`
    * anyway and let a test fail until someone fixes it. That makes a red build
@@ -188,7 +185,7 @@ export interface ChannelFieldProps {
  * independent exponential smoothing (`damping.ts`, the same pattern
  * `OptionWheel.tsx` already runs), stopping itself once every plate has
  * settled. Writes `--dock-scale` straight to each element via a ref, not
- * React state, which would re-render all five plates every frame.
+ * React state, which would re-render all four plates every frame.
  * `a.cf-card` only: a `pending` plate is a `div` with no interaction to
  * acknowledge, same reasoning as the existing hover-lift scoping below in
  * channel-field.css.

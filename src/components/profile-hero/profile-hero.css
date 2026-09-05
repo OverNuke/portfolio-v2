@@ -1,0 +1,606 @@
+/**
+ * PROFILE HERO — the identity type stack + four-panel manga collage on
+ * /profile. Recreates the mockup (`Profile Page UI Mockups`, variant 3a)
+ * inside the locked design system: the green accent, the display fonts,
+ * the paper-tooth texture and every rotation past `--rot-max` are dropped;
+ * the composition, the `clip-path` geometry and the click-to-enlarge
+ * interaction are kept. See `docs/12_COLLAGE_SYSTEM.md`.
+ *
+ * Two rules carry the layout, both borrowed from `profile-plate.css`:
+ *
+ * 1. GEOMETRY IS %, not px. Panel positions/sizes are percentages of
+ *    `.profile-hero__stage`; type scales off the container. The one
+ *    exception is the four ink-edge insets (4/5/6/7px) — nothing in the
+ *    system governs `clip-path`, and that unevenness is what reads as a
+ *    hand-inked border rather than a CSS one (mockup's own note).
+ *
+ * 2. DESKTOP NO-SCROLL COMES FROM A BOUNDED HEIGHT, never `overflow:
+ *    hidden`. `.profile-hero` is capped at `calc(100dvh - <chrome>)` with a
+ *    floor; below the floor the identity column wins and `.page-content`
+ *    scrolls (repo conflict order: content integrity over no-scroll — see
+ *    `contact-page.css` and CLAUDE.md).
+ */
+
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: min(1200px, 100%);
+  /* Sized by the stage (below), not the viewport — and centred in the
+     leftover height by `.profile-page`'s `justify-content`. The identity
+     column is shorter than the stage, so the hero is as tall as the
+     collage and no more; the desktop screen doesn't scroll because the
+     stage is height-capped, never because anything clips. */
+  margin-inline: auto;
+  container-type: inline-size;
+}
+
+.profile-hero__body {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 21rem) 1fr;
+  gap: var(--space-xl);
+}
+
+/* ---------- identity column -------------------------------------------- */
+.profile-hero__identity {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.profile-hero__eyebrow {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.profile-hero__name {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-serif-edit);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 5.5cqw, 3rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* The mockup's outline line. Stroke on --ink is a design-system-sanctioned
+   treatment (the profile mark uses it); the middle line takes it so the
+   name reads as a solid / hollow / solid sandwich. */
+.profile-hero__name-line--outline {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--ink);
+}
+
+/* Availability — a Field Olive plate carrying Paper White type (6.79:1).
+   Ink on olive is 2.57:1: never use it here. */
+.profile-hero__ribbon {
+  align-self: flex-start;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--field-olive);
+  color: var(--paper-white);
+  border: var(--plate-border) solid var(--ink);
+  box-shadow: var(--plate-shadow);
+  transform: rotate(-1.2deg);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.profile-hero__bio {
+  margin: 0;
+  max-width: 36ch;
+  font-family: var(--font-serif-edit);
+  font-size: var(--text-body);
+  line-height: 1.55;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* CV slot. No `cv` → a non-link chip that holds the slot (the
+   `SocialLink.unresolved` convention). Self-contained rather than the
+   shared `.bar` because `.bar .v`'s `overflow: hidden` + `text-overflow`
+   trips `scripts/audit.mjs`'s clipped-text check without a
+   `data-truncate` opt-out. */
+.profile-hero__cv {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  max-width: 100%;
+  padding: 5px var(--space-sm);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--plate-shadow-sm);
+  font-family: var(--font-mono);
+  text-decoration: none;
+}
+
+.profile-hero__cv .k {
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  opacity: 0.72;
+  white-space: nowrap;
+}
+
+.profile-hero__cv .v {
+  font-size: var(--text-meta);
+  letter-spacing: 0.04em;
+}
+
+/* The one handwritten scrap the collage system allows (doc 12). Squared —
+   `border-radius: 0` is global — so the tail is a skewed nub, not a curve. */
+.profile-hero__creed {
+  align-self: stretch;
+  position: relative;
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--paper-white);
+  border: var(--plate-border) solid var(--ink);
+  box-shadow: var(--plate-shadow);
+  transform: rotate(-1.4deg);
+  font-family: var(--font-hand);
+  font-size: clamp(1rem, 3cqw, 1.375rem);
+  line-height: 1.3;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.profile-hero__creed::after {
+  content: "";
+  position: absolute;
+  left: var(--space-lg);
+  bottom: -10px;
+  width: 18px;
+  height: 12px;
+  background: var(--paper-white);
+  border-left: var(--plate-border) solid var(--ink);
+  border-bottom: var(--plate-border) solid var(--ink);
+  transform: skewX(-20deg);
+}
+
+.profile-hero__colophon {
+  margin: 0;
+  padding-top: var(--space-sm);
+  border-top: var(--rule-thick) solid var(--ink);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.profile-hero__colophon-name {
+  line-height: 1.35;
+}
+
+.profile-hero__colophon-mark {
+  font-family: var(--font-hand);
+  font-size: clamp(1rem, 3cqw, 1.5rem);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  transform: rotate(-2deg);
+}
+
+/* ---------- panel stage ---------------------------------------------- */
+.profile-hero__stage {
+  position: relative;
+  min-width: 0;
+  /* Own aspect gives the absolute `%` panels a definite containing block
+     without the hero needing a fixed height. Capped to the viewport so
+     the desktop screen never scrolls; `100dvh - 80px` is the measured
+     chrome above + a margin (RE-MEASURE if the panel chrome changes). */
+  aspect-ratio: 4 / 3;
+  max-height: calc(100dvh - 80px);
+}
+
+.profile-hero__panel {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--ink);
+  cursor: pointer;
+  transition: transform var(--dur-turn) var(--ease-hard);
+}
+
+.profile-hero__panel:focus-visible {
+  outline: var(--rule-thick) solid var(--oxblood);
+  outline-offset: 3px;
+}
+
+/* Inset Paper White layer — the visible ink edge is the gap between this
+   and the wrapper. The inset differs per panel on purpose (mockup). */
+.profile-hero__panel-paper {
+  position: absolute;
+  inset: 6px;
+  background: var(--paper-white);
+  overflow: hidden;
+}
+
+.profile-hero__panel img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  /* All four sources are ink line-art on white: multiply drops the white
+     ground into the paper, grayscale neutralises the stray brand colour in
+     the cold/overnuke art. No contrast/brightness push — there is no photo
+     and it would crush the linework. */
+  mix-blend-mode: multiply;
+  filter: grayscale(1);
+}
+
+/* Geometry + hover copied verbatim from the mockup's panel table. The
+   diagonal gutter sweep (keff's slanted right edge, the right column's
+   left edges creeping in 59% → 56% → 52%) is what carries the manga
+   character — do not "tidy" it. */
+.profile-hero__panel[data-panel-id="keff"] {
+  left: 0;
+  top: 0;
+  width: 58%;
+  height: 100%;
+  clip-path: polygon(0 0, 100% 0, 79% 100%, 0 100%);
+}
+.profile-hero__panel[data-panel-id="keff"] .profile-hero__panel-paper {
+  inset: 6px;
+  clip-path: polygon(0 0, 100% 0, 78.6% 100%, 0 100%);
+}
+.profile-hero__panel[data-panel-id="keff"] img {
+  object-position: center top;
+}
+
+.profile-hero__panel[data-panel-id="alien"] {
+  left: 59%;
+  top: 0;
+  width: 41%;
+  height: 31%;
+  clip-path: polygon(2% 0, 100% 0, 100% 100%, 0 86%);
+}
+.profile-hero__panel[data-panel-id="alien"] .profile-hero__panel-paper {
+  inset: 4px;
+  clip-path: polygon(2.4% 0, 100% 0, 100% 100%, 0 85.2%);
+}
+.profile-hero__panel[data-panel-id="alien"] img {
+  object-position: center 20%;
+}
+
+.profile-hero__panel[data-panel-id="cold"] {
+  left: 56%;
+  top: 33.5%;
+  width: 44%;
+  height: 29.5%;
+  clip-path: polygon(4% 12%, 100% 0, 100% 100%, 0 100%);
+}
+.profile-hero__panel[data-panel-id="cold"] .profile-hero__panel-paper {
+  inset: 5px;
+  clip-path: polygon(4.6% 12.4%, 100% 0, 100% 100%, 0 100%);
+}
+
+.profile-hero__panel[data-panel-id="overnuke"] {
+  left: 52%;
+  top: 65.5%;
+  width: 48%;
+  height: 34.5%;
+  clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
+}
+.profile-hero__panel[data-panel-id="overnuke"] .profile-hero__panel-paper {
+  inset: 7px;
+  clip-path: polygon(8.6% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.profile-hero[data-motion="full"] .profile-hero__panel[data-panel-id="keff"]:hover {
+  transform: translate(-5px, -6px);
+}
+.profile-hero[data-motion="full"] .profile-hero__panel[data-panel-id="alien"]:hover {
+  transform: translate(5px, -6px);
+}
+.profile-hero[data-motion="full"] .profile-hero__panel[data-panel-id="cold"]:hover {
+  transform: translate(6px, 0);
+}
+.profile-hero[data-motion="full"] .profile-hero__panel[data-panel-id="overnuke"]:hover {
+  transform: translate(6px, 6px);
+}
+
+/* Captions — mono, not marker (that font isn't in the system). Decorative,
+   aria-hidden; the panel button carries the accessible name. Field Olive
+   on Paper White is 6.79:1 (same pair as `.badge`). */
+.profile-hero__panel-cap {
+  position: absolute;
+  z-index: 2;
+  padding: 2px var(--space-xs);
+  background: var(--paper-white);
+  border: 1px solid var(--field-olive);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--field-olive);
+  white-space: nowrap;
+}
+.profile-hero__panel[data-panel-id="keff"] .profile-hero__panel-cap {
+  left: 12px;
+  bottom: 12px;
+}
+.profile-hero__panel[data-panel-id="alien"] .profile-hero__panel-cap {
+  left: 14px;
+  top: 12px;
+}
+.profile-hero__panel[data-panel-id="cold"] .profile-hero__panel-cap {
+  right: 12px;
+  bottom: 10px;
+}
+
+/* Manga "SFX". `pointer-events: none` is LOAD-BEARING: `scripts/audit.mjs`
+   hit-tests panel-button centres with `elementFromPoint`, and without this
+   an overlay sitting over a panel reports as an occlusion. Positioned over
+   the gutters, never a panel centre. Skew kept for the slant; rotation
+   clamped to `--rot-max` (mockup had -9deg / -6deg). */
+.profile-hero__sfx {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  font-family: var(--font-serif-edit);
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--paper-white);
+  -webkit-text-stroke: 3px var(--ink);
+  paint-order: stroke fill;
+}
+.profile-hero__sfx[data-sfx="overnuke"] {
+  left: 33%;
+  top: 64%;
+  font-size: clamp(1.75rem, 6cqw, 3rem);
+  line-height: 0.8;
+  letter-spacing: -0.03em;
+  transform: rotate(-2deg) skewX(-8deg);
+}
+.profile-hero__sfx[data-sfx="alien"] {
+  right: 2%;
+  top: 24%;
+  font-size: clamp(1.1rem, 3.4cqw, 1.75rem);
+  letter-spacing: -0.02em;
+  transform: rotate(-2deg) skewX(-10deg);
+}
+
+/* ---------- paper margin: the one Oxblood control -------------------- */
+.profile-hero__margin {
+  display: flex;
+  align-items: center;
+  /* Right-aligned: the global wheel trigger is `position: fixed` in the
+     bottom-LEFT corner (`wheel.css`), and a left-aligned chip collides
+     with it once the centred hero grows tall on a short viewport. */
+  justify-content: flex-end;
+  gap: var(--space-md);
+}
+
+/* Mirrors `profile-plate__status` and Home's `.hm-status` — same colours,
+   same hover/focus, so the "open to work" chip reads as one control
+   repeated across the site. On the paper margin, never on a plate:
+   oxblood on Field Olive is 1.90:1. */
+.profile-hero__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  min-height: var(--hit-min);
+  padding: var(--space-2xs) var(--space-sm);
+  border: 0;
+  cursor: pointer;
+  background: var(--oxblood);
+  color: var(--paper-white);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: var(--plate-shadow-sm);
+  transition: background-color var(--dur-micro) linear;
+}
+.profile-hero__status:hover {
+  background: var(--oxblood-hi);
+}
+.profile-hero__status:focus-visible {
+  outline: var(--rule-thick) solid var(--oxblood);
+  outline-offset: 2px;
+}
+.profile-hero__status::before {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  background: var(--paper-white);
+  flex-shrink: 0;
+}
+
+/* ---------- lightbox (clone of `.pf-overlay`) ----------------------- */
+.profile-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 5vh 5vw;
+}
+
+.profile-lightbox__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.82);
+  cursor: zoom-out;
+}
+
+.profile-lightbox__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: min(88%, 720px);
+  max-height: 88%;
+  padding: var(--space-sm);
+  background: var(--paper-white);
+  border: var(--plate-border) solid var(--ink);
+  box-shadow: var(--plate-shadow);
+}
+
+.profile-lightbox__close {
+  align-self: flex-end;
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--field-olive);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.profile-lightbox__close:hover {
+  background: var(--field-olive);
+  color: var(--paper-white);
+}
+.profile-lightbox__close:focus-visible {
+  outline: 2px solid var(--oxblood);
+  outline-offset: 2px;
+}
+
+.profile-lightbox__title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(16px, 2vw, 24px);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.profile-lightbox__img {
+  display: block;
+  max-width: 100%;
+  max-height: 58vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: grayscale(1);
+}
+
+.profile-lightbox[data-motion="full"] {
+  animation: profile-lightbox-in var(--dur-micro) var(--ease-hard) both;
+}
+
+@keyframes profile-lightbox-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- reflow < 900px ------------------------------------------
+   The absolute composition can't survive a narrow viewport — type across a
+   face. Same layout-mode change `profile-plate.css` makes: unstack, drop
+   rotation, keep the clip-paths (they read fine stacked, cost nothing). */
+@media (max-width: 900px) {
+  .profile-hero {
+    display: block;
+    height: auto;
+  }
+
+  .profile-hero__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .profile-hero__identity {
+    gap: var(--space-md);
+  }
+
+  .profile-hero__name {
+    font-size: clamp(2rem, 12vw, 3rem);
+  }
+
+  .profile-hero__ribbon,
+  .profile-hero__creed,
+  .profile-hero__colophon-mark {
+    transform: none;
+  }
+
+  /* Single column — the authored clip polygons were cut for the wide
+     stage. Stacked full-width the diagonal edges still carry the manga
+     character. Reset the stage's own aspect-ratio/height cap so it grows
+     to the stacked panels instead of squeezing them. */
+  .profile-hero__stage {
+    aspect-ratio: auto;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  /* `[data-panel-id]` matches the specificity of the per-panel desktop
+     geometry rules (media queries add none), and comes later in the file,
+     so these win. */
+  .profile-hero__panel[data-panel-id] {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    transform: none;
+  }
+
+  /* All four sources are framed head-up; a landscape crop from the top
+     keeps the face in frame. */
+  .profile-hero__panel img {
+    object-position: center top;
+  }
+
+  .profile-hero__panel[data-panel-id="keff"] {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* All captions top-left, clear of the fixed bottom-left wheel trigger
+     that scrolls over stacked content. */
+  .profile-hero__panel-cap {
+    inset: 12px auto auto 12px;
+  }
+
+  .profile-hero__sfx {
+    display: none;
+  }
+
+  .profile-hero__margin {
+    margin-top: var(--space-md);
+  }
+}

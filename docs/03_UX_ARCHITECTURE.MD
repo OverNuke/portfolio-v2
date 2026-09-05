@@ -34,6 +34,22 @@ Contains:
 - role
 - experience
 
+_Implemented 2026-08-28 as `/profile` (PAGE 01) — `src/components/profile-hero/`.
+A manga-panel portrait collage (four click-to-enlarge panels) beside an
+identity type stack (name, availability, bio, a "you fail? congrats" scrap,
+colophon) and the one Oxblood "open to work" chip that routes to `/contact`.
+Built from the `Profile Page UI Mockups` handoff, translated into the locked
+design system._
+
+_Two items from the list above are deferred: **experience** is served by the
+dedicated `/projects` route (PAGE 03) — a junior portfolio's record of work is
+its projects, and forcing an empty "EXPERIENCE: [ ROLE ]" block onto the hero
+read as unfinished — reintroduce a block here if real roles land; and there is
+no **CV** asset yet, so that slot renders a non-link placeholder chip until
+`AboutProfile.cv` is filled in._
+
+Register: **Expressive** — `01_ART_DIRECTION.MD`, "Surface Registers".
+
 
 ---
 
@@ -78,6 +94,10 @@ Original spec for reference: technologies, tools, experience level.
 > above. See `12_COLLAGE_SYSTEM.md`'s Composition roles table and its
 > shed-order note, both updated with the same date.
 
+> **Updated 2026-09-02:** `/certifications` is the **Record** register —
+> `01_ART_DIRECTION.MD`, "Surface Registers". Axis-aligned bento mats, LT
+> Remark titles, blueprint-grid paper, a ledger fallback on phone.
+
 ---
 
 ## CONTACT TERMINAL
@@ -88,6 +108,11 @@ Contains:
 - email
 - social links
 - availability
+
+Register: **Instrument** — `01_ART_DIRECTION.MD`, "Surface Registers". Mono only,
+ink connectors behind the plates, the mechanical proximity dock, a figure
+bleeding off the bottom edge. Implemented as "the channel field"
+(`src/components/channel-field/`).
 
 ---
 
@@ -135,7 +160,9 @@ back/forward and refresh/deep-link land correctly, and so "browser
 back" and "the in-app close control" trigger the same reverse
 transition rather than two different behaviors.
 
-Concretely: `/`, `/profile`, `/projects`, `/contact`. Nav
+Concretely: `/` (Home), `/profile` (PAGE 01), `/certifications` (PAGE 02),
+`/projects` (PAGE 03), `/contact` (PAGE 04) — the canonical list is
+`src/routes/routes.ts`. Nav
 items render as real links styled as buttons, and the page layer is
 driven by the route rather than by local state — that's what makes
 browser back and the close control the same code path, and what keeps

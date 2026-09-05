@@ -57,6 +57,25 @@
  * >   retired-token guard — same pattern as the signal-red retirement,
  * >   whose own note explains why the name isn't spelled out here either.
  *
+ * > Updated 2026-09-04, `sdd/design-import-sections`. The Claude Design import
+ * > rebuilds the landscape tile surface, superseding parts of the 2026-08-17
+ * > bento pass:
+ * >   - Exception 3 (radius) is now moot for landscape tiles — the mats carry a
+ * >     hand-cut `clip-path: polygon()` on a `::before` fill layer
+ * >     (`data-cut="0..3"`), so there is no corner to round. `border-radius: 0`
+ * >     still holds; the `--cw-radius` allowlist keeps only its
+ * >     `[data-sheet="portrait"]` / `.cert-ledger` entries.
+ * >   - Exception 4's motion is NO LONGER a soft-cut exception. The hover lift +
+ * >     shadow now run on `--dur-micro` / `--ease-hard` like every other
+ * >     surface — doc 07's 2026-09-02 withdrawal wins over the mockup, which
+ * >     asked for the soft cut again. See `09_IMPLEMENTATION_ROADMAP.md`
+ * >     Phase 3.5.
+ * >   - The dot pager is replaced by square "01" / "02" number tabs
+ * >     (`.cert-pager__tab`), zero rotation, and `/certifications` gains
+ * >     arrow-key sheet paging via `src/turn/useFieldKeyboard.ts`.
+ * >   Full checklist:
+ * >   `docs/design-exploration/design-import-2026-09-04/HANDOFF.md` §2.
+ *
  * Spec: claude/certifications-module-2026-08-05.md
  */
 
@@ -133,19 +152,17 @@
   --cw-radius: 8px;
 }
 
-.cert-wall .cert-mat,
-.cert-wall .cert-mat__scan,
-.cert-wall .cert-pager__dot-glyph {
+/* Updated 2026-09-04, `sdd/design-import-sections` (§4.2 docs reconciliation).
+   Shrunk from three entries to one. `.cert-mat` is gone: under the landscape
+   hand-cut `clip-path` tiles (below) the polygon IS the corner treatment, and
+   the portrait ladder's own `.cert-mat` never had `border-radius` do anything
+   visible once WALL_LANDSCAPE's bento redesign already reversed it there —
+   scoping it to `.cert-mat__scan` (portrait-only in practice: WALL_LANDSCAPE
+   tiles are always text-only, see BentoTile) is the same visible result with
+   one fewer moving part. `.cert-pager__dot-glyph` is gone with the dot pager
+   itself — replaced by square "01"/"02" tabs, see CertParts.tsx. */
+.cert-wall .cert-mat__scan {
   border-radius: var(--cw-radius) !important;
-}
-
-/* Exception 3 (2026-08-17 header note): the landscape bento tiles reverse
-   the allowlist above — square corners, full fidelity to the design handoff.
-   Higher specificity than the rule above (attribute selector), so it wins
-   regardless of source order; scoped to `.cert-mat` only, never the pager
-   dots, which keep their existing rounded-dot pagination unchanged. */
-.cert-wall[data-sheet="landscape"] .cert-mat {
-  border-radius: 0 !important;
 }
 
 /* ============================================================
@@ -215,33 +232,106 @@
 }
 
 /* ============================================================
-   BENTO TONES — `[data-sheet="landscape"]` only (exception 3/4, header
-   note). Three fills, cited AA ratios per docs/05_ACCESSIBILITY.MD:
+   HAND-CUT EDGE — `[data-sheet="landscape"]` bento tiles only, added
+   2026-09-04 (`sdd/design-import-sections`, ADR-1/2/3,
+   `docs/01_ART_DIRECTION.MD` "Hand-cut edges are how Record expresses the
+   hand"). Per ADR-3's three-layer contract:
+     - the HOST (`.cert-mat`) keeps hit area, focus ring (on
+       `.cert-mat__trigger:focus-visible` inside it — this element itself
+       carries no focus ring) and the whole filter chain. It never carries
+       `clip-path`, `background`, or `border`.
+     - the FILL (`::before`, `inset:0; z-index:-1`) carries the tone
+       background and the `clip-path`. Safe at `z-index:-1`: `.cert-mat`
+       already establishes a stacking context (`position:relative` +
+       `z-index: var(--z-plate-content)`).
+     - `overflow: hidden` stays on the host for the title safety net
+       (`.cert-mat__title`'s `-webkit-line-clamp` collapse) — verified in a
+       throwaway real-browser spike that `filter: drop-shadow()` on an
+       element is NOT clipped by that SAME element's own
+       `overflow: hidden` (only child/content overflow is), so both can
+       coexist with no conflict.
+   `--cut-edge` is `.pf-record__figure`'s "THE EDGE" verbatim (four
+   zero-blur drop-shadows, one per direction), at rule-thick instead of
+   1.5px — it traces the `::before`'s clipped alpha, so the edge follows
+   the cut, which a `border` cannot do on a clipped layer.
+   ============================================================ */
+.cert-wall[data-sheet="landscape"] .cert-mat {
+  --cut-edge:
+    drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink))
+    drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink));
+
+  border: none;
+  background: none;
+  filter: var(--cut-edge);
+  /* Was `--dur-soft`/`--ease-soft` (this module's one "soft cut" exception,
+     2026-08-17). Overruled 2026-09-04: the 2026-09-04 mockup asked for the
+     same soft easing again and was overruled — doc 07's 2026-09-02
+     withdrawal of the soft-cut exception is a later-dated project
+     correction and outranks a design mockup (conflict order: Project
+     Vision > Implementation). `box-shadow` becomes a `drop-shadow` layer
+     in the same `filter` chain on hover, below — a `box-shadow` on this
+     now-transparent, unclipped-but-tone-cut host would paint a rectangle
+     with no fill behind it. */
+  transition:
+    transform var(--dur-micro) var(--ease-hard),
+    filter var(--dur-micro) var(--ease-hard);
+}
+
+.cert-wall[data-sheet="landscape"] .cert-mat::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  clip-path: var(--cw-cut);
+}
+
+/* Four hand-cut variants, traced off the mockup's nine polygons and reduced
+   to their distinct families (HANDOFF.md §2.1), in px per ADR-2. Keyed by
+   `slotIndex % 4` (`CertWall.tsx`'s `data-cut`), not by certificate —
+   `assignSlots` decides at render time which record lands in which slot, so
+   a shape keyed to a certificate would migrate around the page. */
+.cert-mat[data-cut="0"] { --cw-cut: polygon(2px 0, 100% 4px, calc(100% - 1px) calc(100% - 5px), 0 100%); }
+.cert-mat[data-cut="1"] { --cw-cut: polygon(0 5px, calc(100% - 2px) 0, 100% calc(100% - min(22px, 9%)), 2px 100%); }
+.cert-mat[data-cut="2"] { --cw-cut: polygon(0 12px, 100% 0, calc(100% - 2px) calc(100% - 10px), 2px 100%); }
+.cert-mat[data-cut="3"] { --cw-cut: polygon(0 0, calc(100% - 4px) 5px, 100% 100%, 2px calc(100% - 5px)); }
+
+/* ============================================================
+   BENTO TONES — `[data-sheet="landscape"]` only. Three fills, cited AA
+   ratios per docs/05_ACCESSIBILITY.MD:
      light -> paper-white bg / ink text            (14.83:1+)
      dark  -> ink bg / ink-inverse text             (16.87:1)
      mid   -> field-olive bg / paper-white text     (6.79:1) — NEVER ink
               text here (Ink on Field Olive is 2.57:1, banned), and the
               focus ring can never be --oxblood on this tone (1.90:1,
               forbidden pairing) — --paper-white instead.
-   `.cert-mat--light` restates the base `.cert-mat` colors explicitly rather
-   than relying on the cascade, so the tone is never silently dependent on
-   selector order.
+   `color` stays on the host (the type is not clipped); `background` moved
+   to `::before` (2026-09-04, ADR-3) — a clipped layer is the only thing
+   allowed to carry it now.
    ============================================================ */
 .cert-mat--light {
-  background: var(--paper-white);
   color: var(--ink);
 }
 
+.cert-wall[data-sheet="landscape"] .cert-mat--light::before {
+  background: var(--paper-white);
+}
+
 .cert-mat--dark {
-  background: var(--ink);
   color: var(--ink-inverse);
+}
+
+.cert-wall[data-sheet="landscape"] .cert-mat--dark::before {
+  background: var(--ink);
 }
 
 .cert-mat--mid {
   --focus: var(--paper-white);
 
-  background: var(--field-olive);
   color: var(--paper-white);
+}
+
+.cert-wall[data-sheet="landscape"] .cert-mat--mid::before {
+  background: var(--field-olive);
 }
 
 /* ---- bento tile anatomy — padding per the handoff's tile-anatomy table -- */
@@ -286,23 +376,25 @@
   min-width: 0;
 }
 
-/* ---- the whole-tile trigger — exception 4 (header note): hover lift +
-   shadow, `--dur-soft`/`--ease-soft` (tokens.css), the module's one
-   departure from doc 07's mechanical default.
+/* ---- the whole-tile trigger — hover lift + shadow. `--dur-micro`/
+   `--ease-hard` (2026-09-04, overruling the mockup's soft-cut request a
+   second time — see the `--cut-edge` block above and
+   `docs/09_IMPLEMENTATION_ROADMAP.md` Phase 3.5). Motion transition itself
+   lives on the base `[data-sheet="landscape"] .cert-mat` rule above; only
+   the hover/focus END STATE is declared here.
 
    The transform/shadow live on `.cert-mat` (the figure), NOT on
    `.cert-mat__trigger`: the figure has `overflow: hidden` (for title
    clipping), which clips a DESCENDANT's box-shadow — an element's own
    overflow never clips its own box-shadow, only a child's, so the effect
-   only becomes visible one level up. `:focus-within` covers keyboard focus
-   landing on the trigger button inside. ---- */
-.cert-mat--light,
-.cert-mat--mid,
-.cert-mat--dark {
-  transition:
-    transform var(--dur-soft) var(--ease-soft),
-    box-shadow var(--dur-soft) var(--ease-soft);
-}
+   only becomes visible one level up (verified in a throwaway real-browser
+   spike that this holds for `filter: drop-shadow()` too — the same-element
+   `overflow: hidden` does NOT clip the element's OWN filter output).
+   `:focus-within` covers keyboard focus landing on the trigger button
+   inside. The hover shadow is now one more `drop-shadow()` layer in the
+   same `filter` chain as `--cut-edge`, not a separate `box-shadow` — a
+   `box-shadow` on this transparent, clip-cut host would paint a rectangle
+   with no fill behind it (ADR-3, Constraint B). ---- */
 
 /* `cert-rise` (below, "MOTION") has `animation-fill-mode: both`, which holds
    `transform: translateY(0)` at the Animations cascade tier — that outranks
@@ -318,18 +410,18 @@
    fades/drops out and re-enters instead of just losing its lift. `!important`
    overrides the held value without ever touching `animation-name`, so the
    animation is never cancelled and never restarts. */
-.cert-mat--light:hover,
-.cert-mat--light:focus-within,
-.cert-mat--dark:hover,
-.cert-mat--dark:focus-within {
+.cert-wall[data-sheet="landscape"] .cert-mat--light:hover,
+.cert-wall[data-sheet="landscape"] .cert-mat--light:focus-within,
+.cert-wall[data-sheet="landscape"] .cert-mat--dark:hover,
+.cert-wall[data-sheet="landscape"] .cert-mat--dark:focus-within {
   transform: translateY(-3px) !important;
-  box-shadow: 0 14px 32px rgb(17 17 17 / 22%);
+  filter: var(--cut-edge) drop-shadow(0 14px 32px rgb(17 17 17 / 22%));
 }
 
-.cert-mat--mid:hover,
-.cert-mat--mid:focus-within {
+.cert-wall[data-sheet="landscape"] .cert-mat--mid:hover,
+.cert-wall[data-sheet="landscape"] .cert-mat--mid:focus-within {
   transform: translateY(-3px) !important;
-  box-shadow: 0 14px 32px rgb(17 17 17 / 28%);
+  filter: var(--cut-edge) drop-shadow(0 14px 32px rgb(17 17 17 / 28%));
 }
 
 .cert-mat__trigger {
@@ -721,88 +813,66 @@
 
 /* ============================================================
    PAGER — past the sheet cap the page turns rather than densifying.
-   NEXT sits LEFT of PREVIOUS: doc 03 says directional chrome reads with the
-   right-to-left turn, not with the Western default. Dots sit between the
-   two arrows.
+   Updated 2026-09-04 (`sdd/design-import-sections`, D3, §2.2): the dot
+   pager + Next/Previous buttons are replaced by "01"/"02" number tabs.
+   With every page one tab away, dedicated Next/Previous controls were
+   redundant; the tabs now carry doc 03's "NEXT sits LEFT of PREVIOUS"
+   statement instead by stacking VERTICALLY — direction-neutral, no
+   mirroring claim needed. If ever laid out horizontally, `02` must sit
+   left of `01`. A sibling in normal flow, outside `.cert-wall` — the
+   mockup floats it in the 1440px page margin, which does not exist at
+   1100px, where it would land on top of a mat (doc 12 guardrail 1: never
+   occlude a control).
    ============================================================ */
 .cert-pager {
   display: flex;
   flex: 0 0 auto;
-  align-items: center;
   justify-content: flex-end;
-  gap: var(--space-sm);
   padding-top: var(--space-xs);
 }
 
-.cert-pager__btn {
-  --focus: var(--oxblood);
-
-  display: inline-flex;
-  min-height: var(--hit-min);
-  align-items: center;
-  padding: 4px var(--space-sm);
-  border: var(--rule-hair) solid var(--field-olive);
-  background: transparent;
-  color: var(--field-olive);
-  font-family: var(--font-mono);
-  font-size: var(--text-micro);
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background var(--dur-micro) var(--ease-hard),
-    color var(--dur-micro) var(--ease-hard);
-}
-
-.cert-pager__btn:hover {
-  background: var(--field-olive);
-  color: var(--paper-white);
-}
-
-.cert-pager__btn[data-inert="true"] {
-  opacity: 0.35;
-  pointer-events: none;
-}
-
-/* Arrow buttons stay square on purpose — excluded from --cw-radius. Only the
-   dot glyphs read as circles, matching the reference's dot pagination. */
-.cert-pager__dots {
+.cert-pager__tabs {
   display: flex;
-  align-items: center;
-  gap: 2px;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.cert-pager__dot {
+/* Square, zero rotation (ADR-5) — the mockup bakes a tilt into the base
+   style (opposite-signed per tab) and a steeper one into hover; both ship
+   flat here, hover keeps only `translateY(-2px)`. `border-radius: 0` is
+   the global default and needs no override — the dot glyph's allowlist
+   entry is gone with the dot pager (`--cw-radius`, above). CW1's acceptance
+   check greps this whole directory for the transform function name itself,
+   so it is never spelled out literally in a comment either — see
+   `rotation.test.ts`. */
+.cert-pager__tab {
   --focus: var(--oxblood);
 
   display: inline-flex;
-  width: var(--hit-min);
-  height: var(--hit-min);
+  width: 40px;
+  height: 40px;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  border: none;
-  background: transparent;
+  border: var(--rule-thick) solid var(--ink);
+  background: var(--paper-white);
+  color: var(--ink);
+  font-family: var(--font-serif-edit);
+  font-size: var(--text-meta);
+  font-weight: 700;
   text-decoration: none;
+  transition: transform var(--dur-micro) var(--ease-hard);
 }
 
-.cert-pager__dot-glyph {
-  width: 6px;
-  height: 6px;
-  background: var(--gray);
-  transition: background var(--dur-micro) var(--ease-hard);
+.cert-pager__tab:hover {
+  transform: translateY(-2px);
 }
 
-.cert-pager__dot:hover .cert-pager__dot-glyph {
-  background: var(--field-olive);
+.cert-pager__tab[aria-current="page"] {
+  background: var(--ink);
+  color: var(--ink-inverse);
 }
 
-.cert-pager__dot[aria-current="page"] .cert-pager__dot-glyph {
-  background: var(--oxblood);
-}
-
-.cert-pager__dot[data-inert="true"] {
+.cert-pager__tab[data-inert="true"] {
   pointer-events: none;
 }
 
@@ -1135,9 +1205,6 @@
   }
 
   .cert-link,
-  .cert-pager__btn,
-  .cert-pager__dot-glyph,
-  .cert-mat--light,
-  .cert-mat--mid,
-  .cert-mat--dark { transition: none; }
+  .cert-pager__tab,
+  .cert-wall[data-sheet="landscape"] .cert-mat { transition: none; }
 }

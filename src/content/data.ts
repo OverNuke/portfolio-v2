@@ -11,6 +11,11 @@ import acopiatechMainImg from "../assets/plates/projects/acopiatech/main.png";
 import acopiatechPickupImg from "../assets/plates/projects/acopiatech/pickup.png";
 import odooAccessImg from "../assets/plates/projects/odoo/access.png";
 
+import profilePanelKeff from "../assets/plates/portrait/profile-panel-keff.jpg";
+import profilePanelAlien from "../assets/plates/portrait/profile-panel-alien.jpg";
+import profilePanelCold from "../assets/plates/portrait/profile-panel-cold.jpg";
+import profilePanelOvernuke from "../assets/plates/portrait/profile-panel-overnuke.jpg";
+
 import anfecaCertImg from "../assets/certificates/ANFECA_Certificate.jpg";
 import notaCertUrl from "../assets/certificates/notaLaudatoria.pdf?url";
 import exaverCertUrl from "../assets/certificates/exaver.pdf?url";
@@ -31,7 +36,14 @@ import exaverPlate from "../assets/certificates/plates/exaver.png";
 import angloPlate from "../assets/certificates/plates/anglo.png";
 import toeflPlate from "../assets/certificates/plates/sepToelf.png";
 
-import type { AboutProfile, Certificate, Project, Skill, SocialLink } from "./types";
+import type {
+  AboutProfile,
+  Certificate,
+  Project,
+  ProfilePanel,
+  Skill,
+  SocialLink,
+} from "./types";
 
 export const PROJECTS: Project[] = [
   {
@@ -237,18 +249,20 @@ export const SKILLS: Skill[] = [
  * `channelSlot`; see `components/channel-field/channelLayout.ts`.
  *
  * Extended 2026-08-20 from three channels to five with the CONTACT module
- * (`claude/contact-channel-field-2026-08-20.md`).
- *
- * TWO ENTRIES ARE NOT REAL YET. Instagram and WhatsApp carry `unresolved`
- * and a placeholder `href`. `ChannelField` renders a flagged channel as a
- * plate with NO link — it keeps its slot in the composition but cannot be
- * clicked into a 404 — so nothing breaks while they wait. Clear the flag and
- * fill in `href`/`handle` and the plate becomes a link again with no other
- * change. A dead channel on a contact page is worse than a pending one.
+ * (`claude/contact-channel-field-2026-08-20.md`). Reduced back to four
+ * 2026-09-04 (design import, `sdd/design-import-sections`): Instagram is
+ * dropped outright (its `rail-b` slot goes with it — see `ChannelSlot` in
+ * `types.ts`), not deferred as pending.
  *
  * On the WhatsApp entry specifically: a `wa.me` link publishes a personal
  * phone number in the page source, permanently and scrapeably. That is a
- * different disclosure from an email address and wants a deliberate yes.
+ * different disclosure from an email address and wanted a deliberate yes.
+ * **Yes, given 2026-09-04** (design import, C2): the number below is real.
+ * `ChannelField` still renders a flagged channel as a plate with NO link when
+ * `unresolved` is set — that path stays wired and tested, unused, matching
+ * `FieldRecord.tsx`'s "no record exercises that branch today; it is a real
+ * code path rather than a promise" precedent — but nothing in this list
+ * exercises it any more.
  */
 export const SOCIAL_LINKS: SocialLink[] = [
   {
@@ -274,19 +288,10 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     label: "WhatsApp",
-    href: "https://wa.me/PLACEHOLDER",
-    handle: "Number pending",
+    href: "https://wa.me/529212652693",
+    handle: "+52 921 265 2693",
     meta: "Direct chat",
     channelSlot: "aside",
-    unresolved: true,
-  },
-  {
-    label: "Instagram",
-    href: "https://instagram.com/PLACEHOLDER",
-    handle: "Handle pending",
-    meta: "Feed",
-    channelSlot: "rail-b",
-    unresolved: true,
   },
 ];
 
@@ -295,7 +300,7 @@ export const ABOUT_PROFILE: AboutProfile = {
   lastName: "F. García",
   fullName: "Kevin Sebastián Frías García",
   mark: ["K.S", "F.G"],
-  summary: "Just an alien, who loves to code, between human begins",
+  summary: "Just an alien, who loves to code, between human beings",
   role: "Jr. Software Developer",
   status: "ONLINE · OPEN TO WORK",
   statusOnline: true,
@@ -304,4 +309,49 @@ export const ABOUT_PROFILE: AboutProfile = {
   location: "Mexico",
   openTo: "Junior roles · Internships",
   availability: "Open to work",
+  creed: "You fail? Congrats! Most people don't even try.",
+  nickname: "Kevon",
+  establishedNote: "est. 2003",
+  // No `cv` yet — the /profile page renders a placeholder chip until a real
+  // one-page PDF lands. Add `cv: { href, note }` to turn it into a link.
 };
+
+/**
+ * The four portrait panels on the /profile manga-collage hero
+ * (`components/profile-hero/`). Order is DOM order is tab order. Each `id`
+ * is matched to an authored `clip-path` + stage position in
+ * `profile-hero.css` — the panels are not interchangeable.
+ *
+ * All four source images are black ink line-art on white (poses from the
+ * `docs/assets/portrait-prompt-kit.md` series). The page treats them
+ * uniformly: `mix-blend-mode: multiply` so the white ground drops into the
+ * paper, plus `grayscale(1)` to neutralise the stray brand colour in the
+ * `cold`/`overnuke` sources.
+ */
+export const PROFILE_PANELS: ProfilePanel[] = [
+  {
+    id: "keff",
+    image: profilePanelKeff,
+    alt: "Kevin — ink portrait, head and shoulders, calm three-quarter view.",
+    caption: "Keff",
+  },
+  {
+    id: "alien",
+    image: profilePanelAlien,
+    alt: "Kevin in a hooded jacket and round glasses, hand to his chin, looking down.",
+    caption: "ALIEN",
+    handle: "K3V1N",
+  },
+  {
+    id: "cold",
+    image: profilePanelCold,
+    alt: "Kevin crouching in an oversized hoodie and sneakers, smiling at the camera.",
+    caption: "Cold",
+  },
+  {
+    id: "overnuke",
+    image: profilePanelOvernuke,
+    alt: "Kevin mid-stride, arm extended, pointing straight at the viewer.",
+    handle: "OverNuke",
+  },
+];

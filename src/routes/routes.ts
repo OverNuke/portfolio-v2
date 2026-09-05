@@ -21,6 +21,13 @@
  * sentence and under ~70 characters — Home sets it at a 24ch measure and a
  * third line pushes the caption rail into the wheel.
  *
+ * NOTE ON `/profile` (re-added 2026-08-28). It was removed 2026-08-12
+ * ("merged into Home… redundant") and is now its own route again as
+ * PAGE 01 — this branch's editorial direction gave it real content again
+ * (`components/profile-hero/`, from the manga-panel-collage mockup). That
+ * pushed certifications/projects/contact to PAGE 02/03/04. See
+ * `docs/09_IMPLEMENTATION_ROADMAP.md`.
+ *
  * NOTE ON `/contact`. It is a full row here and always has been; what
  * changed on 2026-08-10 is that Home now lists it. The old Home carried
  * the channel addresses itself and excluded contact from its index to
@@ -52,12 +59,23 @@ export interface RouteConfig {
 
 export const ROUTES: RouteConfig[] = [
   {
+    path: "/profile",
+    pageId: "profile",
+    short: "PROFILE",
+    title: "PROFILE",
+    tag: "PAGE 01",
+    index: "01",
+    sub: "identity on file",
+    count: "01",
+    lede: "Who Kevin is, in one screen — name, role, open to work.",
+  },
+  {
     path: "/certifications",
     pageId: "certifications",
     short: "DISTINCTIONS",
     title: "CERTIFICATE ARCHIVE",
-    tag: "PAGE 01",
-    index: "01",
+    tag: "PAGE 02",
+    index: "02",
     sub: `${CERTIFICATES.length} credential${CERTIFICATES.length === 1 ? "" : "s"}`,
     count: String(CERTIFICATES.length),
     lede: "Credentials, scanned, filed, and readable end to end.",
@@ -67,8 +85,8 @@ export const ROUTES: RouteConfig[] = [
     pageId: "projects",
     short: "PROJECTS",
     title: "PROJECT DATABASE",
-    tag: "PAGE 02",
-    index: "02",
+    tag: "PAGE 03",
+    index: "03",
     sub: `${PROJECTS.length} record${PROJECTS.length === 1 ? "" : "s"}`,
     count: String(PROJECTS.length),
     lede: "A booking backend, an e-waste app, and an Odoo module.",
@@ -78,8 +96,8 @@ export const ROUTES: RouteConfig[] = [
     pageId: "contact",
     short: "CONTACT",
     title: "CONTACT TERMINAL",
-    tag: "PAGE 03",
-    index: "03",
+    tag: "PAGE 04",
+    index: "04",
     sub: "channels open",
     count: "ON",
     lede: "GitHub, LinkedIn, email. No form, no funnel.",

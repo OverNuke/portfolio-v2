@@ -74,9 +74,15 @@ describe("App", () => {
       // sdd/drop-intro-hero-placeholder) even though the deep-link
       // forward-home turn makes it `inert` synchronously in the same
       // commit; query with `hidden: true` since `aria-hidden` excludes it
-      // from the default a11y-tree query.
+      // from the default a11y-tree query. Scoped to `.shell` because
+      // `/profile`'s own hero also carries the full name as a section
+      // heading — a page heading, not Home's masthead.
+      const shell = document.querySelector<HTMLElement>(".shell")!;
       expect(
-        screen.getByRole("heading", { name: "Kevin Sebastián Frías García", hidden: true }),
+        within(shell).getByRole("heading", {
+          name: "Kevin Sebastián Frías García",
+          hidden: true,
+        }),
       ).toBeInTheDocument();
 
       // A deep link resolves forward-home on first paint (resolveTurn,

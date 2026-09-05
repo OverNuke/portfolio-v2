@@ -34,18 +34,17 @@ import type { SVGProps } from "react";
  *
  * ---
  * Added 2026-08-20 with the CONTACT channel field: Instagram and WhatsApp.
- * Both are REDRAWN rather than imported, and both are judgement calls worth
- * stating rather than burying:
+ * Both were REDRAWN rather than imported, and both were judgement calls
+ * worth stating rather than burying.
  *
- * INSTAGRAM runs straight into the envelope problem above, and harder.
- * Feather's is `<rect rx="5" ry="5">` — the same baked radius, unreachable
- * by `border-radius: 0` and by the radius audit. But unlike an envelope,
- * the rounded square IS the mark. Squaring it costs brand fidelity;
- * keeping it puts the most visible corner radius on the whole site inside
- * the one component that exists to prove there are none. Squared here,
- * because the glyph is aria-hidden decoration sitting beside the word
- * "Instagram", which is doing all of the identifying work. Reversible in
- * one line if Keff would rather have the authentic mark.
+ * INSTAGRAM was **deleted 2026-09-04** (design import, `sdd/design-import-
+ * sections`, C1) along with the channel itself. It ran straight into the
+ * envelope problem above, and harder — Feather's mark is `<rect rx="5"
+ * ry="5">`, the same baked radius unreachable by `border-radius: 0` and by
+ * the radius audit, and unlike an envelope the rounded square IS the mark.
+ * Its removal closes that standing brand-fidelity dilemma rather than
+ * carrying a dead icon that only exists to keep it alive; see `data.ts`'s
+ * `SOCIAL_LINKS` comment and `channelLayout.ts` for the rest of the deletion.
  *
  * WHATSAPP has no Feather glyph at all, and no Tabler one this repo could
  * inline without adding a dependency for a single path. simple-icons (a
@@ -98,20 +97,6 @@ export function LinkedinIcon(props: SVGProps<SVGSVGElement>) {
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
       <rect x="2" y="9" width="4" height="12" />
       <circle cx="4" cy="4" r="2" />
-    </svg>
-  );
-}
-
-/**
- * Squared redraw of Instagram's mark. See the note above on the trade this
- * makes: the outer container is a plain `rect`, not `rx="5"`.
- */
-export function InstagramIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...baseProps(props)}>
-      <rect x="2" y="2" width="20" height="20" />
-      <circle cx="12" cy="12" r="4.6" />
-      <rect x="16.4" y="5.4" width="2.2" height="2.2" fill="currentColor" stroke="none" />
     </svg>
   );
 }

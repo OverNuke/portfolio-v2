@@ -105,11 +105,4 @@ describe("ContactPage", () => {
     expect(container.querySelector(".panel__metadata")).not.toBeInTheDocument();
     expect(container.querySelector(".cf__accent")).not.toBeInTheDocument();
   });
-
-  it("still has channels waiting on a real address", () => {
-    // Not a failure — a visible reminder in the test output. Delete this
-    // test when SOCIAL_LINKS has no `unresolved` entries left.
-    const pending = SOCIAL_LINKS.filter((l) => l.unresolved).map((l) => l.label);
-    expect(pending).toEqual(["WhatsApp", "Instagram"]);
-  });
 });

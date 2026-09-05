@@ -2,7 +2,7 @@ import { useRef, useState, type ElementType } from "react";
 import type { Certificate } from "../../content/types";
 import { useInert } from "../../turn/useInert";
 import { CertScanModal } from "./CertScanModal";
-import { CertLink, CertScan, GhostTitleMark } from "./CertParts";
+import { CertLink, CertPagerTabs, CertScan, GhostTitleMark } from "./CertParts";
 import {
   assertCertLayouts,
   assignSlots,
@@ -26,9 +26,24 @@ export interface CertWallProps {
   pagerHref?: (page: number) => string;
   /** Router `Link`, so paging does not full-reload. Defaults to a plain anchor. */
   LinkComponent?: ElementType;
+  /**
+   * Fires whenever the scan modal opens/closes. `CertificationsPage` uses
+   * this to stand its own sheet-level arrow-key pager down while a scan is
+   * open (`useFieldKeyboard`'s onForward/onBack go inert) — the same
+   * "topmost layer wins" precedent `useTurnKeyboard` already follows for
+   * `useWheelOpen()`. Without this, `CertScanModal`'s own capture-phase
+   * ArrowRight-close and the sheet's ArrowRight-back both fire on the same
+   * keypress (same node, same phase — `stopPropagation` doesn't stop a
+   * sibling listener), closing the modal AND paging the sheet at once.
+   */
+  onScanOpenChange?: (open: boolean) => void;
 }
 
-const defaultPagerHref = (p: number) => (p === 1 ? "/certifications" : `/certifications/${p}`);
+/** Exported so `CertificationsPage.tsx` can compute the same route the pager
+ * tabs use, for wiring `useFieldKeyboard` — one implementation, not a
+ * duplicated string template. */
+export const defaultPagerHref = (p: number) =>
+  p === 1 ? "/certifications" : `/certifications/${p}`;
 
 function orientationOf(c: Certificate): Orientation {
   return c.scanOrientation ?? "landscape";
@@ -51,11 +66,13 @@ interface OpenScan {
 function BentoTile({
   certificate,
   slot,
+  slotIndex,
   style,
   onOpen,
 }: {
   certificate: Certificate;
   slot: CertSlot;
+  slotIndex: number;
   style: React.CSSProperties;
   onOpen: (certificate: Certificate, trigger: HTMLElement) => void;
 }) {
@@ -63,7 +80,11 @@ function BentoTile({
   const anatomy = slot.anatomy ?? "standard";
 
   return (
-    <figure className={`cert-mat cert-mat--${tone} cert-mat--${anatomy}`} style={style}>
+    <figure
+      className={`cert-mat cert-mat--${tone} cert-mat--${anatomy}`}
+      style={style}
+      data-cut={slotIndex % 4}
+    >
       <button
         type="button"
         className="cert-mat__trigger"
@@ -101,6 +122,7 @@ export function CertWall({
   page = 1,
   pagerHref = defaultPagerHref,
   LinkComponent = "a",
+  onScanOpenChange,
 }: CertWallProps) {
   const cap = perSheet(sheet);
   const total = certificates.length;
@@ -115,9 +137,11 @@ export function CertWall({
 
   function openModal(certificate: Certificate, trigger: HTMLElement) {
     setOpenScan({ certificate, trigger });
+    onScanOpenChange?.(true);
   }
   function closeModal() {
     setOpenScan(null);
+    onScanOpenChange?.(false);
   }
 
   if (total === 0) {
@@ -170,6 +194,7 @@ export function CertWall({
                   key={certificate.id}
                   certificate={certificate}
                   slot={slot}
+                  slotIndex={slotIndex}
                   style={style}
                   onOpen={openModal}
                 />
@@ -239,55 +264,12 @@ export function CertWall({
         </section>
       </div>
 
-      {/* NEXT sits LEFT of PREVIOUS, dots between. Doc 03: directional chrome
-          reads with the right-to-left turn. Only the turn mirrors — never the
-          tab order. */}
-      {pageCount > 1 ? (
-        <nav className="cert-pager" aria-label="Certificate sheets">
-          {current < pageCount ? (
-            <Link className="cert-pager__btn" href={pagerHref(current + 1)}>
-              Next sheet
-            </Link>
-          ) : (
-            // Inert span, not an aria-disabled link: a disabled link still
-            // takes focus and still fires on Enter.
-            <span className="cert-pager__btn" data-inert="true" aria-hidden="true">
-              Next sheet
-            </span>
-          )}
-
-          <div className="cert-pager__dots">
-            {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) =>
-              n === current ? (
-                <span
-                  key={n}
-                  className="cert-pager__dot"
-                  data-inert="true"
-                  aria-current="page"
-                >
-                  <span className="cert-pager__dot-glyph" />
-                  <span className="visually-hidden">{`Sheet ${n}, current`}</span>
-                </span>
-              ) : (
-                <Link key={n} className="cert-pager__dot" href={pagerHref(n)}>
-                  <span className="cert-pager__dot-glyph" />
-                  <span className="visually-hidden">{`Sheet ${n}`}</span>
-                </Link>
-              ),
-            )}
-          </div>
-
-          {current > 1 ? (
-            <Link className="cert-pager__btn" href={pagerHref(current - 1)}>
-              Previous
-            </Link>
-          ) : (
-            <span className="cert-pager__btn" data-inert="true" aria-hidden="true">
-              Previous
-            </span>
-          )}
-        </nav>
-      ) : null}
+      <CertPagerTabs
+        pageCount={pageCount}
+        current={current}
+        pagerHref={pagerHref}
+        LinkComponent={Link}
+      />
 
       {openScan ? (
         <CertScanModal
