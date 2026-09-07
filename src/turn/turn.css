@@ -103,33 +103,41 @@
    lifts it over the routed page content; `.page-content`'s own `clip-path`
    makes that a clean cross-stacking-context win regardless of what the
    page paints. It sits on its own paper chip so the gray-on-paper pairing
-   (docs/05_ACCESSIBILITY.MD) holds over any page background. */
+   (docs/05_ACCESSIBILITY.MD) holds over any page background.
+
+   2026-09-05: quieted to icon-only (Keff — see `PageLayer.tsx`). The
+   "BACK / ESC" label is now a `visually-hidden` span; only the `▶` glyph
+   paints. Hairline `--gray` border instead of solid `--ink`, no tracking,
+   no padding box — a 24x24 (`--hit-min`, SC 2.5.8) square that reads as a
+   quiet corner affordance, not a chrome bar. `--gray` on `--paper` is
+   5.11:1, clears AA for the glyph-as-label. */
 .page-close {
   position: absolute;
   inset: var(--space-2xs) var(--space-2xs) auto auto;
   z-index: var(--z-frame);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
   min-height: var(--hit-min);
   min-width: var(--hit-min);
-  padding: 4px var(--space-xs);
+  padding: 0;
   background: var(--paper);
   color: var(--gray);
-  border: var(--rule-hair) solid var(--ink);
+  border: var(--rule-hair) solid var(--gray);
   font: inherit;
   font-family: var(--font-mono);
-  font-size: var(--text-micro);
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
+  font-size: var(--text-meta);
+  line-height: 1;
   cursor: pointer;
   transition:
     background var(--dur-micro) var(--ease-hard),
-    color var(--dur-micro) var(--ease-hard);
+    color var(--dur-micro) var(--ease-hard),
+    border-color var(--dur-micro) var(--ease-hard);
 }
 
 .page-close:hover {
   background: var(--ink);
+  border-color: var(--ink);
   color: var(--ink-inverse);
 }
 

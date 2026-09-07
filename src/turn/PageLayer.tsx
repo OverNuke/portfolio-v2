@@ -45,6 +45,14 @@ export interface PageLayerProps {
  * control — it is pinned to the top-RIGHT corner (manga back direction,
  * doc 03 "Turn direction") over its own paper chip so the gray-on-paper
  * pairing holds regardless of what the routed page paints behind it.
+ *
+ * 2026-09-05: quieted to an icon-only affordance (Keff) — the visible
+ * label "BACK / ESC" was loud over the clean routed compositions. The
+ * `▶` glyph alone shows; "Back / Esc" moves to a `visually-hidden` span so
+ * the accessible name is unchanged (`TurnProvider.test.tsx` still queries
+ * `name: /back \/ esc/i`) and a `title` gives sighted mouse users the same
+ * text on hover. Still a real focusable/clickable control on every route;
+ * still a 24x24 hit target (SC 2.5.8).
  */
 export function PageLayer({ title, tag, children }: PageLayerProps) {
   const { turn, go, registerTitle } = useTurn();
@@ -61,8 +69,9 @@ export function PageLayer({ title, tag, children }: PageLayerProps) {
       aria-modal="true"
       aria-labelledby={titleId}
     >
-      <button type="button" className="page-close" onClick={() => go("/")}>
-        <span aria-hidden="true">{"▶"}</span> BACK / ESC
+      <button type="button" className="page-close" onClick={() => go("/")} title="Back / Esc">
+        <span aria-hidden="true">{"▶"}</span>
+        <span className="visually-hidden">Back / Esc</span>
       </button>
       <header className="page-head visually-hidden">
         <h1 id={titleId} className="page-title" tabIndex={-1} ref={registerTitle}>
