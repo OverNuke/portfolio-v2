@@ -81,13 +81,19 @@ describe("routes", () => {
     expect(screen.queryByText(certRoute.sub)).not.toBeInTheDocument();
   });
 
-  it("renders contact without the route.sub metadata line", () => {
+  it("keeps contact's route.sub off the page entirely — no Panel metadata, no field footer", () => {
     const contactRoute = ROUTES.find((route) => route.pageId === "contact")!;
-    render(
+    const { container } = render(
       <MemoryRouter initialEntries={[contactRoute.path]}>
         <TestRoutes />
       </MemoryRouter>,
     );
+    // 2026-09-05 (Keff): the `.cf__foot` line ("channels open · Mexico"),
+    // briefly re-added by sdd/contact-section-editorial-dock D4, was
+    // removed. `route.sub` still feeds the module wheel and NavItem; it
+    // just does not print on the contact page.
+    expect(container.querySelector(".panel__metadata")).not.toBeInTheDocument();
+    expect(container.querySelector(".cf__foot")).not.toBeInTheDocument();
     expect(screen.queryByText(contactRoute.sub)).not.toBeInTheDocument();
   });
 

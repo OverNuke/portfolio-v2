@@ -34,10 +34,17 @@
  */
 
 .cf {
-  /* Stage aspect, w/h. Retuned per tier — the tracks are ratios, so the
-     whole composition scales with this one number. */
-  --cf-ar: 1.5;
-  --cf-gap: var(--space-sm);
+  /* Stage aspect, w/h. ONE ratio across the whole >=900px range — the
+     `@media (max-width: 1180px)` override that used to drop this to 1.34 was
+     deleted 2026-09-05 (`sdd/contact-section-editorial-dock` D2; the
+     arithmetic is written into the SHED ORDER section where the override
+     lived). Under absolute-`%` placement this ratio IS the composition:
+     every `.a-{slot}` box in the PLACEMENT block is a percentage of the
+     stage, so reshaping the ratio would stretch every plate non-uniformly
+     and re-open the marker's clearance at a second breakpoint. Scaling the
+     box uniformly (the `min()` fit-pair on `.cf__stage`) preserves the D1
+     clearance table at 1440 / 1280 / 1100 identically. */
+  --cf-ar: 1.6;
 
   /* The focus ring is drawn OUTSIDE the plate at a 3px offset, so it lands on
      Paper, not on the olive. Ink at 14.83:1.
@@ -84,35 +91,36 @@
 }
 
 .cf__stage {
+  /* Containing block AND `offsetParent` for every child: the four plates, the
+     two connectors and the figure are all `position: absolute` now (the 6x12
+     grid was retired 2026-09-05, `sdd/contact-section-editorial-dock` D2), so
+     each `.a-{slot}` rule in the PLACEMENT block is a `%` of THIS box. The
+     dock (`ChannelField.tsx`) also reads `offsetLeft/offsetTop` against it. */
   position: relative;
-  display: grid;
-  /* SIX UNEQUAL TRACKS. The ratios are the composition, not a container
-     choice. c4 carries nothing — a narrow open track next to a bold image is
-     the density relaxation doc 12 granted Home on 2026-08-03, not an
-     oversight. It also sits the open track dead centre now (2026-08-23):
-     tracks 1-3 sum to ~2.35fr, tracks 5-6 sum to ~2.25fr, so c4's midpoint
-     lands at ~51% of the stage instead of the old ~62% — see `.a-feature`
-     and `.a-aside` below, which trade columns to make this hold. Retune
-     both sides together; drifting one alone re-skews the field. */
-  grid-template-columns: 0.95fr 0.55fr 0.85fr 0.55fr 1.5fr 0.75fr;
-  grid-template-rows: repeat(12, 1fr);
   /* Fit `.cf__frame`'s box on whichever axis is tighter, at the FIXED
-     `--cf-ar` shape — never reshape the ratio to fit. Every plate-track
-     ratio, every `.cf__figure`/`.cf__mark` percentage and the marker's
+     `--cf-ar` shape — never reshape the ratio to fit. Every `.a-{slot}` `%`,
+     every `.cf__figure`/`.cf__mark` percentage and the marker's
      verified-clear anchor are all proportional to this box; scaling it
      uniformly preserves every one of them, changing its shape would not.
-     Same formula as `project-field.css`'s `.pf__stage`. */
+     Same formula as `project-field.css`'s `.pf__stage`. This `min()` pair
+     still resolves against `.cf__frame` (the nearest ANCESTOR size container
+     — an element never queries itself, css-contain-3), NOT against the
+     `container-type` added below. */
   width: min(100cqw, calc(100cqh * var(--cf-ar)));
   height: min(100cqh, calc(100cqw / var(--cf-ar)));
-  gap: var(--cf-gap);
+  /* Second size container, nested inside `.cf__frame`. `cqw` INSIDE the stage
+     then resolves against THIS fitted canvas, which is what lets the
+     editorial chrome (`.cf__headline`, D4) scale with the composition instead
+     of with the viewport. Verified safe in real Chromium before it landed
+     (P0 probe, `sdd/contact-section-editorial-dock` 0.2: stage fitted 1.6:1
+     at both a wide-short and a narrow-tall frame; a `cqw`-sized child
+     measured against the stage, not the frame). MUST be released to `normal`
+     in the 900px tier — there the stage's height comes from its content and
+     `contain: size` would collapse it to zero. */
+  container-type: size;
 }
 
-/* ---- HEAD -------------------------------------------------------------- */
-
-.cf__head {
-  flex-shrink: 0;
-  margin: 0 0 var(--space-md);
-}
+/* ---- FRAME ----------------------------------------------------------- */
 
 /* The size-query container `.cf__stage` fits inside — see `.cf`'s comment
    and `ChannelField.tsx`'s comment on why this can't just be `.cf` itself.
@@ -125,7 +133,12 @@
    Flexbox container; `place-items: center` here was centring the cross axis
    only, and every width-limited-by-height viewport (most real browser
    windows) fell back to flex's default `justify-content: flex-start` and
-   read as pinned left, worse the wider the window. */
+   read as pinned left, worse the wider the window.
+
+   The old `.cf__head` / `.cf__title` ("CHANNELS" masthead) was deleted
+   2026-09-05 (`sdd/contact-section-editorial-dock` D4) — the section heading
+   is now `.cf__headline` ("REACH OUT"), an `<h2>` positioned INSIDE the
+   stage, and the freed sibling height comes here. */
 .cf__frame {
   display: flex;
   min-height: 0;
@@ -133,15 +146,6 @@
   align-items: center;
   justify-content: center;
   container-type: size;
-}
-
-.cf__title {
-  margin: 0;
-  color: var(--ink);
-  font-size: var(--text-display-md);
-  font-weight: 700;
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
 }
 
 /* ---- THE FIGURE (decorative band) -------------------------------------- */
@@ -245,14 +249,17 @@
 
 .cf__conn {
   z-index: calc(var(--z-plate-decor) + 4);
-  height: var(--rule-thick);
-  align-self: center;
+  /* Two weights, not the mockup's uniform 12px (design D1): the narrower bar
+     (`.a-conn-a`) stays the lighter 8px, the wider one (`.a-conn-b`) takes
+     `--thick` below. Depth is px, not `%` — ADR-2, constant at every
+     breakpoint. `left`/`top`/`width` come from the PLACEMENT block. */
+  height: var(--space-xs);
   background: var(--ink);
   pointer-events: none;
 }
 
 .cf__conn--thick {
-  height: var(--space-xs);
+  height: var(--space-sm);
 }
 
 /* ---- CHANNEL PLATES ----------------------------------------------------
@@ -277,7 +284,13 @@
 
 .cf-card {
   position: relative;
-  z-index: var(--z-plate-interactive);
+  /* `--dock-z` (0-8) is written by the pointer dock (`ChannelField.tsx`); it
+     stacks a plate nearer the pointer above its neighbours WITHOUT ever
+     reaching the hover/focus `+10` band, so a hovered plate always wins.
+     Custom property, never inline `style.zIndex` — an inline value would beat
+     the hover rule regardless of specificity. `--z-plate-interactive` is a
+     bare integer (tokens.css), so this `calc()` is valid. */
+  z-index: calc(var(--z-plate-interactive) + var(--dock-z, 0));
   display: flex;
   padding: var(--space-md);
   text-decoration: none;
@@ -285,8 +298,7 @@
      `::before`'s clipped alpha, so the edge FOLLOWS THE CUT, which a
      `border` cannot do. Verbatim `.pf-record__figure`'s "THE EDGE", at
      rule-thick instead of 1.5px. */
-  --cut-edge:
-    drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink))
+  --cut-edge: drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink))
     drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink));
   /* The plate shadow, converted 1:1 from `--plate-shadow` (tokens.css) to a
      `drop-shadow()` — the token is a single layer with no spread, so it is a
@@ -294,18 +306,22 @@
      `box-shadow` value for modules that don't clip; this is not a second
      token, just the same number read through `filter`. */
   filter: var(--cut-edge) drop-shadow(var(--plate-shadow));
-  /* `--dock-scale` is written by `ChannelField.tsx`'s pointer-tracked
-     "mechanical dock" — the nearest plate's distance to the cursor, eased in
-     JS (`damping.ts`) frame by frame. Defaults to 1 (untouched) when the
-     effect is disabled (reduced motion, coarse pointer) or the plate is a
-     `pending` `div`, which the hook never writes to. On the independent
-     `scale` property, deliberately WITHOUT a CSS transition: JS already
-     eases this value every frame, so a transition here would ease an
-     already-eased target and read as sluggish. `transform`, below, stays
-     free for the hover lift's own `--dur-micro` transition — the two never
-     fight over the same property. See `dockHover.ts`'s header before
-     reading the spatial falloff itself as a bounce. */
+  /* THE PROPERTY SPLIT — load-bearing. The pointer dock (`ChannelField.tsx`,
+     eased in JS via `damping.ts` frame by frame) drives `scale:` +
+     `translate:` + `--dock-z`; the plain `:hover`/`:focus-visible` lift below
+     drives `transform:`. The two MUST NOT touch the same property — CSS
+     composes `translate` -> `scale` -> `transform` in that fixed order, so
+     kept separate they stack cleanly; share one and the last write wins and
+     the dock and the hover fight.
+
+     No CSS transition on `translate`/`scale`: JS already eases them every
+     frame, so a transition would ease an already-eased target and read as
+     sluggish. Both default to rest (`1`, `0px`) when the dock is disabled
+     (reduced motion, coarse pointer) or the plate is a `pending` `div` the
+     hook never writes to. See `dockHover.ts`'s header before reading the
+     spatial gaussian as a bounce. */
   scale: var(--dock-scale, 1);
+  translate: 0 var(--dock-lift, 0px);
   transition:
     transform var(--dur-micro) var(--ease-hard),
     filter var(--dur-micro) var(--ease-hard);
@@ -371,8 +387,11 @@
    and no focus — never offers feedback for an interaction it cannot perform. */
 a.cf-card:hover,
 a.cf-card:focus-visible {
-  z-index: calc(var(--z-plate-interactive) + 10);
+  /* `+ var(--dock-z, 0)` so a hovered plate the dock had already raised does
+     not drop below a non-hovered neighbour that still carries a dock bump. */
+  z-index: calc(var(--z-plate-interactive) + 10 + var(--dock-z, 0));
   filter: var(--cut-edge) drop-shadow(5px 7px 18px rgb(17 17 17 / 30%));
+  /* `transform`, never `translate` — see the property-split note on `.cf-card`. */
   transform: translateY(-3px);
 }
 
@@ -409,6 +428,19 @@ a.cf-card:active {
 .cf-card--block {
   flex-direction: column;
   justify-content: space-between;
+  /* Each block plate is its own inline-size container so the name line (below)
+     can size against the PLATE, not the stage — `.a-aside` (14.861% of the
+     canvas) and `.a-feature` (23.194%) need different answers from one
+     formula, so `cqw` against `.cf__stage` is the wrong basis. Same house
+     pattern as `.cf__headline`'s `5.4cqw`, one level down. `--banner` is
+     excluded on purpose: its name is `writing-mode: vertical-rl` in the
+     desktop tier (inline axis is vertical) and never overflows.
+     Verified in a real browser: this leaves every plate's
+     `offsetWidth`/`offsetHeight` unchanged (the dock's `offset*` reads in
+     `ChannelField.tsx` are untouched) and `inline-size` containment does not
+     imply paint containment, so the `--cut-edge` + `--plate-shadow` filter
+     chain still renders outside the box. */
+  container-type: inline-size;
 }
 
 /* A divider TICK across the banner's waist. A 1:4 strip with a word at each
@@ -437,19 +469,70 @@ a.cf-card:active {
   background: var(--ink-inverse);
 }
 
+/* Plate head (D5): the channel name, the instrument-scale corner glyph and
+   the index marker on one row. `align-items: flex-start` so the glyph and the
+   two-digit index sit against the name's cap height, not its baseline —
+   `cert-wall`'s corner-mark treatment. `.cf-card__name` takes the slack
+   (`flex: 1 1 auto`) and `min-width: 0` lets it shrink past its content's
+   min-content width so a long single word ("WHATSAPP") cannot force the head
+   wider than the plate.
+
+   `flex-wrap: wrap` is the width-of-last-resort (2026-09-05 correction, closes
+   the `sdd/contact-section-editorial-dock` D8 / G3 sign-off item, carried from
+   Phase 2). `min-width: 0` lets the name shrink but does NOT break a single
+   word, and the block name is now container-fluid (see `.cf-card--block
+   .cf-card__name` below) — but on the narrowest block plate ("WHATSAPP" on
+   `.a-aside`, 14.861% of the stage) even the floor size plus the fixed-px
+   glyph and two-digit index will not sit on one row. When they don't, the
+   glyph + index wrap under the name and the name claims the full plate width.
+   Only fires at narrow widths; everywhere the name already fits on one row the
+   head anatomy is unchanged. */
+.cf-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
 .cf-card__name {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: var(--text-body);
   font-weight: 700;
   letter-spacing: var(--track-label);
   text-transform: uppercase;
 }
 
+/* Container-fluid, keyed to the plate's own content-box (`.cf-card--block` is
+   `container-type: inline-size`). Ceiling `1.0625rem` is the value this rule
+   shipped as a fixed size — wide plates and the <900px stacked tier sit there
+   and are unchanged. It eases down only on plates too narrow to hold the name:
+   `WHATSAPP` on `.a-aside` overflowed 13-73px across 1440->901px before this.
+   Tracking eases with it (user-confirmed 2026-09-05) so a crushed name is not
+   ALSO fighting 0.22em of letter-spacing — plates with room keep near-full
+   `--track-label`. Coefficients tuned against
+   `scratchpad/contact-fix-probe.mjs`: every block name reports
+   `scrollWidth <= clientWidth` at 901/950/1024/1100/1180/1280/1440px. Floor is
+   0.8125rem (13px) — do not go lower. */
 .cf-card--block .cf-card__name {
-  font-size: 1.0625rem;
+  font-size: clamp(0.8125rem, 13.5cqi, 1.0625rem);
+  letter-spacing: clamp(0.08em, 2.4cqi, var(--track-label));
 }
 
 .cf-card--banner .cf-card__name {
   align-self: flex-start;
+}
+
+/* The per-plate index marker (01..04, from `SLOT_INDEX`). Micro tracked mono
+   in the house readout register. `flex: none` so it never compresses. Its
+   per-tone opacity — and the `--on-olive-chrome` floor on `.cf-card--mid` —
+   land in Phase 4. */
+.cf-card__index {
+  flex: none;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+  opacity: 0.5;
 }
 
 .cf-card__foot {
@@ -514,54 +597,137 @@ a.cf-card:active {
   letter-spacing: var(--track-label);
 }
 
+/* ---- EDITORIAL CHROME ----------------------------------------------------
+   One element now: `.cf__headline` ("Reach out"), the field's masthead.
+   `position: absolute` against `.cf__stage` (the fixed 1.6 canvas),
+   `pointer-events: none` so the occlusion audit's centre hit-test still
+   reaches the plates, at `--z-plate-content` (10) — above the
+   figure/tone/connectors, below the plates. Geometrically clear of the
+   figure (D1 "Derived clearances"), so the band ordering is never
+   load-bearing. `right`/`top`/`width` are the D1 conversion table
+   (`left% = x/14.4`, `top% = y/9` against the 1440x900 mockup), the 17%
+   width frozen at the G3 manual sign-off (JetBrains Mono runs wider than
+   the mockup's Space Grotesk).
+
+   2026-09-05 (Keff): the `.cf__readout` row + `.cf__lede` and the
+   `.cf__foot` line were deleted — a decorative echo of the page <h1>/route
+   plus a sentence the module wheel already prints on the way in. This drops
+   the `sdd/contact-section-editorial-dock` D4 chrome; see `ChannelField.tsx`.
+
+   Below 900px the reflow tier (SHED ORDER) drops `.cf__headline` to static
+   `grid-column: 1 / -1` flow and pins it to an explicit token (`cqw` has no
+   container there). */
+
+.cf__headline {
+  position: absolute;
+  right: 3.611%;
+  top: 2.444%;
+  width: 17%;
+  z-index: var(--z-plate-content);
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  /* 5.4% of the CANVAS width — `.cf__stage` is the size container (base
+     rule), NOT the viewport. The `--text-display-*` tokens are `vw`-based
+     and the stage tops out at ~1192px (`.cf` max-width 1240 minus 2x
+     `--space-lg`), so a vw-sized "REACH" would overflow this 17% box. At
+     5.4cqw the widest word (5ch x ~0.59em ≈ 2.95em ≈ 0.159 x canvas) clears
+     the 0.17 x canvas box at every stage size in the >=900px range — a ~6%
+     margin top and bottom, which is why this needs no clamp (a floor and a
+     ceiling would both be dead code). The 900px tier pins a token instead. */
+  font-size: 5.4cqw;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-align: right;
+  text-transform: uppercase;
+  text-wrap: balance;
+  pointer-events: none;
+}
+
 /* ---- PLACEMENT ---------------------------------------------------------
-   One block, in composition order, so the layout can be read as a whole
-   (doc 12 §Implementation notes). There is not one pixel coordinate in it:
-   if a plate needs to move, it moves by a grid cell.
+   One block, in left-to-right composition order, so the layout reads as a
+   whole (doc 12 §Implementation notes). Every box is a `%` of `.cf__stage`
+   (a fixed 1.6 canvas — the 6x12 grid was retired 2026-09-05,
+   `sdd/contact-section-editorial-dock` D2). Coordinates are the D1
+   conversion table: `left% = x/14.4`, `top% = y/9`, `width% = w/14.4`,
+   `height% = h/9` against the 1440x900 mockup. The `--cf-cut` polygons are
+   UNCHANGED — they stay in `px` (ADR-2), one per slot for the whole
+   responsive range, no `@media` override anywhere.
 
-   `.a-rail-b` (Instagram's slot) was deleted 2026-09-04 (design import, C1)
-   — `channelLayout.ts`'s `ChannelSlot` union drops it too, so a leftover
-   reference here would be dead CSS, not a type error. Track `c6` is
-   deliberately left EMPTY rather than rebalanced — see `.cf__stage`'s
-   `grid-template-columns` comment and HANDOFF §1.1 for why: rebalancing
-   would re-open `.cf__mark`'s verified clearance derivation, which depends
-   on `.a-aside`'s box staying exactly where it is. */
+   `.a-rail-b` (Instagram's slot) was deleted 2026-09-04. The plates DO NOT
+   overlap each other — D1's x-ranges leave a positive gap between every
+   adjacent pair (Email->GitHub, GitHub->WhatsApp, WhatsApp->LinkedIn), and
+   at the 1.10 dock cap the widest per-side growth is ~10.7px, so the gaps
+   hold. The collage "overlap" is on the z-axis: the figure, the tone discs
+   and the connectors pass BEHIND the plates. Plate-to-plate is a deliberate
+   diagonal stagger, verified clear (D1 "Derived clearances at 1440").
 
-.a-rail-a {
-  grid-area: 1 / 2 / 9 / 3;
-  --cf-cut: polygon(0 0, calc(100% - 1px) 3px, 100% 100%, 1px calc(100% - 2px));
+   `.a-conn-a` runs along an open band and, at these coordinates, tucks under
+   no plate (its x-range 0-23.889% and y 67.111% clear `.a-primary`'s bottom
+   at 65.556% and sit left of `.a-rail-a`). `.a-conn-b` still tucks under
+   `.a-feature`. The "one end under a plate" rationale in `.cf__conn`'s
+   comment above is now only true for conn-b — flagged for the G3 sign-off
+   (`sdd/contact-section-editorial-dock` D8). */
+
+.a-primary,
+.a-rail-a,
+.a-aside,
+.a-feature,
+.a-conn-a,
+.a-conn-b {
+  position: absolute;
 }
 
 .a-primary {
-  grid-area: 3 / 1 / 8 / 2;
+  left: 6.667%;
+  top: 27.778%;
+  width: 14.861%;
+  height: 37.778%;
   --cf-cut: polygon(0 3px, calc(100% - 1px) 0, 100% calc(100% - 3px), 1px 100%);
 }
 
-/* Trades columns with `.a-feature` (2026-08-23) — was c5, now c3 — as part
-   of the rebalance above. Row span unchanged. */
+.a-rail-a {
+  left: 23.889%;
+  top: 13.333%;
+  width: 11.25%;
+  height: 57.778%;
+  --cf-cut: polygon(0 0, calc(100% - 1px) 3px, 100% 100%, 1px calc(100% - 2px));
+}
+
 .a-aside {
-  grid-area: 4 / 3 / 9 / 4;
+  left: 37.083%;
+  top: 34.667%;
+  width: 14.861%;
+  height: 37.333%;
   --cf-cut: polygon(0 4px, calc(100% - 2px) 0, 100% calc(100% - 2px), 1px 100%);
 }
 
-/* Trades columns with `.a-aside` (2026-08-23) — was c3, now c5, the widest
-   track (1.5fr), so the field's one open Paper-White tile stays the widest
-   plate even after the swap. Row span unchanged. */
+/* The widest plate (23.194% of the canvas), the field's one open Paper-White
+   tile, sitting lowest and furthest right. */
 .a-feature {
-  grid-area: 7 / 5 / 12 / 6;
+  left: 54.861%;
+  top: 52.222%;
+  width: 23.194%;
+  height: 38.222%;
   --cf-cut: polygon(0 0, calc(100% - 1px) 3px, 100% calc(100% - 3px), 2px 100%);
 }
 
 .a-conn-a {
-  grid-area: 8 / 1 / 9 / 3;
+  left: 0;
+  top: 67.111%;
+  width: 23.889%;
 }
 
-/* Was `9 / 4 / 10 / 7` — tucked behind `.a-rail-b` (Instagram), which is now
-   gone. Retucked 2026-09-04 to tuck under `.a-feature` (c5, rows 7-12)
-   instead: a bar with both ends in open paper reads as debris, and that tuck
-   is the entire effect. */
+/* Anchored right (`right: 0`) rather than given a width, so it always reaches
+   the stage edge and its left end tucks under `.a-feature`. Below 900px this
+   connector relies on the tier's `display: none` (SHED ORDER) — the reflow
+   reset zeroes its `width`, so if that `display: none` is ever lifted, give
+   `.a-conn-b` an explicit width in the reflow tier first. */
 .a-conn-b {
-  grid-area: 9 / 4 / 10 / 6;
+  left: 42.083%;
+  right: 0;
+  top: 75.333%;
 }
 
 /* ==========================================================================
@@ -572,11 +738,17 @@ a.cf-card:active {
    marker's availability label are always present.
    ========================================================================== */
 
-@media (max-width: 1180px) {
-  .cf {
-    --cf-ar: 1.34;
-  }
-}
+/* The `@media (max-width: 1180px) { .cf { --cf-ar: 1.34 } }` override was
+   DELETED 2026-09-05 (`sdd/contact-section-editorial-dock` D2). Do not
+   restore it. Arithmetic: `.cf__stage` is fitted by
+   `min(100cqw, 100cqh * ar)`, so at a height-constrained frame a HIGHER `ar`
+   yields a WIDER stage — at a 1180px viewport with ~700px of height budget,
+   `ar: 1.6` gives 1120x700 and `ar: 1.34` gives 938x700. 1.34 is strictly
+   worse on area. And under absolute-`%` placement the ratio IS the
+   composition: reshaping it stretches every `.a-{slot}` box non-uniformly
+   and re-opens the marker's clearance derivation at a second breakpoint. One
+   ratio across the whole >=900px range means the D1 clearance table covers
+   1440 / 1280 / 1100 identically. */
 
 @media (max-width: 900px) {
   /* Same release `contact-page.css`'s `:has()` chain does one level up —
@@ -601,6 +773,10 @@ a.cf-card:active {
     display: grid;
     width: 100%;
     height: auto;
+    /* Released from the base rule's `size` containment — here the stage's
+       height comes from its content, and `contain: size` would collapse it
+       to zero (and with it every `cqw` the chrome sizes against). */
+    container-type: normal;
     /* Two tracks, still unequal. The children here are individual PLATES, not
        column wrappers, so auto-flow fills across-then-down and visual order
        equals DOM order for free. A per-column-wrapper layout reads
@@ -612,13 +788,11 @@ a.cf-card:active {
        The desktop tier does not need this: its type is vertical, so a long
        handle costs height there, not width. */
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    /* The base rule's twelve explicit rows MUST be released. Overriding only
-       the columns leaves them in place, they survive `grid-area: auto`
-       placement, and twelve empty tracks trail below the last plate. */
-    grid-template-rows: none;
     /* `auto`, not `minmax(...)`. A track floor inflates any short item — the
        marker caption — into a full-height block with a hole under it. The
-       floor belongs on the plates, below. */
+       floor belongs on the plates, below. (`grid-template-rows: none` was
+       deleted 2026-09-05: the base rule no longer declares twelve rows, so
+       there is nothing left to release.) */
     grid-auto-rows: auto;
     /* NEVER `dense`: it fills holes out of order, which decouples visual
        order from DOM order. */
@@ -626,19 +800,49 @@ a.cf-card:active {
     gap: var(--space-sm);
   }
 
-  /* Listed explicitly rather than by wildcard. A block added upstairs without
-     a shed rule then breaks visibly and immediately here, instead of silently
-     inheriting one. */
+  /* Undo the base tier's absolute placement so the plates flow as grid items
+     again. Listed explicitly rather than by wildcard — a block added
+     upstairs without a shed rule then breaks visibly and immediately here
+     instead of silently inheriting one. This rule sits ABOVE `.cf-card`
+     (below) on purpose: both are single-class selectors, so source order
+     decides, and `.cf-card { width: 100% }` must win over `width: auto`.
+
+     Plates keep `position: relative` (not `static`) — `.cf-card::before`
+     (the clipped fill) is `position: absolute; inset: 0` and must resolve
+     against its own card, not the stage. Connectors and chrome carry no such
+     child, so they go to plain `static` flow. */
   .a-primary,
   .a-rail-a,
-  .a-feature,
   .a-aside,
-  .a-conn-a,
-  .a-conn-b {
-    grid-area: auto;
+  .a-feature {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: auto;
   }
 
-  .cf__conn {
+  .a-conn-a,
+  .a-conn-b,
+  .cf__headline {
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+  }
+
+  .cf__headline {
+    grid-column: 1 / -1;
+    /* `cqw` has no eligible container at this tier (released above), so the
+       canvas-relative `font-size` on the base `.cf__headline` would fall back
+       to the small-viewport axis — pin an explicit token instead. */
+    font-size: var(--text-display-lg);
+  }
+
+  /* Shed the decorative layers: tone discs, connectors, and the plate wells
+     all drop before any content does (doc 12 §Shed order). */
+  .cf__tone,
+  .cf__conn,
+  .cf-card__well {
     display: none;
   }
 

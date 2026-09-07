@@ -2,20 +2,33 @@ import { useEffect, useRef, type ComponentType, type SVGProps } from "react";
 import { GithubIcon, LinkedinIcon, MailIcon, WhatsappIcon } from "../social-icon/SocialIcon";
 import type { SocialLink } from "../../content/types";
 import { assignChannelSlots, type PlacedChannel } from "./channelLayout";
-import { dockTargets, type DockCard } from "./dockHover";
+import { cardCenter, dockFactors, dockValues, type DockCard } from "./dockHover";
 import { dampStep, isSettled } from "../../motion/damping";
 import { useReducedMotion } from "../../shell/useReducedMotion";
 import { useMediaQuery } from "../../shell/useMediaQuery";
 import "./channel-field.css";
 
-/** Tuned by eye against the plate sizes in `channel-field.css` — big enough
- * that a neighbouring plate visibly responds, small enough that the effect
- * reads as an instrument reacting to proximity rather than a hovered plate
- * reaching across the field. */
-const DOCK_RADIUS_PX = 240;
-/** 1.07, not a real dock's 1.4–2x — this is a HUD instrument acknowledging
- * the cursor, not an icon demanding attention. */
-const DOCK_MAX_SCALE = 1.07;
+/** Gaussian spread as a RATIO of the stage's rendered width, not px: the
+ * stage is fitted (`min()` pair in `channel-field.css`) and is typically
+ * ~1120-1192px wide, so a fixed 240px — the mockup's value on its 1440
+ * canvas — would read proportionally wider here and pull two plates up at
+ * once. `spread = stage.offsetWidth * DOCK_SPREAD_RATIO`; 0.167 ≈ 240/1440. */
+const DOCK_SPREAD_RATIO = 0.167;
+/** Vertical softening on the gaussian (`dockFactor`'s `dy` divides by
+ * `spread * anisotropy`): a pointer sweeping ACROSS the field then raises one
+ * moving lobe, not a whole column. The mockup's value. */
+const DOCK_ANISOTROPY = 2.2;
+/** 1.10, not a real dock's 1.4–2x and not the mockup's 1.26 — the
+ * `docs/01_ART_DIRECTION.MD` Instrument-row cap. A HUD instrument
+ * acknowledging the cursor, not an icon demanding attention. */
+const DOCK_MAX_SCALE = 1.1;
+/** Peak upward lift in px (the mockup's `-46 * .26 ≈ -12`, capped to 10).
+ * Written to `--dock-lift` via `translate:`, kept off `transform:` so it
+ * never fights the plain hover lift — see `channel-field.css`. */
+const DOCK_MAX_LIFT_PX = 10;
+/** Peak `--dock-z` bump. Below the hover/focus `+10` so a hovered plate
+ * always wins the stack regardless of dock position. */
+const DOCK_MAX_Z = 8;
 /** Exponential-smoothing time constant for `--dock-scale` (`damping.ts`),
  * deliberately shorter than the 90ms `--dur-micro` the hover lift uses —
  * `tau`-based settling takes ~3×tau to read as "done", so matching 90ms
@@ -92,28 +105,45 @@ function ChannelGlyph({ label }: { label: string }) {
 }
 
 /**
- * DOM order inside a plate is name → handle → meta → glyph, and that order is
- * the contract, not a styling detail. The banner variant originally led with
- * the handle, because `justify-content: space-between` centres a middle child
- * and the name looked better centred — and the accessible name came out as
- * "@OVERNUKE GITHUB". The channel name leads; the name sits at the top of the
- * banner instead. Fixed at the source rather than papered over with an
- * `aria-label`, which would have left the visible and announced orders
- * disagreeing.
+ * The channel NAME leads the plate — first child of `.cf-card__head`, first in
+ * the accessible name — and that is the contract, not a styling detail. The
+ * banner variant once led with the handle, because `justify-content:
+ * space-between` centres a middle child and the name looked better centred, and
+ * the accessible name came out as "@OVERNUKE GITHUB". Fixed at the source, not
+ * papered over with an `aria-label` that would leave the visible and announced
+ * orders disagreeing.
+ *
+ * Anatomy (D5, `sdd/contact-section-editorial-dock`): `.cf-card__head` carries
+ * the name, the instrument-scale corner glyph and the `.cf-card__index` marker;
+ * `.cf-card__well` + `.cf-card__rule` are the tone-carrying middle (styled in
+ * Phase 4); `.cf-card__foot` carries the handle/meta lines and the external
+ * link arrow. Glyph, index and arrow are all `aria-hidden` ornament.
  */
-function ChannelPlate({ link, slot, variant, tone }: PlacedChannel) {
+function ChannelPlate({ link, slot, variant, tone, index }: PlacedChannel) {
   const className = `cf-card cf-card--${variant} cf-card--${tone} a-${slot}`;
   const channel = link.label.toLowerCase();
 
   const body = (
     <>
-      <span className="cf-card__name">{link.label}</span>
+      <span className="cf-card__head">
+        <span className="cf-card__name">{link.label}</span>
+        <ChannelGlyph label={link.label} />
+        <span className="cf-card__index" aria-hidden="true">
+          {index}
+        </span>
+      </span>
+      <span className="cf-card__well" aria-hidden="true" />
+      <span className="cf-card__rule" aria-hidden="true" />
       <span className="cf-card__foot">
         <span className="cf-card__lines">
           <span className="cf-card__meta">{link.handle}</span>
           <span className="cf-card__meta">{link.meta}</span>
         </span>
-        <ChannelGlyph label={link.label} />
+        {!link.unresolved && (
+          <span className="cf-card__arrow" aria-hidden="true">
+            ↗
+          </span>
+        )}
       </span>
     </>
   );
@@ -171,24 +201,37 @@ export interface ChannelFieldProps {
 }
 
 /**
- * Pointer-tracked "mechanical dock": the single nearest real channel plate
- * eases its scale toward the cursor's distance (`dockHover.ts`'s falloff and
- * nearest-wins selection), not a `:hover` pseudo-class alone — the field is
- * a 2D collage, not a single row, so DOM-adjacency selectors can't express
- * real proximity, and several plates sit close enough that scoring them
- * independently let more than one react to the same cursor position at once
- * (see `dockHover.ts`'s header). Only the nearest plate ever gets a target
- * above 1; everyone else eases back toward 1.
+ * Pointer-tracked "mechanical dock": EVERY real channel plate lifts by its
+ * distance to the cursor — an anisotropic gaussian (`dockHover.ts`), strongest
+ * under the pointer and decaying exponentially outward — not a `:hover`
+ * pseudo-class alone, because the field is a 2D collage and DOM-adjacency
+ * selectors can't express real proximity. The exponential falloff keeps the
+ * response single-lobed (one plate clearly dominant, its neighbour clearly
+ * subordinate), which is what stops this from reintroducing the field-twitch
+ * that commit `5d889c9` removed — see `dockHover.ts`'s header.
  *
- * A continuous rAF loop — not a one-shot "compute and snap" per pointermove
- * — steps every plate's current scale toward its target with frame-rate
- * independent exponential smoothing (`damping.ts`, the same pattern
- * `OptionWheel.tsx` already runs), stopping itself once every plate has
- * settled. Writes `--dock-scale` straight to each element via a ref, not
- * React state, which would re-render all four plates every frame.
+ * A continuous rAF loop — not a one-shot "compute and snap" per pointermove —
+ * eases each plate's 0..1 FACTOR toward its target with frame-rate-independent
+ * exponential smoothing (`damping.ts`, the same pattern `OptionWheel.tsx`
+ * runs), and derives `--dock-scale` / `--dock-lift` / `--dock-z` from the
+ * eased factor via `dockValues` at write time. Easing the single scalar (not
+ * the three outputs) keeps `isSettled`'s dimensionless threshold correct and
+ * means scale/lift/z can never desync. `--dock-scale` and `--dock-lift` are
+ * written every frame; `--dock-z` only when it changes (8 discrete steps —
+ * per-frame writes would force needless style recalc). All three go straight
+ * to the element via a ref, never React state (which would re-render all four
+ * plates per frame), and z-order goes through a custom property, never inline
+ * `style.zIndex`, which would beat the hover/focus stacking rule.
+ *
+ * Card geometry comes from `offsetLeft/offsetTop/offsetWidth/offsetHeight`
+ * (`cardCenter`), and the pointer is converted to stage-local coords
+ * (`clientX - stageRect.left`). This is a bug fix, not a style choice:
+ * `getBoundingClientRect()` returns the *transformed* rect, so a lifted plate
+ * would report a centre that has moved and feed that back into its own
+ * factor. `offset*` is untransformed and the stage itself is never scaled.
+ *
  * `a.cf-card` only: a `pending` plate is a `div` with no interaction to
- * acknowledge, same reasoning as the existing hover-lift scoping below in
- * channel-field.css.
+ * acknowledge, same reasoning as the hover-lift scoping in channel-field.css.
  *
  * Does nothing at all — no listeners attached — when the visitor prefers
  * reduced motion or has no fine pointer (touch): the effect degrades to the
@@ -204,7 +247,9 @@ function useDockHover(stageRef: React.RefObject<HTMLDivElement | null>) {
     const stage = stageRef.current;
     if (!stage) return;
 
-    const current = new Map<HTMLElement, number>();
+    // Per card: `f` is the EASED 0..1 factor; `z` is the last `--dock-z`
+    // value actually written.
+    const current = new Map<HTMLElement, { f: number; z: number }>();
     let targets = new Map<HTMLElement, number>();
     let frame: number | null = null;
     let last = 0;
@@ -214,30 +259,30 @@ function useDockHover(stageRef: React.RefObject<HTMLDivElement | null>) {
       last = now;
       let settled = true;
       for (const [card, target] of targets) {
-        const cur = current.get(card) ?? 1;
-        let next = dampStep(cur, target, dt, DOCK_TAU_MS / 1000);
-        if (isSettled(next, target)) {
-          next = target;
+        const entry = current.get(card) ?? { f: 0, z: 0 };
+        let f = dampStep(entry.f, target, dt, DOCK_TAU_MS / 1000);
+        if (isSettled(f, target)) {
+          f = target;
         } else {
           settled = false;
         }
-        current.set(card, next);
-        card.style.setProperty("--dock-scale", String(next));
+        const { scale, lift, z } = dockValues(f, DOCK_MAX_SCALE, DOCK_MAX_LIFT_PX, DOCK_MAX_Z);
+        card.style.setProperty("--dock-scale", String(scale));
+        card.style.setProperty("--dock-lift", `${lift}px`);
+        if (z !== entry.z) card.style.setProperty("--dock-z", String(z));
+        current.set(card, { f, z });
       }
       frame = settled ? null : requestAnimationFrame(runFrame);
     }
 
     function retarget(pointer: { x: number; y: number } | null) {
       const cards = [...stage!.querySelectorAll<HTMLElement>("a.cf-card")];
+      const spread = stage!.offsetWidth * DOCK_SPREAD_RATIO;
       const dockCards: DockCard<HTMLElement>[] = cards.map((el) => {
-        const rect = el.getBoundingClientRect();
-        return {
-          key: el,
-          centerX: rect.left + rect.width / 2,
-          centerY: rect.top + rect.height / 2,
-        };
+        const { x, y } = cardCenter(el);
+        return { key: el, centerX: x, centerY: y };
       });
-      targets = dockTargets(pointer, dockCards, DOCK_RADIUS_PX, DOCK_MAX_SCALE);
+      targets = dockFactors(pointer, dockCards, spread, DOCK_ANISOTROPY);
       if (frame === null) {
         last = performance.now();
         frame = requestAnimationFrame(runFrame);
@@ -245,7 +290,8 @@ function useDockHover(stageRef: React.RefObject<HTMLDivElement | null>) {
     }
 
     function onPointerMove(event: PointerEvent) {
-      retarget({ x: event.clientX, y: event.clientY });
+      const rect = stage!.getBoundingClientRect();
+      retarget({ x: event.clientX - rect.left, y: event.clientY - rect.top });
     }
 
     function onPointerLeave() {
@@ -258,30 +304,52 @@ function useDockHover(stageRef: React.RefObject<HTMLDivElement | null>) {
       stage.removeEventListener("pointermove", onPointerMove);
       stage.removeEventListener("pointerleave", onPointerLeave);
       if (frame !== null) cancelAnimationFrame(frame);
-      for (const card of current.keys()) card.style.removeProperty("--dock-scale");
+      for (const card of current.keys()) {
+        card.style.removeProperty("--dock-scale");
+        card.style.removeProperty("--dock-lift");
+        card.style.removeProperty("--dock-z");
+      }
     };
   }, [enabled, stageRef]);
 }
 
-export function ChannelField({ channels, plateWide, plateNarrow, availability }: ChannelFieldProps) {
+export function ChannelField({
+  channels,
+  plateWide,
+  plateNarrow,
+  availability,
+}: ChannelFieldProps) {
   const { placed } = assignChannelSlots(channels);
   const stageRef = useRef<HTMLDivElement>(null);
   useDockHover(stageRef);
 
   return (
     <div className="cf">
-      <header className="cf__head">
-        <h2 className="cf__title">Channels</h2>
-      </header>
-
-      {/* `.cf__frame` is the size-query container for `.cf__stage`'s
-          fit-to-available-space formula (channel-field.css). It exists
-          because `.cf__head` is a real sibling that must claim its own
-          height first — `.cf__stage` cannot itself be the container, since
-          cqw/cqh would then resolve against the WHOLE `.cf` column
-          (head included), not the space actually left over for the stage. */}
+      {/* `.cf__frame` is the ancestor size-query container `.cf__stage`'s
+          `min()` fit-pair resolves against (channel-field.css). `.cf__stage`
+          can't be its own container — a `cqw` inside an element never queries
+          that element, only an ancestor — and `.cf` can't be it either (see
+          `.cf`'s `width: 100%` comment). It was also the sibling that let the
+          old `.cf__head` claim its height first; the head moved into the stage
+          as `.cf__headline` (D4), and its freed height goes here. */}
       <div className="cf__frame">
         <div className="cf__stage" ref={stageRef}>
+          {/* The section masthead, and the only editorial chrome left in the
+              field: "Reach out" names the ACTION (the page is already named by
+              PageLayer's <h1> and the route). Absolute-positioned against the
+              stage, `pointer-events: none` so the occlusion audit's centre
+              hit-test still reaches the plates.
+
+              2026-09-05 (Keff): the `[04] — CONTACT` readout row + the lede
+              ("GitHub, LinkedIn, email…") and the "channels open · Mexico"
+              footer were removed. The lede still prints on the way in via the
+              module wheel (`ROUTES['/contact'].lede`), and the readout was a
+              decorative echo of the page <h1>/route — this reverts the
+              `sdd/contact-section-editorial-dock` D4 addition and lands back on
+              the `design-import-2026-09-04` HANDOFF §1.5 call ("the module
+              wheel already prints the lede", "invented copy" for the footer). */}
+          <h2 className="cf__headline">Reach out</h2>
+
           {/* The wrapper stays in the accessibility tree on purpose — see the
               file header, point 3. Asset selection is CSS-only: the two
               custom properties below hold unresolved `url()` tokens, and the

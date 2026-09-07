@@ -7,20 +7,23 @@ import "./contact-page.css";
 
 /**
  * Shipped 2026-08-20, replacing the Phase 2 placeholder.
- * Spec: `docs/design-exploration/contact-channel-field-2026-08-20.md`.
+ * Spec: `docs/design-exploration/contact-channel-field-2026-08-20.md`,
+ * amended by `sdd/contact-section-editorial-dock` (2026-09-05) and trimmed
+ * again 2026-09-05 (Keff).
  *
- * The page states addresses and nothing else — no form, which is what the
- * wheel promises on the way in (`ROUTES[].lede`: "GitHub, LinkedIn, email.
- * No form, no funnel."). It deliberately does NOT print that lede again:
- * Home already shows it under the module readout, and the plates below say
- * the same thing concretely a few centimetres lower. Same call
- * `ProjectsPage` made when it dropped `.projects-page__lede`.
+ * The page states addresses and nothing else — no form. The field carries one
+ * piece of editorial chrome, the `<h2>` "Reach out" masthead (hardcoded in
+ * `ChannelField` because it names the ACTION, not the page).
  *
- * No `metadata` slot either (2026-08-23) — `route.sub`'s "channels open"
- * and the field's own "CH—FIELD / REV 02" / lat-long accents were spec-plate
- * dressing with no informational load, and read as ghost text against the
- * editorial direction. `route.sub` still feeds the Home nav wheel; it just
- * isn't repeated here.
+ * 2026-09-05: the `[04] — CONTACT` readout, the lede and the "channels open ·
+ * Mexico" footer were removed. They were a decorative echo of the page
+ * <h1>/route plus a line the module wheel already prints on the way in
+ * (`ROUTES['/contact'].lede`), so nothing accessible is lost. This drops the
+ * `sdd/contact-section-editorial-dock` D4 chrome and lands back on the
+ * `design-import-2026-09-04` HANDOFF §1.5 call. `route.index` / `.short` /
+ * `.lede` / `.sub` stay in `routes.ts` (the wheel and `NavItem` still read
+ * them); they are just no longer passed here. The Panel `metadata` slot stays
+ * unused.
  *
  * The composition itself is `components/channel-field/`. Nothing about the
  * layout lives here.

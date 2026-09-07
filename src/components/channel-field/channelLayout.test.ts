@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { assignChannelSlots, CHANNEL_SLOTS, SLOT_TONE, SLOT_VARIANT } from "./channelLayout";
+import {
+  assignChannelSlots,
+  CHANNEL_SLOTS,
+  SLOT_INDEX,
+  SLOT_TONE,
+  SLOT_VARIANT,
+} from "./channelLayout";
 import { SOCIAL_LINKS } from "../../content/data";
 import type { SocialLink } from "../../content/types";
 
@@ -29,6 +35,22 @@ describe("assignChannelSlots", () => {
   it("gives each slot the tone the composition assigns it", () => {
     const { placed } = assignChannelSlots(SOCIAL_LINKS);
     for (const entry of placed) expect(entry.tone).toBe(SLOT_TONE[entry.slot]);
+  });
+
+  it("surfaces each placed channel's plate number from SLOT_INDEX", () => {
+    const { placed } = assignChannelSlots(SOCIAL_LINKS);
+    for (const entry of placed) expect(entry.index).toBe(SLOT_INDEX[entry.slot]);
+  });
+
+  it("numbers the real channels by composition slot, not by array position", () => {
+    // DOM/array order is Email, GitHub, LinkedIn, WhatsApp — numbering by
+    // position would print 01,02,03,04. The plate numbers follow the slot the
+    // channel lands in: Email→primary→01, GitHub→rail-a→02, WhatsApp→aside→03,
+    // LinkedIn→feature→04. LinkedIn "04" while third in the array is the case
+    // that proves the index is slot-derived.
+    const { placed } = assignChannelSlots(SOCIAL_LINKS);
+    const byLabel = Object.fromEntries(placed.map((p) => [p.link.label, p.index]));
+    expect(byLabel).toEqual({ Email: "01", GitHub: "02", LinkedIn: "04", WhatsApp: "03" });
   });
 
   it("never puts two channels in the same slot", () => {
@@ -94,5 +116,30 @@ describe("assignChannelSlots", () => {
     expect(whatsapp).toBeDefined();
     expect(whatsapp?.href).toBe("https://wa.me/529212652693");
     expect(whatsapp?.unresolved).toBeFalsy();
+  });
+});
+
+describe("SLOT_INDEX", () => {
+  it("numbers exactly the four composition slots, 01 through 04", () => {
+    expect(new Set(Object.keys(SLOT_INDEX))).toEqual(new Set(CHANNEL_SLOTS));
+    expect([...Object.values(SLOT_INDEX)].sort()).toEqual(["01", "02", "03", "04"]);
+  });
+
+  it("numbers slots in left-to-right composition order", () => {
+    // The `.a-{slot}` left offsets in channel-field.css (design D1 coordinate
+    // table): primary 6.667% < rail-a 23.889% < aside 37.083% < feature
+    // 54.861%. The plate number a reader sees must climb in that same order,
+    // which CHANNEL_SLOTS (a fallback FILL order: primary, rail-a, feature,
+    // aside) does not — hence a dedicated map.
+    expect(SLOT_INDEX).toEqual({
+      primary: "01",
+      "rail-a": "02",
+      aside: "03",
+      feature: "04",
+    });
+  });
+
+  it("zero-pads to two digits so the markers align in the mono readout", () => {
+    for (const value of Object.values(SLOT_INDEX)) expect(value).toMatch(/^0\d$/);
   });
 });

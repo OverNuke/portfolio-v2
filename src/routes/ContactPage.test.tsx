@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 import { ContactPage } from "./ContactPage";
 import { ABOUT_PROFILE, SOCIAL_LINKS } from "../content/data";
+import { assignChannelSlots, SLOT_INDEX } from "../components/channel-field/channelLayout";
 
 function renderPage() {
   return render(
@@ -96,13 +97,63 @@ describe("ContactPage", () => {
     }
   });
 
-  it("drops the ghost editorial accents and the Panel metadata line", () => {
-    // 2026-08-23: "channels open" (Panel metadata), "CH—FIELD / REV 02", and
-    // the lat/long accent all read as spec-plate dressing with no
-    // informational load against the editorial direction — dropped outright,
-    // not just hidden from the accessibility tree.
+  it("carries only the 'Reach out' masthead as editorial chrome, no readout/lede/footer", () => {
+    // 2026-09-05 (Keff): the `[04] — CONTACT` readout, the lede and the
+    // "channels open · Mexico" footer (added by
+    // sdd/contact-section-editorial-dock D4) were removed — a decorative
+    // echo of the page <h1>/route plus a line the module wheel already
+    // prints on the way in. The `<h2>` "Reach out" masthead stays; so does
+    // the dropped Panel metadata line and the gone `.cf__accent`.
     const { container } = renderPage();
+
+    const headline = container.querySelectorAll(".cf .cf__headline");
+    expect(headline).toHaveLength(1);
+    expect(headline[0].tagName).toBe("H2");
+    expect(headline[0].textContent).toBe("Reach out");
+
+    // PageLayer owns the page's only <h1>; the field never renders one.
+    expect(container.querySelector("h1")).toBeNull();
+    expect(container.querySelectorAll(".cf h2")).toHaveLength(1);
+
+    expect(container.querySelector(".cf__readout")).not.toBeInTheDocument();
+    expect(container.querySelector(".cf__readout-row")).not.toBeInTheDocument();
+    expect(container.querySelector(".cf__lede")).not.toBeInTheDocument();
+    expect(container.querySelector(".cf__foot")).not.toBeInTheDocument();
+
     expect(container.querySelector(".panel__metadata")).not.toBeInTheDocument();
     expect(container.querySelector(".cf__accent")).not.toBeInTheDocument();
+  });
+
+  it("keeps the decorative plate chrome out of the accessibility tree", () => {
+    // The per-plate index markers (01..04) and link arrows are pure
+    // ornament. (The tone discs, plate wells and plate rules land in
+    // Phase 4.)
+    const { container } = renderPage();
+
+    for (const selector of [".cf-card__index", ".cf-card__arrow"]) {
+      const els = container.querySelectorAll(selector);
+      expect(els.length, `${selector} should render`).toBeGreaterThan(0);
+      for (const el of els) {
+        expect(el, `${selector} should be aria-hidden`).toHaveAttribute("aria-hidden", "true");
+      }
+    }
+  });
+
+  it("numbers each plate from its SLOT_INDEX, not its array position", () => {
+    // SOCIAL_LINKS order is Email, GitHub, LinkedIn, WhatsApp, but the
+    // markers must climb left-to-right with the composition — feature
+    // (LinkedIn) sits right of aside (WhatsApp), so LinkedIn is "04" while
+    // third in the array. Numbering by position would print them backwards.
+    const { container } = renderPage();
+    const { placed } = assignChannelSlots(SOCIAL_LINKS);
+    expect(placed).toHaveLength(4);
+    for (const entry of placed) {
+      const marker = container.querySelector(
+        `[data-channel="${entry.link.label.toLowerCase()}"] .cf-card__index`,
+      );
+      expect(marker, `${entry.link.label} index marker`).not.toBeNull();
+      expect(marker?.textContent).toBe(entry.index);
+      expect(entry.index).toBe(SLOT_INDEX[entry.slot]);
+    }
   });
 });

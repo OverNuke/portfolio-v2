@@ -600,6 +600,23 @@ rotated-vs-unrotated hit-box question to answer.
 | Minimum Oxblood → Field Olive gap | **20px** (worst case, tiers 3–4) |
 | Colour pairs vs. the computed table | **all match** |
 
+> **Updated 2026-09-05 (channel-field name-overflow fix).** The
+> `scripts/audit.mjs` wiring below is now **done**: the audit visits
+> `/contact` at `1440 / 1280 / 1100 / 960 / 390`, with a page-scoped
+> `checkChannelFieldOverflow` battery. It exists because a real defect got
+> past every check here — the block-plate name line (`.cf-card__name` at a
+> fixed `1.0625rem`, added later by `sdd/contact-section-editorial-dock` D5)
+> overflowed its plate by 13–73px across 1440→901px, worst on `WHATSAPP` on
+> the narrowest block slot (`.a-aside`). The plates are a `%` of a fitted
+> stage while the name size, its `0.22em` tracking, the padding, the corner
+> glyph and the index are all fixed px, so the name got crushed as the stage
+> shrank. Fix: the block name is now container-fluid against the plate's own
+> box (`clamp(0.8125rem, 13.5cqi, 1.0625rem)`, tracking eases with it), and
+> `.cf-card__head` may wrap the glyph + index under the name at the narrow
+> end. This closes the `D8` / `G3` manual sign-off item that
+> `sdd/contact-section-editorial-dock` carried from its Phase 2. Details in
+> `channel-field.css`.
+
 Not yet done, and needed before merge: wiring this into
 `scripts/audit.mjs` so `pnpm run audit:collage` covers `/contact` too, and
 a `ContactPage.test.tsx` asserting

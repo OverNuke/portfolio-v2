@@ -55,11 +55,36 @@ export const SLOT_TONE: Record<ChannelSlot, "light" | "mid" | "dark"> = {
   aside: "mid",
 };
 
+/**
+ * The plate number printed on each channel (design import 2026-09-05,
+ * `sdd/contact-section-editorial-dock` D4 — the editorial "readout" chrome).
+ *
+ * Keyed by SLOT, not by array position: the field renders in `SOCIAL_LINKS`
+ * order (Email, GitHub, LinkedIn, WhatsApp) but the marker a reader sees must
+ * climb left-to-right with the composition, and `feature` (LinkedIn) sits
+ * right of `aside` (WhatsApp). Numbering by position would print `04` on the
+ * WhatsApp plate and `03` on LinkedIn, backwards from where they sit. The
+ * order below matches the `.a-{slot}` `left` offsets in `channel-field.css`
+ * (primary 6.667% < rail-a 23.889% < aside 37.083% < feature 54.861%).
+ *
+ * Two digits, zero-padded, so the markers set as a column in the mono
+ * readout. A string, not a number, because it is display text — it is never
+ * arithmetic.
+ */
+export const SLOT_INDEX: Record<ChannelSlot, string> = {
+  primary: "01",
+  "rail-a": "02",
+  aside: "03",
+  feature: "04",
+};
+
 export interface PlacedChannel {
   link: SocialLink;
   slot: ChannelSlot;
   variant: "block" | "banner";
   tone: "light" | "mid" | "dark";
+  /** The plate number for this channel's slot — `SLOT_INDEX[slot]`. */
+  index: string;
 }
 
 export interface ChannelPlacement {
@@ -110,7 +135,13 @@ export function assignChannelSlots(links: readonly SocialLink[]): ChannelPlaceme
       overflow.push(link);
       continue;
     }
-    placed.push({ link, slot: claimed, variant: SLOT_VARIANT[claimed], tone: SLOT_TONE[claimed] });
+    placed.push({
+      link,
+      slot: claimed,
+      variant: SLOT_VARIANT[claimed],
+      tone: SLOT_TONE[claimed],
+      index: SLOT_INDEX[claimed],
+    });
   }
 
   return { placed, overflow };

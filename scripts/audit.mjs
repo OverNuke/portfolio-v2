@@ -15,13 +15,20 @@ import { build, preview } from "vite";
  * element: no occlusion, no undersized target, no clipped text. A fourth,
  * non-blocking check reports focus-order drift within each seed.
  *
- * Audits `/` (the collage) and `/profile` (the manga-panel hero — four
+ * Audits `/` (the collage), `/profile` (the manga-panel hero — four
  * overlapping clickable panels, absolute captions, and `pointer-events:
- * none` SFX over the gutters: exactly this script's purpose). The other
- * routed pages are still placeholder content out of scope here.
+ * none` SFX over the gutters: exactly this script's purpose) and `/contact`
+ * (the channel field — absolute-`%` plates over a fitted stage, with a
+ * page-scoped `checkChannelFieldOverflow` battery for text spilling a plate).
+ * The remaining routed pages are still placeholder content, out of scope here.
  */
 
-const WIDTHS = [1440, 1280, 1100, 390];
+// 960 added 2026-09-05 (contact channel-field name-overflow fix): the
+// original four skipped the entire 900-1100 band, which is exactly where the
+// `.cf-card__name` overflow was worst — and where `/contact`'s two-track
+// reflow tier has not yet engaged. Applies to every audited page, not just
+// /contact.
+const WIDTHS = [1440, 1280, 1100, 960, 390];
 const VIEWPORT_HEIGHT = 900;
 const INTERACTIVE_SELECTOR =
   'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input, select, textarea';
@@ -134,13 +141,36 @@ function focusOrderSnapshot(selector) {
   return Array.from(document.querySelectorAll(selector)).map((el) => el.textContent?.trim() || "");
 }
 
+/** Runs in-page. `/contact`-scoped: the channel-plate name line and the
+ * address/meta lines. `checkClippedText` above misses these because it only
+ * inspects elements whose computed `overflow` is `hidden`, and `.cf-card`
+ * sets none — the name simply paints out past the plate edge. A `scrollWidth
+ * > clientWidth` here is text spilling its box horizontally; on `.cf-card__meta`
+ * (which wraps) it also catches a line that cannot break. Scoped to this page
+ * rather than loosening the global check, which would flood `/` and `/profile`
+ * with intentional overflow. */
+function checkChannelFieldOverflow() {
+  const results = [];
+  for (const el of document.querySelectorAll(".cf-card__name, .cf-card__meta")) {
+    if (el.scrollWidth > el.clientWidth) {
+      const card = el.closest(".cf-card");
+      const channel = card?.getAttribute("data-channel") ?? "?";
+      const part = el.className.includes("__name") ? "name" : "meta";
+      results.push(
+        `${channel} ${part} "${el.textContent?.trim()}" (scroll ${el.scrollWidth} vs client ${el.clientWidth})`,
+      );
+    }
+  }
+  return results;
+}
+
 /**
  * Runs the three in-page checks at every spec'd width for whatever page is
  * currently loaded, tagging failures with `label`. Returns the per-width
  * focus-order snapshots for the caller's drift check. Factored out so `/`
  * and `/profile` run the identical battery.
  */
-async function auditLoadedPage(page, label) {
+async function auditLoadedPage(page, label, extraChecks = []) {
   const focusOrders = [];
 
   for (const width of WIDTHS) {
@@ -166,6 +196,12 @@ async function auditLoadedPage(page, label) {
     const clipped = await page.evaluate(checkClippedText);
     for (const detail of clipped) {
       fail(label, width, "clipped-text", detail);
+    }
+
+    for (const { reason, fn } of extraChecks) {
+      for (const detail of await page.evaluate(fn)) {
+        fail(label, width, reason, detail);
+      }
     }
 
     focusOrders.push({ width, order: await page.evaluate(focusOrderSnapshot, INTERACTIVE_SELECTOR) });
@@ -216,6 +252,18 @@ async function main() {
     // ends in a slash (Vite's resolvedUrls), so no leading slash here.
     await page.goto(new URL("profile", url).href);
     reportFocusDrift("/profile", await auditLoadedPage(page, "/profile"));
+
+    // /contact — the channel field. Absolute-`%` plates over a fitted stage
+    // with fixed-px chrome inside them: the `.cf-card__name` overflow class of
+    // bug (fixed 2026-09-05) lives here and is invisible to `checkClippedText`,
+    // so this page carries the extra `checkChannelFieldOverflow` battery.
+    await page.goto(new URL("contact", url).href);
+    reportFocusDrift(
+      "/contact",
+      await auditLoadedPage(page, "/contact", [
+        { reason: "channel-field-overflow", fn: checkChannelFieldOverflow },
+      ]),
+    );
   } finally {
     await browser.close();
     await server.close();
@@ -223,11 +271,11 @@ async function main() {
 
   if (failures === 0) {
     console.log(
-      `Audit passed: zero occlusions, zero undersized targets, zero clipped text at all ${WIDTHS.length} widths on / and /profile.`,
+      `Audit passed: zero occlusions, zero undersized targets, zero clipped text at all ${WIDTHS.length} widths on /, /profile and /contact.`,
     );
   } else {
     console.error(
-      `Audit failed with ${failures} failure(s) across ${WIDTHS.length} widths on / and /profile.`,
+      `Audit failed with ${failures} failure(s) across ${WIDTHS.length} widths on /, /profile and /contact.`,
     );
     process.exitCode = 1;
   }
