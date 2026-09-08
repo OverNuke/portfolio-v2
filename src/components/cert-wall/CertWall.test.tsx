@@ -52,3 +52,36 @@ describe("CertWall — landscape tile clip-path shape keying (D2/§2.1)", () => 
     }
   });
 });
+
+describe("CertWall — landscape tile 'view' affordance (sdd/distinction-section follow-up, supersedes T6)", () => {
+  it("renders NO decorative '.cert-mat__affordance' pill on any ladder (removed 2026-09-08)", () => {
+    for (const sheet of ["landscape", "portrait"] as const) {
+      const { container } = render(
+        <CertWall certificates={makeCertificates(6)} sheet={sheet} />,
+      );
+      expect(container.querySelectorAll(".cert-mat__affordance")).toHaveLength(0);
+    }
+  });
+
+  it("gives every landscape tile exactly one visible 'view' mark — the real CertLink", () => {
+    const { container } = render(
+      <CertWall certificates={makeCertificates(6)} sheet="landscape" />,
+    );
+
+    const tiles = container.querySelectorAll(".cert-mat");
+    expect(tiles).toHaveLength(6);
+    for (const tile of tiles) {
+      const links = tile.querySelectorAll(".cert-mat__link-slot a.cert-link");
+      expect(links).toHaveLength(1);
+      expect(links[0].getAttribute("target")).toBe("_blank");
+    }
+  });
+
+  it("keeps every trigger's accessible name carrying 'view scan'", () => {
+    const { getAllByRole } = render(
+      <CertWall certificates={makeCertificates(6)} sheet="landscape" />,
+    );
+
+    expect(getAllByRole("button", { name: /view scan/i })).toHaveLength(6);
+  });
+});

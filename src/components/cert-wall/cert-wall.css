@@ -76,6 +76,25 @@
  * >   Full checklist:
  * >   `docs/design-exploration/design-import-2026-09-04/HANDOFF.md` §2.
  *
+ * > Updated 2026-09-08, `sdd/distinction-section` follow-up (a fidelity pass
+ * > against the same artboard after visual review of the running build):
+ * >   - The decorative "View scan" pill (`.cert-mat__affordance`, D5) is
+ * >     REMOVED. It rendered as an empty rectangle on every mid/dark tile,
+ * >     sat in corners the artboard does not use, and duplicated the
+ * >     whole-tile trigger while fighting the real `CertLink`. One visible
+ * >     "view" mark per tile now — `CertLink` — anchored per anatomy
+ * >     (top-right on lead/baseline per the artboard, bottom-right on
+ * >     standard). Supersedes D5.
+ * >   - The `.cert-wall__sheet` blueprint hairline grid (added 2026-08-19)
+ * >     is REMOVED — `--paper` is the ground (ADR-4), and the tiles carry
+ * >     their own ink trim + hard shadow.
+ * >   - The soft `drop-shadow(0 14px 32px …)` hover shadow is REMOVED. The
+ * >     `filter` chain is constant rest↔hover; hover is `translateY(-3px)`
+ * >     only, matching the artboard. Doubled/janky drop gone.
+ * >   - Baseline tile relaid on a 3-row grid (kicker top, title + meta
+ * >     bottom) — was clipping the issuer and pooling all content at the
+ * >     bottom edge.
+ *
  * Spec: claude/certifications-module-2026-08-05.md
  */
 
@@ -102,22 +121,13 @@
   gap: var(--cw-gutter, 1.05cqw);
   padding-right: var(--cw-rail, 2.4cqw);
   padding-left: var(--cw-rail, 2.4cqw);
-  /* Straight only — never the diagonal hatch this file already retired once
-     for the scan-stock placeholder (see the empty-scan comment below). Ink
-     at 3% alpha: the same `rgb(17 17 17 / X%)` convention used throughout
-     this file, not a new pattern. Reads as graph/blueprint paper reinforcing
-     the 12x12 structure, well under any contrast-audit threshold. */
-  background-image:
-    repeating-linear-gradient(
-      to right,
-      rgb(17 17 17 / 3%) 0 1px,
-      transparent 1px calc(100% / 12)
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      rgb(17 17 17 / 3%) 0 1px,
-      transparent 1px calc(100% / 12)
-    );
+  /* No substrate texture. The blueprint hairline grid added 2026-08-19 was
+     removed 2026-09-08 (`sdd/distinction-section` follow-up): it is not in
+     the imported artboard, it had already been reverted-and-re-added once,
+     and every landscape tile now carries its own hard ink trim band +
+     zero-blur rest shadow, so the plates read against plain `--paper` with
+     no help. `--paper` is the ground (`HANDOFF.md` ADR-4). The single olive
+     corner registration mark (`::before`, below) stays. */
 
   /* The whole no-scroll guarantee, in two lines. */
   width: min(100cqw, calc(100cqh * var(--cw-ar)));
@@ -251,36 +261,63 @@
        `overflow: hidden` (only child/content overflow is), so both can
        coexist with no conflict.
    `--cut-edge` is `.pf-record__figure`'s "THE EDGE" verbatim (four
-   zero-blur drop-shadows, one per direction), at rule-thick instead of
-   1.5px — it traces the `::before`'s clipped alpha, so the edge follows
-   the cut, which a `border` cannot do on a clipped layer.
+   zero-blur drop-shadows, one per direction) — it traces the `::before`'s
+   clipped alpha, so the edge follows the cut, which a `border` cannot do
+   on a clipped layer.
+
+   > Updated 2026-09-07, `sdd/distinction-section` (design D1/D2/D8). The
+   > uniform 2px edge becomes an ASYMMETRIC hand-trimmed ink band (artboard
+   > top:6 right:5 bottom:4 left:7). Built WITHOUT a 4th layer, per doc 01
+   > "Hand-cut edges" rule 2: the four `--cw-trim-*` scalars inset the
+   > EXISTING `::before` fill, and `--cut-edge`'s four `drop-shadow`
+   > offsets are per-side and numerically equal to that inset — so the
+   > band lands exactly in the gap the inset opened and the tile's painted
+   > footprint does NOT grow. Chained `drop-shadow` shadows the ACCUMULATED
+   > silhouette (all four corners fill regardless of order). Four scalars,
+   > never a 4-value shorthand: a shorthand cannot be spliced into
+   > `drop-shadow()`, and one source per side kills the drift bug this file
+   > has hit before. `--cut-ink` is per-tone (D2): on `--dark` the band
+   > would be ink-on-ink, so it flips to `--paper-white` (17.47:1 on the
+   > fill). `drop-shadow(var(--plate-shadow-hard))` is the zero-blur rest
+   > shadow (D8) and MUST come AFTER `var(--cut-edge)`: placed first its
+   > input is the inset fill and it ghosts inside the trim margin; placed
+   > after, the alpha is already opaque box-wide so it shadows the box
+   > silhouette only.
    ============================================================ */
 .cert-wall[data-sheet="landscape"] .cert-mat {
+  --cw-trim-t: 6px;
+  --cw-trim-r: 5px;
+  --cw-trim-b: 4px;
+  --cw-trim-l: 7px;
+  --cut-ink: var(--ink);
   --cut-edge:
-    drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink))
-    drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink));
+    drop-shadow(0 calc(-1 * var(--cw-trim-t)) 0 var(--cut-ink))
+    drop-shadow(var(--cw-trim-r) 0 0 var(--cut-ink))
+    drop-shadow(0 var(--cw-trim-b) 0 var(--cut-ink))
+    drop-shadow(calc(-1 * var(--cw-trim-l)) 0 0 var(--cut-ink));
 
+  padding: var(--cw-trim-t) var(--cw-trim-r) var(--cw-trim-b) var(--cw-trim-l);
   border: none;
   background: none;
-  filter: var(--cut-edge);
-  /* Was `--dur-soft`/`--ease-soft` (this module's one "soft cut" exception,
-     2026-08-17). Overruled 2026-09-04: the 2026-09-04 mockup asked for the
-     same soft easing again and was overruled — doc 07's 2026-09-02
-     withdrawal of the soft-cut exception is a later-dated project
-     correction and outranks a design mockup (conflict order: Project
-     Vision > Implementation). `box-shadow` becomes a `drop-shadow` layer
-     in the same `filter` chain on hover, below — a `box-shadow` on this
-     now-transparent, unclipped-but-tone-cut host would paint a rectangle
-     with no fill behind it. */
-  transition:
-    transform var(--dur-micro) var(--ease-hard),
-    filter var(--dur-micro) var(--ease-hard);
+  filter: var(--cut-edge) drop-shadow(var(--plate-shadow-hard));
+  /* The `filter` chain is now CONSTANT across rest / hover / focus — the
+     zero-blur rest shadow (`--plate-shadow-hard`) is the only shadow the
+     tile ever carries (2026-09-08, `sdd/distinction-section` follow-up).
+     The soft `drop-shadow(0 14px 32px …)` that used to fade in on hover
+     was removed: the artboard's hover is `translate` only, and stacking a
+     large blurred shadow on top of the hard one read as a doubled, janky
+     drop. Only `transform` transitions now. */
+  transition: transform var(--dur-micro) var(--ease-hard);
 }
 
 .cert-wall[data-sheet="landscape"] .cert-mat::before {
   content: "";
   position: absolute;
-  inset: 0;
+  /* Inset by the per-side trim (D1). Abspos resolves against the padding
+     box, which — with `border: none` on the host — is the border box, so
+     this is unaffected by the host `padding` that pushes the trigger in.
+     T-R-B-L order, one line: `trim-edge.test.ts` T1 asserts it verbatim. */
+  inset: var(--cw-trim-t) var(--cw-trim-r) var(--cw-trim-b) var(--cw-trim-l);
   z-index: -1;
   clip-path: var(--cw-cut);
 }
@@ -320,6 +357,19 @@
   color: var(--ink-inverse);
 }
 
+/* D2: the trim band on a dark tile would be `--ink` on an `--ink` fill —
+   invisible. Flip it to `--paper-white` (17.47:1 on the fill). Declared
+   AFTER the base `--cut-ink: var(--ink)` — same (0,3,0) specificity, so
+   source order is what wins.
+   D3: `--focus` here would otherwise inherit `--oxblood` from `.cert-mat`,
+   which is 1.35:1 on an ink fill — a hard fail. `--paper-white` is
+   17.47:1. (`--mid` already overrides correctly at 6.79:1; `--light` is
+   fine at 12.93:1.) */
+.cert-wall[data-sheet="landscape"] .cert-mat--dark {
+  --cut-ink: var(--paper-white);
+  --focus: var(--paper-white);
+}
+
 .cert-wall[data-sheet="landscape"] .cert-mat--dark::before {
   background: var(--ink);
 }
@@ -348,28 +398,50 @@
   display: contents;
 }
 
+/* Baseline is the short wide tile (propadeutic on page 2). The artboard
+   pins the kicker to the TOP and drops the title + meta to a shared
+   BOTTOM row — a 3-row grid reproduces that directly. The previous
+   `flex-direction: row; align-items: flex-end` stacked the kicker right
+   on top of the title at the bottom and left the upper two-thirds of the
+   tile empty, and the long issuer name clipped mid-word (2026-09-08,
+   `sdd/distinction-section` follow-up — P2). `display: contents` on the
+   stack lets head / title / row place themselves as grid items. */
 .cert-mat--baseline .cert-mat__trigger {
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-sm);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--space-xs) var(--space-md);
 }
 
 .cert-mat--baseline .cert-mat__stack {
-  display: flex;
-  min-width: 0;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: var(--space-2xs);
+  display: contents;
 }
 
-/* The meta column: bounded width so a long issuer name truncates
-   (`.cert-mat__issuer`'s existing ellipsis rule) instead of overflowing
-   into the real CertLink's corner. */
+.cert-mat--baseline .cert-mat__head {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.cert-mat--baseline .cert-mat__title {
+  grid-column: 1;
+  grid-row: 3;
+  align-self: end;
+  /* Between standard (24px cap) and lead (42px cap) — the baseline tile is
+     wide and its content otherwise reads as lost in the height. */
+  font-size: clamp(18px, 2.6cqw, 32px);
+}
+
+/* Meta sits bottom-right, right-aligned; bounded so a long issuer name
+   truncates (`.cert-mat__issuer`'s existing ellipsis rule) instead of
+   colliding with the title or spilling under the top-right CertLink. */
 .cert-mat--baseline .cert-mat__row {
+  grid-column: 2;
+  grid-row: 3;
   min-width: 0;
-  max-width: 42%;
-  flex: 0 1 auto;
+  max-width: min(50%, 34ch);
+  align-self: end;
+  justify-content: flex-end;
+  text-align: right;
 }
 
 .cert-mat--baseline .cert-mat__meta {
@@ -410,18 +482,17 @@
    fades/drops out and re-enters instead of just losing its lift. `!important`
    overrides the held value without ever touching `animation-name`, so the
    animation is never cancelled and never restarts. */
-.cert-wall[data-sheet="landscape"] .cert-mat--light:hover,
-.cert-wall[data-sheet="landscape"] .cert-mat--light:focus-within,
-.cert-wall[data-sheet="landscape"] .cert-mat--dark:hover,
-.cert-wall[data-sheet="landscape"] .cert-mat--dark:focus-within {
+/* Hover / focus is a lift and nothing else — `translateY(-3px)`, zero
+   rotation (ADR-5), tone-agnostic so one rule covers all three fills. The
+   `filter` chain is deliberately NOT re-declared here: it is identical at
+   rest and on hover (`var(--cut-edge)` + the hard rest shadow), so there is
+   nothing to animate and no doubled shadow. Removed the per-tone soft
+   `drop-shadow(0 14px 32px …)` state layer 2026-09-08 — see the base-rule
+   note above. `!important` is still required to beat `cert-rise`'s held
+   `animation-fill-mode: both` transform (the long note above still applies). */
+.cert-wall[data-sheet="landscape"] .cert-mat:hover,
+.cert-wall[data-sheet="landscape"] .cert-mat:focus-within {
   transform: translateY(-3px) !important;
-  filter: var(--cut-edge) drop-shadow(0 14px 32px rgb(17 17 17 / 22%));
-}
-
-.cert-wall[data-sheet="landscape"] .cert-mat--mid:hover,
-.cert-wall[data-sheet="landscape"] .cert-mat--mid:focus-within {
-  transform: translateY(-3px) !important;
-  filter: var(--cut-edge) drop-shadow(0 14px 32px rgb(17 17 17 / 28%));
 }
 
 .cert-mat__trigger {
@@ -438,6 +509,26 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+/* The real focus ring (D3 + engram discovery "--focus is a dead token").
+   Before this, a landscape tile's keyboard focus was the UA ring on this
+   stretched trigger, which the host's `overflow: hidden` clips — leaving
+   only the `:focus-within` lift, which is not a focus indicator. Ships
+   unconditionally (not gated on whether the UA ring is clipped): the e2e
+   probe (T5) is its acceptance test, not its precondition.
+
+   `outline-offset: -2px` draws the outline INSIDE the trigger's border
+   box, so `overflow: hidden` can never clip it. It lands on the tone fill
+   (never on the ink band) ONLY because the base `[data-sheet="landscape"]
+   .cert-mat` rule sets `padding: var(--cw-trim-*)` on the host, which
+   makes the trigger's border box start at the fill edge. These two
+   declarations are COUPLED — do not change the offset without the host
+   padding, or vice versa. `--focus` is per tone (base `--oxblood`, `--mid`
+   and `--dark` override to `--paper-white`). */
+.cert-wall[data-sheet="landscape"] .cert-mat__trigger:focus-visible {
+  outline: var(--rule-thick) solid var(--focus);
+  outline-offset: -2px;
 }
 
 .cert-mat--lead .cert-mat__trigger {
@@ -459,30 +550,96 @@
   opacity: 0.6;
 }
 
-.cert-mat--mid .cert-mat__kicker,
-.cert-mat--mid .cert-mat__affordance {
+/* Kicker dimming, per tone. (The landscape "affordance" pill this note
+   used to also cover was removed 2026-09-08 — see the PILL block below.) */
+.cert-mat--mid .cert-mat__kicker {
   opacity: var(--on-olive-dim);
 }
 
-.cert-mat--dark .cert-mat__kicker,
-.cert-mat--dark .cert-mat__affordance {
+.cert-mat--dark .cert-mat__kicker {
   opacity: 0.62;
 }
 
-.cert-mat__affordance {
-  align-self: flex-end;
-  font-family: var(--font-mono);
-  font-size: var(--text-micro);
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  opacity: 0.55;
+/* ============================================================
+   RULE TICKS — `[data-sheet="landscape"]` only, decorative, zero DOM
+   nodes (D4, `sdd/distinction-section`). Both are pseudo-elements, flat
+   (the artboard's -1.6deg / -0.8deg tilts ship at 0° — Record register is
+   zero rotation), absolute px per doc 01 rule 1, `aria-hidden` by virtue
+   of being `::after`. `currentColor` for the outer segments resolves per
+   tone with no per-tone rule.
+   ============================================================ */
+.cert-wall[data-sheet="landscape"] .cert-mat__kicker {
+  display: block;
 }
+
+.cert-wall[data-sheet="landscape"] .cert-mat__kicker::after {
+  content: "";
+  display: block;
+  width: 58px;
+  max-width: 100%;
+  height: 3px;
+  margin-top: var(--space-2xs);
+  background: currentColor;
+}
+
+/* `--tick-accent` is the middle segment of the lead bar only — the
+   flanking `currentColor` segments carry the mark, so this is a
+   decorative graphic with no 1.4.11 obligation. `--mid` override comes
+   AFTER the base (same (0,3,0) specificity — source order decides). */
+.cert-wall[data-sheet="landscape"] .cert-mat {
+  --tick-accent: var(--field-olive);
+}
+
+.cert-wall[data-sheet="landscape"] .cert-mat--mid {
+  --tick-accent: var(--olive-edge);
+}
+
+.cert-wall[data-sheet="landscape"] .cert-mat--lead .cert-mat__title::after {
+  content: "";
+  display: block;
+  width: 210px;
+  max-width: 100%;
+  height: 4px;
+  margin-top: var(--space-sm);
+  background: linear-gradient(
+    to right,
+    currentColor 0 120px,
+    transparent 120px 130px,
+    var(--tick-accent) 130px 182px,
+    transparent 182px 192px,
+    currentColor 192px 210px
+  );
+}
+
+/* ============================================================
+   "VIEW SCAN" PILL — REMOVED 2026-09-08 (`sdd/distinction-section`
+   follow-up), superseding D5.
+
+   D5 rendered `.cert-mat__affordance` on every landscape tile as a
+   decorative two-layer `clip-path` pill pinned top-right, then hid it on
+   baseline tiles (`display: none`) because the real `CertLink` already
+   owned that corner there. In the running build the pill rendered as an
+   empty ink/paper rectangle on every `--mid` and `--dark` tone (the text
+   never showed), was pinned to corners the artboard does not use, and
+   collided with `CertLink`.
+
+   Root cause of the "wrong place / missing" symptom: the artboard's
+   "View ↗" mark is purely decorative there because the whole card opens
+   the lightbox and there is no separate link. This build is richer — the
+   whole `.cert-mat` IS the `<button>` (opens `CertScanModal`) AND
+   `CertLink` is a real `<a>` to the credential URL. A third decorative
+   element that duplicates the trigger and fights the link earns its
+   removal.
+
+   The trigger keeps its real accessible name via the visually-hidden
+   " — view scan" span in `CertWall.tsx` (unchanged). The single visible
+   "view" mark per tile is now `CertLink`, anchored per anatomy below.
+   ============================================================ */
 
 /* ---- the real "open the source file" link — a sibling of the trigger
    button (never nested inside it, which would be invalid interactive
-   nesting), positioned over the tile so it reads as part of it. ---- */
+   nesting), positioned over the tile so it reads as part of it. The
+   portrait ladder / ledger keep the historic bottom-right anchor. ---- */
 .cert-mat__link-slot {
   position: absolute;
   right: var(--space-sm);
@@ -495,23 +652,24 @@
   bottom: var(--space-2xs);
 }
 
-/* Lead bento tiles already show the decorative "View scan →" affordance in
-   the bottom-right corner (tile anatomy, handoff README) — the real link
-   moves to the empty top-right of the head row instead, so the two never
-   overlap. */
-.cert-mat--lead .cert-mat__link-slot {
-  top: var(--space-lg);
-  right: var(--space-lg);
-  bottom: auto;
-}
-
-/* Baseline's meta column already sits bottom-right (`align-items: flex-end`)
-   — same top-right reposition as lead, so the real link never collides with
-   the issuer/date text. */
-.cert-mat--baseline .cert-mat__link-slot {
+/* Landscape: the "view" mark is TOP-RIGHT on every tile. The artboard
+   shows it top-right on the lead/baseline tiles; standard tiles moved up
+   to match because the `data-cut` polygons slope the BOTTOM edge inward
+   by up to ~22px (cut 1) and a bottom-right link fell into that cut-away
+   gap, hanging off the plate. The TOP-edge cuts are all 0–5px, so
+   top-right is safe for all four cuts and gives the module one rule
+   instead of three. */
+.cert-wall[data-sheet="landscape"] .cert-mat__link-slot {
   top: var(--space-sm);
   right: var(--space-sm);
   bottom: auto;
+}
+
+/* Lead has the deepest interior padding (`--space-lg` on its trigger), so
+   its link inset matches to stay clear of the title/kicker block. */
+.cert-wall[data-sheet="landscape"] .cert-mat--lead .cert-mat__link-slot {
+  top: var(--space-lg);
+  right: var(--space-lg);
 }
 
 /* ---- visual: scan + caption plate, same content contract as before ---- */

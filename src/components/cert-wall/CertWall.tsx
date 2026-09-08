@@ -101,12 +101,12 @@ function BentoTile({
             <b className="cert-mat__issuer">{certificate.issuer}</b>
             <em className="cert-mat__date">{certificate.date}</em>
           </span>
-          {anatomy === "lead" ? (
-            <span className="cert-mat__affordance" aria-hidden="true">
-              View scan →
-            </span>
-          ) : null}
         </span>
+        {/* The trigger's "open the scan" affordance is its accessible name
+            only — the decorative "View scan" pill was removed 2026-09-08
+            (sdd/distinction-section follow-up, superseding D5). The one
+            visible "view" mark on the tile is the real `CertLink` sibling
+            below. */}
         <span className="visually-hidden"> — view scan</span>
       </button>
       <span className="cert-mat__link-slot">

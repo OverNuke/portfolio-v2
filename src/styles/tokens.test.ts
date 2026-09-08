@@ -52,6 +52,7 @@ describe("tokens.css", () => {
     "--rot-max",
     "--oxblood",
     "--field-olive-deep",
+    "--plate-shadow-hard",
   ])(
     "%s resolves to a non-empty value",
     (token) => {

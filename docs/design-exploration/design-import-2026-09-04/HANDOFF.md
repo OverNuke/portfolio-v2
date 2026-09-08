@@ -865,6 +865,43 @@ must return nothing.
 | `#20241c` as a second dark | **Rejected** (ADR-4). `dark` is `--ink`. |
 | `View ↗` badge inside every card | **Already shipped** — `.cert-mat__affordance` on `lead` tiles, plus the `visually-hidden " — view scan"` on every trigger. The mockup puts a visible one on all nine; adopting that is a small, safe fidelity win and is optional. |
 
+## 2.6 — Addendum, 2026-09-08 (`sdd/distinction-section` follow-up)
+
+A fidelity pass after visual review of the running build against this same
+artboard. Four decisions in this section are revised:
+
+1. **D5 / the "View scan" pill (`.cert-mat__affordance`) is withdrawn.** It
+   was rendered on every landscape tile, pinned top-right, and hidden on
+   `baseline`. In the running build it rendered as an *empty* ink/paper
+   rectangle on every `--mid` and `--dark` tone, sat in corners the artboard
+   does not use, and collided with the real `CertLink`. Root cause: the
+   artboard's "View ↗" is decorative *because that mockup has no separate
+   link* — the whole card opens the lightbox. This build is richer (the tile
+   IS the `<button>` opening `CertScanModal`, and `CertLink` is a real `<a>`
+   to the credential URL), so a third decorative element that duplicates the
+   trigger earns removal. **One visible "view" mark per tile now: `CertLink`,
+   top-right on every landscape tile** (the `data-cut` polygons slope the
+   *bottom* edge in by up to ~22px, so a bottom-right link fell off the
+   plate; top-edge cuts are 0–5px). The trigger keeps its
+   `visually-hidden " — view scan"` accessible name.
+
+2. **The `.cert-wall__sheet` blueprint hairline grid (added 2026-08-19) is
+   removed.** Not in the artboard, reverted-and-re-added once already, and
+   the tiles carry their own ink trim + hard shadow. `--paper` is the ground
+   (ADR-4).
+
+3. **The soft `drop-shadow(0 14px 32px …)` hover shadow is removed.** §4.2 /
+   the 2026-09-04 note already stripped the *soft easing*; this strips the
+   soft *shadow layer* too. The artboard's hover is `translate` only; a large
+   blurred shadow stacked on the zero-blur rest shadow read as a doubled,
+   janky drop. The `filter` chain is now constant rest↔hover — hover is
+   `translateY(-3px)` and nothing else. (`trim-edge.test.ts` T2 still holds;
+   `cert-wall.spec.ts` CW-focus updated 6→5 drop-shadows.)
+
+4. **The `baseline` tile is relaid on a 3-row grid** (kicker top, title +
+   meta bottom row) — it was pooling all content at the bottom edge and
+   clipping the issuer mid-word.
+
 ---
 
 # §3 — PROJECTS

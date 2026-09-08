@@ -91,6 +91,55 @@ test("arrow-key sheet paging: ArrowLeft advances to sheet 2, ArrowRight returns 
   await expect(page).toHaveURL(/\/certifications$/);
 });
 
+test("CW-focus (sdd/distinction-section T5): landscape tile triggers show an inset focus ring on light, mid and dark tones", async ({
+  page,
+}) => {
+  await openCertifications(page);
+  await expect(page.locator(".cert-mat__trigger").first()).toBeVisible();
+
+  // Real Tab navigation, not `locator.focus()` — a click (openModule ends on
+  // one) suppresses `:focus-visible` in Chromium, but keyboard Tab always
+  // sets it. Walk the tab ring until each tone's trigger has been checked.
+  const tested: string[] = [];
+  for (let i = 0; i < 60 && tested.length < 3; i++) {
+    await page.keyboard.press("Tab");
+    const info = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el || !el.classList.contains("cert-mat__trigger")) return null;
+      const style = getComputedStyle(el);
+      const host = el.closest(".cert-mat") as HTMLElement | null;
+      return {
+        tone: host?.className.match(/cert-mat--(light|mid|dark)/)?.[1] ?? "?",
+        outlineStyle: style.outlineStyle,
+        outlineWidth: style.outlineWidth,
+        outlineOffset: style.outlineOffset,
+        outlineColor: style.outlineColor,
+        hostFilter: host ? getComputedStyle(host).filter : "",
+      };
+    });
+    if (!info || tested.includes(info.tone)) continue;
+    tested.push(info.tone);
+
+    expect(info.outlineStyle).not.toBe("none");
+    expect(info.outlineWidth).toBe("2px");
+    expect(parseFloat(info.outlineOffset)).toBeLessThan(0);
+    // Ring colour per tone (D3): mid + dark override --focus to
+    // --paper-white (rgb(246,246,244)); inheriting --oxblood on a dark
+    // fill is 1.35:1 — the fail this override exists to prevent. light
+    // keeps --oxblood #4a1f1a (12.93:1 on paper-white).
+    const expectedColor =
+      info.tone === "light" ? "rgb(74, 31, 26)" : "rgb(246, 246, 244)";
+    expect(info.outlineColor).toBe(expectedColor);
+    // `:focus-within` host filter: var(--cut-edge) resolves to four
+    // drop-shadows + the hard rest shadow = five. The soft state shadow
+    // was removed 2026-09-08 (sdd/distinction-section follow-up) — the
+    // filter chain is now identical at rest and on focus.
+    expect((info.hostFilter.match(/drop-shadow\(/g) ?? []).length).toBe(5);
+  }
+
+  expect(tested.sort()).toEqual(["dark", "light", "mid"]);
+});
+
 test("modal/pager interaction: ArrowRight with the scan modal open closes the modal, not the sheet", async ({
   page,
 }) => {
