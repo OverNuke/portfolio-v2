@@ -31,9 +31,14 @@ import { useInert } from "../../turn/useInert";
  * is clickable except that chip, so there is nothing to occlude. See
  * `project-field.css`'s RECORD section.
  *
- * A PANEL IS PRINT, NOT UI — the rule the old panel sheet carried, and it
- * survives the redesign intact. No hover on the disc, no lift, no shadow
- * change, no whole-card link wrap.
+ * A PANEL IS PRINT, NOT UI — the rule the old panel sheet carried. It held
+ * through the 2026-08-13 redesign and is still cited by name from
+ * `cert-wall.css`'s header. NARROWED 2026-09-08: the disc now takes a
+ * hover/focus lift + shadow and is itself the in-place-zoom trigger — the
+ * `.pf-chip--expand` button that used to sit in the foot index is gone. That
+ * is a scoped, hard-cut override matching the identical one `cert-wall` took
+ * for its tiles (2026-09-04, user sign-off). What still holds: no whole-card
+ * link wrap, no soft easing, and the caption stays print.
  *
  * THE RULE THAT WILL BITE SOMEONE, also unchanged: oxblood on Field Olive
  * is 1.90:1. The band is olive, so nothing oxblood may sit on it — but the
@@ -58,11 +63,11 @@ export interface FieldRecordProps {
   /** The dominant record gets the large caption (no longer a distinct shape). */
   primary?: boolean;
   /**
-   * Opens the in-place zoom. Every record with an image gets this now
-   * (P2 fixed the latent bug where the primary had no `onExpand` at all) —
-   * a record with a repo ALSO gets this, it is no longer either/or. Receives
-   * the event so the caller can capture `event.currentTarget` as the
-   * focus-return target.
+   * Opens the in-place zoom. Wired for every record with an image at the
+   * zoom tier (≥900px); the disc plate becomes the trigger (see `Shape`).
+   * Receives the event so the caller can capture `event.currentTarget` —
+   * the plate button, which stays visible at rest — as the focus-return
+   * target.
    */
   onExpand?: (event: MouseEvent<HTMLButtonElement>) => void;
   /**
@@ -78,73 +83,105 @@ export interface FieldRecordProps {
 }
 
 /**
- * Repo link when there is a real one, AND an expand trigger whenever there
- * is an image worth inspecting closer. Both, not either/or — P2
- * (sdd/design-import-sections) overturns this function's old "never both"
- * rule, which was itself the reason the primary never got an `onExpand` in
- * the first place: this used to be a single-branch `if`/`else if`, and the
- * primary's branch (repo, since Barbershop has one) meant the expand
- * affordance was unreachable for it. There is no longer a reason for the
- * two to be exclusive: a repo link and an in-place zoom answer different
- * questions ("see the code" vs. "see the screenshot larger") and neither
- * disables the other.
+ * The foot-index action row: the repo link when there is a real one,
+ * nothing otherwise.
+ *
+ * NARROWED 2026-09-08. This used to render an "Expand" chip beside the repo
+ * link — P2's "both, not either/or" — so the in-place zoom had a foot-index
+ * trigger. The zoom is now opened by clicking the disc itself (see `Shape`),
+ * so the chip is gone and this row is repo-or-nothing again. Odoo, which has
+ * no repo, renders no action row at all; its plate is its affordance.
  *
  * `project.href` is a placeholder ("#") on every current record, so a LIVE
  * chip would ship a dead anchor — flagged by jsx-a11y/anchor-is-valid and
  * misleading either way. The caption's STATUS line already says PRIVATE,
  * so the absence carries the same information the dead link would have.
  */
-function RecordAction({
-  project,
-  onExpand,
-}: {
-  project: Project;
-  onExpand?: (event: MouseEvent<HTMLButtonElement>) => void;
-}) {
+function RecordAction({ project }: { project: Project }) {
   const repo = getProjectStatus(project) === "Live" && project.repo;
-  const expandable = Boolean(onExpand && project.image);
-
-  if (!repo && !expandable) return null;
+  if (!repo) return null;
 
   return (
     <p className="pf-record__action">
-      {repo && (
-        <a className="pf-chip" href={project.repo} target="_blank" rel="noopener noreferrer">
-          {/* Decorative: the chip already says "Repository" and the
-              visually-hidden tail names the project. It only draws in the
-              poster tier — see `.pf-chip svg` in project-field.css for why
-              the foot index withholds it. */}
-          <SiGithub size={11} aria-hidden="true" />
-          Repository
-          <span className="visually-hidden"> — {project.title}, opens in a new tab</span>
-        </a>
-      )}
-      {expandable && (
-        <button type="button" className="pf-chip pf-chip--expand" onClick={onExpand}>
-          Expand
-          <span className="visually-hidden"> — {project.title} screenshot, view larger</span>
-        </button>
-      )}
+      <a className="pf-chip" href={project.repo} target="_blank" rel="noopener noreferrer">
+        {/* Decorative: the chip already says "Repository" and the
+            visually-hidden tail names the project. It only draws in the
+            poster tier — see `.pf-chip svg` in project-field.css for why
+            the foot index withholds it. */}
+        <SiGithub size={11} aria-hidden="true" />
+        Repository
+        <span className="visually-hidden"> — {project.title}, opens in a new tab</span>
+      </a>
     </p>
   );
 }
 
 /**
- * The disc itself. When `project.image` is absent this renders the
- * no-image fallback the brief's section 9 asks for: a restrained,
- * `[data-motion]`-gated registration animation instead of a photograph
- * (`.pf-shape--empty` in `project-field.css`). No record exercises that
- * branch today; it is a real code path rather than a promise, so the day
- * one does, nothing here has to change.
+ * The disc itself.
+ *
+ * When `project.image` is absent this renders the no-image fallback the
+ * brief's section 9 asks for: a restrained, `[data-motion]`-gated
+ * registration animation instead of a photograph (`.pf-shape--empty` in
+ * `project-field.css`). No record exercises that branch today; it is a real
+ * code path rather than a promise, so the day one does, nothing here has to
+ * change.
+ *
+ * When `interactive` (an image is present AND the zoom tier is active — the
+ * `onExpand`-and-`project.image` test `FieldRecord` runs), the plate IS the
+ * in-place-zoom trigger: a real `<button>` that opens the zoom, and closes
+ * it on a second click. NARROWED 2026-09-08 from the foot-index
+ * `.pf-chip--expand` button, which is gone.
+ *
+ *   - Contents-based name (the `.pf-chip` idiom): the `<img alt>` stays a
+ *     real node in the a11y tree and a `.visually-hidden` tail states the
+ *     action. An `aria-label` would replace `imageAlt` instead of adding to
+ *     it, and that alt is the only description of the screenshot at rest.
+ *   - `.pf-shape--circle`'s `clip-path` clips the button's hit area to the
+ *     visible disc, which is what keeps the overlapping record boxes legal
+ *     (project-field.css, RECORD section).
+ *   - `.pf-shape__ring` is the focus indicator, drawn by the figure's edge
+ *     filter — a SIBLING of the button inside `.pf-record__figure`, never a
+ *     child (a child would be clipped to the circle with the button and its
+ *     ring would vanish).
  */
-function Shape({ project }: { project: Project }) {
+function Shape({
+  project,
+  interactive,
+  zoomed,
+  onOpen,
+  onClose,
+}: {
+  project: Project;
+  interactive: boolean;
+  zoomed: boolean;
+  onOpen?: (event: MouseEvent<HTMLButtonElement>) => void;
+  onClose?: () => void;
+}) {
   if (!project.image) {
     return <div className="pf-shape pf-shape--circle pf-shape--empty" aria-hidden="true" />;
   }
+
+  const img = <img src={project.image} alt={project.imageAlt} />;
+
+  if (!interactive) {
+    return <div className="pf-shape pf-shape--circle">{img}</div>;
+  }
+
   return (
-    <div className="pf-shape pf-shape--circle">
-      <img src={project.image} alt={project.imageAlt} />
-    </div>
+    <>
+      <span className="pf-shape__ring" aria-hidden="true" />
+      <button
+        type="button"
+        className="pf-shape pf-shape--circle"
+        onClick={zoomed ? onClose : onOpen}
+      >
+        {img}
+        {/* "back", not "close": while zoomed this is a secondary dismiss
+            (the Close button is primary), and "back" is the house word for
+            this direction without colliding with Close in the a11y tree. */}
+        <span className="visually-hidden">{zoomed ? " — back" : " — view larger"}</span>
+      </button>
+    </>
   );
 }
 
@@ -213,6 +250,10 @@ export function FieldRecord({
   const articleRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const zoomed = zoom === "self";
+  // The plate is the zoom trigger only where the zoom itself runs: an image
+  // to show, and `onExpand` wired (which `ProjectField` gates on `canZoom`).
+  // Below 900px it falls back to a plain, non-interactive disc.
+  const plateInteractive = Boolean(onExpand && project.image);
 
   /**
    * PER-RECORD INERT (P3) — replaces `ProjectField.tsx`'s old
@@ -340,7 +381,13 @@ export function FieldRecord({
         data-reform-id={`figure-${position}`}
         data-reform-rank={position - 1}
       >
-        <Shape project={project} />
+        <Shape
+          project={project}
+          interactive={plateInteractive}
+          zoomed={zoomed}
+          onOpen={onExpand}
+          onClose={onCloseZoom}
+        />
       </div>
 
       {/* The disc's short-label chip — marker-hand, rotated past `--rot-max`
@@ -393,7 +440,7 @@ export function FieldRecord({
               <Year year={project.year} />
             </span>
           </p>
-          <RecordAction project={project} onExpand={onExpand} />
+          <RecordAction project={project} />
           <TechBadges tags={project.tags} />
         </div>
       </div>

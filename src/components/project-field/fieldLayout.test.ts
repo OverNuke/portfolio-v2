@@ -260,9 +260,13 @@ describe("the CSS contract", () => {
     const rules = readRules();
     expect(rules).toContain("clip-path: none !important");
 
-    // The bare `.pf-shape` selector appears exactly once: the base rule
-    // that sets up the box. Everything else targets a variant.
-    expect(rules.match(/\.pf-shape\s*[,{]/g) ?? []).toHaveLength(1);
+    // The bare `.pf-shape` selector appears in exactly two rules that set
+    // up the box: `.pf-shape {` (the shared base) and `button.pf-shape {`
+    // (the UA reset for the plate-as-trigger form). Everything else targets
+    // a variant (`--circle`, `--empty`) or a part (`__ring`). A third bare
+    // `.pf-shape` rule is the smell this guards — especially one resetting
+    // clip-path.
+    expect(rules.match(/\.pf-shape(?![\w-])\s*[,{]/g) ?? []).toHaveLength(2);
 
     // And no rule that resets clip-path may name a shape at all.
     for (const rule of rules.split("}")) {

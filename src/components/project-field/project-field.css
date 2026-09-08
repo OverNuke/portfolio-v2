@@ -335,9 +335,20 @@
  *
  * Every record's box therefore overlaps every other record's box, which
  * would be an occlusion bug if any of them took the pointer.
- * `pointer-events: none` here, taken back only on the chip, is what makes
- * that structure legal rather than clever. Do not remove it without
- * shrinking the boxes first.
+ * `pointer-events: none` here is what makes that structure legal rather
+ * than clever. It is taken back on exactly two descendants, each of which
+ * has ALREADY shrunk its own hit area to something that cannot occlude a
+ * neighbour:
+ *   - `.pf-chip` in the foot index — a small inline control, and the
+ *     caption columns are disjoint by `assertFieldLayouts`.
+ *   - `button.pf-shape` — the disc plate, which is the in-place-zoom
+ *     trigger at the field tier (NARROWED 2026-09-08). `.pf-shape--circle`'s
+ *     `clip-path` clips its pointer target to the visible circle, so the
+ *     ~3%x12% overlap of sec1/sec2's square figure BOXES is never a live
+ *     overlap of their hit areas. A rectangular wrapper element around the
+ *     plate would re-open the exact occlusion bug this comment warns about —
+ *     that is why the trigger is the clipped `<button>`, not a `<div>`
+ *     around it.
  */
 .pf-record {
   position: absolute;
@@ -356,6 +367,10 @@
  */
 .pf-record__figure {
   position: absolute;
+  /* A local stacking context, so `.pf-shape__ring` (z-index 0, painted
+     under the plate) cannot escape behind `.pf__band`. No paint side
+     effect of its own. */
+  isolation: isolate;
   transform: translateY(-50%);
   /**
    * THE EDGE. A stacked drop-shadow outline, and it has to be a filter on
@@ -374,9 +389,19 @@
    * it. And the primary bleeds off the band onto paper, which is also
    * pale, so its silhouette would dissolve at exactly the moment the
    * composition most wants it read as a cut-out plate.
+   *
+   * Held in `--pf-edge` so the hover/focus rule below composes one more
+   * `drop-shadow()` onto it without restating the four layers — and so the
+   * same chain traces `.pf-shape__ring` when it is shown.
    */
-  filter: drop-shadow(1.5px 0 0 var(--olive-edge)) drop-shadow(-1.5px 0 0 var(--olive-edge))
+  --pf-edge: drop-shadow(1.5px 0 0 var(--olive-edge)) drop-shadow(-1.5px 0 0 var(--olive-edge))
     drop-shadow(0 1.5px 0 var(--olive-edge)) drop-shadow(0 -1.5px 0 var(--olive-edge));
+  filter: var(--pf-edge);
+  /* Hover/focus lift + shadow-deepen, hard cut only (docs/07 line 43 bans
+     soft easing on hover). See the rules after `.pf-shape`. */
+  transition:
+    transform var(--dur-micro) var(--ease-hard),
+    filter var(--dur-micro) var(--ease-hard);
 }
 
 .pf-shape {
@@ -430,6 +455,91 @@
       31px 31px,
       0 0;
   }
+}
+
+/* ---------------------------------------------------------- plate as button
+   `Shape` renders `.pf-shape` as a real `<button>` when the disc is the
+   in-place-zoom trigger (the field tier, ≥900px; NARROWED 2026-09-08 from
+   the foot-index `.pf-chip--expand`). Only the UA button reset differs from
+   the `<div>` form — the circle clip, sizing and `image-rendering` from
+   `.pf-shape` / `.pf-shape--circle` still apply. `pointer-events: auto`
+   re-arms what `.pf-record` drops; the `clip-path` keeps that hit area
+   inside the visible disc (RECORD section). */
+button.pf-shape {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--paper-white);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* THE FOCUS RING. A Paper-White disc one step larger than the plate, shown
+   only on `:focus-visible`, sitting BEHIND the plate so the figure's
+   `--pf-edge` filter traces its silhouette: plate -> white band ->
+   ink-olive edge outermost. That two-tone stack clears 3:1 on the olive
+   band (white vs olive-deep) AND on the paper the primary bleeds onto (the
+   edge vs `--paper`) — which no single colour does. A SIBLING of the
+   button inside `.pf-record__figure`, never a child: a child is clipped to
+   the circle with the button and its ring is erased.
+
+   NOT added to the reduced-motion `clip-path: none` reset below — that
+   would square the ring for the audience least able to report it, the same
+   trap that block's own note describes for `.pf-shape`. */
+.pf-shape__ring {
+  position: absolute;
+  inset: -3px;
+  z-index: 0;
+  clip-path: circle(closest-side at 50% 50%);
+  background: var(--paper-white);
+  opacity: 0;
+  transition: opacity var(--dur-micro) var(--ease-hard);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------- disc hover / focus lift
+   The disc rises 3px and its shadow deepens on hover or keyboard focus. A
+   scoped, dated override of this file's own "A PANEL IS PRINT, NOT UI" rule
+   (RECORD section) and `FieldRecord.tsx`'s header — the identical override
+   `cert-wall.css` took for its tiles (2026-09-04, user sign-off).
+
+   HARD CUT ONLY. docs/07 line 43 bans soft/eased hover motion; the
+   2026-09-02 withdrawal made hard-cut motion spine; the 2026-09-04
+   artboard asked for `.32s cubic-bezier(.2,.85,.2,1)` and was overruled
+   here exactly as it was for cert-wall (conflict order: Project Vision >
+   Implementation).
+
+   `> button.pf-shape` (not `.pf-shape`) on purpose: the plate is a
+   `<button>` only at the field tier, so this never reaches the poster
+   tier's `<div>` plate. And `[data-zoom="none"]` on purpose: without it
+   `.pf-record__figure:has(> button.pf-shape:hover)` and
+   `.pf-record[data-zoom="self"] .pf-record__figure` (ZOOM section) collide
+   at nearly-equal specificity and source order alone would decide whether
+   hovering a zoomed plate drops it out of the zoom. The prefix makes it
+   moot. */
+.pf-record[data-zoom="none"] .pf-record__figure:has(> button.pf-shape:hover),
+.pf-record[data-zoom="none"] .pf-record__figure:has(> button.pf-shape:focus-visible) {
+  filter: var(--pf-edge) drop-shadow(0 12px 24px rgb(17 17 17 / 22%));
+}
+
+/* The travel is motion, so it is gated by the `[data-motion]` hook
+   `useReducedMotion` drives: reduced-motion users keep the shadow deepen
+   (instant, a legitimate static affordance) and lose the lift. */
+.pf[data-motion="full"] .pf-record[data-zoom="none"] .pf-record__figure:has(> button.pf-shape:hover),
+.pf[data-motion="full"] .pf-record[data-zoom="none"] .pf-record__figure:has(> button.pf-shape:focus-visible) {
+  transform: translateY(calc(-50% - 3px));
+}
+
+/* Ring on keyboard focus only, never on hover — and at every zoom state, so
+   the plate keeps a visible focus indicator while it is the zoomed dialog's
+   subject (there it reads as white-on-scrim; `--pf-edge` is off then). No
+   `[data-zoom]` scoping: nothing in the ZOOM section competes for
+   `.pf-shape__ring`'s opacity. */
+.pf-record__figure:has(> button.pf-shape:focus-visible) .pf-shape__ring {
+  opacity: 1;
 }
 
 /* ============================================================= TONE CIRCLES
@@ -1028,6 +1138,15 @@
 
   .pf-shape--empty {
     animation: none !important;
+  }
+
+  /* The disc hover's shadow-deepen and the focus ring still fire (static
+     affordances), but without their 90ms fade. The lift itself is already
+     gated out — `useReducedMotion` sets `[data-motion="reduced"]`, which
+     the transform rule requires. */
+  .pf-record__figure,
+  .pf-shape__ring {
+    transition: none;
   }
 }
 

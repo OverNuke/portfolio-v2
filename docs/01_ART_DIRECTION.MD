@@ -116,7 +116,7 @@ doesn't belong to its surface's register needs a case made for it, per
   band, discs in descending scale bleeding past the band's top edge, a foot index
   of caption columns) is a spine idiom — overlap + the "one exception is the hero"
   pattern — not a register. Promote it to its own register only if a case is made.
-  Two bounded local exceptions live here — see "`/projects` local exceptions"
+  A few bounded local exceptions live here — see "`/projects` local exceptions"
   below. (The 2026-08-13 editorial redesign replaced the earlier scattered-plate
   `projectLayouts.ts` sheet; that file is gone.)
 - **`/contact`** — Instrument.
@@ -165,13 +165,13 @@ Two rules make this a register trait rather than a one-off effect:
 same reason — it does not rotate either. The vocabulary is shared; what stays
 register-specific is everything else on the tile.
 
-## `/projects` local exceptions — marker-hand and a lifted rotation cap
+## `/projects` local exceptions — marker-hand, a lifted rotation cap, a disc hover
 
-*Added 2026-09-07, `sdd/projects-section-design-import`.*
+*Added 2026-09-07, `sdd/projects-section-design-import`; extended 2026-09-08.*
 
 `/projects` stays **Sheet baseline**. The design import of the Projects Section
-artboard brought two elements outside the baseline vocabulary. Both are **local
-exceptions, scoped to this one surface — not a register promotion**:
+artboard brought elements outside the baseline vocabulary. Each is a **local
+exception, scoped to this one surface — not a register promotion**:
 
 1. **`--font-hand` on the disc chips and the foot-column marker line.** The Sheet
    reserves `--font-hand` for annotation (doc 12). On `/projects` it marks the
@@ -184,6 +184,15 @@ exceptions, scoped to this one surface — not a register promotion**:
    `project-field.css`. The cap still governs every other rotation in the system.
    This is the format's opposite number to the Record-register "does not rotate"
    note above: a bounded, documented departure, not a new default.
+3. **A hover/focus lift on the disc plate** — *added 2026-09-08.* The disc is now
+   the in-place-zoom trigger (the foot-index "Expand" chip is gone), and on hover
+   or keyboard focus it rises 3px and its edge shadow deepens. This overrides
+   `FieldRecord.tsx`'s "a panel is print, not UI — no lift" rule, scoped to this
+   surface only — the identical override `cert-wall.css` took for its tiles
+   (2026-09-04). It is a **hard cut** (`--dur-micro` / `--ease-hard`): the
+   artboard's `.32s` soft ease was overruled here the same way it was for
+   cert-wall (doc 07 line 43; conflict order puts Project Vision above
+   Implementation). `/projects` is still not promoted to its own register.
 
 The invariant #6 relaxation (`fieldLayout.ts` — the primary now bleeds past the
 band's TOP edge only) is a geometry correction, documented at the assertion.

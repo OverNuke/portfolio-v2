@@ -184,9 +184,11 @@ describe("ProjectField", () => {
     }
   });
 
-  it("gives every record a real expand control, and repo records get both actions (PF3, PF4)", () => {
-    // P2 overturns RecordAction's old "never both" rule, and fixes the
-    // latent bug where the primary (Barbershop) had no `onExpand` at all.
+  it("makes each record's plate the zoom trigger, and repo records also keep the Repository link (PF3, PF4)", () => {
+    // NARROWED 2026-09-08: the zoom is opened by clicking the disc plate,
+    // not by a foot-index "Expand" chip. A repo link and the plate coexist
+    // — they answer different questions ("see the code" vs "see the
+    // screenshot larger") and neither shadows the other.
     const { container } = renderField();
     const records = [...container.querySelectorAll(".pf-record")] as HTMLElement[];
     expect(records.length).toBeGreaterThan(0);
@@ -196,15 +198,18 @@ describe("ProjectField", () => {
       const hasRepo = Boolean(project.repo);
 
       expect(within(record).queryAllByRole("link")).toHaveLength(hasRepo ? 1 : 0);
-      // Every record — including the primary — gets a real, focusable
-      // expand control, independent of whether a repo chip is also present.
-      const expandButtons = within(record).getAllByRole("button", { name: /expand/i });
-      expect(expandButtons).toHaveLength(1);
+
+      // The plate is a real, focusable button naming its action, for every
+      // record — primary included.
+      const plate = within(record).getAllByRole("button", { name: /view larger/i });
+      expect(plate).toHaveLength(1);
+      expect(plate[0]).toHaveClass("pf-shape");
+      // The old caption expand chip is gone.
+      expect(within(record).queryByRole("button", { name: /expand/i })).toBeNull();
     }
   });
 
-  it("keeps the repo chip and the expand control independently focusable when both are present", () => {
-    // PF4: neither disables nor shadows the other.
+  it("keeps the repo link and the plate independently focusable on a repo record", () => {
     const { container } = renderField();
     const barbershop = [...container.querySelectorAll(".pf-record")].find((r) =>
       r.textContent?.includes("Barbershop"),
@@ -212,12 +217,17 @@ describe("ProjectField", () => {
     expect(barbershop).toBeTruthy();
 
     const link = within(barbershop).getByRole("link");
-    const button = within(barbershop).getByRole("button", { name: /expand/i });
+    const plate = within(barbershop).getByRole("button", { name: /view larger/i });
+
+    // The plate lives in the figure; the repo link lives in the caption
+    // action row. Different subtrees — never nested.
+    expect(barbershop.querySelector(".pf-record__figure")!.contains(plate)).toBe(true);
+    expect(barbershop.querySelector(".pf-record__action")!.contains(link)).toBe(true);
 
     link.focus();
     expect(link).toHaveFocus();
-    button.focus();
-    expect(button).toHaveFocus();
+    plate.focus();
+    expect(plate).toHaveFocus();
   });
 
   it("carries a real, readable <h2> for the composition", () => {
@@ -230,14 +240,14 @@ describe("ProjectField", () => {
   });
 
   it("inerts every OTHER record while one is zoomed, and never the expanded one itself (PZ2)", () => {
-    // Odoo is the risk case — the only record whose sole affordance was
-    // the old overlay — so it is the one to build the zoom against first.
+    // Odoo is the risk case — the only record whose sole affordance is the
+    // zoom (no repo) — so it is the one to build against first.
     const { container } = renderField();
     const records = [...container.querySelectorAll(".pf-record")] as HTMLElement[];
     for (const record of records) expect(record).not.toHaveAttribute("inert");
 
     const odoo = records.find((r) => r.textContent?.includes("Odoo"))!;
-    const trigger = within(odoo).getByRole("button", { name: /expand/i });
+    const trigger = within(odoo).getByRole("button", { name: /view larger/i });
 
     fireEvent.click(trigger);
 
@@ -267,13 +277,13 @@ describe("ProjectField", () => {
       r.textContent?.includes("Odoo"),
     ) as HTMLElement;
 
-    fireEvent.click(within(odoo).getByRole("button", { name: /expand/i }));
+    fireEvent.click(within(odoo).getByRole("button", { name: /view larger/i }));
     expect(odoo).toHaveAttribute("data-zoom", "self");
 
     fireEvent.keyDown(document, { key: "Escape" });
     expect(odoo).toHaveAttribute("data-zoom", "none");
 
-    fireEvent.click(within(odoo).getByRole("button", { name: /expand/i }));
+    fireEvent.click(within(odoo).getByRole("button", { name: /view larger/i }));
     expect(odoo).toHaveAttribute("data-zoom", "self");
 
     fireEvent.keyDown(document, { key: "ArrowRight" });
@@ -281,43 +291,43 @@ describe("ProjectField", () => {
   });
 
   it("returns focus to the trigger when the zoom closes (PZ4)", async () => {
-    // Deferred by a microtask so it lands after the caption (and the
-    // trigger inside it) is visible again — see ProjectField.tsx's comment.
-    // jsdom does not implement inert or visibility-driven focusability, so
-    // this cannot prove the browser behaviour; it exists to stop the
-    // deferral being "simplified" away.
+    // Deferred by a microtask — see ProjectField.tsx's comment. jsdom does
+    // not implement inert or the zoom transform, so this cannot prove the
+    // browser behaviour; it exists to stop the deferral being "simplified"
+    // away.
     const { container } = renderField();
     const odoo = [...container.querySelectorAll(".pf-record")].find((r) =>
       r.textContent?.includes("Odoo"),
     ) as HTMLElement;
-    const trigger = within(odoo).getByRole("button", { name: /expand/i });
+    const trigger = within(odoo).getByRole("button", { name: /view larger/i });
     trigger.focus();
 
     fireEvent.click(trigger);
     expect(within(odoo).getByRole("button", { name: /close/i })).toHaveFocus();
 
     fireEvent.click(within(odoo).getByRole("button", { name: /close/i }));
+    // Same DOM node throughout — the plate stays mounted while zoomed (its
+    // label flips to "back"), so `expanded.trigger` never detaches.
     await waitFor(() => expect(trigger).toHaveFocus());
   });
 
-  it("still gives Odoo a working expand path with ImageExpandOverlay removed (PZ6)", () => {
-    // Odoo carries no `repo`, so the zoom is its only affordance — this is
-    // the regression the old overlay's removal must not reintroduce.
+  it("still gives Odoo a working zoom path — its plate is its only affordance (PZ6)", () => {
+    // Odoo carries no `repo`, so the plate is its only interaction.
     const { container } = renderField();
     const odoo = [...container.querySelectorAll(".pf-record")].find((r) =>
       r.textContent?.includes("Odoo"),
     ) as HTMLElement;
     expect(within(odoo).queryAllByRole("link")).toHaveLength(0);
 
-    const trigger = within(odoo).getByRole("button", { name: /expand/i });
+    const trigger = within(odoo).getByRole("button", { name: /view larger/i });
     fireEvent.click(trigger);
     expect(screen.getByRole("dialog", { name: /odoo/i })).toBe(odoo);
   });
 
-  it("does not render an expand control at all below the 900px zoom tier", () => {
-    // Not CSS-hidden — not rendered. `cx`/`cy`/`d` are void in the poster
-    // tier, and an affordance that computes a wrong transform is worse
-    // than an absent one.
+  it("renders the plate as a plain non-interactive disc below the 900px zoom tier", () => {
+    // Not CSS-hidden — not a button. `cx`/`cy`/`d` are void in the poster
+    // tier, and a trigger that computes a wrong transform is worse than an
+    // absent one.
     vi.stubGlobal(
       "matchMedia",
       vi.fn((query: string) => ({
@@ -329,7 +339,11 @@ describe("ProjectField", () => {
     );
 
     const { container } = renderField();
-    expect(within(container).queryAllByRole("button", { name: /expand/i })).toHaveLength(0);
+    expect(within(container).queryAllByRole("button", { name: /view larger/i })).toHaveLength(0);
+    for (const shape of container.querySelectorAll(".pf-shape")) {
+      expect(shape.tagName).toBe("DIV");
+    }
+    expect(container.querySelector(".pf-shape__ring")).toBeNull();
 
     vi.unstubAllGlobals();
   });

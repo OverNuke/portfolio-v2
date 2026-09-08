@@ -106,19 +106,17 @@ export function ProjectField({
     expanded === null ? "none" : expanded.project === project ? "self" : "other";
 
   /**
-   * Focus returns to the trigger on close — DEFERRED BY A MICROTASK, ported
-   * from `ImageExpandOverlay.tsx` with its justification restated for the
-   * new mechanism. The original reason (the trigger sat inside the `inert`
-   * `.pf__records`) is gone under per-record inert, but an equivalent one
-   * takes its place: `.pf-chip--expand` lives inside `.pf-record__cap`,
-   * which is `visibility: hidden` while ITS OWN record is zoomed
-   * (project-field.css, ZOOM section) — and React runs effect cleanups
-   * BEFORE this commit's effects, so at cleanup time the caption is still
-   * hidden and an undeferred `.focus()` would be a silent no-op landing
-   * focus on `<body>`. A microtask runs after the whole commit, by which
-   * point `expanded` is `null`, the caption is visible again, and the chip
-   * is focusable. Same failure mode as before (silent, browser-only,
-   * invisible to jsdom), different mechanism.
+   * Focus returns to the trigger on close — DEFERRED BY A MICROTASK, kept
+   * from `ImageExpandOverlay.tsx`. The trigger is now the disc plate button
+   * (NARROWED 2026-09-08 from the foot-index `.pf-chip--expand`), which is
+   * never hidden — so the old hazard (the chip sat inside the
+   * `visibility: hidden` `.pf-record__cap` while zoomed) is gone. The
+   * deferral still earns its keep: React runs effect cleanups BEFORE this
+   * commit's effects, so at cleanup time `data-zoom` is still `self` and the
+   * plate is still under the zoom transform / above the scrim; a microtask
+   * runs after the whole commit, by which point the record is back at rest
+   * and `.focus()` lands cleanly. Invisible to jsdom either way, so
+   * `ProjectField.test.tsx` PZ4 exists to stop it being "simplified" away.
    */
   useEffect(() => {
     if (!expanded) return;
