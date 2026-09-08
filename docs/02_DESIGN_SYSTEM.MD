@@ -215,6 +215,34 @@ this doc's 7:1 preferred bar, not just the 4.5:1 minimum.
 
 ---
 
+## `/projects` restyle — measured pairs and two rejected values
+
+> Added 2026-09-07, `sdd/projects-section-design-import`. The Projects Section
+> artboard was imported by remapping every raw value onto a locked token — no
+> new tokens, no new accents. Two token pairings the restyle leans on, measured
+> against this doc's method (WCAG relative-luminance ratio):
+>
+> - **Ink (#111111) on Paper White (#F6F6F4): 17.45:1.** The disc chips for
+>   records 1 and 3 — Paper White stock, Ink label + 2px Ink border. New pairing
+>   for this doc; passes AA at any size. (The foot-column prose paragraph is Ink
+>   on the base **`--paper` #E4E4E2 — 14.83:1**, the same pairing every Ink body
+>   line on the Sheet already uses.)
+> - **Paper White (#F6F6F4) on Field Olive (#4F5A3C): 6.79:1** — already
+>   recorded under Field Olive above. Record 2's chip (AcopiaTech, which overlaps
+>   the band) takes this pair rather than the Ink/Paper-White one, and
+>   `--field-olive`, not `--field-olive-deep`: an olive-deep chip on the
+>   olive-deep band disappears.
+>
+> Two artboard values were **rejected, not imported** — both sub-AA micro-type:
+> the bottom-right chrome caption at `rgba(25,27,22,.5)` (3.4:1, FAIL) and the
+> Odoo "private repository" meta at `rgba(25,27,22,.58)` (4.2:1, FAIL). Both
+> resolve to **Gray (#635D54), 5.12:1 on paper** (see the Gray entry above)
+> — the marker-hand line and the disc chips are the only new type on the
+> composition, and every one of them clears AA.
+
+
+---
+
 # Typography
 
 > Updated 2026-08-11 (font-unification pass) — this section previously

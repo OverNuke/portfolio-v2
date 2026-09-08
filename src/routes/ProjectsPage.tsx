@@ -4,7 +4,7 @@ import { Panel } from "../components/panel/Panel";
 import { ProjectField } from "../components/project-field/ProjectField";
 import { clampField, paginate, RECORDS_PER_FIELD } from "../components/project-field/fieldLayout";
 import { useFieldKeyboard } from "../turn/useFieldKeyboard";
-import { ABOUT_PROFILE, PROJECTS } from "../content/data";
+import { PROJECTS } from "../content/data";
 import { ROUTES } from "./routes";
 import "./projects-page.css";
 
@@ -92,8 +92,6 @@ export function ProjectsPage() {
             fieldCount={fields.length}
             totalRecords={PROJECTS.length}
             span={span}
-            colophonName={`${ABOUT_PROFILE.firstName} ${ABOUT_PROFILE.lastName}`}
-            colophonRole={ABOUT_PROFILE.role}
             onNext={hasNext ? onNext : undefined}
             onPrev={hasPrev ? onPrev : undefined}
             macroWord={route.short}

@@ -112,10 +112,13 @@ doesn't belong to its surface's register needs a case made for it, per
   to; it carries the spine and the seven composition roles, nothing register-specific.
 - **`/profile`** — Expressive.
 - **`/certifications`** — Record.
-- **`/projects`** — **Sheet baseline** for now: the scattered-plate composition
-  (`projectLayouts.ts`) plus the `.sheet-kg` giant-type layer are spine idioms
-  (overlap + the "one exception is the hero" pattern), not a register. Promote it
-  to its own register only if a case is made.
+- **`/projects`** — **Sheet baseline**: the editorial-field composition (one olive
+  band, discs in descending scale bleeding past the band's top edge, a foot index
+  of caption columns) is a spine idiom — overlap + the "one exception is the hero"
+  pattern — not a register. Promote it to its own register only if a case is made.
+  Two bounded local exceptions live here — see "`/projects` local exceptions"
+  below. (The 2026-08-13 editorial redesign replaced the earlier scattered-plate
+  `projectLayouts.ts` sheet; that file is gone.)
 - **`/contact`** — Instrument.
 
 ## The Record register does not rotate
@@ -161,6 +164,29 @@ Two rules make this a register trait rather than a one-off effect:
 **Contact (Instrument) uses the same mechanism**, on its channel plates, for the
 same reason — it does not rotate either. The vocabulary is shared; what stays
 register-specific is everything else on the tile.
+
+## `/projects` local exceptions — marker-hand and a lifted rotation cap
+
+*Added 2026-09-07, `sdd/projects-section-design-import`.*
+
+`/projects` stays **Sheet baseline**. The design import of the Projects Section
+artboard brought two elements outside the baseline vocabulary. Both are **local
+exceptions, scoped to this one surface — not a register promotion**:
+
+1. **`--font-hand` on the disc chips and the foot-column marker line.** The Sheet
+   reserves `--font-hand` for annotation (doc 12). On `/projects` it marks the
+   disc's short category label and the one-line annotation under each foot column
+   — genuinely annotation in the doc-12 sense, so the use is in spirit even
+   though `/projects` carries no register. It is `--font-hand` the token (a
+   system cursive stack); no new font, no bundle cost.
+2. **Chip rotation past the `--rot-max` 2° cap** — three declarations only
+   (records 1/2/3 at −3° / −2.6° / +2.6°), each dated and commented in
+   `project-field.css`. The cap still governs every other rotation in the system.
+   This is the format's opposite number to the Record-register "does not rotate"
+   note above: a bounded, documented departure, not a new default.
+
+The invariant #6 relaxation (`fieldLayout.ts` — the primary now bleeds past the
+band's TOP edge only) is a geometry correction, documented at the assertion.
 
 ## Masthead
 

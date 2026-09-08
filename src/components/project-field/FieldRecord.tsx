@@ -5,10 +5,11 @@ import {
   getProjectCategory,
   getProjectStatus,
   getTechIcon,
+  resolveChipText,
   STATUS_LABEL,
 } from "../../content/projects";
 import type { FieldSlot } from "./fieldLayout";
-import { INDEX_TOP, zoomToCenter } from "./fieldLayout";
+import { chipAnchor, INDEX_TOP, zoomToCenter } from "./fieldLayout";
 import { useInert } from "../../turn/useInert";
 
 /**
@@ -258,6 +259,20 @@ export function FieldRecord({
     width: `${shape.d}%`,
   };
 
+  // The annotation chip's anchor is stage-percentage arithmetic on the same
+  // shape data — `fieldLayout.ts`'s `chipAnchor`, no DOM measurement. The
+  // chip is a SIBLING of `.pf-record__figure` (a direct child of the
+  // article, which is `inset: 0` over the stage), never a child: a child
+  // would inherit the figure's four-way drop-shadow edge and be scaled
+  // 1.8x-3x by the zoom transform.
+  const anchor = chipAnchor(shape, slot.chipSide ?? "L");
+  const chipStyle: CSSProperties = {
+    top: `${anchor.top}%`,
+    ...(anchor.left !== undefined
+      ? { left: `${anchor.left}%` }
+      : { right: `${anchor.right}%` }),
+  };
+
   const capStyle: CSSProperties = {
     left: `${column.x}%`,
     width: `${column.w}%`,
@@ -328,6 +343,15 @@ export function FieldRecord({
         <Shape project={project} />
       </div>
 
+      {/* The disc's short-label chip — marker-hand, rotated past `--rot-max`
+          (a sanctioned local exception, see project-field.css). Decorative:
+          the category is exposed for real in `.pf-record__kind`. Sibling of
+          the figure, on its AUTHORED side (`slot.chipSide`), not the
+          alternating `data-side`. */}
+      <span className="pf-record__chip" style={chipStyle} aria-hidden="true">
+        {resolveChipText(project)}
+      </span>
+
       <div
         className="pf-record__cap"
         style={capStyle}
@@ -348,7 +372,16 @@ export function FieldRecord({
             becomes the head block — the one group that stays a stack while
             the tick, kind and title leave for their own corners. */}
         <div className="pf-record__body">
+          {/* ONE node, serving BOTH tiers. Desktop: `display: none` (CSS),
+              so it is out of the a11y tree and `subtitle` announces once
+              via `.pf-record__marker` below. Poster (<900px): shown, the
+              unchanged tracked-uppercase treatment. Do not split it. */}
           <p className="pf-record__sub">{project.subtitle}</p>
+          {/* Desktop foot-column body — a short prose paragraph off
+              `description`, then the marker line. Both `display: none` in
+              the poster tier. */}
+          <p className="pf-record__prose">{project.description}</p>
+          <p className="pf-record__marker">{project.marker ?? project.subtitle}</p>
           <p className="pf-record__meta">
             <span className="pf-record__stack">{project.tags.join(" · ")}</span>
             <span className="pf-record__reg">

@@ -17,10 +17,12 @@ import { build, preview } from "vite";
  *
  * Audits `/` (the collage), `/profile` (the manga-panel hero — four
  * overlapping clickable panels, absolute captions, and `pointer-events:
- * none` SFX over the gutters: exactly this script's purpose) and `/contact`
+ * none` SFX over the gutters: exactly this script's purpose), `/contact`
  * (the channel field — absolute-`%` plates over a fitted stage, with a
- * page-scoped `checkChannelFieldOverflow` battery for text spilling a plate).
- * The remaining routed pages are still placeholder content, out of scope here.
+ * page-scoped `checkChannelFieldOverflow` battery for text spilling a plate)
+ * and `/projects` (the editorial field — absolute-`%` discs on a bounded
+ * stage over a two-piece olive band, a foot index of caption columns below
+ * it; added sdd/projects-section-design-import, 2026-09-07).
  */
 
 // 960 added 2026-09-05 (contact channel-field name-overflow fix): the
@@ -124,7 +126,20 @@ function checkClippedText() {
     if (el.closest(".page-head")) continue;
     if (el.clientWidth <= 1 || el.clientHeight <= 1) continue;
     if (getComputedStyle(el).overflow !== "hidden") continue;
-    if (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight) {
+
+    // Horizontal exemption for the /projects poster record only. A
+    // decorative element deliberately bled past an `overflow: hidden` edge
+    // (`.pf-record__disc`, `--pp-disc-bleed: -17%` in project-field.css)
+    // inflates the article's scrollWidth *after* checkOcclusion's
+    // `scrollIntoView` forces a scrollable-overflow recalc — scrollLeft
+    // stays 0, nothing is scrolled, no text is cut. Vertical clipping is the
+    // term that actually hides text on a poster, so it stays checked here.
+    // Same category as the `.page-head` skip above: an audit false-positive
+    // on intentional clipping, not a real finding.
+    const skipHorizontal = el.classList.contains("pf-record");
+    const clippedX = !skipHorizontal && el.scrollWidth > el.clientWidth;
+    const clippedY = el.scrollHeight > el.clientHeight;
+    if (clippedX || clippedY) {
       const id = el.id ? `#${el.id}` : "";
       const cls = el.className && typeof el.className === "string" ? `.${el.className.split(" ").join(".")}` : "";
       results.push(
@@ -264,6 +279,12 @@ async function main() {
         { reason: "channel-field-overflow", fn: checkChannelFieldOverflow },
       ]),
     );
+
+    // /projects — the editorial field (sdd/projects-section-design-import,
+    // 2026-09-07). Absolute-% discs on a bounded stage over a two-piece olive
+    // band, a foot index of caption columns below it. Same battery as /profile.
+    await page.goto(new URL("projects", url).href);
+    reportFocusDrift("/projects", await auditLoadedPage(page, "/projects"));
   } finally {
     await browser.close();
     await server.close();
@@ -271,11 +292,11 @@ async function main() {
 
   if (failures === 0) {
     console.log(
-      `Audit passed: zero occlusions, zero undersized targets, zero clipped text at all ${WIDTHS.length} widths on /, /profile and /contact.`,
+      `Audit passed: zero occlusions, zero undersized targets, zero clipped text at all ${WIDTHS.length} widths on /, /profile, /contact and /projects.`,
     );
   } else {
     console.error(
-      `Audit failed with ${failures} failure(s) across ${WIDTHS.length} widths on /, /profile and /contact.`,
+      `Audit failed with ${failures} failure(s) across ${WIDTHS.length} widths on /, /profile, /contact and /projects.`,
     );
     process.exitCode = 1;
   }

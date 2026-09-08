@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { PROJECTS } from "../../content/data";
-import { assignSlots, getFieldLayout, INDEX_TOP } from "./fieldLayout";
+import { assignSlots, chipAnchor, getFieldLayout, INDEX_TOP } from "./fieldLayout";
 import { ProjectField } from "./ProjectField";
 
 function renderField(projects = PROJECTS, extra: Partial<Parameters<typeof ProjectField>[0]> = {}) {
@@ -11,8 +11,6 @@ function renderField(projects = PROJECTS, extra: Partial<Parameters<typeof Proje
       fieldIndex={1}
       fieldCount={1}
       totalRecords={projects.length}
-      colophonName="Kevin S. F. García"
-      colophonRole="Jr. Software Developer"
       {...extra}
     />,
   );
@@ -88,21 +86,91 @@ describe("ProjectField", () => {
 
   it("hides every decorative mark from assistive tech", () => {
     const { container } = renderField();
-    // The last four arrived with the poster tier (2026-08-14): three empty
-    // boxes that draw the stacked composition, and the brand-mark row.
+    // `.pf__chrome` replaced `.pf__note` (2026-09-07); `.pf-record__chip`
+    // and `.pf__tone` are the new decorative annotation layer.
     for (const selector of [
       ".pf__mark",
-      ".pf__note",
+      ".pf__chrome",
       ".pf-record__lead",
       ".pf-record__bar",
       ".pf-record__corner",
       ".pf-record__disc",
       ".pf-record__badges",
+      ".pf-record__chip",
+      ".pf__tone",
     ]) {
       const nodes = [...container.querySelectorAll(selector)];
       expect(nodes.length, selector).toBeGreaterThan(0);
       for (const node of nodes) expect(node).toHaveAttribute("aria-hidden", "true");
     }
+
+    // `.pf__note` (the retired bottom-left colophon) and its strings are
+    // gone — not just hidden. Same guard idiom as `.pf-shape--fused`.
+    expect(container.querySelector(".pf__note")).toBeNull();
+    expect(container.textContent).not.toMatch(/click .*expand|esc to close/i);
+
+    // The only chrome caption at the desktop tier is "panel 4b".
+    const chrome = [...container.querySelectorAll(".pf__chrome")];
+    expect(chrome).toHaveLength(1);
+    expect(chrome[0]).toHaveTextContent(/^\s*panel 4b\s*$/);
+  });
+
+  it("builds the desktop foot column as prose + marker, with subtitle only as the marker fallback", () => {
+    // D3: the `subtitle` string appears TWICE in the desktop DOM — once in
+    // `.pf-record__sub` (CSS `display: none` at this tier, so out of the
+    // a11y tree) and once as the `.pf-record__marker` fallback. jsdom
+    // applies no styles here (CSS import is stubbed), so this asserts
+    // STRUCTURE, not visibility: exactly one of each node per record,
+    // carrying the right string.
+    const { container } = renderField();
+    const records = [...container.querySelectorAll(".pf-record")];
+    expect(records).toHaveLength(PROJECTS.length);
+
+    for (const record of records) {
+      const project = PROJECTS.find((p) => record.textContent?.includes(p.title))!;
+
+      const subs = [...record.querySelectorAll(".pf-record__sub")];
+      const prose = [...record.querySelectorAll(".pf-record__prose")];
+      const markers = [...record.querySelectorAll(".pf-record__marker")];
+
+      expect(subs, "one __sub").toHaveLength(1);
+      expect(prose, "one __prose").toHaveLength(1);
+      expect(markers, "one __marker").toHaveLength(1);
+
+      expect(subs[0]).toHaveTextContent(project.subtitle);
+      expect(prose[0]).toHaveTextContent(project.description);
+      // No `marker` authored on any live record → falls back to subtitle.
+      expect(markers[0]).toHaveTextContent(project.marker ?? project.subtitle);
+
+      // The marker line is the only desktop render of authored annotation
+      // copy, so it MUST stay in the accessibility tree.
+      expect(markers[0]).not.toHaveAttribute("aria-hidden");
+    }
+  });
+
+  it("hangs each disc chip as a sibling of the figure, anchored in stage percentages", () => {
+    const { container } = renderField();
+    const layout = getFieldLayout(PROJECTS.length);
+    const slots = [layout.primary, ...layout.secondary];
+
+    const records = [...container.querySelectorAll(".pf-record")];
+    records.forEach((record, i) => {
+      const chip = record.querySelector(".pf-record__chip") as HTMLElement;
+      const figure = record.querySelector(".pf-record__figure")!;
+      expect(chip).toBeTruthy();
+      // Sibling, not descendant — a child would inherit the figure's
+      // drop-shadow edge and be scaled by the zoom transform.
+      expect(chip.parentElement).toBe(figure.parentElement);
+      expect(figure.contains(chip)).toBe(false);
+
+      const anchor = chipAnchor(slots[i].shape, slots[i].chipSide ?? "L");
+      expect(chip.style.top).toBe(`${anchor.top}%`);
+      if (anchor.left !== undefined) {
+        expect(chip.style.left).toBe(`${anchor.left}%`);
+      } else {
+        expect(chip.style.right).toBe(`${anchor.right}%`);
+      }
+    });
   });
 
   it("links a record out to its repo, and never ships a dead href", () => {

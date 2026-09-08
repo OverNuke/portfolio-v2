@@ -43,11 +43,21 @@
   --pf-max: 1120px;
   /* Stage aspect (width / height). Mirrors `STAGE_AR` in fieldLayout.ts. */
   --pf-ar: 1.62;
-  /* Band geometry, in percent of stage height. Mirrors `BAND_TOP`/`BAND_H`. */
-  --pf-band-top: 13%;
-  --pf-band-h: 57%;
-  /* Foot index top edge, percent of stage height. Mirrors `INDEX_TOP`. */
-  --pf-index-top: 78%;
+  /* Band geometry, in percent of stage height. Mirrors `BAND_TOP`/`BAND_H`.
+     Re-traced 2026-09-07 (sdd/projects-section-design-import) off the
+     1440x900 Projects Section artboard — top was thirteen percent, height
+     was fifty-seven. `fieldLayout.test.ts` asserts this pair matches TS. */
+  --pf-band-top: 16.7%;
+  --pf-band-h: 41.3%;
+  /* Band horizontal inset — the band is now two torn pieces, not a
+     full-width strip (see BAND section). CSS-only: no `fieldLayout.ts` twin
+     and deliberately NOT in the CSS-contract test — no TypeScript consumer
+     needs them, so a stale mirror would be pure liability. */
+  --pf-band-l: 7.2%;
+  --pf-band-r: 15.1%;
+  /* Foot index top edge, percent of stage height. Mirrors `INDEX_TOP`.
+     Re-traced 2026-09-07 — was seventy-eight percent. */
+  --pf-index-top: 63%;
   /* THE POSTER TIER'S TWO COLOURS, and the only knob it needs. The disc is
      Field Olive because that is the module's field colour and keeps the
      stacked tier reading as the same module as the band above it; the
@@ -95,27 +105,32 @@
 
 /* ------------------------------------------------------------------ title
    "PROJECTS", oversized in the display serif, right-aligned on the paper
-   above the band — and running two-and-a-bit percent UNDER the band's top
-   edge, so the band crops the bottom of the letterforms. That crop is the
-   whole treatment: a printed word the next colour pass ran over.
-   `bottom: 85.5%` puts the box bottom at 14.5% of stage height; the band
-   starts at 13%.
+   above the band.
+
+   CROP RATIONALE RETIRED 2026-09-07 (sdd/projects-section-design-import).
+   The title used to run two-and-a-bit percent UNDER the old band's top
+   edge (13%) so the band cropped the lower letterforms — "a printed word
+   the next colour pass ran over". The re-traced band starts at 16.7% and
+   the new artboard does not crop the word: `bottom: 88.1%` puts the box
+   bottom at 11.9% of stage height, clear of the band. The treatment is now
+   just an oversized serif word on the paper, uncropped.
 
    It is REAL, VISIBLE, READABLE TEXT — one `<h2>`, no decorative fragments
-   with a visually-hidden twin. `left` is floored at 52% so the word can
-   never grow left into the primary shape, which bleeds up into this strip
-   on every rung. */
+   with a visually-hidden twin. `left: 52%` stays as a belt-and-braces
+   floor (the re-traced primary's top is now 13.7%, below this box, so it
+   can no longer grow left into the primary shape — but the floor costs
+   nothing). */
 .pf__title {
   position: absolute;
   left: 52%;
   right: 2%;
-  bottom: 85.5%;
+  bottom: 88.1%;
   z-index: 1;
   margin: 0;
   font-family: var(--font-serif-display);
   font-weight: 800;
-  font-size: clamp(1.25rem, 11.5cqh, 6rem);
-  line-height: 0.78;
+  font-size: clamp(1.25rem, 10.7cqh, 6rem);
+  line-height: 0.86;
   letter-spacing: -0.01em;
   text-align: right;
   text-transform: uppercase;
@@ -135,14 +150,49 @@
    bleed is the single most recognisable thing about the reference. */
 .pf__band {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: var(--pf-band-l);
+  right: var(--pf-band-r);
   top: var(--pf-band-top);
   height: var(--pf-band-h);
   z-index: 2;
   overflow: hidden;
-  background: var(--field-olive-deep);
+  /* Stops painting the strip itself — the two torn pieces below carry the
+     olive. Restored to a solid fill in the poster tier, where the pseudos
+     are killed and the band is a static strip again. */
+  background: none;
   color: var(--paper-white); /* 7.74:1 */
+}
+
+/* TWO TORN PIECES, not one full-width strip (sdd/projects-section-design-import,
+   2026-09-07). `::before` / `::after` rather than two DOM nodes: the band
+   keeps its single identity as positioning box, `--pf-band-*` host,
+   `overflow: hidden` clip, chrome parent and wipe carrier, and the
+   reduced-motion / wipe selector lists do not grow. The parent's wipe
+   `clip-path` clips both pseudos — correct, they arrive together. */
+.pf__band::before,
+.pf__band::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--field-olive-deep);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(246, 246, 244, 0.05) 0 2px,
+    transparent 2px 7px
+  );
+}
+
+.pf__band::before {
+  left: 0;
+  right: 48.84%;
+  clip-path: polygon(0 0.8%, 99.7% 0, 100% 99.2%, 0.3% 100%);
+}
+
+.pf__band::after {
+  left: 51.7%;
+  right: 0;
+  clip-path: polygon(0 0, 99.6% 1%, 100% 100%, 0.4% 99%);
 }
 
 /* Vertical because the reference's mark sits in a strip about seven
@@ -193,30 +243,40 @@
 }
 
 /**
- * The reference's bottom-left micro block, carrying the module's colophon.
+ * BOTTOM-RIGHT CHROME — `panel 4b` plus a hairline, on the paper in the
+ * stage's bottom-right corner, clear of the last (narrowest) foot column.
  *
- * IT FITS IN A POCKET, AND THE POCKET IS CURVED. The primary's lobe is a
- * semicircle centred on the shape's midline, so near the band's bottom
- * edge the shape's left boundary has swung right and left a wedge of empty
- * band behind it. At the 3-record rung the lobe's left edge is at ~12.6%
- * of stage width where this block's top sits, and this block ends at
- * 10.5%. That ~2% is the clearance, and it is why the width is 9% and not
- * a rounder number. Widening it, or raising it, walks it under the disc.
+ * Replaced `.pf__note` (sdd/projects-section-design-import, 2026-09-07).
+ * The artboard has no bottom-left colophon. It IS a `.pf__stage` child, not
+ * a `.pf__band` one: the band is `overflow: hidden` and this sits below it.
+ * The artboard's second caption half ("click to expand · esc to close") is
+ * dropped — instructional, so it can be neither `aria-hidden` nor shipped
+ * at its ~3.4:1 alpha, and `.pf-zoom__close`'s visually-hidden tail already
+ * says it.
+ *
+ * `--gray` (5.12:1 on paper) — the artboard's `rgba(25,27,22,.5)` was
+ * 3.4:1, a sub-AA fail.
  */
-.pf__note {
+.pf__chrome {
   position: absolute;
-  left: 1.5%;
-  bottom: 4%;
-  width: 9%;
+  right: 1.6%;
+  bottom: 1.4%;
+  z-index: 2;
   display: flex;
-  flex-direction: column;
-  gap: 0.3em;
+  align-items: center;
+  gap: 0.6em;
   margin: 0;
-  font-size: clamp(5.5px, 0.56cqw, 8px);
-  line-height: 1.45;
-  letter-spacing: 0.06em;
+  font-size: clamp(6px, 0.58cqw, 9px);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
-  opacity: var(--on-olive-chrome);
+  color: var(--gray);
+}
+
+.pf__chrome::before {
+  content: "";
+  width: clamp(20px, 3.4cqw, 56px);
+  height: 1px;
+  background: currentColor;
 }
 
 /* Only reachable above five records, which the live archive is nowhere
@@ -372,6 +432,113 @@
   }
 }
 
+/* ============================================================= TONE CIRCLES
+   Two decorative halftone tone circles behind the discs
+   (sdd/projects-section-design-import, 2026-09-07) — a RUNG-3 composition
+   device traced off the artboard. CSS cannot read the ladder, so they are
+   scoped to `.pf[data-layout="3"]` and `display: none` everywhere else,
+   the same way the poster furniture is dormant by default. Always-on (no
+   toggle), fully `aria-hidden`, non-focusable.
+
+   `clip-path: circle()`, NEVER `border-radius` (tokens.css zeroes radii
+   globally with `!important`). MOTION STATUS: not animated — see the NOT
+   ANIMATED note in the MOTION block for why a wipe or a reduced-motion
+   reset would dissolve the circle to a rectangle. */
+.pf__tone {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  clip-path: circle(closest-side at 50% 50%);
+  background-image: radial-gradient(var(--field-olive) 20%, transparent 22%);
+  background-size: 6px 6px;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.pf[data-layout="3"] .pf__tone {
+  display: block;
+}
+
+/* A — the large dark screen behind the primary. B — the small light one
+   behind the second secondary. Traced: A cx 28.06 cy 34.44 d 28.6; B cx
+   71.25 cy 47.11 d 13.6 (percent of stage). */
+.pf[data-layout="3"] .pf__tone[data-tone="1"] {
+  left: 28.06%;
+  top: 34.44%;
+  width: 28.6%;
+  opacity: 0.5;
+}
+
+.pf[data-layout="3"] .pf__tone[data-tone="2"] {
+  left: 71.25%;
+  top: 47.11%;
+  width: 13.6%;
+  opacity: 0.3;
+}
+
+/* ================================================================== DISC CHIP
+   The disc's short-label annotation (sdd/projects-section-design-import,
+   2026-09-07) — marker-hand, on the disc's AUTHORED side (`slot.chipSide`,
+   L/L/R at rung 3), rotated PAST `--rot-max`. Decorative: `aria-hidden`
+   and `pointer-events: none`; the category is exposed for real in
+   `.pf-record__kind`. Positioned by an inline `top` + `left`|`right` from
+   `FieldRecord.tsx` (`chipAnchor`); a SIBLING of `.pf-record__figure`, so
+   the zoom transform and the figure's four-way drop-shadow edge never
+   reach it.
+
+   `--font-hand` on a Sheet-baseline surface is a LOCAL EXCEPTION, dated —
+   see docs/01_ART_DIRECTION.MD. `/projects` is not promoted to its own
+   register. */
+.pf-record__chip {
+  position: absolute;
+  z-index: 4;
+  padding: 0.14em 0.5em;
+  font-family: var(--font-hand);
+  font-size: clamp(8px, 0.9cqw, 12px);
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  background: var(--paper-white);
+  color: var(--ink); /* 17.45:1 on Paper White — docs/02_DESIGN_SYSTEM.MD */
+  border: var(--rule-thick) solid var(--ink);
+  transform: rotate(var(--pf-chip-rot, -2deg));
+  transform-origin: center;
+  pointer-events: none;
+}
+
+/* Record 2's chip (AcopiaTech) overlaps the band. Paper White stock would
+   read fine, but the artboard sets this one in olive — and `--field-olive`,
+   NOT `--field-olive-deep`: an olive-deep chip on the olive-deep band
+   disappears. The lighter olive is load-bearing. */
+.pf-record[data-record="2"] .pf-record__chip {
+  background: var(--field-olive);
+  color: var(--paper-white); /* 6.79:1 on Field Olive — docs/02_DESIGN_SYSTEM.MD */
+  border-color: var(--paper-white);
+}
+
+/* Rotation past `--rot-max` (2deg). LOCAL EXCEPTION — three declarations,
+   dated 2026-09-07, documented in docs/01_ART_DIRECTION.MD. Not a blanket
+   cap lift: every other rotation in the system still honours the token. */
+.pf-record[data-record="1"] .pf-record__chip {
+  --pf-chip-rot: -3deg;
+}
+.pf-record[data-record="2"] .pf-record__chip {
+  --pf-chip-rot: -2.6deg;
+}
+.pf-record[data-record="3"] .pf-record__chip {
+  --pf-chip-rot: 2.6deg;
+}
+
+/* R7: while THIS record is zoomed, its own chip is inside the zoomed
+   article's stacking context, above the scrim, and would paint at its
+   REST position while the disc scales away. Same idiom as the zoomed
+   `.pf-record__cap` rule below. */
+.pf-record[data-zoom="self"] .pf-record__chip {
+  visibility: hidden;
+}
+
 /* ================================================================ FOOT INDEX
    The paper strip under the band. Three micro columns, each left-aligned
    under its own shape, their widths descending with the shapes — the
@@ -428,17 +595,37 @@
   letter-spacing: -0.01em;
 }
 
-.pf-record__sub {
+/* THE DESKTOP FOOT COLUMN, RETYPED (sdd/projects-section-design-import,
+   2026-09-07). `.pf-record__sub` used to set `subtitle` as 6-9px tracked
+   uppercase at every tier. At the field tier it is now DORMANT (joins the
+   `display: none` group below) and the column reads as a short prose
+   paragraph off `description` followed by a marker-hand annotation line.
+   Below 900px `.pf-record__sub` is restored and the poster's tracked
+   treatment is untouched — see the POSTER block, which carries both the
+   non-primary `.pf-record__sub` size AND the `[data-primary="1"]
+   .pf-record__sub` clamp (re-scoped there because its (0,2,0) specificity
+   governs the poster-tier primary subtitle — media queries add none). The
+   old *desktop-scoped* copies of those two rules were deleted with this
+   change. */
+.pf-record__prose {
   margin: 0;
-  font-size: clamp(6px, 0.62cqw, 9px);
-  line-height: 1.4;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gray); /* 5.12:1 on paper */
+  /* Sized in `cqw` so it tracks `--pf-max` (the composition's one knob),
+     not the viewport — same unit discipline as the rest of the file.
+     ~13.5px at the reference width; it shrinks with `--pf-max` in the
+     900-1100 band, where the stage height (and so the foot-index budget)
+     falls furthest and the narrow secondary columns need the prose to
+     reflow tighter (R5). The 10.5px floor is the readable minimum. */
+  font-size: clamp(10px, 1.2cqw, 14px);
+  line-height: 1.35;
+  color: var(--ink); /* 14.83:1 on --paper */
 }
 
-[data-primary="1"] .pf-record__sub {
-  font-size: clamp(6.5px, 0.7cqw, 11px);
+.pf-record__marker {
+  margin: 0.3em 0 0;
+  font-family: var(--font-hand); /* local exception — see docs/01_ART_DIRECTION.MD */
+  font-size: clamp(9.5px, 0.95cqw, 12px);
+  line-height: 1.25;
+  color: var(--field-olive); /* 5.77:1 on paper */
 }
 
 .pf-record__meta {
@@ -459,14 +646,18 @@
   text-overflow: ellipsis;
 }
 
-/* POSTER FURNITURE, DORMANT. These four draw nothing at this width; the
-   whole of the stacked tier's composition hangs off them. Declared here
-   rather than only inside the media query so the default is "invisible"
-   and a new width tier cannot accidentally inherit half a poster. */
+/* POSTER FURNITURE, DORMANT. These draw nothing at this width; the whole
+   of the stacked tier's composition hangs off them. Declared here rather
+   than only inside the media query so the default is "invisible" and a new
+   width tier cannot accidentally inherit half a poster. `.pf-record__sub`
+   joins the list at the field tier (2026-09-07) — the desktop foot column
+   is `.pf-record__prose` + `.pf-record__marker` now, and `subtitle` is
+   announced once, via the marker fallback. */
 .pf-record__bar,
 .pf-record__corner,
 .pf-record__disc,
-.pf-record__badges {
+.pf-record__badges,
+.pf-record__sub {
   display: none;
 }
 
@@ -701,9 +892,10 @@
 [data-motion="full"] .pf-record__cap,
 [data-motion="full"] .pf-record__bar,
 [data-motion="full"] .pf-record__corner,
+[data-motion="full"] .pf-record__chip,
 [data-motion="full"] .pf__mark,
 [data-motion="full"] .pf__meta,
-[data-motion="full"] .pf__note {
+[data-motion="full"] .pf__chrome {
   animation: pf-wipe var(--dur-turn) var(--ease-hard) both;
 }
 
@@ -723,8 +915,10 @@
    hand-written delays this block used to carry, so the step is a token
    and a sixth record needs one rung, not a new pair of rules.
    `.pf-record__bar` / `__corner` are poster-tier only (display: none
-   above 900px), and they trail their own record by half a step so the
-   accent lands after the plate it marks rather than with it. */
+   above 900px). `.pf-record__chip` is the desktop accent that joins their
+   half-step groups: the file's own rule is that an accent "trails its own
+   record by half a step so the accent lands after the plate it marks
+   rather than with it" — the chip IS that accent for the field tier. */
 [data-motion="full"] .pf-record[data-record="1"] .pf-record__figure,
 [data-motion="full"] .pf-record[data-record="1"] .pf-record__cap {
   animation-delay: calc(60ms + 0 * var(--stagger-rank));
@@ -747,23 +941,28 @@
 }
 
 [data-motion="full"] .pf-record[data-record="1"] .pf-record__bar,
-[data-motion="full"] .pf-record[data-record="1"] .pf-record__corner {
+[data-motion="full"] .pf-record[data-record="1"] .pf-record__corner,
+[data-motion="full"] .pf-record[data-record="1"] .pf-record__chip {
   animation-delay: calc(90ms + 0 * var(--stagger-rank));
 }
 [data-motion="full"] .pf-record[data-record="2"] .pf-record__bar,
-[data-motion="full"] .pf-record[data-record="2"] .pf-record__corner {
+[data-motion="full"] .pf-record[data-record="2"] .pf-record__corner,
+[data-motion="full"] .pf-record[data-record="2"] .pf-record__chip {
   animation-delay: calc(90ms + 1 * var(--stagger-rank));
 }
 [data-motion="full"] .pf-record[data-record="3"] .pf-record__bar,
-[data-motion="full"] .pf-record[data-record="3"] .pf-record__corner {
+[data-motion="full"] .pf-record[data-record="3"] .pf-record__corner,
+[data-motion="full"] .pf-record[data-record="3"] .pf-record__chip {
   animation-delay: calc(90ms + 2 * var(--stagger-rank));
 }
 [data-motion="full"] .pf-record[data-record="4"] .pf-record__bar,
-[data-motion="full"] .pf-record[data-record="4"] .pf-record__corner {
+[data-motion="full"] .pf-record[data-record="4"] .pf-record__corner,
+[data-motion="full"] .pf-record[data-record="4"] .pf-record__chip {
   animation-delay: calc(90ms + 3 * var(--stagger-rank));
 }
 [data-motion="full"] .pf-record[data-record="5"] .pf-record__bar,
-[data-motion="full"] .pf-record[data-record="5"] .pf-record__corner {
+[data-motion="full"] .pf-record[data-record="5"] .pf-record__corner,
+[data-motion="full"] .pf-record[data-record="5"] .pf-record__chip {
   animation-delay: calc(90ms + 4 * var(--stagger-rank));
 }
 
@@ -771,7 +970,7 @@
    itself, and it should be the last voice in the room. */
 [data-motion="full"] .pf__mark,
 [data-motion="full"] .pf__meta,
-[data-motion="full"] .pf__note {
+[data-motion="full"] .pf__chrome {
   animation-delay: 420ms;
 }
 
@@ -784,6 +983,18 @@
      turns to mush. It arrives with its poster.
    - `.pf-shape` and its variants, same first reason. See the
      reduced-motion note below, which has been guarding exactly this.
+   - `.pf__tone` owns `clip-path: circle(closest-side)` — SAME first reason
+     as `.pf-record__disc` (sdd/projects-section-design-import, 2026-09-07).
+     A wipe replaces the circle with a rectangle of dots for the
+     animation's length; the reduced-motion `clip-path: none !important`
+     reset dissolves it permanently for the audience least likely to
+     report it. It is in NEITHER list and arrives with the composition it
+     sits behind. The "clip-path reset reach the shapes" contract test does
+     NOT protect it — `.pf__tone` is not `.pf-shape` — so `fieldLayout.test.ts`
+     asserts its absence from both lists directly.
+   - `.pf-record__prose` / `.pf-record__marker` arrive inside
+     `.pf-record__cap`, already a wipe carrier; a second clip-path wipe
+     nested in an animating one double-clips.
    - `.pf-record__badges`, `.pf-record__year` — a sixth beat is one beat
      past where the eye is still counting. */
 
@@ -805,11 +1016,12 @@
   .pf__band,
   .pf__mark,
   .pf__meta,
-  .pf__note,
+  .pf__chrome,
   .pf-record__figure,
   .pf-record__cap,
   .pf-record__bar,
-  .pf-record__corner {
+  .pf-record__corner,
+  .pf-record__chip {
     animation: none !important;
     clip-path: none !important;
   }
@@ -833,8 +1045,21 @@
     letter-spacing: var(--track-label);
   }
 
-  .pf__note {
+  /* Chrome sheds first at this tier — `.pf__chrome` inherits the shed the
+     old `.pf__note` had here. */
+  .pf__chrome {
     display: none;
+  }
+
+  /* The stage height falls furthest in this band, so the foot-index budget
+     is tightest here (R5). Tighten the caption stack — this is where the
+     narrow secondary prose would otherwise spill the stage bottom. */
+  .pf-record__cap {
+    gap: 0.22em;
+  }
+
+  .pf-record__prose {
+    line-height: 1.3;
   }
 }
 
@@ -900,7 +1125,10 @@
   }
 
   /* Demoted to a strip, not deleted: it still carries the record count and
-     (above five records) the pager, which is a real control. */
+     (above five records) the pager, which is a real control. The two torn
+     `::before`/`::after` pieces are a field-tier device — killed here, and
+     the solid olive fill the desktop base rule dropped is restored so the
+     static strip still paints. */
   .pf__band {
     position: static;
     order: -1;
@@ -912,6 +1140,12 @@
     height: auto;
     margin-bottom: var(--space-lg);
     padding: var(--space-sm) var(--space-md);
+    background: var(--field-olive-deep);
+  }
+
+  .pf__band::before,
+  .pf__band::after {
+    display: none;
   }
 
   .pf__mark {
@@ -932,7 +1166,15 @@
     font-size: 9px;
   }
 
-  .pf__note {
+  /* Every field-tier desktop node the poster has no slot for. The chip and
+     the two foot-column lines carry inline `top`/`left`/`right` from
+     `FieldRecord.tsx` that mean nothing here; the tone circles are a
+     rung-3 device; `.pf__chrome` sheds with the rest of the chrome. */
+  .pf__chrome,
+  .pf__tone,
+  .pf-record__chip,
+  .pf-record__prose,
+  .pf-record__marker {
     display: none;
   }
 
@@ -1257,6 +1499,9 @@
      it. The `min()` keeps that honest at every phone width instead of
      working at 390 and failing at 320, which a bare `ch` value did. */
   .pf-record__sub {
+    /* Restored from the field tier's dormant `display: none` — this is the
+       poster's own subtitle treatment, unchanged since it was signed off. */
+    display: block;
     order: 3;
     margin: 7px 0 0;
     max-width: min(24ch, 47%);
@@ -1265,6 +1510,20 @@
     letter-spacing: 0.05em;
     text-transform: none;
     color: var(--gray); /* 5.12:1 on paper */
+  }
+
+  /* THE POSTER PRIMARY'S SUBTITLE, restored (sdd/projects-section-design-import
+     follow-up, 2026-09-07). The main change deleted this rule from the
+     desktop block calling it a "dead desktop rule" — it was not. By
+     specificity `[data-primary="1"] .pf-record__sub` (0,2,0) beats the poster
+     `.pf-record__sub` above (0,1,0) — media queries add no specificity — so
+     at HEAD it ALSO governed the poster-tier primary (Barbershop) card,
+     holding its subtitle at the clamp floor (~6.5px) while the non-primary
+     cards take 8.5px. Re-added here INSIDE the poster block, where it
+     actually matters and can never again read as desktop-only. Inert at
+     desktop, where `.pf-record__sub` is `display: none`. */
+  [data-primary="1"] .pf-record__sub {
+    font-size: clamp(6.5px, 0.7cqw, 11px);
   }
 
   .pf-record__action {

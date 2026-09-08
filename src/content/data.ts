@@ -57,6 +57,10 @@ export const PROJECTS: Project[] = [
     repo: "https://github.com/Sinhularity/barbershop",
     featured: true,
     sheetSlot: "feature",
+    // The one authored chip label — "flagship" is a judgment call no stack
+    // tag produces (Barbershop derives to `Backend`). AcopiaTech → "mobile"
+    // and Odoo → "module" fall out of `getProjectCategory`. See `resolveChipText`.
+    chip: "flagship",
     image: barbershopUserImg,
     imageAlt:
       "Barbershop admin dashboard showing an employee record with contact details and status.",

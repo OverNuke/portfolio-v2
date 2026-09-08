@@ -22,6 +22,24 @@ export interface Project {
    * `feature` and at most one `spread`; see `assignSlots`.
    */
   sheetSlot?: "feature" | "spread" | "record";
+  /**
+   * Short marker-hand label on the /projects disc chip
+   * (`sdd/projects-section-design-import`, 2026-09-07). Authored, never
+   * lifted from a design mockup — same rule as `Certificate.note`. Absent
+   * falls back to the derived category, lowercased — see `resolveChipText`.
+   * Only "flagship" (Barbershop) is a judgment no tag can produce; "mobile"
+   * / "module" derive from `getProjectCategory`.
+   */
+  chip?: string;
+  /**
+   * The marker annotation line under the desktop foot-column prose
+   * (`sdd/projects-section-design-import`, 2026-09-07). Authored, never
+   * lifted from a mockup — `Certificate.note` again. Ships unset: every
+   * record falls back to `project.subtitle`, whose values are already
+   * annotation-shaped, and the desktop tier gate frees `subtitle` from
+   * `.pf-record__sub` so it renders exactly once per tier.
+   */
+  marker?: string;
   /** Second plate, `spread` slot only. Ignored in every other slot. */
   imageB?: string;
   /** Required whenever `imageB` is set. */

@@ -17,9 +17,6 @@ export interface ProjectFieldProps {
   totalRecords: number;
   /** Year range printed in the band's meta, e.g. "2023—2026". */
   span?: string;
-  /** Printed in the band's foot note — the field talking about itself. */
-  colophonName: string;
-  colophonRole: string;
   onPrev?: () => void;
   onNext?: () => void;
   /**
@@ -74,8 +71,6 @@ export function ProjectField({
   fieldCount,
   totalRecords,
   span,
-  colophonName,
-  colophonRole,
   onPrev,
   onNext,
   macroWord = "PROJECTS",
@@ -172,10 +167,10 @@ export function ProjectField({
         </h2>
 
         {/* The band is the artboard, and it is decoration in the strict
-            sense: every string printed on it is either a label for
-            something the foot index already states in full, or the
-            module's own colophon. Nothing here is the only copy of
-            anything, which is why losing it below 768px costs nothing. */}
+            sense: every string printed on it is a label for something the
+            foot index already states in full. Nothing here is the only
+            copy of anything, which is why losing it below 768px costs
+            nothing. */}
         <div className="pf__band" data-reform-id="band">
           <p className="pf__mark" aria-hidden="true">
             Project database
@@ -211,17 +206,24 @@ export function ProjectField({
             )}
           </div>
 
-          {/* The reference's bottom-left micro block, carrying the old
-              sheet's colophon — the field talking about itself. It sits in
-              the pocket the primary shape's lower-left arc curves away
-              from; see `project-field.css`'s BAND section for the arc
-              maths that keeps it clear. */}
-          <p className="pf__note" aria-hidden="true">
-            <span>{colophonName}</span>
-            <span>{colophonRole}</span>
-            <span>Records are technical, not marketing</span>
-          </p>
         </div>
+
+        {/* Two decorative halftone tone circles, traced off the artboard as
+            a rung-3 composition device (`.pf[data-layout="3"]` only, CSS).
+            After `.pf__band` in DOM so they paint above it and below the
+            records. Fully `aria-hidden`. */}
+        <span className="pf__tone" data-tone="1" aria-hidden="true" />
+        <span className="pf__tone" data-tone="2" aria-hidden="true" />
+
+        {/* Bottom-right chrome caption, on the paper below the band — a
+            `.pf__stage` child, not a `.pf__band` one (the band is
+            `overflow: hidden`). Replaced the bottom-left `.pf__note`
+            colophon 2026-09-07: the artboard has no colophon, and the
+            expand/Escape instruction it also carried already lives in
+            `.pf-zoom__close`'s visually-hidden tail. */}
+        <p className="pf__chrome" aria-hidden="true">
+          panel 4b
+        </p>
 
         {/* `display: contents` — the records inside stay direct children of
             `.pf__stage` for positioning purposes, exactly as if this

@@ -85,6 +85,18 @@ export function getProjectStatus(project: Project): "Live" | "Private" {
   return project.repo && project.repo !== "#" ? "Live" : "Private";
 }
 
+/**
+ * Text for the /projects disc chip (`sdd/projects-section-design-import`).
+ * The authored `chip` when the record carries one, otherwise the derived
+ * category lowercased to sit in the marker-hand voice. Kept here rather than
+ * inlined in `FieldRecord` so it can be asserted without rendering — the
+ * chip is decorative (`aria-hidden`), so this string never reaches the
+ * accessibility tree and the category stays exposed via `.pf-record__kind`.
+ */
+export function resolveChipText(project: Project): string {
+  return project.chip ?? getProjectCategory(project).toLowerCase();
+}
+
 export const STATUS_LABEL: Record<ReturnType<typeof getProjectStatus>, string> = {
   Live: "DEPLOYED",
   Private: "PRIVATE",

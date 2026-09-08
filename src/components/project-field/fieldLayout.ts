@@ -32,28 +32,39 @@ import type { Project } from "../../content/types";
  * `shapeBottom` below does, and it is the one place that conversion is
  * written down.
  *
- * MEASURED, NOT INVENTED. The 3-record rung is traced off `image_01`:
- * band-relative centres (29.7%, 50%) / (64.6%, 47%) / (82%, 64%) and
- * diameters 43% / 24.8% / 18% of the band's width, converted here into
- * stage coordinates through `BAND_TOP`/`BAND_H`. Ratios 1 : 0.577 : 0.419.
- * The other rungs are authored to hold that descending-chain feel at other
- * record counts; only rung 3 is a tracing.
+ * MEASURED, NOT INVENTED. The 3-record rung is traced off the 1440x900
+ * Projects Section artboard (sdd/projects-section-design-import, 2026-09-07):
+ * disc rects barbershop 224,126,396²; acopiatech 716,176,228²; odoo
+ * 900,298,212², converted here through /1440 (x, d) and /900 (y) into stage
+ * coordinates. The other rungs are authored to hold that descending-chain
+ * grammar in the shorter band at other record counts; only rung 3 is a
+ * tracing.
+ *
+ * RE-TRACED 2026-09-07 off a new artboard. The previous trace was off
+ * `image_01` (band constants 13 / 57 / 78). Changing the three band
+ * constants invalidates EVERY rung, not just rung 3 — `assertFieldLayouts()`
+ * runs over all of `FIELD_LAYOUTS` — so rungs 1/2/4/5 were re-authored in
+ * the same pass (engram discovery/project-field-band-consts-global).
  */
 
 /** Stage aspect (width / height). Mirrored by `--pf-ar` in project-field.css. */
 export const STAGE_AR = 1.62;
 
-/** The olive band's top edge and height, in percent of stage height. */
-export const BAND_TOP = 13;
-export const BAND_H = 57;
+/**
+ * The olive band's top edge and height, in percent of stage height.
+ * RE-TRACED 2026-09-07: was 13 / 57 (band bottom 70). Mirrored by
+ * `--pf-band-top` / `--pf-band-h`; `fieldLayout.test.ts` asserts the pair.
+ */
+export const BAND_TOP = 16.7;
+export const BAND_H = 41.3;
 
 /**
  * Top edge of the foot index, in percent of stage height. Every shape must
  * clear it — asserted below — because the index carries the only real
  * project text on the composition and a disc lying over it is an occlusion
- * bug, not a style choice.
+ * bug, not a style choice. RE-TRACED 2026-09-07: was 78.
  */
-export const INDEX_TOP = 78;
+export const INDEX_TOP = 63;
 
 export interface FieldShape {
   /** Centre X, percent of stage width. */
@@ -74,6 +85,13 @@ export interface FieldColumn {
 export interface FieldSlot {
   shape: FieldShape;
   column: FieldColumn;
+  /**
+   * Which side of the disc the annotation chip hangs off. AUTHORED, never
+   * derived: the artboard sets rung 3 to L, L, R while `data-side`
+   * alternates L, R, L. Heuristic for a new rung: the side AWAY from the
+   * nearest neighbouring disc. Defaults to "L".
+   */
+  chipSide?: "L" | "R";
 }
 
 export interface FieldLayout {
@@ -96,36 +114,43 @@ export const RECORDS_PER_FIELD = 5;
  */
 export const FIELD_LAYOUTS: Record<number, FieldLayout> = {
   1: {
-    primary: { shape: { cx: 30, cy: 41.5, d: 44 }, column: { x: 4, w: 44 } },
+    primary: { shape: { cx: 30, cy: 33.2, d: 31 }, column: { x: 4, w: 44 }, chipSide: "L" },
     secondary: [],
   },
   2: {
-    primary: { shape: { cx: 27, cy: 41.5, d: 42 }, column: { x: 4, w: 44 } },
-    secondary: [{ shape: { cx: 68, cy: 41.5, d: 27 }, column: { x: 55, w: 40 } }],
-  },
-  // THE REFERENCE DISTRIBUTION — traced off `image_01`, 2026-08-13.
-  3: {
-    primary: { shape: { cx: 29.7, cy: 41.5, d: 43 }, column: { x: 4, w: 42 } },
+    primary: { shape: { cx: 27, cy: 34.4, d: 29.5 }, column: { x: 4, w: 44 }, chipSide: "L" },
     secondary: [
-      { shape: { cx: 64.6, cy: 39.8, d: 24.8 }, column: { x: 52, w: 20 } },
-      { shape: { cx: 82, cy: 49.5, d: 18 }, column: { x: 73, w: 25 } },
+      { shape: { cx: 68, cy: 37, d: 19 }, column: { x: 55, w: 40 }, chipSide: "R" },
+    ],
+  },
+  // THE REFERENCE DISTRIBUTION — re-traced off the 1440x900 Projects Section
+  // artboard, 2026-09-07 (sdd/projects-section-design-import).
+  3: {
+    primary: { shape: { cx: 29.3, cy: 36.0, d: 27.5 }, column: { x: 9, w: 33 }, chipSide: "L" },
+    secondary: [
+      // Columns widened slightly from the raw trace (47.5/16, 65.6/18.3) so
+      // the narrow secondary prose reflows inside the 900-1100px budget
+      // without spilling the stage bottom (R5). Invariants hold: ordered,
+      // disjoint (primary edge 42, sec1 42..61, sec2 61..83), primary widest.
+      { shape: { cx: 57.6, cy: 32.2, d: 15.8 }, column: { x: 42, w: 19 }, chipSide: "L" },
+      { shape: { cx: 69.9, cy: 44.9, d: 14.7 }, column: { x: 61, w: 22 }, chipSide: "R" },
     ],
   },
   4: {
-    primary: { shape: { cx: 25, cy: 41.5, d: 38 }, column: { x: 4, w: 32 } },
+    primary: { shape: { cx: 25, cy: 36.43, d: 27 }, column: { x: 4, w: 32 }, chipSide: "L" },
     secondary: [
-      { shape: { cx: 52, cy: 38, d: 22 }, column: { x: 40, w: 17 } },
-      { shape: { cx: 71, cy: 47, d: 17 }, column: { x: 59, w: 16 } },
-      { shape: { cx: 87, cy: 55, d: 13 }, column: { x: 78, w: 20 } },
+      { shape: { cx: 50, cy: 33.5, d: 16 }, column: { x: 40, w: 17 }, chipSide: "L" },
+      { shape: { cx: 66, cy: 40, d: 13 }, column: { x: 59, w: 16 }, chipSide: "L" },
+      { shape: { cx: 78, cy: 46, d: 10 }, column: { x: 78, w: 20 }, chipSide: "R" },
     ],
   },
   5: {
-    primary: { shape: { cx: 19, cy: 41.5, d: 37 }, column: { x: 2, w: 26 } },
+    primary: { shape: { cx: 21, cy: 36.84, d: 26.5 }, column: { x: 2, w: 26 }, chipSide: "L" },
     secondary: [
-      { shape: { cx: 47, cy: 37, d: 17 }, column: { x: 30, w: 15 } },
-      { shape: { cx: 65, cy: 45, d: 14 }, column: { x: 47, w: 14 } },
-      { shape: { cx: 80, cy: 52, d: 11.5 }, column: { x: 63, w: 15 } },
-      { shape: { cx: 92.5, cy: 58, d: 9 }, column: { x: 80, w: 18 } },
+      { shape: { cx: 46, cy: 32, d: 12.5 }, column: { x: 30, w: 15 }, chipSide: "L" },
+      { shape: { cx: 61, cy: 38, d: 10.5 }, column: { x: 47, w: 14 }, chipSide: "L" },
+      { shape: { cx: 73, cy: 44, d: 8.8 }, column: { x: 63, w: 15 }, chipSide: "L" },
+      { shape: { cx: 81, cy: 49, d: 7 }, column: { x: 80, w: 18 }, chipSide: "R" },
     ],
   },
 };
@@ -149,6 +174,36 @@ export function shapeTop(shape: FieldShape): number {
 }
 
 /**
+ * The disc annotation chip's offset OUT past the disc edge, and DOWN from
+ * its top, as fractions of the disc's own diameter. Traced 2026-09-07 off
+ * the three rung-3 chips (-16/396, -14/228, -12/212 → ~0.05; 44/396,
+ * 20/228, 18/212 → ~0.115). Single ratios fitted to three chips; max error
+ * ~0.8% of stage, visual only.
+ */
+export const CHIP_OUT = 0.05;
+export const CHIP_DROP = 0.115;
+
+/**
+ * Stage-percentage anchor for a disc's annotation chip. Returns `left` for
+ * an L-side chip and `right` for an R-side one, so the chip always runs
+ * INWARD over the disc the way the artboard sets it and no transform is
+ * needed — leaving `transform` free for the chip's rotation.
+ *
+ * Kept here, out of the component, per this file's rule: no conversion math
+ * lives in `FieldRecord.tsx`. The component stringifies the number with a
+ * `%` unit and drops it straight into the style attribute.
+ */
+export function chipAnchor(
+  shape: FieldShape,
+  side: "L" | "R" = "L",
+): { top: number; left?: number; right?: number } {
+  const top = shapeTop(shape) + shape.d * STAGE_AR * CHIP_DROP;
+  return side === "R"
+    ? { top, right: 100 - (shape.cx + shape.d / 2) - shape.d * CHIP_OUT }
+    : { top, left: shape.cx - shape.d / 2 - shape.d * CHIP_OUT };
+}
+
+/**
  * Invariants, checked at module load in DEV (`ProjectField.tsx`) and in
  * CI (`fieldLayout.test.ts`). These are the rules that make the
  * composition a hierarchy rather than three shapes in a row:
@@ -167,11 +222,14 @@ export function shapeTop(shape: FieldShape): number {
  *      the hierarchy a second time, in measure rather than in scale; a
  *      secondary record with a wider column than the primary would have
  *      the two statements contradicting each other.
- *   6. The primary bleeds past BOTH band edges, and no secondary bleeds
- *      past either. This is the single most recognisable thing about
- *      `image_01` and the easiest to lose in a later tweak: a rung whose
- *      primary has quietly shrunk back inside the band still satisfies
- *      every other rule here and no longer looks like the reference.
+ *   6. The primary bleeds past the band's TOP edge, and no secondary
+ *      bleeds past either edge. RELAXED 2026-09-07: the invariant used to
+ *      require the primary to bleed past BOTH edges. On the re-traced
+ *      artboard the primary is tangent at the band's bottom (58.3% vs
+ *      58.0%) and a 0.3% overshoot is noise, not a gesture — so only the
+ *      top bleed is asserted. The primary's bottom is still bounded, by
+ *      invariant 3 (INDEX_TOP), which is the bound that matters: the foot
+ *      index carries every project's real text.
  */
 export function assertFieldLayouts(): void {
   for (const [count, layout] of Object.entries(FIELD_LAYOUTS)) {
@@ -218,11 +276,19 @@ export function assertFieldLayouts(): void {
 
     const bandBottom = BAND_TOP + BAND_H;
 
-    if (
-      shapeTop(layout.primary.shape) >= BAND_TOP ||
-      shapeBottom(layout.primary.shape) <= bandBottom
-    ) {
-      throw new Error(`Field layout ${count}: the primary no longer bleeds past both band edges`);
+    // RELAXED 2026-09-07 (sdd/projects-section-design-import). Was: bleed
+    // past BOTH edges. The Projects Section artboard's primary is TANGENT at
+    // the band's bottom (58.3% vs 58.0%) — a 0.3% overshoot is not a bleed,
+    // it is noise that flips sign on a 0.1 tweak to `cy` or `d`. Worth
+    // recording: the OLD both-edge assertion did NOT throw on the new
+    // numbers (58.275 <= 58.0 is false), so this is a semantic correction,
+    // not a mechanical fix. The recognisable gesture is the TOP bleed, and
+    // that is what is asserted. The primary's bottom stays bounded by
+    // invariant 3 (INDEX_TOP), which is the bound that actually matters.
+    if (shapeTop(layout.primary.shape) >= BAND_TOP) {
+      throw new Error(
+        `Field layout ${count}: the primary no longer bleeds past the band's top edge`,
+      );
     }
 
     layout.secondary.forEach((slot, i) => {
@@ -286,8 +352,15 @@ export function paginate(projects: readonly Project[], perField = RECORDS_PER_FI
 /** How much of the stage a zoomed record fills, in percent. */
 export const ZOOM_W = 74;
 export const ZOOM_H = 82;
-/** Guard for the small rungs — rung 5's smallest shape would otherwise
- *  scale 5.6x and resample the halftone plate to mush. */
+/**
+ * Guard for the small discs — resamples a 1-bit halftone plate past its dot
+ * grid otherwise (`image-rendering: pixelated`; doc 13, "the dither IS the
+ * image"). Stays 3. RE-TRACED 2026-09-07: on the new rung 3 this cap binds
+ * for BOTH secondaries (AcopiaTech d≈15.8, Odoo d≈14.7) — that is the cap
+ * working, not a regression. Consequence: the old "every disc zooms to the
+ * same on-screen height" guarantee is gone (ZOOM_H no longer binds at every
+ * rung); the zoom now preserves the descending-scale rank instead.
+ */
 export const ZOOM_MAX_SCALE = 3;
 
 export interface ZoomTransform {
