@@ -44,6 +44,16 @@
   --scan-stock: #d9d9d6;
   --oxblood: #4a1f1a;
   --oxblood-hi: #5c2a22;
+  /* Non-text only (2026-09-15, sdd/design-canvas-reconcile-v2 D2). A
+     contrast dead zone: fails AA 4.5:1 in every text direction — 3.97:1 on
+     --paper, 4.19:1 carrying --ink, 4.05:1 on --paper-white — so it never
+     carries type. It DOES clear the AA 3.0:1 non-text floor on
+     --paper-white (marks/rules/brackets/fills only), which is its one
+     sanctioned use (home.css's masthead corner bracket, paper-side only).
+     It also fails the 3.0:1 non-text floor against --field-olive-deep
+     (≈1.9:1) — do not use it on the field surface; see tokens.test.ts's
+     CONTRAST_PAIRS trip-wire for this exact pairing. */
+  --olive-mark: #6f7f45;
 
   /* ---- Typography ---------------------------------------------------
      Three roles (2026-08-11, font-unification pass — the old Archivo
@@ -64,7 +74,10 @@
      (styles/fonts.css). BOTH are serifs — LT Remark is NOT a grotesque,
      which is why the technical chrome stays on --font-mono. Never set
      9px tracked uppercase in either of these. */
-  --font-serif-display: "LT Superior Serif", Georgia, "Times New Roman", serif;
+  /* Instrument Serif leads 2026-09-15 (sdd/design-canvas-reconcile-v2, D3) —
+     LT Superior Serif stays in the fallback chain and its @font-face is
+     still defined in fonts.css (untouched, additive change only). */
+  --font-serif-display: "Instrument Serif", "LT Superior Serif", Georgia, "Times New Roman", serif;
   --font-serif-edit: "LT Remark", Georgia, "Times New Roman", serif;
   /* CJK, for the ghost-kanji texture only. Archivo Narrow has no CJK
      coverage and renders tofu. System-only for now; self-hosting is the
@@ -158,7 +171,9 @@
      1.34:1 from that ground — a depth cue, never a boundary. The tile's
      identifying boundary is the ink trim band (--ink on --paper,
      14.85:1), which is what 1.4.11 measures. Valid in BOTH box-shadow:
-     and drop-shadow(): no spread, no inset. */
+     and drop-shadow(): no spread, no inset. Second consumer (2026-09-08):
+     the Profile hero panel cluster (`.profile-hero__stage` drop-shadow) —
+     "hard offset = stack depth" is spine, not register-bound. */
   --plate-shadow-hard: 5px 7px 0 rgb(17 17 17 / 14%);
   --rot-max: 2deg;
 

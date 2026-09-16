@@ -38,6 +38,99 @@ function collectSourceFiles(dir: string): string[] {
   return files;
 }
 
+/**
+ * WCAG 2.x relative-luminance / contrast-ratio pipeline (docs/05_ACCESSIBILITY.MD's
+ * method). Reproduces the project's own documented ratios exactly (verified
+ * against design #374's table: paper-white/field-olive-deep 7.74:1,
+ * ink/paper 14.83:1, oxblood/paper 10.98:1) — see
+ * sdd/design-canvas-reconcile-v2 D2 for the derivation.
+ */
+function hexToLinearChannel(c: number): number {
+  const srgb = c / 255;
+  return srgb <= 0.03928 ? srgb / 12.92 : Math.pow((srgb + 0.055) / 1.055, 2.4);
+}
+
+function relativeLuminance(hex: string): number {
+  const clean = hex.trim().replace("#", "");
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return (
+    0.2126 * hexToLinearChannel(r) +
+    0.7152 * hexToLinearChannel(g) +
+    0.0722 * hexToLinearChannel(b)
+  );
+}
+
+function contrastRatio(hexA: string, hexB: string): number {
+  const lumA = relativeLuminance(hexA);
+  const lumB = relativeLuminance(hexB);
+  const lighter = Math.max(lumA, lumB);
+  const darker = Math.min(lumA, lumB);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * Palette Contrast-Safety Gate (design-tokens-v2, D2 — sdd/design-canvas-reconcile-v2).
+ * `kind: "text"` uses the AA 4.5:1 floor; `kind: "non-text"` uses the AA
+ * 3.0:1 floor (marks/rules/brackets/fills, never glyph color).
+ * `expectPass: false` entries are trip-wires: pairings that MUST stay below
+ * their floor, documenting that a color combination is unusable so a future
+ * change doesn't "fix" an inconsistency by introducing it. Do not flip an
+ * `expectPass: false` row to `true` without a fresh contrast measurement.
+ */
+type ContrastPair = {
+  name: string;
+  fg: string;
+  bg: string;
+  kind: "text" | "non-text";
+  expectPass: boolean;
+};
+
+const CONTRAST_PAIRS: ContrastPair[] = [
+  // Already-adopted pairs (GUARD — must pass immediately, no red step).
+  {
+    name: "ink on paper (body text)",
+    fg: "--ink",
+    bg: "--paper",
+    kind: "text",
+    expectPass: true,
+  },
+  {
+    name: "paper-white on field-olive-deep (masthead field half, the type-bearing default)",
+    fg: "--paper-white",
+    bg: "--field-olive-deep",
+    kind: "text",
+    expectPass: true,
+  },
+  {
+    name: "oxblood on paper (accent text)",
+    fg: "--oxblood",
+    bg: "--paper",
+    kind: "text",
+    expectPass: true,
+  },
+  // --olive-mark (D2): non-text-only, contrast dead zone in every text
+  // direction. Paper-side corner bracket use (home.css .hm-hero--reserved::before).
+  {
+    name: "olive-mark on paper-white (corner-bracket paper-side use)",
+    fg: "--olive-mark",
+    bg: "--paper-white",
+    kind: "non-text",
+    expectPass: true,
+  },
+  // Trip-wire: olive-mark on the field surface fails the non-text floor —
+  // do NOT apply --olive-mark to the field-side bracket (.hm-hero--reserved::after
+  // stays --paper-white). This row documents why.
+  {
+    name: "olive-mark on field-olive-deep (BANNED — field-side bracket must stay paper-white)",
+    fg: "--olive-mark",
+    bg: "--field-olive-deep",
+    kind: "non-text",
+    expectPass: false,
+  },
+];
+
 describe("tokens.css", () => {
   const decls = readRootDecls();
 
@@ -53,6 +146,7 @@ describe("tokens.css", () => {
     "--oxblood",
     "--field-olive-deep",
     "--plate-shadow-hard",
+    "--olive-mark",
   ])(
     "%s resolves to a non-empty value",
     (token) => {
@@ -60,6 +154,27 @@ describe("tokens.css", () => {
       expect(decls.get(token)?.trim()).not.toBe("");
     },
   );
+
+  describe("Palette Contrast-Safety Gate (design-tokens-v2, D2)", () => {
+    it.each(CONTRAST_PAIRS)(
+      "$name meets its floor",
+      ({ fg, bg, kind, expectPass }) => {
+        const fgHex = decls.get(fg);
+        const bgHex = decls.get(bg);
+        expect(fgHex, `${fg} must be defined in tokens.css`).toBeTruthy();
+        expect(bgHex, `${bg} must be defined in tokens.css`).toBeTruthy();
+
+        const floor = kind === "text" ? 4.5 : 3.0;
+        const ratio = contrastRatio(fgHex as string, bgHex as string);
+
+        if (expectPass) {
+          expect(ratio).toBeGreaterThanOrEqual(floor);
+        } else {
+          expect(ratio).toBeLessThan(floor);
+        }
+      },
+    );
+  });
 
   const RETIRED_TOKEN_PREFIX = "--color-";
   const retiredTokens = [

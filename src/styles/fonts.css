@@ -23,6 +23,20 @@
  * and is the entire composition, so a fallback flash reflows the identity
  * block and drags the photograph's dissolve with it. Blocking on ~10kB is
  * the cheaper artefact. The editorial face swaps normally.
+ *
+ * Instrument Serif italic added 2026-09-15 (sdd/design-canvas-reconcile-v2,
+ * D3) — LT Superior Serif's `--font-serif-display` masthead role gains a
+ * second, italic face; LT Superior Serif's own @font-face below is
+ * untouched and stays available (additive only, keeps this landing
+ * independently revertable). Vendored from `@fontsource/instrument-serif`'s
+ * own "latin" split (already unicode-range-limited to ~22kB, wider than
+ * this file's usual ~10kB LT Remark/Superior Serif subsets because no
+ * `pyftsubset` toolchain was available in this environment to shrink it
+ * further — a future pass can subset it down if that matters). Same
+ * `font-display: block` reasoning as the masthead's other face: this is the
+ * masthead, reflow is the expensive failure. Instrument Serif ships only
+ * weight 400 (no 800) — `.hm-mast`'s `font-weight: 800` is addressed in
+ * `home.css` where the family is consumed, not here.
  */
 
 @font-face {
@@ -47,4 +61,12 @@
   font-weight: 700;
   font-display: swap;
   src: url("../assets/fonts/LTRemark-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  font-style: italic;
+  font-weight: 400;
+  font-display: block;
+  src: url("../assets/fonts/InstrumentSerif-Italic.woff2") format("woff2");
 }
