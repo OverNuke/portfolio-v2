@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<script src="./image-slot.js"></script>
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#0a0a0a}
+a{color:#b9c98a;text-decoration:none}
+a:hover{color:#f3f2ef}
+@keyframes cellWobble{0%,100%{border-radius:58% 42% 46% 54%/50% 55% 45% 50%}50%{border-radius:44% 56% 55% 45%/54% 45% 55% 46%}}
+@keyframes livePulse{0%,100%{transform:scale(1);border-radius:60% 40% 55% 45%/45% 55% 40% 60%}50%{transform:scale(1.22);border-radius:45% 55% 40% 60%/60% 40% 55% 45%}}
+</style>
+</helmet>
+<div style="width:1440px;height:900px;position:relative;overflow:hidden;background:#0a0a0a;font-family:'Manrope',system-ui,sans-serif;color:#f3f2ef">
+
+  <div style="position:absolute;inset:0;background-image:url('./uploads/profile-background.jpg');background-size:cover;background-position:50% 34%;filter:grayscale(1) contrast(1.32) brightness(.52);opacity:var(--fig-op,.3);z-index:1"></div>
+  <div style="position:absolute;inset:0;background-image:linear-gradient(180deg,#0a0a0a 0%,rgba(10,10,10,.72) 26%,rgba(10,10,10,.1) 52%,rgba(10,10,10,.86) 100%);z-index:2"></div>
+  <div style="position:absolute;inset:0;background-image:radial-gradient(120% 88% at 50% 52%,transparent 24%,rgba(10,10,10,.55) 66%,#0a0a0a 100%);z-index:3"></div>
+
+  <sc-if value="{{ showDots }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.2px);background-size:24px 24px;z-index:4;pointer-events:none"></div>
+  </sc-if>
+
+  <div style="position:absolute;left:96px;top:80px;width:392px;display:flex;flex-direction:column;gap:14px;z-index:20;pointer-events:none">
+    <div style="display:flex;align-items:center;gap:12px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#9c9b94">
+      <span style="width:44px;height:1px;background:rgba(243,242,239,.34)"></span>
+    </div>
+    <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:92px;line-height:.9;letter-spacing:-.015em;color:#f3f2ef">Reach out</h2>
+    
+  </div>
+
+  <div style="position:absolute;right:96px;top:88px;display:flex;align-items:center;gap:10px;z-index:20;pointer-events:none">
+    <span style="width: 14px; height: 14px; background: var(--olive,#6f7f45); animation: livePulse 2.4s ease-in-out infinite"></span>
+    <span style="font-family: 'JetBrains Mono',monospace; font-size: 18px; letter-spacing: .18em; text-transform: uppercase; color: #f3f2ef">open to work</span>
+  </div>
+
+  <div ref="{{ setDock }}" style="position:absolute;left:0;top:0;width:1440px;height:900px;z-index:12">
+
+    <a ref="{{ setCard }}" data-card="0" href="mailto:ksfgarcia24@gmail.com" style="position:absolute;left:96px;top:300px;width:216px;height:318px;transform-origin:50% 50%;transition:transform .24s cubic-bezier(.2,.85,.2,1),box-shadow .24s ease;will-change:transform;box-shadow:0 16px 34px rgba(0,0,0,.5);background:#f4f1e6;padding:22px 20px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;color:#14150f" style-hover="box-shadow:0 30px 56px rgba(0,0,0,.66)">
+      <span style="position:absolute;left:9px;top:9px;width:15px;height:15px;border-left:1.5px solid rgba(20,21,15,.55);border-top:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;right:9px;top:9px;width:15px;height:15px;border-right:1.5px solid rgba(20,21,15,.55);border-top:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;left:9px;bottom:9px;width:15px;height:15px;border-left:1.5px solid rgba(20,21,15,.55);border-bottom:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;right:9px;bottom:9px;width:15px;height:15px;border-right:1.5px solid rgba(20,21,15,.55);border-bottom:1.5px solid rgba(20,21,15,.55)"></span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <span style="font-family:'Instrument Serif',serif;font-style:italic;font-size:34px;line-height:1;color:#14150f">Email</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:rgba(20,21,15,.5)">(01)</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;letter-spacing:.02em;color:rgba(20,21,15,.72);word-break:break-all">ksfgarcia24@gmail.com</span>
+        <span style="height:1px;background:rgba(20,21,15,.22)"></span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(20,21,15,.6)">send message</span>
+          <span style="position:relative;width:26px;height:26px;display:flex;align-items:center;justify-content:center">
+            <span style="position:absolute;inset:0;background:var(--olive,#6f7f45);animation:cellWobble 3.2s ease-in-out infinite"></span>
+            <span style="position:relative;font-size:12px;font-weight:700;color:#f6f4ea">↗</span>
+          </span>
+        </div>
+      </div>
+    </a>
+
+    <a ref="{{ setCard }}" data-card="1" href="https://github.com/overnuke" target="_blank" rel="noreferrer" style="position: absolute; left: 374px; top: 275px; width: 168px; height: 428px; transform-origin: 50% 50%; transition: transform .24s cubic-bezier(.2,.85,.2,1),box-shadow .24s ease; will-change: transform; box-shadow: 0 16px 34px rgba(0,0,0,.5); background: var(--olive,#6f7f45); padding: 20px 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #f6f4ea" style-hover="box-shadow:0 30px 56px rgba(0,0,0,.66)">
+      <span style="position:absolute;left:9px;top:9px;width:15px;height:15px;border-left:1.5px solid rgba(246,244,234,.6);border-top:1.5px solid rgba(246,244,234,.6)"></span>
+      <span style="position:absolute;right:9px;top:9px;width:15px;height:15px;border-right:1.5px solid rgba(246,244,234,.6);border-top:1.5px solid rgba(246,244,234,.6)"></span>
+      <span style="position:absolute;left:9px;bottom:9px;width:15px;height:15px;border-left:1.5px solid rgba(246,244,234,.6);border-bottom:1.5px solid rgba(246,244,234,.6)"></span>
+      <span style="position:absolute;right:9px;bottom:9px;width:15px;height:15px;border-right:1.5px solid rgba(246,244,234,.6);border-bottom:1.5px solid rgba(246,244,234,.6)"></span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <span style="font-family:'Instrument Serif',serif;font-style:italic;font-size:34px;line-height:1;color:#f6f4ea">GitHub</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:#f6f4ea">(02)</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:#f6f4ea">@overnuke<br>repositories</span>
+        <span style="height:1px;background:rgba(246,244,234,.34)"></span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#f6f4ea">source</span>
+          <span style="position:relative;width:26px;height:26px;display:flex;align-items:center;justify-content:center">
+            <span style="position:absolute;inset:0;background:#f6f4ea;animation:cellWobble 3.2s ease-in-out infinite;animation-delay:.4s"></span>
+            <span style="position:relative;font-size:12px;font-weight:700;color:#14150f">↗</span>
+          </span>
+        </div>
+      </div>
+    </a>
+
+    <a ref="{{ setCard }}" data-card="2" href="https://wa.me/" target="_blank" rel="noreferrer" style="position: absolute; left: 864px; top: 276px; width: 204px; height: 336px; transform-origin: 50% 50%; transition: transform .24s cubic-bezier(.2,.85,.2,1),box-shadow .24s ease; will-change: transform; box-shadow: 0 16px 34px rgba(0,0,0,.5); background: #f4f1e6; padding: 22px 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #14150f" style-hover="box-shadow:0 30px 56px rgba(0,0,0,.66)">
+      <span style="position:absolute;left:9px;top:9px;width:15px;height:15px;border-left:1.5px solid rgba(20,21,15,.55);border-top:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;right:9px;top:9px;width:15px;height:15px;border-right:1.5px solid rgba(20,21,15,.55);border-top:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;left:9px;bottom:9px;width:15px;height:15px;border-left:1.5px solid rgba(20,21,15,.55);border-bottom:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;right:9px;bottom:9px;width:15px;height:15px;border-right:1.5px solid rgba(20,21,15,.55);border-bottom:1.5px solid rgba(20,21,15,.55)"></span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <span style="font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;line-height:1;color:#14150f">WhatsApp</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:rgba(20,21,15,.5)">(03)</span>
+      </div>
+      <div style="position:relative;width:96px;height:96px;align-self:flex-start;background:#e9e7e0">
+        <image-slot id="ct2-qr" shape="rect" placeholder="WhatsApp QR"></image-slot>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="height:1px;background:rgba(20,21,15,.22)"></span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(20,21,15,.6)">scan · direct chat</span>
+          <span style="position:relative;width:26px;height:26px;display:flex;align-items:center;justify-content:center">
+            <span style="position:absolute;inset:0;background:var(--olive,#6f7f45);animation:cellWobble 3.2s ease-in-out infinite;animation-delay:.8s"></span>
+            <span style="position:relative;font-size:12px;font-weight:700;color:#f6f4ea">↗</span>
+          </span>
+        </div>
+      </div>
+    </a>
+
+    <a ref="{{ setCard }}" data-card="3" href="https://linkedin.com/in/keffwontwakeup" target="_blank" rel="noreferrer" style="position:absolute;left:1128px;top:214px;width:216px;height:282px;transform-origin:50% 50%;transition:transform .24s cubic-bezier(.2,.85,.2,1),box-shadow .24s ease;will-change:transform;box-shadow:0 16px 34px rgba(0,0,0,.5);background:#f4f1e6;padding:22px 20px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;color:#14150f" style-hover="box-shadow:0 30px 56px rgba(0,0,0,.66)">
+      <span style="position:absolute;left:9px;top:9px;width:15px;height:15px;border-left:1.5px solid rgba(20,21,15,.55);border-top:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;right:9px;top:9px;width:15px;height:15px;border-right:1.5px solid rgba(20,21,15,.55);border-top:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;left:9px;bottom:9px;width:15px;height:15px;border-left:1.5px solid rgba(20,21,15,.55);border-bottom:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;right:9px;bottom:9px;width:15px;height:15px;border-right:1.5px solid rgba(20,21,15,.55);border-bottom:1.5px solid rgba(20,21,15,.55)"></span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <span style="font-family:'Instrument Serif',serif;font-style:italic;font-size:32px;line-height:1;color:#14150f">LinkedIn</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:rgba(20,21,15,.5)">(04)</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:rgba(20,21,15,.72)">/keffwontwakeup<br>network · profile</span>
+        <span style="height:1px;background:rgba(20,21,15,.22)"></span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(20,21,15,.6)">connect</span>
+          <span style="position:relative;width:26px;height:26px;display:flex;align-items:center;justify-content:center">
+            <span style="position:absolute;inset:0;background:var(--olive,#6f7f45);animation:cellWobble 3.2s ease-in-out infinite;animation-delay:1.2s"></span>
+            <span style="position:relative;font-size:12px;font-weight:700;color:#f6f4ea">↗</span>
+          </span>
+        </div>
+      </div>
+    </a>
+
+    <a ref="{{ setCard }}" data-card="4" href="https://cal.com/" target="_blank" rel="noreferrer" style="position: absolute; left: 1132px; top: 578px; width: 216px; height: 196px; transform-origin: 50% 50%; transition: transform .24s cubic-bezier(.2,.85,.2,1),box-shadow .24s ease; will-change: transform; box-shadow: 0 16px 34px rgba(0,0,0,.5); background: #f4f1e6; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #14150f" style-hover="box-shadow:0 30px 56px rgba(0,0,0,.66)">
+      <span style="position:absolute;left:9px;top:9px;width:15px;height:15px;border-left:1.5px solid rgba(20,21,15,.55);border-top:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;right:9px;top:9px;width:15px;height:15px;border-right:1.5px solid rgba(20,21,15,.55);border-top:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;left:9px;bottom:9px;width:15px;height:15px;border-left:1.5px solid rgba(20,21,15,.55);border-bottom:1.5px solid rgba(20,21,15,.55)"></span>
+      <span style="position:absolute;right:9px;bottom:9px;width:15px;height:15px;border-right:1.5px solid rgba(20,21,15,.55);border-bottom:1.5px solid rgba(20,21,15,.55)"></span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <span style="font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;line-height:1;color:#14150f">Book a call</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:rgba(20,21,15,.5)">(05)</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="height:1px;background:rgba(20,21,15,.22)"></span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(20,21,15,.6)">30 min · gmt-6</span>
+          <span style="position:relative;width:26px;height:26px;display:flex;align-items:center;justify-content:center">
+            <span style="position:absolute;inset:0;background:var(--olive,#6f7f45);animation:cellWobble 3.2s ease-in-out infinite;animation-delay:1.6s"></span>
+            <span style="position:relative;font-size:12px;font-weight:700;color:#f6f4ea">↗</span>
+          </span>
+        </div>
+      </div>
+    </a>
+  <p style="position: absolute; left: 91px; top: 766px; width: 452px; margin: 0; font-family: 'Instrument Serif',serif; font-style: italic; font-size: 30px; line-height: 1.28; color: #f3f2ef; z-index: 20; pointer-events: none; text-wrap: pretty">Even an hundred of years isn't enough to appreciate what life is mean to be.<br></p></div>
+
+  
+
+  <div style="position:absolute;left:96px;bottom:40px;display:flex;align-items:center;gap:12px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9c9b94;z-index:20">
+    <span style="width:28px;height:1px;background:rgba(243,242,239,.28)"></span>
+  </div>
+  
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6f7f45&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#6f7f45&quot;,&quot;#b9c98a&quot;,&quot;#4f5c2f&quot;,&quot;#8a9a55&quot;],&quot;section&quot;:&quot;Ink&quot;},&quot;figureOpacity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:30,&quot;min&quot;:8,&quot;max&quot;:70,&quot;step&quot;:2,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Figure&quot;},&quot;showDots&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Figure&quot;},&quot;dockStrength&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:22,&quot;min&quot;:0,&quot;max&quot;:60,&quot;step&quot;:2,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Dock&quot;},&quot;dockSpread&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:260,&quot;min&quot;:90,&quot;max&quot;:460,&quot;step&quot;:10,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Dock&quot;}}">
+class Component extends DCLogic {
+  cards = [];
+  raf = 0;
+  pt = null;
+
+  setDock = (n) => { this.dock = n; };
+  setCard = (n) => { if (n && n.dataset.card != null) this.cards[+n.dataset.card] = n; };
+
+  componentDidMount() {
+    this.apply();
+    this.onMove = (e) => {
+      const r = this.dock.getBoundingClientRect();
+      const k = this.dock.offsetWidth ? r.width / this.dock.offsetWidth : 1;
+      this.pt = { x: (e.clientX - r.left) / (k || 1), y: (e.clientY - r.top) / (k || 1) };
+      this.schedule();
+    };
+    this.onLeave = () => { this.pt = null; this.schedule(); };
+    this.frame = this.dock ? this.dock.parentElement : null;
+    if (this.frame) {
+      this.frame.addEventListener('mousemove', this.onMove);
+      this.frame.addEventListener('mouseleave', this.onLeave);
+    }
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    if (this.frame) {
+      this.frame.removeEventListener('mousemove', this.onMove);
+      this.frame.removeEventListener('mouseleave', this.onLeave);
+    }
+  }
+
+  componentDidUpdate() { this.apply(); }
+
+  schedule() {
+    cancelAnimationFrame(this.raf);
+    this.raf = requestAnimationFrame(() => this.paint());
+  }
+
+  apply() {
+    const root = document.documentElement.style;
+    root.setProperty('--olive', this.props.accent || '#6f7f45');
+    root.setProperty('--fig-op', String((this.props.figureOpacity ?? 30) / 100));
+    this.paint();
+  }
+
+  paint() {
+    const strength = (this.props.dockStrength ?? 22) / 100;
+    const spread = this.props.dockSpread ?? 260;
+    const pt = this.pt;
+    this.cards.forEach((n) => {
+      if (!n) return;
+      if (!pt) { n.style.transform = 'translateY(0) scale(1)'; n.style.zIndex = '1'; return; }
+      const cx = n.offsetLeft + n.offsetWidth / 2;
+      const cy = n.offsetTop + n.offsetHeight / 2;
+      const dx = (pt.x - cx) / spread;
+      const dy = (pt.y - cy) / (spread * 2.2);
+      const f = Math.exp(-(dx * dx + dy * dy));
+      n.style.transform = 'translateY(' + (-40 * strength * f).toFixed(2) + 'px) scale(' + (1 + strength * f).toFixed(3) + ')';
+      n.style.zIndex = String(10 + Math.round(f * 12));
+    });
+  }
+
+  renderVals() {
+    return {
+      setDock: this.setDock,
+      setCard: this.setCard,
+      showDots: this.props.showDots !== false
+    };
+  }
+}
+</script>
+</body>
+</html>

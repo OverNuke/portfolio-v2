@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#f4f1e6}
+a{color:#0d0d0b;text-decoration:none}
+a:hover{color:#6f7f45}
+@keyframes livePulse{0%,100%{transform:scale(1);border-radius:60% 40% 55% 45%/45% 55% 40% 60%}50%{transform:scale(1.24);border-radius:45% 55% 40% 60%/60% 40% 55% 45%}}
+@keyframes cellWobA{0%,100%{border-radius:56% 44% 48% 52%/52% 56% 44% 48%}50%{border-radius:46% 54% 57% 43%/46% 44% 56% 54%}}
+@keyframes cellWobB{0%,100%{border-radius:48% 52% 59% 41%/44% 57% 43% 56%}50%{border-radius:58% 42% 43% 57%/57% 43% 57% 43%}}
+@keyframes cellWobC{0%,100%{border-radius:52% 48% 42% 58%/57% 45% 55% 43%}50%{border-radius:44% 56% 56% 44%/45% 58% 42% 55%}}
+@keyframes driftA{0%,100%{transform:translate(0,0)}33%{transform:translate(6px,-5px)}66%{transform:translate(-4px,4px)}}
+@keyframes driftB{0%,100%{transform:translate(0,0)}33%{transform:translate(-5px,5px)}66%{transform:translate(5px,3px)}}
+@keyframes driftC{0%,100%{transform:translate(0,0)}30%{transform:translate(7px,6px)}70%{transform:translate(-6px,-6px)}}
+</style>
+</helmet>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="profileGoo"><feGaussianBlur in="SourceGraphic" stdDeviation="{{ goo }}" result="blr"></feGaussianBlur><feColorMatrix in="blr" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -11"></feColorMatrix></filter></defs></svg>
+
+<div style="width:1440px;height:900px;position:relative;overflow:hidden;font-family:'Manrope',system-ui,sans-serif;background:linear-gradient(97deg,#f6f3e9 0%,#f2eee1 22%,#dfdaca 40%,#a9a59a 47%,#33332d 55%,#101010 64%,#0a0a09 100%)">
+
+  <canvas ref="{{ setCanvas }}" width="480" height="300" style="position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:exclusion;pointer-events:none;z-index:2"></canvas>
+  <div style="position:absolute;inset:0;background:radial-gradient(128% 96% at 22% 44%,rgba(246,243,233,.34) 0%,transparent 46%);pointer-events:none;z-index:3"></div>
+
+  <div style="position:absolute;left:104px;top:0;height:900px;width:516px;z-index:20;display:flex;flex-direction:column;justify-content:center;align-items:flex-start">
+    <div style="display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#4d4c44">
+      <span style="width:46px;height:1px;background:rgba(20,21,15,.45)"></span>
+      
+    </div>
+
+    <h2 style="margin:26px 0 0;font-family:'Instrument Serif',serif;font-style:italic;font-size:88px;line-height:.9;letter-spacing:-.02em;color:#14150f;text-wrap:balance">Junior<br>software<br>engineer</h2>
+
+    <p style="margin:40px 0 0;max-width:452px;font-size:20px;font-weight:400;line-height:1.6;letter-spacing:.002em;color:#25241e;text-wrap:pretty">Just graduated from Universidad Veracruzana. Small projects so far — and the appetite for one that makes a change.</p>
+
+    <div style="margin-top:54px;display:flex;flex-direction:column;align-items:flex-start;gap:14px;font-family:'JetBrains Mono',monospace">
+      <span style="width:46px;height:1px;background:rgba(20,21,15,.4)"></span>
+      <span style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#4d4c44">Always learning · open to travel</span>
+      <a href="#" style="font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:#14150f;border-bottom:1px solid rgba(20,21,15,.4);padding:4px 0 5px" style-hover="color:#5c6a38;border-bottom:1px solid #5c6a38">Get in touch →</a>
+    </div>
+  </div>
+
+  <div style="position:absolute;right:68px;top:92px;display:flex;align-items:center;gap:12px;z-index:24;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#f3f1e8">
+    <span style="width:11px;height:11px;background:#8b9c56;animation:livePulse 2.4s ease-in-out infinite"></span>
+    <span>Looking for an opportunity</span>
+  </div>
+
+  <div style="position:absolute;left:812px;top:0;height:900px;width:560px;display:flex;flex-direction:column;justify-content:center;gap:30px;z-index:22">
+    <sc-for list="{{ chambers }}" as="cell" hint-placeholder-count="4">
+      <div onClick="{{ cell.toggle }}" onKeyDown="{{ cell.key }}" onFocus="{{ cell.enter }}" onBlur="{{ cell.leave }}" tabindex="0" role="button" aria-pressed="{{ cell.pressed }}" aria-label="{{ cell.aria }}" style="position:relative;width:560px;height:132px;border-top:1px solid rgba(243,241,232,.22);cursor:pointer;outline:none" style-focus="outline:1px solid #b9c98a;outline-offset:8px">
+
+        <div style="position:absolute;inset:0;filter:url(#profileGoo);pointer-events:none">
+          <sc-for list="{{ cell.dots }}" as="dot" hint-placeholder-count="3">
+            <div style="position:absolute;left:{{ dot.bx }};top:{{ dot.by }};animation:{{ dot.drift }}">
+              <div style="width:{{ dot.size }};height:{{ dot.size }};background:{{ dot.fill }};animation:{{ dot.wob }};transition:transform .9s cubic-bezier(.24,1.15,.32,1),background .7s ease;transform:{{ dot.t }}"></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-for list="{{ cell.zones }}" as="zone" hint-placeholder-count="3">
+          <div onMouseEnter="{{ zone.enter }}" onMouseLeave="{{ zone.leave }}" style="position:absolute;top:0;height:100%;left:{{ zone.left }};width:{{ zone.width }}"></div>
+        </sc-for>
+
+        <div style="position:absolute;left:0;top:14px;display:flex;flex-direction:column;gap:7px;pointer-events:none">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;color:#b5b2a6">( {{ cell.n }} )</span>
+          <div style="display:flex;flex-direction:column;gap:5px;transition:opacity .4s ease;opacity:{{ cell.srcOpacity }}">
+            <sc-for list="{{ cell.labels }}" as="label" hint-placeholder-count="3">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#f3f1e8">{{ label.t }}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;top:48px;max-width:160px;font-family:'Instrument Serif',serif;font-style:italic;font-size:34px;line-height:1;color:#f3f1e8;transition:opacity .5s ease .2s,transform .6s cubic-bezier(.24,1.15,.32,1) .16s;opacity:{{ cell.fusedOpacity }};transform:{{ cell.fusedShift }};pointer-events:none">{{ cell.fused }}</div>
+
+        <div style="position:absolute;right:0;top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#d6d3c8;pointer-events:none">{{ cell.status }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#8b9c56&quot;,&quot;options&quot;:[&quot;#8b9c56&quot;,&quot;#6f7f45&quot;,&quot;#f3f1e8&quot;,&quot;#c9d49a&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cells&quot;},&quot;gooiness&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:60,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Cells&quot;},&quot;livingCells&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cells&quot;},&quot;motion&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:50,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Ink&quot;}}">
+class Component extends DCLogic {
+  state = { hover: null, locked: {} };
+
+  renderVals() {
+    const accent = this.props.accent ?? '#8b9c56';
+    const goo = (4 + ((this.props.gooiness ?? 60) / 100) * 8).toFixed(1);
+    const pulse = this.props.livingCells ?? true;
+    const wob = ['cellWobA 11s ease-in-out infinite', 'cellWobB 13s ease-in-out infinite', 'cellWobC 9.5s ease-in-out infinite'];
+    const drift = ['driftA 13s ease-in-out infinite', 'driftB 16s ease-in-out infinite', 'driftC 10s ease-in-out infinite'];
+
+    // [label, size, baseX, baseY, fusedX, fusedY] — chamber box 560x132
+    const data = [
+      { n: '01', fused: 'Software', dots: [
+        ['Java', 58, 214, 66, 322, 72], ['JavaScript', 52, 318, 42, 362, 40], ['Python', 40, 452, 94, 394, 82]] },
+      { n: '02', fused: 'Systems', dots: [
+        ['SQL', 56, 232, 66, 332, 66], ['UML', 46, 438, 66, 394, 66]] },
+      { n: '03', fused: 'Anywhere', dots: [
+        ['Spanish', 54, 218, 68, 324, 74], ['English B1+', 48, 330, 38, 362, 42], ['French basics', 34, 474, 96, 396, 80]] },
+      { n: '04', fused: 'Dependable', dots: [
+        ['Responsible', 46, 206, 56, 324, 68], ['Hardworking', 42, 296, 100, 358, 42], ['Teamwork', 40, 396, 38, 392, 70], ['Dedicated', 34, 486, 90, 358, 96]] }
+    ];
+
+    const chambers = data.map((d, i) => {
+      const locked = !!this.state.locked[i];
+      const on = this.state.hover === i || locked;
+      const enter = () => this.setState({ hover: i });
+      const leave = () => this.setState(s => (s.hover === i ? { hover: null } : null));
+      const zoneW = 404 / d.dots.length;
+      return {
+        n: d.n,
+        fused: d.fused,
+        labels: d.dots.map(t => ({ t: t[0] })),
+        dots: d.dots.map((t, j) => {
+          const [, s, bx, by, tx, ty] = t;
+          return {
+            bx: (bx - s / 2) + 'px', by: (by - s / 2) + 'px', size: s + 'px',
+            fill: on ? accent : '#f3f1e8',
+            wob: pulse ? wob[(i + j) % 3] : 'none',
+            drift: pulse ? drift[(i + j) % 3] : 'none',
+            t: on ? 'translate(' + (tx - bx) + 'px,' + (ty - by) + 'px) scale(1.14)' : 'translate(0px,0px) scale(1)'
+          };
+        }),
+        zones: d.dots.map((t, j) => ({ left: (156 + j * zoneW) + 'px', width: zoneW + 'px', enter, leave })),
+        srcOpacity: on ? '0' : '1',
+        fusedOpacity: on ? '1' : '0',
+        fusedShift: on ? 'translateY(0px)' : 'translateY(10px)',
+        status: locked ? 'bonded' : on ? 'binding' : 'separate',
+        enter, leave,
+        pressed: locked ? 'true' : 'false',
+        aria: d.fused + ' — ' + d.dots.map(t => t[0]).join(', '),
+        key: (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.setState(s => ({ locked: { ...s.locked, [i]: !s.locked[i] } })); }
+        },
+        toggle: () => this.setState(s => ({ locked: { ...s.locked, [i]: !s.locked[i] } }))
+      };
+    });
+
+    return { chambers, goo, setCanvas: (el) => { if (el && el !== this.canvas) { this.canvas = el; this.boot(); } } };
+  }
+
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+
+  boot() {
+    const c = this.canvas, ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const rnd = (a, b) => a + Math.random() * (b - a);
+
+    const make = (seed) => ({
+      x: rnd(0.14, 0.6) * W, y: rnd(0.12, 0.9) * H,
+      rMax: rnd(46, 128), sx: rnd(0.82, 1.5), sy: rnd(0.6, 1.18), rot: rnd(0, Math.PI * 2),
+      life: rnd(9, 18), age: seed ? rnd(0, 9) : 0, phase: rnd(0, 10),
+      k1: rnd(0.14, 0.3), k2: rnd(0.07, 0.18), k3: rnd(0.04, 0.11),
+      h1: 3 + Math.floor(rnd(0, 3)), h2: 5 + Math.floor(rnd(0, 3)), h3: 8 + Math.floor(rnd(0, 4)),
+      drift: rnd(-5, 5), rise: rnd(-7, 3)
+    });
+
+    let blooms = Array.from({ length: 6 }, () => make(true));
+    const lobe = (b, t, ang) => {
+      const p = b.phase + t * 1.1;
+      return 1 + b.k1 * Math.sin(b.h1 * ang + p) + b.k2 * Math.sin(b.h2 * ang - p * 1.4) + b.k3 * Math.sin(b.h3 * ang + p * 0.7);
+    };
+    const shape = (b, r, t) => {
+      ctx.beginPath();
+      const N = 120;
+      for (let i = 0; i <= N; i++) {
+        const a = (i / N) * Math.PI * 2, rr = r * lobe(b, t, a);
+        const x = Math.cos(a) * rr * b.sx, y = Math.sin(a) * rr * b.sy;
+        const X = b.x + x * Math.cos(b.rot) - y * Math.sin(b.rot);
+        const Y = b.y + x * Math.sin(b.rot) + y * Math.cos(b.rot);
+        i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      }
+      ctx.closePath();
+    };
+
+    let last = performance.now();
+    const frame = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const speed = 0.25 + ((this.props.motion ?? 50) / 100) * 1.5;
+      ctx.clearRect(0, 0, W, H);
+      for (const b of blooms) {
+        b.age += dt * speed;
+        if (b.age > b.life) Object.assign(b, make(false));
+        const t = b.age / b.life;
+        b.x += b.drift * dt * speed * 0.6; b.y += b.rise * dt * speed * 0.6;
+        const r = 8 + b.rMax * (1 - Math.pow(1 - t, 2.6));
+        const fade = Math.min(1, t / 0.16) * Math.pow(1 - t, 1.5);
+        ctx.filter = 'blur(' + (3 + 13 * t).toFixed(1) + 'px)';
+        ctx.fillStyle = 'rgba(152,148,134,' + (0.5 * fade).toFixed(3) + ')';
+        shape(b, r, b.age); ctx.fill();
+        ctx.filter = 'blur(' + (1.4 + 5 * t).toFixed(1) + 'px)';
+        ctx.fillStyle = 'rgba(168,164,150,' + (0.42 * fade).toFixed(3) + ')';
+        shape(b, r * 0.54, b.age * 1.3); ctx.fill();
+      }
+      ctx.filter = 'none';
+      this.raf = requestAnimationFrame(frame);
+    };
+    cancelAnimationFrame(this.raf);
+    this.raf = requestAnimationFrame(frame);
+  }
+}
+
+</script>
+</body>
+</html>

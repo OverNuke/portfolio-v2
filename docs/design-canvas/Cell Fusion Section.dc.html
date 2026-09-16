@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Permanent+Marker&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap">
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#efece1}
+a{color:#4f5c2f;text-decoration:none}
+a:hover{color:#191b16}
+@keyframes cellWobA{0%,100%{border-radius:56% 44% 48% 52%/52% 56% 44% 48%}50%{border-radius:45% 55% 57% 43%/46% 44% 56% 54%}}
+@keyframes cellWobB{0%,100%{border-radius:48% 52% 60% 40%/44% 57% 43% 56%}50%{border-radius:59% 41% 43% 57%/58% 42% 58% 42%}}
+@keyframes cellWobC{0%,100%{border-radius:52% 48% 41% 59%/57% 45% 55% 43%}50%{border-radius:43% 57% 56% 44%/45% 59% 41% 55%}}
+@keyframes axisDash{to{background-position:22px 0}}
+</style>
+</helmet>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="cellGoo"><feGaussianBlur in="SourceGraphic" stdDeviation="{{ goo }}" result="blr"></feGaussianBlur><feColorMatrix in="blr" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"></feColorMatrix></filter></defs></svg>
+
+<div style="position:relative;width:1440px;height:900px;overflow:hidden;font-family:'Space Grotesk',system-ui,sans-serif;color:#14150f;background:#efece1;background-image:repeating-linear-gradient(92deg,rgba(20,21,15,.028) 0 1px,transparent 1px 4px),repeating-linear-gradient(2deg,rgba(20,21,15,.022) 0 1px,transparent 1px 5px),radial-gradient(108% 58% at 6% 0%,rgba(111,127,69,.09),transparent 60%)">
+
+  <div style="position:absolute;left:104px;top:128px;width:512px;display:flex;flex-direction:column;gap:26px">
+    <div style="display:flex;align-items:center;gap:14px;font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,21,15,.55)">
+      <span style="width:44px;height:2px;background:#14150f"></span>
+      <span>05 / synthesis</span>
+    </div>
+    <h2 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:76px;line-height:.86;letter-spacing:-.035em;text-transform:uppercase">Split is<br>only half<br>of it<span style="color:#6f7f45">.</span></h2>
+    <p style="margin:0;max-width:430px;font-size:15px;line-height:1.65;color:rgba(20,21,15,.78);text-wrap:pretty">Skills listed side by side are just cells in a dish. Pull two of them together and something else forms — the thing that actually ships.</p>
+    <div style="display:flex;flex-direction:column;gap:9px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(20,21,15,.6)">
+      <span style="width:44px;height:2px;background:rgba(20,21,15,.25)"></span>
+      <span>hover a nucleus — they fuse</span>
+      <span>click — the bond holds</span>
+    </div>
+    <div style="align-self:flex-start;margin-top:2px;transform:rotate(-4deg);font-family:'Permanent Marker',cursive;font-size:26px;color:#6f7f45">try the dots →</div>
+  </div>
+
+  <div style="position:absolute;left:704px;top:146px;display:flex;flex-direction:column;gap:28px">
+    <sc-for list="{{ chambers }}" as="cell" hint-placeholder-count="3">
+      <div onClick="{{ cell.toggle }}" style="position:relative;width:620px;height:184px;background:#f6f4ea;border:2px solid #14150f;box-shadow:7px 7px 0 rgba(20,21,15,.16);overflow:hidden;cursor:pointer">
+
+        <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(20,21,15,.13) 1px,transparent 1px);background-size:9px 9px;opacity:.55;pointer-events:none"></div>
+
+        <div style="position:absolute;left:186px;right:186px;top:91px;height:2px;background-image:linear-gradient(90deg,rgba(20,21,15,.45) 0 11px,transparent 11px 22px);background-size:22px 2px;animation:axisDash 1.6s linear infinite;transition:opacity .5s ease;opacity:{{ cell.axisOpacity }};pointer-events:none"></div>
+
+        <div style="position:absolute;inset:0;filter:url(#cellGoo)">
+          <div onMouseEnter="{{ cell.enter }}" onMouseLeave="{{ cell.leave }}" style="position:absolute;left:0;top:0;width:310px;height:100%">
+            <div style="position:absolute;left:104px;top:46px;width:92px;height:92px;background:{{ cell.fill }};animation:{{ cell.animA }};transform:{{ cell.ax }};transition:transform .85s cubic-bezier(.2,1.1,.3,1),background .7s ease;pointer-events:none"></div>
+          </div>
+          <div onMouseEnter="{{ cell.enter }}" onMouseLeave="{{ cell.leave }}" style="position:absolute;left:310px;top:0;width:310px;height:100%">
+            <div style="position:absolute;left:114px;top:46px;width:92px;height:92px;background:{{ cell.fill }};animation:{{ cell.animB }};transform:{{ cell.bx }};transition:transform .85s cubic-bezier(.2,1.1,.3,1),background .7s ease;pointer-events:none"></div>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;top:82px;text-align:center;font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.01em;text-transform:uppercase;color:#f6f4ea;transition:opacity .45s ease .18s,transform .55s cubic-bezier(.2,1.1,.3,1) .12s;opacity:{{ cell.fusedOpacity }};transform:{{ cell.fusedShift }};pointer-events:none">{{ cell.fused }}</div>
+
+        <div style="position:absolute;left:70px;top:146px;width:160px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;transition:opacity .4s ease;opacity:{{ cell.srcOpacity }};pointer-events:none">{{ cell.a }}</div>
+        <div style="position:absolute;left:390px;top:146px;width:160px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;transition:opacity .4s ease;opacity:{{ cell.srcOpacity }};pointer-events:none">{{ cell.b }}</div>
+
+        <div style="position:absolute;left:16px;top:14px;font-size:11px;font-weight:700;letter-spacing:.2em;color:rgba(20,21,15,.78);pointer-events:none">{{ cell.n }}</div>
+        <div style="position:absolute;right:16px;bottom:12px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(20,21,15,.78);pointer-events:none">{{ cell.status }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6f7f45&quot;,&quot;options&quot;:[&quot;#6f7f45&quot;,&quot;#4f5c2f&quot;,&quot;#8a9a55&quot;,&quot;#14150f&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cells&quot;},&quot;gooiness&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:60,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Cells&quot;},&quot;livingCells&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cells&quot;}}">
+class Component extends DCLogic {
+  state = { hover: null, locked: {} };
+
+  renderVals() {
+    const accent = this.props.accent ?? '#6f7f45';
+    const goo = (4 + ((this.props.gooiness ?? 60) / 100) * 9).toFixed(1);
+    const pulse = this.props.livingCells ?? true;
+    const wob = ['cellWobA 11s ease-in-out infinite', 'cellWobB 13s ease-in-out infinite', 'cellWobC 9.5s ease-in-out infinite'];
+
+    const data = [
+      { n: '01', a: 'Figma', b: 'React', fused: 'Interfaces' },
+      { n: '02', a: 'SQL', b: 'Python', fused: 'Pipelines' },
+      { n: '03', a: 'Raw data', b: 'Power BI', fused: 'Decisions' }
+    ];
+
+    const chambers = data.map((d, i) => {
+      const locked = !!this.state.locked[i];
+      const on = this.state.hover === i || locked;
+      return {
+        ...d,
+        ax: on ? 'translateX(146px) scale(1.28)' : 'translateX(0px) scale(1)',
+        bx: on ? 'translateX(-146px) scale(1.28)' : 'translateX(0px) scale(1)',
+        fill: on ? accent : '#14150f',
+        animA: pulse ? wob[i % 3] : 'none',
+        animB: pulse ? wob[(i + 1) % 3] : 'none',
+        srcOpacity: on ? '0' : '1',
+        fusedOpacity: on ? '1' : '0',
+        fusedShift: on ? 'translateY(0px)' : 'translateY(10px)',
+        axisOpacity: on ? '0' : '.9',
+        status: locked ? 'bonded' : on ? 'fusing' : 'separate',
+        enter: () => this.setState({ hover: i }),
+        leave: () => this.setState(s => (s.hover === i ? { hover: null } : null)),
+        toggle: () => this.setState(s => ({ locked: { ...s.locked, [i]: !s.locked[i] } }))
+      };
+    });
+
+    return { chambers, goo };
+  }
+}
+
+</script>
+</body>
+</html>

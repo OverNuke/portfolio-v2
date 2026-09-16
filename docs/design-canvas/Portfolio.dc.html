@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Permanent+Marker&amp;family=Space+Grotesk:wght@400;500;700&amp;family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+html,body{margin:0;padding:0;background:#0e0f0b}
+a{color:inherit;text-decoration:none}
+</style>
+</helmet>
+
+<div style="width:1440px;height:900px;position:relative;overflow:hidden;background:#0e0f0b">
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <div data-screen-label="Home" style="position:absolute;inset:0;font-family:'Space Grotesk',system-ui,sans-serif;color:#14150f">
+      <div style="position:absolute;inset:0;z-index:0">
+        <dc-import name="Ink Flow Background" ink="{{ accentInk }}" speed="{{ flowSpeed }}" ring-gap="{{ ringGap }}" animate="{{ animate }}" hint-size="1440px,900px"></dc-import>
+      </div>
+
+      <div style="position:absolute;right:80px;top:104px;width:520px;z-index:10;display:flex;flex-direction:column;align-items:flex-end;gap:52px;text-align:right">
+        <div style="width:100%;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-direction:row-reverse">
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <h1 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:76px;line-height:.88;letter-spacing:-.035em;text-transform:uppercase">Kevin<span style="color:{{ accentInk }}">.</span></h1>
+          </div>
+          <div style="display:flex;align-items:center;gap:0;border:2px solid #14150f;padding:0;flex:none">
+            <div data-lang="EN" onClick="{{ setLang }}" role="button" style="padding:7px 12px 8px;font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.1em;cursor:pointer;background:{{ enBg }};color:{{ enFg }}">EN</div>
+            <div style="width:2px;align-self:stretch;background:#14150f"></div>
+            <div data-lang="ES" onClick="{{ setLang }}" role="button" style="padding:7px 12px 8px;font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.1em;cursor:pointer;background:{{ esBg }};color:{{ esFg }}">ES</div>
+          </div>
+        </div>
+
+        <div style="width:100%;display:flex;flex-direction:column;gap:2px">
+          <sc-for list="{{ items }}" as="it" hint-placeholder-count="4">
+            <a href="{{ it.href }}" onClick="{{ it.onClick }}" onMouseEnter="{{ it.onEnter }}" style="display:flex;align-items:baseline;justify-content:flex-end;gap:18px;padding:11px 0 13px;border-bottom:2px solid rgba(20,21,15,.4);color:{{ it.color }};transform:{{ it.shift }};transition:transform .22s cubic-bezier(.2,.85,.2,1),color .22s ease">
+              <span style="font-size:11px;font-weight:700;letter-spacing:.16em;color:#14150f">{{ it.num }}</span>
+              <span style="font-family:'Archivo Black',sans-serif;font-size:34px;line-height:1;letter-spacing:-.028em;text-transform:uppercase">{{ it.label }}</span>
+              <span style="width:22px;flex:none;font-family:'Archivo Black',sans-serif;font-size:19px;opacity:{{ it.arrow }};transition:opacity .22s ease">→</span>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Profile" style="position:absolute;inset:0">
+      <dc-import name="Profile Section v4" hint-size="1440px,900px" style="display:block;width:1440px;height:900px"></dc-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDistinction }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Distinctions" style="position:absolute;inset:0;overflow:auto">
+      <dc-import name="Distinction Section v4" hint-size="1440px,900px" style="display:block;width:1440px" doodle-color="#e0452b"></dc-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isProjects }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Projects" style="position:absolute;inset:0">
+      <dc-import name="Projects Section v2" doodle-color="#586a30" hot-color="#c9351d" hint-size="1440px,900px" style="display:block;width:1440px;height:900px"></dc-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+    <div data-screen-label="Contact" style="position:absolute;inset:0">
+      <dc-import name="Contact Section v2" hint-size="1440px,900px" style="display:block;width:1440px;height:900px"></dc-import>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute;left:20px;top:20px;z-index:9000;display:flex;gap:6px;padding:6px;background:rgba(10,10,9,.55);backdrop-filter:blur(6px);border-radius:20px">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4">
+      <button onClick="{{ n.onClick }}" style="{{ n.style }}">{{ n.label }}</button>
+    </sc-for>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6f7f45&quot;,&quot;options&quot;:[&quot;#14150f&quot;,&quot;#0c0d0a&quot;,&quot;#3a3f2a&quot;,&quot;#6f7f45&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Hero ink&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;EN&quot;,&quot;options&quot;:[&quot;EN&quot;,&quot;ES&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Hero copy&quot;},&quot;flowSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.3,&quot;min&quot;:0.2,&quot;max&quot;:3,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Hero ink&quot;},&quot;ringGap&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:7,&quot;min&quot;:4,&quot;max&quot;:14,&quot;step&quot;:0.5,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Hero ink&quot;},&quot;animate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Hero ink&quot;}}">
+const ORDER = [
+  { key: 'about', screen: 'profile' },
+  { key: 'distinction', screen: 'distinction' },
+  { key: 'projects', screen: 'projects' },
+  { key: 'contact', screen: 'contact' }
+];
+
+const NAV = [
+  { key: 'home', label: 'Home' },
+  { key: 'profile', label: 'Profile' },
+  { key: 'distinction', label: 'Distinctions' },
+  { key: 'projects', label: 'Projects' },
+  { key: 'contact', label: 'Contact' }
+];
+
+const COPY = {
+  EN: { about: 'Who me?', distinction: 'Distinction', projects: 'Projects', contact: 'Reach out' },
+  ES: { about: '¿Yo?', distinction: 'Distinción', projects: 'Proyectos', contact: 'Contacto' }
+};
+
+class Component extends DCLogic {
+  state = { focus: 0, lang: null, screen: 'home' };
+
+  setLang = (e) => { e.preventDefault(); this.setState({ lang: e.currentTarget.dataset.lang }); };
+
+  componentDidMount() {
+    this._k = (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); this.move(1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); this.move(-1); }
+    };
+    window.addEventListener('keydown', this._k);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._k); }
+
+  move(d) { this.setState(s => ({ focus: (s.focus + d + ORDER.length) % ORDER.length })); }
+
+  go = (screen) => (e) => { if (e) e.preventDefault(); this.setState({ screen }); };
+
+  renderVals() {
+    const lang = this.state.lang || this.props.lang || 'EN';
+    const t = COPY[lang] || COPY.EN;
+    const accent = this.props.accent || '#14150f';
+    const screen = this.state.screen;
+
+    return {
+      accentInk: accent,
+      flowSpeed: this.props.flowSpeed == null ? 1 : this.props.flowSpeed,
+      ringGap: this.props.ringGap == null ? 7 : this.props.ringGap,
+      animate: this.props.animate !== false,
+      isHome: screen === 'home',
+      isProfile: screen === 'profile',
+      isDistinction: screen === 'distinction',
+      isProjects: screen === 'projects',
+      isContact: screen === 'contact',
+      items: ORDER.map((o, i) => ({
+        href: o.href || '#',
+        onClick: o.screen ? this.go(o.screen) : undefined,
+        num: '0' + (i + 1),
+        label: t[o.key],
+        color: i === this.state.focus ? accent : '#14150f',
+        arrow: i === this.state.focus ? 1 : 0,
+        shift: i === this.state.focus ? 'translateX(10px)' : 'none',
+        onEnter: () => this.setState({ focus: i })
+      })),
+      nav: NAV.map((n) => {
+        const active = n.key === screen;
+        return {
+          label: n.label,
+          onClick: this.go(n.key),
+          style: 'padding:8px 14px;border:none;border-radius:14px;cursor:pointer;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:background .2s ease,color .2s ease;background:' +
+            (active ? accent : 'transparent') + ';color:' + (active ? '#14150f' : '#f3f2ef')
+        };
+      }),
+      enBg: lang === 'EN' ? '#14150f' : 'transparent',
+      enFg: lang === 'EN' ? '#f6f4ea' : '#14150f',
+      esBg: lang === 'ES' ? '#14150f' : 'transparent',
+      esFg: lang === 'ES' ? '#f6f4ea' : '#14150f'
+    };
+  }
+}
+
+</script>
+</body>
+</html>

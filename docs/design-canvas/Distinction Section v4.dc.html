@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<script src="./image-slot.js"></script>
+<style>
+html,body{margin:0;padding:0;background:#f6f4ea}
+a{color:#586a30;text-decoration:none}
+a:hover{color:#14150f}
+image-slot::part(empty){opacity:0;transition:opacity .2s}
+image-slot:hover::part(empty){opacity:1}
+</style>
+</helmet>
+<div style="width: 100%; max-width: 1440px; margin: 0 auto; box-sizing: border-box; background: #f6f4ea; font-family: 'Manrope',system-ui,sans-serif; color: #14150f; display: flex; flex-direction: column; gap: 22px">
+
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:0 28px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(20,21,15,.7)">
+    <div style="display:flex;align-items:center;gap:12px">
+      
+      
+    </div>
+    
+  </div>
+
+  <div ref="{{ setStage }}" style="position:relative;width:100%;aspect-ratio:1440/900;background:#14150f;overflow:hidden">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;display:block">
+      <sc-for list="{{ cells }}" as="c" hint-placeholder-count="12">
+        <path ref="{{ setPath }}" data-cid="{{ c.id }}" data-card="{{ c.card }}" d="{{ c.d }}" fill="{{ c.fill }}" stroke="#14150f" stroke-width="0.9" role="{{ c.role }}" tabindex="{{ c.tab }}" aria-label="{{ c.aria }}" onMouseEnter="{{ enter }}" onMouseLeave="{{ leave }}" onFocus="{{ enter }}" onBlur="{{ leave }}" onClick="{{ open }}" onKeyDown="{{ keyOpen }}" style="{{ c.cursor }}"></path>
+      </sc-for>
+    </svg>
+
+    <div ref="{{ setLayer }}" style="position:absolute;left:0;top:0;width:1440px;height:900px;transform-origin:0 0;pointer-events:none">
+
+      <div ref="{{ setLabel }}" data-cid="title" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:14px;color:#14150f">
+        
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:72px;line-height:.88;letter-spacing:-.015em;color:inherit">Distinctions</h2>
+        <p style="margin:0;font-size:14px;line-height:1.6;color:inherit;opacity:.74;text-wrap:pretty">Honors, language certification and coursework, packed as one colony. Each cell holds its own scan.</p>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="anfeca" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">01</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">ANFECA Academic Recognition</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">ANFECA · 2025 · honors</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="nota" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">02</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">Nota Laudatoria</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">Universidad Veracruzana · 2025</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="exaver" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">03</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">EXAVER Proficiency</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">Universidad Veracruzana · 2022</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="english" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">04</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">English Certificate</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">Anglo Mexicano · 2021</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="toefl" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">05</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">TOEFL Certificate</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">ETS · 2018</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="powerbi" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">06</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">Introduction to Power BI</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">CONISOFT · 2025</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="ai" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">07</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">AI Fundamentals</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">DataCamp · 2026</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="aiinit" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">08</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">AI Initiation</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">MoureDev · 2026</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="propadeutic" style="position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:7px;color:#14150f">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;opacity:.55">09</span>
+        <span data-nm="1" style="font-family:'Instrument Serif',serif;font-style:italic;line-height:1.02;color:inherit;text-wrap:pretty">Propadeutic Certificate</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.66">TecNM · CCPIA · 2026</span>
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="count" data-eye="1" style="position:absolute;left:0;top:0;display:block">
+        <img data-eyeimg="1" src="./eye-left-paper.png" alt="" style="display:block;width:100%;height:auto;transform-origin:50% 58%">
+      </div>
+
+      <div ref="{{ setLabel }}" data-cid="span" data-eye="1" style="position:absolute;left:0;top:0;display:block">
+        <img data-eyeimg="1" src="./eye-right.png" alt="" style="display:block;width:100%;height:auto;transform-origin:50% 58%">
+      </div>
+
+    </div>
+
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">
+      <sc-for list="{{ doodles }}" as="s" hint-placeholder-count="16">
+        <path ref="{{ setDood }}" data-sid="{{ s.id }}" d="{{ s.d }}" fill="{{ s.fill }}" stroke="{{ s.stroke }}" stroke-width="{{ s.w }}" stroke-linecap="round" stroke-linejoin="round"></path>
+      </sc-for>
+    </svg>
+  </div>
+
+  
+
+  <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:fixed;inset:0;z-index:40;background:rgba(10,10,10,.88);display:grid;place-items:center;padding:40px;box-sizing:border-box;overflow-y:auto;cursor:zoom-out">
+      <div role="dialog" aria-modal="true" style="position:relative;width:100%;max-width:720px;max-height:100%;min-height:0;background:#f4f1e6;padding:20px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;color:#14150f;box-shadow:0 40px 90px rgba(0,0,0,.6);cursor:default;border-radius:28px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:6px 10px 0">
+          <h3 style="margin:0;max-width:460px;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1;color:#14150f;text-wrap:pretty">{{ openTitle }}</h3>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(20,21,15,.72);text-align:right">{{ openMeta }}</span>
+        </div>
+        <div ref="{{ setPlate }}" style="position:relative;width:100%;flex:1 1 auto;min-height:200px;background:#e4e1d8;border-radius:18px;overflow:hidden">
+          <image-slot ref="{{ setSlot }}" id="{{ openSlot }}" shape="rect" placeholder="Drop the scan" style="position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto"></image-slot>
+          <div ref="{{ setEye }}" style="position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;transition:opacity .2s">
+            <svg viewBox="0 0 260 150" style="width:46%;min-width:180px;overflow:visible">
+              <g ref="{{ setLid }}">
+                <path ref="{{ setEyeShape }}" d="{{ eyeD }}" fill="#efece1" stroke="{{ blue }}" stroke-width="4.5" stroke-linejoin="round"></path>
+                <circle ref="{{ setIris }}" cx="130" cy="75" r="27" fill="{{ blue }}"></circle>
+                <circle ref="{{ setGlint }}" cx="121" cy="65" r="8" fill="#f4f1e6"></circle>
+              </g>
+              <path ref="{{ setBrow }}" d="{{ browD }}" fill="none" stroke="{{ blue }}" stroke-width="4.5" stroke-linecap="round"></path>
+            </svg>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 10px 6px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(20,21,15,.72)">scan viewer</span>
+          <button onClick="{{ close }}" aria-label="Close scan viewer" style="padding:8px 16px;background:transparent;border:1px solid rgba(20,21,15,.35);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#14150f;cursor:pointer" style-hover="background:#14150f;color:#f6f4ea">close · esc</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1040},&quot;gap&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:7,&quot;min&quot;:0,&quot;max&quot;:26,&quot;step&quot;:1,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Colony&quot;},&quot;roundness&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:56,&quot;min&quot;:8,&quot;max&quot;:110,&quot;step&quot;:2,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Colony&quot;},&quot;hoverGrowth&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:55,&quot;min&quot;:0,&quot;max&quot;:160,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Colony&quot;},&quot;breathe&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Colony&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#586a30&quot;,&quot;options&quot;:[&quot;#586a30&quot;,&quot;#6f7f45&quot;,&quot;#4f5c2f&quot;,&quot;#8a9a55&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Colony&quot;},&quot;doodles&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Doodles&quot;},&quot;doodleColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2b39c7&quot;,&quot;options&quot;:[&quot;#2b39c7&quot;,&quot;#1f2a8f&quot;,&quot;#e0452b&quot;,&quot;#14150f&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Doodles&quot;},&quot;lightbox&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behavior&quot;}}">
+const W = 1440, H = 900, INK = '#14150f', PAPER = '#f4f1e6';
+
+// Colony seeds — power-diagram sites. w is a weight in px² (bigger = bigger cell).
+const CELLS = [
+  { id:'title',       kind:'title', x:215,  y:225, w:30000 },
+  { id:'anfeca',      kind:'rec',   x:600,  y:190, w:15000, t:'ANFECA Academic Recognition', m:'ANFECA · 2025' },
+  { id:'nota',        kind:'rec',   x:905,  y:150, w:9000,  t:'Nota Laudatoria',             m:'Universidad Veracruzana · 2025' },
+  { id:'propadeutic', kind:'rec',   x:1250, y:195, w:12000, t:'Propadeutic Certificate',     m:'TecNM · CCPIA · 2026' },
+  { id:'exaver',      kind:'rec',   x:285,  y:545, w:11000, t:'EXAVER Proficiency',          m:'Universidad Veracruzana · 2022' },
+  { id:'english',     kind:'rec',   x:630,  y:505, w:9500,  t:'English Certificate',         m:'Anglo Mexicano · 2021' },
+  { id:'powerbi',     kind:'rec',   x:975,  y:455, w:10000, t:'Introduction to Power BI',    m:'CONISOFT · 2025' },
+  { id:'ai',          kind:'rec',   x:1305, y:470, w:8500,  t:'AI Fundamentals',             m:'DataCamp · 2026' },
+  { id:'toefl',       kind:'rec',   x:320,  y:795, w:9000,  t:'TOEFL Certificate',           m:'ETS · 2018' },
+  { id:'aiinit',      kind:'rec',   x:690,  y:800, w:8500,  t:'AI Initiation',               m:'MoureDev · 2026' },
+  { id:'count',       kind:'accent',x:1010, y:780, w:7000 },
+  { id:'span',        kind:'meta',  x:1300, y:800, w:6500 }
+];
+CELLS.forEach((c, i) => { c.phase = i * 1.9; });
+
+function clipHalf(poly, nx, ny, c) {
+  const out = [], n = poly.length;
+  for (let i = 0; i < n; i++) {
+    const a = poly[i], b = poly[(i + 1) % n];
+    const da = nx * a.x + ny * a.y - c, db = nx * b.x + ny * b.y - c;
+    if (da <= 0) out.push(a);
+    if ((da < 0 && db > 0) || (da > 0 && db < 0)) {
+      const t = da / (da - db);
+      out.push({ x:a.x + (b.x - a.x) * t, y:a.y + (b.y - a.y) * t });
+    }
+  }
+  return out;
+}
+
+// Power diagram (additively weighted Voronoi): cell of s = { p : |p-s|²-w_s ≤ |p-q|²-w_q }
+function powerCell(i, seeds) {
+  const M = 13;
+  let p = [{ x:M, y:M }, { x:W - M, y:M }, { x:W - M, y:H - M }, { x:M, y:H - M }];
+  const s = seeds[i];
+  for (let j = 0; j < seeds.length && p.length >= 3; j++) {
+    if (j === i) continue;
+    const q = seeds[j], dx = q.x - s.x, dy = q.y - s.y;
+    if (dx * dx + dy * dy < 1e-6) continue;
+    p = clipHalf(p, 2 * dx, 2 * dy, q.x * q.x + q.y * q.y - s.x * s.x - s.y * s.y + s.w - q.w);
+  }
+  return p;
+}
+
+function centroid(poly) {
+  let a = 0, cx = 0, cy = 0;
+  for (let i = 0; i < poly.length; i++) {
+    const p = poly[i], q = poly[(i + 1) % poly.length];
+    const f = p.x * q.y - q.x * p.y;
+    a += f; cx += (p.x + q.x) * f; cy += (p.y + q.y) * f;
+  }
+  if (Math.abs(a) < 1e-6) return { x:poly[0].x, y:poly[0].y, area:0 };
+  return { x:cx / (3 * a), y:cy / (3 * a), area:Math.abs(a / 2) };
+}
+
+// Convex polygons inset exactly by re-clipping with each edge pushed inward.
+function insetPoly(poly, d) {
+  if (d <= 0 || poly.length < 3) return poly;
+  const c = centroid(poly);
+  let p = poly;
+  for (let i = 0; i < poly.length && p.length >= 3; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    let ex = b.x - a.x, ey = b.y - a.y;
+    const L = Math.hypot(ex, ey) || 1; ex /= L; ey /= L;
+    let nx = ey, ny = -ex;
+    if (nx * (a.x - c.x) + ny * (a.y - c.y) < 0) { nx = -nx; ny = -ny; }
+    p = clipHalf(p, nx, ny, nx * a.x + ny * a.y - d);
+  }
+  return p;
+}
+
+// Slivers are what produced the stray needle-corners: a clip that leaves two
+// vertices a few px apart makes an edge too short to round. Drop those, and
+// drop near-collinear vertices while we're here.
+function simplify(poly, minEdge) {
+  if (poly.length < 4) return poly;
+  let out = [];
+  for (const v of poly) {
+    const last = out[out.length - 1];
+    if (last && Math.hypot(v.x - last.x, v.y - last.y) < minEdge) continue;
+    out.push(v);
+  }
+  while (out.length > 3 && Math.hypot(out[0].x - out[out.length - 1].x, out[0].y - out[out.length - 1].y) < minEdge) out.pop();
+  if (out.length < 3) return poly;
+  const keep = [];
+  for (let i = 0; i < out.length; i++) {
+    const v = out[i], p = out[(i - 1 + out.length) % out.length], q = out[(i + 1) % out.length];
+    const l1 = Math.hypot(p.x - v.x, p.y - v.y) || 1, l2 = Math.hypot(q.x - v.x, q.y - v.y) || 1;
+    const dot = ((p.x - v.x) * (q.x - v.x) + (p.y - v.y) * (q.y - v.y)) / (l1 * l2);
+    if (dot > -0.9995) keep.push(v); // skip vertices that are effectively straight
+  }
+  return keep.length >= 3 ? keep : out;
+}
+
+// Heavy corner rounding is what opens the black pockets between cells.
+// The cut distance is derived from the corner ANGLE (r / tan(θ/2)) so a sharp
+// corner gets blunted instead of keeping a spike with a token fillet on it.
+function roundPath(poly, r) {
+  const n = poly.length;
+  if (n < 3) return '';
+  let d = '';
+  for (let i = 0; i < n; i++) {
+    const v = poly[i], p = poly[(i - 1 + n) % n], q = poly[(i + 1) % n];
+    const l1 = Math.hypot(p.x - v.x, p.y - v.y) || 1, l2 = Math.hypot(q.x - v.x, q.y - v.y) || 1;
+    const dot = Math.max(-1, Math.min(1, ((p.x - v.x) * (q.x - v.x) + (p.y - v.y) * (q.y - v.y)) / (l1 * l2)));
+    const half = Math.acos(dot) / 2;
+    const rr = Math.min(r / Math.max(Math.tan(half), 0.12), l1 * 0.5, l2 * 0.5);
+    const ax = v.x + (p.x - v.x) / l1 * rr, ay = v.y + (p.y - v.y) / l1 * rr;
+    const bx = v.x + (q.x - v.x) / l2 * rr, by = v.y + (q.y - v.y) / l2 * rr;
+    d += (i === 0 ? 'M' : 'L') + ax.toFixed(1) + ' ' + ay.toFixed(1);
+    d += 'Q' + v.x.toFixed(1) + ' ' + v.y.toFixed(1) + ' ' + bx.toFixed(1) + ' ' + by.toFixed(1);
+  }
+  return d + 'Z';
+}
+
+/* ---- crayon doodles ------------------------------------------------------ */
+const BLUE = '#2b39c7';
+
+// Deterministic per (point, frame, shape) noise — the hand-drawn "boil".
+function rnd(a, b, c) {
+  const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453;
+  return (s - Math.floor(s)) * 2 - 1;
+}
+
+function smooth(pts, closed) {
+  const n = pts.length;
+  if (n < 2) return '';
+  if (n === 2) return 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1) + 'L' + pts[1][0].toFixed(1) + ' ' + pts[1][1].toFixed(1);
+  let d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+  const last = closed ? n : n - 1;
+  for (let i = 0; i < last; i++) {
+    const p1 = pts[i % n], p2 = pts[(i + 1) % n];
+    const p0 = closed ? pts[(i - 1 + n) % n] : pts[Math.max(i - 1, 0)];
+    const p3 = closed ? pts[(i + 2) % n] : pts[Math.min(i + 2, n - 1)];
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += 'C' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ',' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ',' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+  }
+  return d + (closed ? 'Z' : '');
+}
+
+const GUY_BODY = [[-30,-18],[-35,4],[-29,25],[-9,34],[16,31],[31,13],[33,-9],[21,-25],[-7,-29]];
+const GUY_EAR_L = [[-27,-22],[-32,-41],[-20,-44],[-15,-26]];
+const GUY_EAR_R = [[10,-27],[15,-46],[27,-42],[25,-23]];
+const GUY_ARM = [[31,2],[47,-5],[56,-20]];
+const SPARK = [[0,-19],[5,-6],[18,0],[5,6],[0,19],[-5,6],[-18,0],[-5,-6]];
+const EYE_SHAPE = [[18,75],[58,33],[130,21],[202,35],[243,75],[199,117],[130,129],[57,114]];
+const EYE_BROW = [[40,18],[96,2],[162,1],[216,15]];
+
+class Component extends DCLogic {
+  state = { open:null };
+  paths = []; labels = []; doods = []; hov = {}; hoverId = null;
+  plateHover = false; mx = null; my = null;
+
+  setStage = (n) => { this.stage = n; };
+  setLayer = (n) => { this.layer = n; };
+  setReadout = (n) => { this.readout = n; };
+  setPath = (n) => { if (n && !this.paths.includes(n)) this.paths.push(n); };
+  setLabel = (n) => { if (n && !this.labels.includes(n)) this.labels.push(n); };
+  setDood = (n) => { if (n && !this.doods.includes(n)) this.doods.push(n); };
+  setPlate = (n) => { this.plate = n; };
+  setSlot = (n) => { this.slot = n; };
+  setEye = (n) => { this.eyeWrap = n; };
+  setLid = (n) => { this.lid = n; };
+  setEyeShape = (n) => { this.eyeShape = n; };
+  setIris = (n) => { this.iris = n; };
+  setGlint = (n) => { this.glint = n; };
+  setBrow = (n) => { this.brow = n; };
+
+  blue() { return this.props.doodleColor || BLUE; }
+
+  // One boiling crayon layer: the little guy, his pointer arrow, a sparkle and
+  // three drifting spores. Returns flat stroke records keyed by id.
+  doodleStrokes(t, g) {
+    const B = this.blue(), f = Math.floor(t * 7.5), out = [];
+    const at = (pts, ox, oy, seed, amp, sc) => pts.map((p, i) => [
+      ox + p[0] * (sc || 1) + rnd(i, f, seed) * amp,
+      oy + p[1] * (sc || 1) + rnd(i + 41, f, seed) * amp
+    ]);
+    const push = (id, d, fill, w) => out.push({ id:id, d:d, fill:fill || 'none', stroke:B, w:w || 3.4 });
+
+    const gx = 470, gy = 838 + Math.sin(t * 1.7) * 4;
+    push('ear-l', smooth(at(GUY_EAR_L, gx, gy, 2, 1.1), true), B, 2.6);
+    push('ear-r', smooth(at(GUY_EAR_R, gx, gy, 3, 1.1), true), B, 2.6);
+    push('body', smooth(at(GUY_BODY, gx, gy, 1, 1.6), true), B, 3.2);
+
+    // Eyes: paper-coloured dots that squash on the blink.
+    const k = this.blink(t);
+    ['l', 'r'].forEach((s, i) => {
+      const ex = gx - 12 + i * 22, ey = gy - 6;
+      const pts = [];
+      for (let a = 0; a < 8; a++) {
+        const th = a / 8 * Math.PI * 2;
+        pts.push([ex + Math.cos(th) * 5.4, ey + Math.sin(th) * 5.4 * k]);
+      }
+      out.push({ id:'eye-' + s, d:smooth(pts, true), fill:'#f4f1e6', stroke:'none', w:0 });
+    });
+
+    // Arm waves when a cell is live, idles otherwise.
+    const live = !!this.hoverId;
+    const a = (live ? Math.sin(t * 7) * 0.5 : Math.sin(t * 1.6) * 0.12) - 0.15;
+    const ca = Math.cos(a), sa = Math.sin(a), px = 31, py = 2;
+    const arm = GUY_ARM.map((p) => [
+      px + (p[0] - px) * ca - (p[1] - py) * sa,
+      py + (p[0] - px) * sa + (p[1] - py) * ca
+    ]);
+    const armPts = at(arm, gx, gy, 4, 1.2);
+    push('arm', smooth(armPts, false), 'none', 3.2);
+
+    // Pointer arrow: hidden at rest, shoots out of the hand toward whichever
+    // cell is live and retracts as that cell settles back.
+    let best = null, bv = 0;
+    CELLS.forEach((c) => { const h = this.hov[c.id] || 0; if (h > bv) { bv = h; best = c.id; } });
+    const grow = Math.min(1, bv * 1.25);
+    const tgt = bv > 0.04 ? g.find((c) => c.id === best) : null;
+    if (tgt) {
+      const hx = armPts[armPts.length - 1][0], hy = armPts[armPts.length - 1][1];
+      let vx = tgt.cx - hx, vy = tgt.cy - hy;
+      const len = Math.hypot(vx, vy) || 1;
+      const stop = Math.max(len - (Math.sqrt(tgt.area || 10000) * 0.42), len * 0.35) * grow;
+      vx /= len; vy /= len;
+      const ex = hx + vx * stop, ey = hy + vy * stop;
+      const bow = Math.min(len * 0.16, 70) * (vx > 0 ? -1 : 1);
+      const samples = [];
+      for (let i = 0; i <= 6; i++) {
+        const u = i / 6, w = 4 * u * (1 - u);
+        samples.push([hx + (ex - hx) * u - vy * bow * w, hy + (ey - hy) * u + vx * bow * w]);
+      }
+      push('arrow', smooth(at(samples, 0, 0, 5, 1.3), false), 'none', 3.2);
+      const bx = samples[6][0] - samples[5][0], by = samples[6][1] - samples[5][1];
+      const bl = Math.hypot(bx, by) || 1, ux = bx / bl, uy = by / bl;
+      const barb = (sgn) => smooth(at([
+        [ex - (ux * 0.94 - uy * sgn * 0.42) * 20, ey - (uy * 0.94 + ux * sgn * 0.42) * 20],
+        [ex, ey]
+      ], 0, 0, 6 + sgn, 1.1), false);
+      push('barb-a', barb(1), 'none', 3.2);
+      push('barb-b', barb(-1), 'none', 3.2);
+    }
+
+    const ttl = g.find((c) => c.id === 'title');
+    if (ttl) {
+      const s = 1 + Math.sin(t * 2.2) * 0.12;
+      push('spark', smooth(at(SPARK, ttl.cx + 168, ttl.cy - 126, 8, 1.1, s), true), B, 2.4);
+    }
+
+    [[1185, 640, 0], [255, 300, 2.1], [830, 268, 4.3]].forEach((s, i) => {
+      const cx = s[0] + Math.cos(t * 0.28 + s[2]) * 34, cy = s[1] + Math.sin(t * 0.23 + s[2]) * 26;
+      const ring = [];
+      for (let a2 = 0; a2 < 9; a2++) {
+        const th = a2 / 9 * Math.PI * 2;
+        ring.push([Math.cos(th) * 11, Math.sin(th) * 9.5]);
+      }
+      push('spore-' + i, smooth(at(ring, cx, cy, 10 + i, 1.3), true), 'none', 2.4);
+      push('nuc-' + i, smooth(at([[-3,0],[0,-3],[3,0],[0,3]], cx, cy, 20 + i, 0.8), true), B, 1.6);
+    });
+    return out;
+  }
+
+  blink(t) {
+    const p = (t + 0.7) % 3.9;
+    return p < 0.17 ? Math.max(0.08, Math.abs(Math.cos(p / 0.17 * Math.PI))) : 1;
+  }
+
+  drawDoodles(t, g) {
+    if (!this.doods.length) return;
+    const s = this.doodleStrokes(t, g);
+    this.doods.forEach((n) => {
+      if (!n.isConnected) return;
+      const r = s.find((x) => x.id === n.dataset.sid);
+      if (!r) { n.setAttribute('d', ''); return; }
+      n.setAttribute('d', r.d);
+      n.setAttribute('fill', r.fill);
+      n.setAttribute('stroke', r.stroke);
+      n.setAttribute('stroke-width', r.w);
+    });
+  }
+
+  // Big blinking eye on the empty plate; it follows the pointer and steps
+  // aside the moment a scan is dropped in.
+  drawEye(t) {
+    if (!this.eyeWrap || !this.eyeWrap.isConnected) return;
+    const f = Math.floor(t * 7.5);
+    const boil = (pts, seed, amp) => pts.map((p, i) => [p[0] + rnd(i, f, seed) * amp, p[1] + rnd(i + 41, f, seed) * amp]);
+    if (this.eyeShape) this.eyeShape.setAttribute('d', smooth(boil(EYE_SHAPE, 30, 2.2), true));
+    if (this.brow) this.brow.setAttribute('d', smooth(boil(EYE_BROW, 31, 2.2), false));
+    const k = this.blink(t);
+    if (this.lid) this.lid.setAttribute('transform', 'translate(130 75) scale(1 ' + k.toFixed(3) + ') translate(-130 -75)');
+    if (this.iris) {
+      const svg = this.iris.ownerSVGElement;
+      let dx = Math.sin(t * 0.6) * 12, dy = Math.cos(t * 0.45) * 6;
+      if (svg && this.mx != null) {
+        const r = svg.getBoundingClientRect();
+        if (r.width) {
+          dx = Math.max(-34, Math.min(34, (this.mx - r.left) / r.width * 260 - 130));
+          dy = Math.max(-16, Math.min(16, (this.my - r.top) / r.height * 150 - 75));
+        }
+      }
+      this.iris.setAttribute('cx', 130 + dx * 0.62);
+      this.iris.setAttribute('cy', 75 + dy * 0.62);
+      if (this.glint) {
+        this.glint.setAttribute('cx', 130 + dx * 0.62 - 9);
+        this.glint.setAttribute('cy', 75 + dy * 0.62 - 10);
+      }
+    }
+    const filled = this.slot && this.slot.hasAttribute && this.slot.hasAttribute('data-filled');
+    this.eyeWrap.style.opacity = filled ? '0' : (this.plateHover ? '0.14' : '1');
+  }
+
+  accent() { return this.props.accent || '#586a30'; }
+
+  enter = (e) => { this.hoverId = e.currentTarget.dataset.cid || null; };
+  leave = () => { this.hoverId = null; };
+  open = (e) => {
+    const id = e.currentTarget.dataset.card;
+    if (!id || this.props.lightbox === false) return;
+    this.setState({ open:id });
+  };
+  keyOpen = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.open(e); } };
+  close = () => this.setState({ open:null });
+
+  // Live seed set for time `t` with hover swell folded into the weights.
+  seeds(t) {
+    const breathe = this.props.breathe !== false;
+    const grow = (this.props.hoverGrowth ?? 55) / 100;
+    return CELLS.map((c) => {
+      const h = this.hov[c.id] || 0;
+      const b = breathe ? Math.sin(t * 0.55 + c.phase) : 0;
+      return {
+        id:c.id, kind:c.kind,
+        x:c.x + (breathe ? Math.cos(t * 0.37 + c.phase) * 7 : 0),
+        y:c.y + (breathe ? Math.sin(t * 0.31 + c.phase * 1.3) * 7 : 0),
+        w:c.w * (1 + b * 0.05 + h * grow)
+      };
+    });
+  }
+
+  geometry(t) {
+    const seeds = this.seeds(t);
+    const gap = (this.props.gap ?? 7) / 2;
+    const r = this.props.roundness ?? 56;
+    return seeds.map((s, i) => {
+      const raw = powerCell(i, seeds);
+      const ins = simplify(insetPoly(raw, gap), Math.max(10, r * 0.32));
+      const c = centroid(ins.length >= 3 ? ins : raw);
+      return { id:s.id, kind:s.kind, d:roundPath(ins, r), cx:c.x, cy:c.y, area:c.area };
+    });
+  }
+
+  componentDidMount() {
+    this.t0 = performance.now();
+    this.onKey = (e) => { if (e.key === 'Escape') this.close(); };
+    window.addEventListener('keydown', this.onKey);
+    this.onMove = (e) => { this.mx = e.clientX; this.my = e.clientY; };
+    window.addEventListener('pointermove', this.onMove);
+    this.onPlate = (e) => {
+      if (!this.plate) return;
+      this.plateHover = e.type === 'pointerenter';
+    };
+    this.onResize = () => {
+      if (!this.stage || !this.layer) return;
+      const s = this.stage.clientWidth / W;
+      if (!s) return; // stage not laid out yet — keep the last good scale, retry next frame
+      this.layer.style.transform = 'scale(' + s + ')';
+    };
+    window.addEventListener('resize', this.onResize);
+    if (window.ResizeObserver && this.stage) {
+      this.ro = new ResizeObserver(this.onResize);
+      this.ro.observe(this.stage);
+    }
+    this.onResize();
+    this.sizeLabels();
+    this.place(this.geometry(0), 0); // paint positions synchronously — no first-frame pile-up
+    this.raf = requestAnimationFrame(this.tick);
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    if (this.ro) this.ro.disconnect();
+    window.removeEventListener('keydown', this.onKey);
+    window.removeEventListener('pointermove', this.onMove);
+    window.removeEventListener('resize', this.onResize);
+    document.body.style.overflow = '';
+  }
+  componentDidUpdate() {
+    document.body.style.overflow = this.state.open ? 'hidden' : '';
+    this.onResize && this.onResize();
+    this.sizeLabels();
+  }
+
+  // Type scale and measure derive from the resting cell area, so breathing never reflows copy.
+  sizeLabels() {
+    const g = this.geometry(0);
+    this.labels.forEach((n) => {
+      if (!n.isConnected) return;
+      const c = g.find((x) => x.id === n.dataset.cid);
+      if (!c) return;
+      const s = Math.sqrt(c.area || 10000);
+      const f = n.dataset.eye ? 0.95 : 0.74;
+      n.style.width = Math.round(Math.min(Math.max(s * f, 120), n.dataset.eye ? 400 : 330)) + 'px';
+      const nm = n.querySelector('[data-nm]');
+      if (nm) nm.style.fontSize = Math.round(Math.min(Math.max(s / 13.5, 15), 27)) + 'px';
+    });
+  }
+
+  tick = (now) => {
+    this.raf = requestAnimationFrame(this.tick);
+    const t = (now - this.t0) / 1000;
+    CELLS.forEach((c) => {
+      const target = this.hoverId === c.id ? 1 : 0;
+      const cur = this.hov[c.id] || 0;
+      this.hov[c.id] = cur + (target - cur) * 0.12;
+    });
+    this.onResize();
+    const g = this.geometry(t);
+    this.place(g, t);
+    if (this.props.doodles !== false) this.drawDoodles(t, g);
+    this.drawEye(t);
+    if (this.plate && this.plate.isConnected) {
+      this.plateHover = this.mx != null && (() => {
+        const r = this.plate.getBoundingClientRect();
+        return this.mx >= r.left && this.mx <= r.right && this.my >= r.top && this.my <= r.bottom;
+      })();
+    }
+  };
+
+  place(g, t) {
+    const olive = this.accent();
+    const rect = this.stage && this.stage.isConnected ? this.stage.getBoundingClientRect() : null;
+    const sc = rect && rect.width ? rect.width / W : 1;
+    const k = this.blink(t || 0);
+    this.paths.forEach((n) => {
+      if (!n.isConnected) return;
+      const c = g.find((x) => x.id === n.dataset.cid);
+      if (!c) return;
+      n.setAttribute('d', c.d);
+      const h = this.hov[c.id] || 0;
+      if (c.kind === 'accent') n.setAttribute('fill', olive);
+      // Only record cells tint on hover — the title and the eye cells stay paper.
+      else if (c.kind === 'rec') n.setAttribute('fill', h > 0.02 ? this.mix(PAPER, olive, h) : PAPER);
+      else n.setAttribute('fill', PAPER);
+    });
+    this.labels.forEach((n) => {
+      if (!n.isConnected) return;
+      const c = g.find((x) => x.id === n.dataset.cid);
+      if (!c) return;
+      const h = this.hov[c.id] || 0;
+      n.style.left = c.cx + 'px';
+      n.style.top = c.cy + 'px';
+      n.style.transform = 'translate(-50%,-50%) scale(' + (1 + h * 0.05).toFixed(3) + ')';
+      if (c.kind === 'rec') n.style.color = h > 0.5 ? '#f6f4ea' : INK;
+      if (n.dataset.eye) {
+        const im = n.querySelector('[data-eyeimg]');
+        if (im) {
+          let dx = 0, dy = 0;
+          if (rect && this.mx != null) {
+            dx = Math.max(-10, Math.min(10, ((this.mx - rect.left) / sc - c.cx) / 24));
+            dy = Math.max(-7, Math.min(7, ((this.my - rect.top) / sc - c.cy) / 28));
+          }
+          im.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scaleY(' + k.toFixed(3) + ')';
+        }
+      }
+    });
+    if (this.readout && this.readout.isConnected) {
+      const c = CELLS.find((x) => x.id === this.hoverId);
+      const txt = c && c.t ? c.t + ' — ' + c.m : 'idle';
+      if (this.readout.textContent !== txt) this.readout.textContent = txt;
+    }
+  }
+
+  mix(a, b, t) {
+    const p = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const A = p(a), B = p(b);
+    return 'rgb(' + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',') + ')';
+  }
+
+  renderVals() {
+    const g = this.geometry(0);
+    const olive = this.accent();
+    const cells = g.map((c) => {
+      const src = CELLS.find((x) => x.id === c.id);
+      const interactive = c.kind === 'rec';
+      return {
+        id:c.id, d:c.d,
+        fill:c.kind === 'accent' ? olive : PAPER,
+        card:interactive ? c.id : '',
+        role:interactive ? 'button' : 'presentation',
+        tab:interactive ? 0 : -1,
+        aria:interactive ? 'Open scan — ' + src.t : '',
+        cursor:interactive ? 'cursor:pointer;outline-offset:-6px' : 'cursor:default'
+      };
+    });
+    const m = CELLS.find((c) => c.id === this.state.open);
+    return {
+      cells,
+      doodles:this.props.doodles === false ? [] : this.doodleStrokes(0, g),
+      blue:this.blue(),
+      eyeD:smooth(EYE_SHAPE, true), browD:smooth(EYE_BROW, false),
+      setStage:this.setStage, setLayer:this.setLayer, setReadout:this.setReadout,
+      setPath:this.setPath, setLabel:this.setLabel, setDood:this.setDood,
+      setPlate:this.setPlate, setSlot:this.setSlot, setEye:this.setEye, setLid:this.setLid,
+      setEyeShape:this.setEyeShape, setIris:this.setIris, setGlint:this.setGlint, setBrow:this.setBrow,
+      enter:this.enter, leave:this.leave, open:this.open, keyOpen:this.keyOpen, close:this.close,
+      isOpen:!!m, openTitle:m ? m.t : '', openMeta:m ? m.m : '',
+      openSlot:'ds4-view-' + (this.state.open || 'none')
+    };
+  }
+}
+</script>
+</body>
+</html>

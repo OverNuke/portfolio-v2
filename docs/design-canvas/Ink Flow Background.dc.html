@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<style>
+html,body{margin:0;padding:0;height:100%;background:#f6f4ea}
+@keyframes ifA{0%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.14) rotate(5deg) translate(1.2%,-1.6%)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes ifB{0%{transform:scale(1.1) rotate(3deg)}50%{transform:scale(.94) rotate(-4deg) translate(-1.6%,1.2%)}100%{transform:scale(1.1) rotate(3deg)}}
+@keyframes ifC{0%{transform:scale(.98) rotate(-2deg)}50%{transform:scale(1.2) rotate(7deg) translate(2%,1%)}100%{transform:scale(.98) rotate(-2deg)}}
+@keyframes ifD{0%{transform:scale(1.06) rotate(6deg) translate(-1%,0)}50%{transform:scale(.92) rotate(-6deg) translate(1.4%,-1.4%)}100%{transform:scale(1.06) rotate(6deg) translate(-1%,0)}}
+@keyframes ifDrift{0%{transform:translate(0,0)}50%{transform:translate(-1.4%,1.1%)}100%{transform:translate(0,0)}}
+</style>
+</helmet>
+
+<div ref="{{ setRoot }}" style="position:absolute;inset:0;overflow:hidden;background:#f6f4ea">
+
+  <svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
+    <filter id="ifWarp" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0055 0.0085" numOctaves="3" seed="9" result="n"></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="120" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+    </filter>
+    <filter id="ifWarpSoft" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.007 0.006" numOctaves="2" seed="3" result="n"></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="90" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+    </filter>
+  </svg>
+
+  <!-- ink mass: the black field, wavy-edged, weighted to the lower-left -->
+  <div style="position:absolute;inset:-6%;background-image:radial-gradient(64% 52% at 8% 96%,var(--if-black,#0c0d0a) 0 46%,transparent 78%),radial-gradient(46% 40% at 40% 104%,var(--if-black,#0c0d0a) 0 40%,transparent 76%),radial-gradient(38% 46% at -4% 54%,var(--if-black,#0c0d0a) 0 34%,transparent 74%),radial-gradient(30% 26% at 62% 108%,var(--if-black,#0c0d0a) 0 40%,transparent 78%);animation:ifDrift calc(var(--if-spd,1) * 46s) ease-in-out infinite"></div>
+
+  <!-- dark ring field: black contour lines over the paper -->
+  <div style="position:absolute;inset:0;mix-blend-mode:multiply;opacity:1;filter:url(#ifWarp);-webkit-mask-image:linear-gradient(38deg,#000 4%,rgba(0,0,0,.9) 40%,rgba(0,0,0,.35) 68%,transparent 92%);mask-image:linear-gradient(38deg,#000 4%,rgba(0,0,0,.9) 40%,rgba(0,0,0,.35) 68%,transparent 92%)">
+    <div style="position:absolute;left:20%;top:34%;width:44%;height:52%;animation:ifA calc(var(--if-spd,1) * 38s) ease-in-out infinite;background-image:repeating-radial-gradient(circle at 50% 50%,var(--if-ink,#14150f) 0 1.5px,transparent 1.5px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 58%,transparent 100%);mask-image:radial-gradient(closest-side,#000 58%,transparent 100%)"></div>
+    <div style="position:absolute;left:-6%;top:52%;width:34%;height:44%;animation:ifB calc(var(--if-spd,1) * 31s) ease-in-out infinite;background-image:repeating-radial-gradient(ellipse 62% 48% at 50% 50%,var(--if-ink,#14150f) 0 1.45px,transparent 1.45px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 56%,transparent 100%);mask-image:radial-gradient(closest-side,#000 56%,transparent 100%)"></div>
+    <div style="position:absolute;left:46%;top:58%;width:38%;height:46%;animation:ifC calc(var(--if-spd,1) * 44s) ease-in-out infinite;background-image:repeating-radial-gradient(circle at 50% 50%,var(--if-ink,#14150f) 0 1.4px,transparent 1.4px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 54%,transparent 100%);mask-image:radial-gradient(closest-side,#000 54%,transparent 100%)"></div>
+    <div style="position:absolute;left:4%;top:14%;width:30%;height:38%;animation:ifD calc(var(--if-spd,1) * 27s) ease-in-out infinite;background-image:repeating-radial-gradient(ellipse 54% 62% at 50% 50%,var(--if-ink,#14150f) 0 1.45px,transparent 1.45px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 52%,transparent 100%);mask-image:radial-gradient(closest-side,#000 52%,transparent 100%)"></div>
+    <div style="position:absolute;left:60%;top:22%;width:34%;height:40%;animation:ifB calc(var(--if-spd,1) * 35s) ease-in-out infinite;background-image:repeating-radial-gradient(circle at 50% 50%,var(--if-ink,#14150f) 0 1.35px,transparent 1.35px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 46%,transparent 100%);mask-image:radial-gradient(closest-side,#000 46%,transparent 100%)"></div>
+    <div style="position:absolute;left:28%;top:74%;width:30%;height:34%;animation:ifA calc(var(--if-spd,1) * 24s) ease-in-out infinite;background-image:repeating-radial-gradient(ellipse 58% 52% at 50% 50%,var(--if-ink,#14150f) 0 1.4px,transparent 1.4px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 54%,transparent 100%);mask-image:radial-gradient(closest-side,#000 54%,transparent 100%)"></div>
+  </div>
+
+  <!-- light ring field: the same swirl geometry reversed out inside the black mass -->
+  <div style="position:absolute;inset:0;mix-blend-mode:screen;opacity:.9;filter:url(#ifWarpSoft);-webkit-mask-image:radial-gradient(70% 58% at 14% 92%,#000 22%,transparent 72%);mask-image:radial-gradient(70% 58% at 14% 92%,#000 22%,transparent 72%)">
+    <div style="position:absolute;left:-6%;top:52%;width:34%;height:44%;animation:ifB calc(var(--if-spd,1) * 31s) ease-in-out infinite;background-image:repeating-radial-gradient(ellipse 62% 48% at 50% 50%,#e9e6d8 0 1.45px,transparent 1.45px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 56%,transparent 100%);mask-image:radial-gradient(closest-side,#000 56%,transparent 100%)"></div>
+    <div style="position:absolute;left:20%;top:34%;width:44%;height:52%;animation:ifA calc(var(--if-spd,1) * 38s) ease-in-out infinite;background-image:repeating-radial-gradient(circle at 50% 50%,#e9e6d8 0 1.15px,transparent 1.15px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 58%,transparent 100%);mask-image:radial-gradient(closest-side,#000 58%,transparent 100%)"></div>
+    <div style="position:absolute;left:28%;top:74%;width:30%;height:34%;animation:ifA calc(var(--if-spd,1) * 24s) ease-in-out infinite;background-image:repeating-radial-gradient(ellipse 58% 52% at 50% 50%,#e9e6d8 0 1.4px,transparent 1.4px var(--if-gap,7px));-webkit-mask-image:radial-gradient(closest-side,#000 54%,transparent 100%);mask-image:radial-gradient(closest-side,#000 54%,transparent 100%)"></div>
+  </div>
+
+  <!-- halftone dust in the mid-tone band -->
+  <div style="position:absolute;inset:-10%;pointer-events:none;mix-blend-mode:multiply;opacity:.4;transform:rotate(-8deg);background-image:radial-gradient(circle at 50% 50%,rgba(20,21,15,.7) 0 .7px,transparent 1px);background-size:4px 4px;-webkit-mask-image:radial-gradient(58% 48% at 34% 62%,#000 10%,transparent 74%);mask-image:radial-gradient(58% 48% at 34% 62%,#000 10%,transparent 74%)"></div>
+
+  <!-- paper lift + print grain -->
+  <div style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;background-image:{{ lift }}"></div>
+  <div style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.1;background-size:220px 220px;background-image:url(data:image/svg+xml;utf8,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%27220%27%20height=%27220%27%3E%3Cfilter%20id=%27n%27%3E%3CfeTurbulence%20type=%27fractalNoise%27%20baseFrequency=%270.85%27%20numOctaves=%274%27%20stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect%20width=%27220%27%20height=%27220%27%20filter=%27url%28%23n%29%27%20opacity=%270.55%27/%3E%3C/svg%3E)"></div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;ink&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#14150f&quot;,&quot;options&quot;:[&quot;#14150f&quot;,&quot;#0c0d0a&quot;,&quot;#3a3f2a&quot;,&quot;#6f7f45&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Ink&quot;},&quot;inkMass&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#0c0d0a&quot;,&quot;options&quot;:[&quot;#0c0d0a&quot;,&quot;#14150f&quot;,&quot;#1d2216&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Ink&quot;},&quot;ringGap&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:7,&quot;min&quot;:4,&quot;max&quot;:14,&quot;step&quot;:0.5,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Flow&quot;},&quot;speed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.2,&quot;max&quot;:3,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Flow&quot;},&quot;animate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Flow&quot;},&quot;paperLift&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0,&quot;max&quot;:1.4,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Flow&quot;}}">
+class Component extends DCLogic {
+  setRoot = (n) => { this.root = n; this.vars(); };
+  componentDidMount() { this.vars(); }
+  componentDidUpdate() { this.vars(); }
+
+  vars() {
+    const n = this.root;
+    if (!n) return;
+    const p = this.props;
+    n.style.setProperty('--if-ink', p.ink || '#14150f');
+    n.style.setProperty('--if-black', p.inkMass || '#0c0d0a');
+    n.style.setProperty('--if-gap', (p.ringGap == null ? 7 : p.ringGap) + 'px');
+    // speed is a multiplier on every layer's duration: higher = faster flow
+    const s = p.speed == null ? 1 : p.speed;
+    n.style.setProperty('--if-spd', s <= 0 ? 1 : (1 / s).toFixed(3));
+    n.querySelectorAll('[style*="animation"]').forEach(el => {
+      el.style.animationPlayState = p.animate === false ? 'paused' : 'running';
+    });
+  }
+
+  renderVals() {
+    const w = this.props.paperLift == null ? 1 : this.props.paperLift;
+    return {
+      setRoot: this.setRoot,
+      lift: [
+        'radial-gradient(54% 46% at 82% 20%, rgba(255,253,246,' + (0.8 * w).toFixed(3) + '), transparent 76%)',
+        'radial-gradient(42% 36% at 96% 66%, rgba(255,253,246,' + (0.45 * w).toFixed(3) + '), transparent 78%)'
+      ].join(',')
+    };
+  }
+}
+
+</script>
+</body>
+</html>

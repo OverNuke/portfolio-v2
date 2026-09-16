@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+html,body{margin:0;padding:0;background:#0a0a0a}
+a{color:#6f7f45;text-decoration:none}
+a:hover{color:#b9c98a}
+@keyframes dividerMorph{0%{border-radius:60% 40% 55% 45%/45% 55% 40% 60%}33%{border-radius:45% 55% 40% 60%/60% 40% 55% 45%}66%{border-radius:55% 45% 60% 40%/40% 60% 45% 55%}100%{border-radius:60% 40% 55% 45%/45% 55% 40% 60%}}
+@keyframes loadPulse{0%,100%{transform:scale(1);border-radius:60% 40% 55% 45%/45% 55% 40% 60%}50%{transform:scale(1.2);border-radius:45% 55% 40% 60%/60% 40% 55% 45%}}
+@keyframes wipeSweep{0%{transform:translateX(-140%) scale(.75);border-radius:50%}45%{transform:translateX(0) scale(1.35);border-radius:38% 62% 55% 45%/50% 45% 55% 50%}100%{transform:translateX(140%) scale(.75);border-radius:50%}}
+@keyframes cellWobble{0%,100%{border-radius:58% 42% 46% 54%/50% 55% 45% 50%}50%{border-radius:44% 56% 55% 45%/54% 45% 55% 46%}}
+</style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;background:#0e0e0e;font-family:'Manrope',system-ui,sans-serif;color:#f3f2ef">
+
+  <div style="position:sticky;top:0;z-index:50;display:flex;gap:4px;overflow-x:auto;padding:14px 32px;background:#141414;border-bottom:1px solid rgba(243,242,239,.14)">
+    <a href="#color" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Color</a>
+    <a href="#type" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Type</a>
+    <a href="#texture" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Texture</a>
+    <a href="#blobs" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Blobs</a>
+    <a href="#frames" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Frames</a>
+    <a href="#motion" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Motion</a>
+    <a href="#components" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Components</a>
+    <a href="#legacy" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Legacy</a>
+    <a href="#responsive" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Responsive</a>
+    <a href="#content" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Content</a>
+    <a href="#mark" style="flex:none;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;color:#f3f2ef" style-hover="border-color:rgba(243,242,239,.35)">Mark</a>
+  </div>
+
+  <div style="max-width:1040px;margin:0 auto;padding:72px 32px 140px;display:flex;flex-direction:column">
+
+    <div style="display:flex;flex-direction:column;gap:18px;padding-bottom:56px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#9c9b94">guidelines · living doc · v2</span>
+      <h1 style="margin:0;font-family:'Instrument Serif',serif;font-size:clamp(44px,7vw,88px);line-height:.94;letter-spacing:-.01em"><span style="color:#6f7f45">·</span> Ink Organism</h1>
+      <p style="margin:0;max-width:640px;font-size:15px;line-height:1.65;color:#c9c8c1;text-wrap:pretty">v2 pivot: organic cell-division motion + quiet ink-wash editorial framing, running in two surface modes — Paper and Dark. Only the olive accent survives from v1; torn edges, marker stickers and Archivo Black retire. Solo-maintained, still just the 4 built sections.</p>
+    </div>
+
+    <section id="color" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[01] foundations</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Two Surfaces, One Accent</h2>
+      </div>
+      <p style="margin:0;max-width:680px;font-size:14px;line-height:1.6;color:#c9c8c1">Paper is the original warm-cream mode; Dark is new. Olive is the single hue that bridges both — never a second brand color, in either mode.</p>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b9c98a">Paper mode</span>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px">
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#f6f4ea;border:1px solid rgba(243,242,239,.2)"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#f6f4ea · base</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#f4f1e6;border:1px solid rgba(243,242,239,.2)"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#f4f1e6 · card face</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#d9d5c6;border:1px solid rgba(243,242,239,.2)"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#d9d5c6 · frame</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#191b16"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#191b16 · ink fill</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#14150f"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#14150f · ink text</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b9c98a">Dark mode</span>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px">
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#0a0a0a;border:1px solid rgba(243,242,239,.2)"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#0a0a0a · base</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#141414;border:1px solid rgba(243,242,239,.2)"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#141414 · surface</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#1e1e1e;border:1px solid rgba(243,242,239,.2)"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#1e1e1e · raised</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#f3f2ef"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#f3f2ef · text</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#9c9b94"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#9c9b94 · muted text</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b9c98a">Olive accent — shared</span>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px">
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#6f7f45"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#6f7f45 · primary</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;background:#b9c98a"></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">#b9c98a · bright, on dark</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="type" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:30px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[02] foundations</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Three Voices, Retuned</h2>
+      </div>
+      <p style="margin:0;max-width:680px;font-size:14px;line-height:1.6;color:#c9c8c1">Archivo Black and Permanent Marker retire. New pairing, same three-role structure.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b9c98a">the editorial mark — Instrument Serif</span>
+        <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(34px,6vw,58px);line-height:1">Part One.</div>
+        <p style="margin:0;font-size:13px;color:#9c9b94">Headlines, pull numerals, section titles. Italic by default — it's the one ornamental gesture left in the system.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b9c98a">the structure — Manrope</span>
+        <div style="display:flex;gap:24px;flex-wrap:wrap">
+          <span style="font-weight:400;font-size:17px">Regular · reads the room quietly.</span>
+          <span style="font-weight:600;font-size:17px">Semibold · reads the room quietly.</span>
+        </div>
+        <p style="margin:0;font-size:13px;color:#9c9b94">Body copy, nav, UI labels, buttons. Does all the reading work.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b9c98a">the data — JetBrains Mono</span>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:.02em">(142) · 0.6x · N45.2</div>
+        <p style="margin:0;font-size:13px;color:#9c9b94">Specimen numbers, coordinates, state labels — anything that reads as a measurement, never as prose.</p>
+      </div>
+    </section>
+
+    <section id="texture" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[03] foundations</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Grain, Dots, Wash</h2>
+      </div>
+      <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.6;color:#c9c8c1">
+        <li>Paper mode keeps its hatch + halftone + print-grain (see Legacy → Ink-Flow Background).</li>
+        <li>Dark mode gets a blueprint dot-grid instead: small dots, ~24px cell, low-opacity white on near-black — the backdrop every blob specimen and the cursor demo sits on.</li>
+        <li>Imagery goes grayscale ink-wash: desaturated, higher contrast, soft vignette. No more torn-clip masks on photos — a clean rectangle plus a corner-bracket frame (see Frames).</li>
+      </ul>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9c9b94">dot-grid, dark mode</span>
+        <div style="width:100%;height:140px;background-color:#0a0a0a;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1.2px);background-size:24px 24px;border:1px solid rgba(243,242,239,.14)"></div>
+      </div>
+    </section>
+
+    <section id="blobs" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[04] foundations</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Blob Shape Language</h2>
+      </div>
+      <p style="margin:0;max-width:680px;font-size:14px;line-height:1.6;color:#c9c8c1">The system's new motion primitive — metaball shapes built from overlapping circles or asymmetric border-radius, numbered like lab specimens. Buttons, nav, cards, cursor and dividers all pull from this vocabulary; nothing is a plain circle except the smallest "cell" state.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:32px;background-color:#0a0a0a;background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1.2px);background-size:24px 24px;border:1px solid rgba(243,242,239,.14)">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="position:relative;width:96px;height:96px"><div style="position:absolute;left:18px;top:6px;width:60px;height:36px;background:#e9e7e0;border-radius:50%"></div><div style="position:absolute;left:18px;top:54px;width:60px;height:36px;background:#e9e7e0;border-radius:50%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">(12)</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center"><div style="width:78px;height:70px;background:#e9e7e0;border-radius:58% 42% 39% 61%/45% 40% 60% 55%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">(2)</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="position:relative;width:96px;height:96px"><div style="position:absolute;left:6px;top:30px;width:40px;height:40px;border-radius:50%;background:#e9e7e0"></div><div style="position:absolute;left:50px;top:34px;width:32px;height:32px;border-radius:50%;background:#e9e7e0"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">(78)</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="position:relative;width:96px;height:96px"><div style="position:absolute;left:10px;top:10px;width:34px;height:34px;border-radius:50%;background:#e9e7e0"></div><div style="position:absolute;left:44px;top:20px;width:30px;height:30px;border-radius:50%;background:#e9e7e0"></div><div style="position:absolute;left:22px;top:46px;width:38px;height:38px;border-radius:50%;background:#e9e7e0"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">(8)</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="position:relative;width:96px;height:96px"><div style="position:absolute;left:38px;top:6px;width:20px;height:20px;border-radius:50%;background:#e9e7e0"></div><div style="position:absolute;left:33px;top:32px;width:30px;height:30px;border-radius:50%;background:#e9e7e0"></div><div style="position:absolute;left:38px;top:68px;width:20px;height:20px;border-radius:50%;background:#e9e7e0"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">(91)</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center"><div style="width:84px;height:50px;background:#e9e7e0;border-radius:50% 50% 45% 55%/60% 60% 40% 40%"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c9b94">(14)</span></div>
+      </div>
+      <p style="margin:0;font-size:13px;color:#9c9b94">Rule: pairs/clusters are two or three overlapping circles; single blobs use asymmetric border-radius (e.g. <code style="color:#c9c8c1">62% 38% 55% 45% / 45% 60% 40% 55%</code>). Morphs animate between 2–4 such states.</p>
+    </section>
+
+    <section id="frames" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[05] foundations</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Corner-Bracket Frames</h2>
+      </div>
+      <p style="margin:0;max-width:680px;font-size:14px;line-height:1.6;color:#c9c8c1">Replaces torn edges as the containment language: four short L-brackets, one per corner, inset ~10px, 1.5px stroke. Works on photos, panels, and image placeholders in both modes.</p>
+      <div style="position:relative;width:220px;height:140px;background:#1a1a1a;display:flex;align-items:center;justify-content:center">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9c9b94">image</span>
+        <span style="position:absolute;left:10px;top:10px;width:16px;height:16px;border-left:1.5px solid #f3f2ef;border-top:1.5px solid #f3f2ef"></span>
+        <span style="position:absolute;right:10px;top:10px;width:16px;height:16px;border-right:1.5px solid #f3f2ef;border-top:1.5px solid #f3f2ef"></span>
+        <span style="position:absolute;left:10px;bottom:10px;width:16px;height:16px;border-left:1.5px solid #f3f2ef;border-bottom:1.5px solid #f3f2ef"></span>
+        <span style="position:absolute;right:10px;bottom:10px;width:16px;height:16px;border-right:1.5px solid #f3f2ef;border-bottom:1.5px solid #f3f2ef"></span>
+      </div>
+    </section>
+
+    <section id="motion" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[06] foundations</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Slow Ink, Living Cells</h2>
+      </div>
+      <p style="margin:0;max-width:680px;font-size:14px;line-height:1.6;color:#c9c8c1">Ambient loops stay 24–46s ease-in-out. Interactive still resolves in .2–.35s on <code style="color:#c9c8c1">cubic-bezier(.2,.85,.2,1)</code>. New: blob morphs cycle 3–4 border-radius keyframes rather than a single before/after state. Cursor lag is the one allowed exception to "no springy easing" — ~120ms ease-out, just enough to feel alive, never bouncy.</p>
+    </section>
+
+    <section id="components" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:36px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[07] components</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">New Components</h2>
+      </div>
+      <div style="padding:16px 20px;border:1px dashed rgba(243,242,239,.3);display:flex;flex-direction:column;gap:6px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#b9c98a">adding new components</span>
+        <span style="font-size:13px;line-height:1.6;color:#c9c8c1">This list is meant to grow — new refs and ideas are welcome. Anything added must still: pull its shape from the Blob vocabulary or the corner-bracket frame, work in both Paper and Dark, use only the olive accent, run on the two established motion speeds, and set type from the three voices. If a reference needs a new color, font, or shape technique to work, flag it first — that's a foundations change, not a component.</span>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onClick="{{ setPaper }}" style="{{ modePaperStyle }}">Paper</button>
+        <button onClick="{{ setDark }}" style="{{ modeDarkStyle }}">Dark</button>
+      </div>
+
+      <div style="position:relative;padding:48px;display:flex;flex-wrap:wrap;gap:40px;align-items:center;background:{{ sandboxBg }};transition:background .25s ease;border:1px solid rgba(243,242,239,.14)">
+
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ sandboxMuted }}">blob button</span>
+          <button style="padding:16px 30px;border:none;background:#6f7f45;color:#f6f4ea;font-family:'Manrope',sans-serif;font-weight:600;font-size:14px;cursor:pointer;border-radius:40px;transition:border-radius .35s cubic-bezier(.2,.85,.2,1),transform .35s cubic-bezier(.2,.85,.2,1)" style-hover="border-radius:62% 38% 55% 45%/45% 60% 40% 55%;transform:scale(1.05)">Get in touch</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ sandboxMuted }}">blob nav</span>
+          <div style="display:flex;gap:6px">
+            <a style="position:relative;padding:10px 16px;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:{{ sandboxText }};border-radius:20px;transition:border-radius .3s ease,background .3s ease" style-hover="border-radius:60% 40% 50% 50%/45% 55% 45% 55%;background:rgba(111,127,69,.28)">Work</a>
+            <a style="position:relative;padding:10px 16px;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:{{ sandboxText }};border-radius:20px;transition:border-radius .3s ease,background .3s ease" style-hover="border-radius:60% 40% 50% 50%/45% 55% 45% 55%;background:rgba(111,127,69,.28)">About</a>
+            <a style="position:relative;padding:10px 16px;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:{{ sandboxText }};border-radius:20px;transition:border-radius .3s ease,background .3s ease" style-hover="border-radius:60% 40% 50% 50%/45% 55% 45% 55%;background:rgba(111,127,69,.28)">Contact</a>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ sandboxMuted }}">card, blob hover reveal</span>
+          <div style="position:relative;width:200px;height:150px;overflow:hidden;background:{{ sandboxCard }};border:1px solid rgba(120,120,120,.25)">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Manrope',sans-serif;font-size:13px;color:{{ sandboxMuted }}">Project</div>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#6f7f45;border-radius:60% 40% 55% 45%/45% 55% 40% 60%;opacity:0;transform:scale(.6);transition:opacity .3s ease,transform .35s cubic-bezier(.2,.85,.2,1)" style-hover="opacity:1;transform:scale(1)"><span style="font-family:'Manrope',sans-serif;font-size:12px;font-weight:700;color:#f6f4ea">View case study</span></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ sandboxMuted }}">loading / state</span>
+          <div style="width:36px;height:36px;background:#6f7f45;animation:loadPulse 1.6s ease-in-out infinite"></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start;width:100%;max-width:400px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ sandboxMuted }}">section transition (looping preview)</span>
+          <div style="position:relative;width:100%;height:84px;overflow:hidden;background:#0a0a0a;border:1px solid rgba(243,242,239,.16)">
+            <div style="position:absolute;left:50%;top:50%;width:130px;height:130px;margin:-65px 0 0 -65px;background:#6f7f45;animation:wipeSweep 3.4s ease-in-out infinite"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start;width:100%;max-width:520px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ sandboxMuted }}">custom cursor — mitosis loop, move inside</span>
+          <div onMouseMove="{{ onCursorMove }}" style="position:relative;width:100%;height:200px;background-color:#0a0a0a;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1.2px);background-size:22px 22px;overflow:hidden;cursor:none;display:flex;align-items:center;justify-content:center;border:1px solid rgba(243,242,239,.16)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#5c5b56">move the mouse here</span>
+            <div style="{{ cellAStyle }}"></div>
+            <div style="{{ cellBStyle }}"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start;width:100%">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:{{ sandboxMuted }}">section divider</span>
+          <div style="position:relative;height:56px;display:flex;align-items:center;justify-content:center;width:100%">
+            <div style="width:120px;height:26px;background:#6f7f45;animation:dividerMorph 8s ease-in-out infinite"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="legacy" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[08] legacy — still valid</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Ink-Flow &amp; Hover-Dock</h2>
+      </div>
+      <p style="margin:0;max-width:680px;font-size:14px;line-height:1.6;color:#c9c8c1">Neither was on the retirement list. Ink-Flow Background stays the Paper-mode ambient layer for full-bleed sections; Hover-Dock's asymmetric magnetic cards stay the Contact pattern. Full specs live in <a href="#" style="color:#b9c98a">Design Guidelines v1</a>.</p>
+      <div style="position:relative;width:100%;height:180px;overflow:hidden;border:1px solid rgba(243,242,239,.16)">
+        <dc-import name="Ink Flow Background" ink="#14150f" ink-mass="#0c0d0a" ring-gap="8" speed="1" animate="true" paper-lift="1" hint-size="100%,180px"></dc-import>
+      </div>
+    </section>
+
+    <section id="responsive" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[09] rules</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Desktop Canvas → Mobile Flow</h2>
+      </div>
+      <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.6;color:#c9c8c1">
+        <li>≥1200px — fixed 1440×900 absolute canvas, as built, either mode.</li>
+        <li>720–1199px — same layout, scaled fluidly; type shrinks ~15–20%.</li>
+        <li>&lt;720px — stack in reading order, single column, full-width panels.</li>
+        <li>Dot-grid cell doubles to ~40px below 720px to avoid moiré on small screens.</li>
+        <li>Blob morphs simplify to a plain scale pulse (no border-radius keyframes) on touch/low-power.</li>
+        <li>Custom cursor has no meaning on touch — swap for a static blob icon or drop it entirely.</li>
+        <li>Type floor: serif H1 never below 32px; body 14–16px; mono labels floor at 11px.</li>
+        <li>Touch targets minimum 44px.</li>
+      </ul>
+    </section>
+
+    <section id="content" style="padding:56px 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[10] content</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Voice, EN / ES</h2>
+      </div>
+      <p style="margin:0;max-width:680px;font-size:14px;line-height:1.6;color:#c9c8c1">Unchanged from v1: first-person, dry, metadata-style captions over marketing copy. EN and ES carry the same register in both directions — structure and numbering stay identical, only sentence content swaps via the existing <code style="color:#c9c8c1">COPY</code> table pattern.</p>
+    </section>
+
+    <section id="mark" style="padding:56px 0 0;border-top:1px solid rgba(243,242,239,.14);display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#9c9b94">[11] direction</span>
+        <h2 style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:38px;line-height:1">Seinen, Now Editorial</h2>
+      </div>
+      <p style="margin:0;max-width:680px;font-size:14px;line-height:1.6;color:#c9c8c1">The seinen call still stands — serious, restrained, high-contrast — and this pass reinforces it: grayscale ink-wash imagery and quiet corner-bracket frames read closer to an editorial print portfolio than a comic panel. No logo yet; wordmark stays typographic, now set in Instrument Serif italic.</p>
+      <p style="margin:16px 0 0;font-size:13px;color:#8f8e87">Couldn't open the two Pinterest links you sent (short links aren't fetchable from here) — the dot-grid and cursor/loading demos above are my read on "background animation" and "dot decoration." Drop the actual images in if I'm off.</p>
+      <p style="margin:24px 0 0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#5c5b56">living document — extend as new sections ship</p>
+    </section>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { mode: 'dark', cx: 220, cy: 100, phase: 0 };
+
+  setPaper = () => this.setState({ mode: 'paper' });
+  setDark = () => this.setState({ mode: 'dark' });
+
+  onCursorMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    this.setState({ cx: e.clientX - r.left, cy: e.clientY - r.top });
+  };
+
+  componentDidMount() {
+    // cycles the cursor through merge -> divide -> split states, like mitosis
+    this._mitosis = setInterval(() => this.setState(s => ({ phase: (s.phase + 1) % 3 })), 1100);
+  }
+  componentWillUnmount() {
+    clearInterval(this._mitosis);
+  }
+
+  cellStyle(dir) {
+    // dir -1/1: which side of center this cell drifts toward as it "divides"
+    const OFFSET = [0, 8, 17][this.state.phase];
+    const SIZE = [34, 28, 24][this.state.phase];
+    const x = this.state.cx - SIZE / 2 + dir * OFFSET;
+    const y = this.state.cy - SIZE / 2;
+    return 'position:absolute;left:0;top:0;width:' + SIZE + 'px;height:' + SIZE + 'px;background:#6f7f45;pointer-events:none;animation:cellWobble 3.2s ease-in-out infinite;animation-delay:' + (dir < 0 ? '0s' : '.4s') +
+      ';transform:translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px);transition:transform .35s cubic-bezier(.2,.85,.2,1),width .35s ease,height .35s ease';
+  }
+
+  renderVals() {
+    const dark = this.state.mode === 'dark';
+    // toggle buttons always sit on the fixed dark page shell, regardless of selected sandbox mode
+    const btn = (active) => 'padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border:1px solid rgba(243,242,239,.3);background:' +
+      (active ? '#f3f2ef' : 'transparent') + ';color:' + (active ? '#0a0a0a' : '#f3f2ef');
+    return {
+      setPaper: this.setPaper,
+      setDark: this.setDark,
+      modePaperStyle: btn(!dark),
+      modeDarkStyle: btn(dark),
+      sandboxBg: dark ? '#0a0a0a' : '#efece1',
+      sandboxCard: dark ? '#1a1a1a' : '#f4f1e6',
+      sandboxText: dark ? '#f3f2ef' : '#14150f',
+      sandboxMuted: dark ? '#9c9b94' : 'rgba(20,21,15,.6)',
+      onCursorMove: this.onCursorMove,
+      cellAStyle: this.cellStyle(-1),
+      cellBStyle: this.cellStyle(1)
+    };
+  }
+}
+
+</script>
+</body>
+</html>

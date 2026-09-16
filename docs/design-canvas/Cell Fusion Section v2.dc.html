@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Permanent+Marker&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap">
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#efece1}
+a{color:#4f5c2f;text-decoration:none}
+a:hover{color:#191b16}
+@keyframes cellWobA{0%,100%{border-radius:56% 44% 48% 52%/52% 56% 44% 48%}50%{border-radius:46% 54% 57% 43%/46% 44% 56% 54%}}
+@keyframes cellWobB{0%,100%{border-radius:48% 52% 59% 41%/44% 57% 43% 56%}50%{border-radius:58% 42% 43% 57%/57% 43% 57% 43%}}
+@keyframes cellWobC{0%,100%{border-radius:52% 48% 42% 58%/57% 45% 55% 43%}50%{border-radius:44% 56% 56% 44%/45% 58% 42% 55%}}
+@keyframes driftA{0%,100%{transform:translate(0,0)}33%{transform:translate(7px,-6px)}66%{transform:translate(-5px,5px)}}
+@keyframes driftB{0%,100%{transform:translate(0,0)}33%{transform:translate(-6px,6px)}66%{transform:translate(6px,4px)}}
+@keyframes driftC{0%,100%{transform:translate(0,0)}30%{transform:translate(9px,7px)}70%{transform:translate(-8px,-7px)}}
+</style>
+</helmet>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="cellGoo2"><feGaussianBlur in="SourceGraphic" stdDeviation="{{ goo }}" result="blr"></feGaussianBlur><feColorMatrix in="blr" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -11"></feColorMatrix></filter></defs></svg>
+
+<div style="position:relative;width:1440px;height:900px;overflow:hidden;font-family:'Space Grotesk',system-ui,sans-serif;color:#14150f;background:#efece1;background-image:repeating-linear-gradient(92deg,rgba(20,21,15,.028) 0 1px,transparent 1px 4px),repeating-linear-gradient(2deg,rgba(20,21,15,.022) 0 1px,transparent 1px 5px),radial-gradient(108% 58% at 6% 0%,rgba(111,127,69,.09),transparent 60%)">
+
+  <div style="position:absolute;left:104px;top:132px;width:470px;display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;align-items:center;gap:14px;font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:rgba(20,21,15,.6)">
+      <span style="width:44px;height:2px;background:#14150f"></span>
+      <span>05 / synthesis</span>
+    </div>
+    <h2 style="margin:0;font-family:'Archivo Black',sans-serif;font-size:72px;line-height:.86;letter-spacing:-.035em;text-transform:uppercase">Three<br>cells, one<br>organism<span style="color:#6f7f45">.</span></h2>
+    <p style="margin:0;max-width:420px;font-size:15px;line-height:1.65;color:rgba(20,21,15,.78);text-wrap:pretty">Two of them obviously belong together. The third drifts off on its own and reads like decoration — until you disturb the dish and it snaps into the cluster too.</p>
+    <div style="display:flex;flex-direction:column;gap:9px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(20,21,15,.72)">
+      <span style="width:44px;height:2px;background:rgba(20,21,15,.28)"></span>
+      <span>hover a nucleus — all three bind</span>
+      <span>click — the bond holds</span>
+    </div>
+    <div style="align-self:flex-start;transform:rotate(-4deg);font-family:'Permanent Marker',cursive;font-size:26px;color:#6f7f45">watch the loose one ↗</div>
+  </div>
+
+  <div style="position:absolute;left:684px;top:150px;display:flex;flex-direction:column;gap:20px">
+    <sc-for list="{{ chambers }}" as="cell" hint-placeholder-count="3">
+      <div onClick="{{ cell.toggle }}" style="position:relative;width:652px;height:196px;background:#14150f;border:2px solid #14150f;box-shadow:7px 7px 0 rgba(20,21,15,.2);overflow:hidden;cursor:pointer">
+
+        <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(246,244,234,.16) 1px,transparent 1px);background-size:11px 11px;pointer-events:none"></div>
+
+        <div style="position:absolute;inset:0;filter:url(#cellGoo2);pointer-events:none">
+          <div style="position:absolute;left:{{ cell.d0.bx }};top:{{ cell.d0.by }};animation:{{ cell.d0.drift }}">
+            <div style="width:{{ cell.d0.size }};height:{{ cell.d0.size }};background:{{ cell.fill }};animation:{{ cell.d0.wob }};transform:{{ cell.d0.t }};transition:transform .9s cubic-bezier(.22,1.1,.3,1),background .7s ease"></div>
+          </div>
+          <div style="position:absolute;left:{{ cell.d1.bx }};top:{{ cell.d1.by }};animation:{{ cell.d1.drift }}">
+            <div style="width:{{ cell.d1.size }};height:{{ cell.d1.size }};background:{{ cell.fill }};animation:{{ cell.d1.wob }};transform:{{ cell.d1.t }};transition:transform .9s cubic-bezier(.22,1.1,.3,1) .05s,background .7s ease"></div>
+          </div>
+          <div style="position:absolute;left:{{ cell.d2.bx }};top:{{ cell.d2.by }};animation:{{ cell.d2.drift }}">
+            <div style="width:{{ cell.d2.size }};height:{{ cell.d2.size }};background:{{ cell.fill }};animation:{{ cell.d2.wob }};transform:{{ cell.d2.t }};transition:transform 1.05s cubic-bezier(.28,1.35,.34,1) .12s,background .7s ease"></div>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:200px;top:0;width:152px;height:100%" onMouseEnter="{{ cell.enter }}" onMouseLeave="{{ cell.leave }}"></div>
+        <div style="position:absolute;left:352px;top:0;width:150px;height:100%" onMouseEnter="{{ cell.enter }}" onMouseLeave="{{ cell.leave }}"></div>
+        <div style="position:absolute;left:502px;top:0;width:150px;height:100%" onMouseEnter="{{ cell.enter }}" onMouseLeave="{{ cell.leave }}"></div>
+
+        <div style="position:absolute;left:24px;top:26px;display:flex;flex-direction:column;gap:10px;pointer-events:none">
+          <span style="font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,244,234,.55)">( {{ cell.n }} )</span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f6f4ea;transition:opacity .4s ease;opacity:{{ cell.srcOpacity }}">{{ cell.a }}</span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#f6f4ea;transition:opacity .4s ease .06s;opacity:{{ cell.srcOpacity }}">{{ cell.b }}</span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(246,244,234,.62);transition:opacity .4s ease .12s;opacity:{{ cell.srcOpacity }}">{{ cell.c }}</span>
+        </div>
+
+        <div style="position:absolute;left:24px;top:104px;max-width:150px;font-family:'Archivo Black',sans-serif;font-size:24px;line-height:.92;letter-spacing:-.02em;text-transform:uppercase;color:#f6f4ea;transition:opacity .5s ease .2s,transform .6s cubic-bezier(.22,1.1,.3,1) .16s;opacity:{{ cell.fusedOpacity }};transform:{{ cell.fusedShift }};pointer-events:none">{{ cell.fused }}</div>
+
+        <div style="position:absolute;right:18px;bottom:12px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,244,234,.68);pointer-events:none">{{ cell.status }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#8a9a55&quot;,&quot;options&quot;:[&quot;#8a9a55&quot;,&quot;#6f7f45&quot;,&quot;#f6f4ea&quot;,&quot;#c9d49a&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cells&quot;},&quot;gooiness&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:60,&quot;min&quot;:0,&quot;max&quot;:100,&quot;step&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Cells&quot;},&quot;livingCells&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cells&quot;}}">
+class Component extends DCLogic {
+  state = { hover: null, locked: {} };
+
+  renderVals() {
+    const accent = this.props.accent ?? '#8a9a55';
+    const goo = (4 + ((this.props.gooiness ?? 60) / 100) * 9).toFixed(1);
+    const pulse = this.props.livingCells ?? true;
+    const wob = ['cellWobA 11s ease-in-out infinite', 'cellWobB 13s ease-in-out infinite', 'cellWobC 9.5s ease-in-out infinite'];
+    const drift = ['driftA 13s ease-in-out infinite', 'driftB 16s ease-in-out infinite', 'driftC 10s ease-in-out infinite'];
+
+    // base centres + fused-cluster centres, per chamber (field spans x 200-652, h 196)
+    const data = [
+      { n: '01', a: 'Figma', b: 'React', c: 'Motion', fused: 'Interfaces',
+        dots: [[262, 98, 78, 380, 98], [404, 98, 64, 452, 98], [580, 48, 44, 512, 98]] },
+      { n: '02', a: 'SQL', b: 'Python', c: 'Power BI', fused: 'Decisions',
+        dots: [[248, 62, 72, 396, 112], [420, 148, 60, 432, 60], [582, 60, 46, 470, 116]] },
+      { n: '03', a: 'Spanish', b: 'English', c: 'Diagrams', fused: 'Understood',
+        dots: [[268, 52, 66, 412, 62], [268, 146, 66, 412, 134], [586, 100, 42, 472, 98]] }
+    ];
+
+    const chambers = data.map((d, i) => {
+      const locked = !!this.state.locked[i];
+      const on = this.state.hover === i || locked;
+      const dot = (j) => {
+        const [bx, by, s, tx, ty] = d.dots[j];
+        const sc = on ? 1.14 : 1;
+        return {
+          bx: (bx - s / 2) + 'px', by: (by - s / 2) + 'px', size: s + 'px',
+          wob: pulse ? wob[(i + j) % 3] : 'none',
+          drift: pulse ? drift[(i + j) % 3] : 'none',
+          t: on ? 'translate(' + (tx - bx) + 'px,' + (ty - by) + 'px) scale(' + sc + ')' : 'translate(0px,0px) scale(1)'
+        };
+      };
+      return {
+        n: d.n, a: d.a, b: d.b, c: d.c, fused: d.fused,
+        d0: dot(0), d1: dot(1), d2: dot(2),
+        fill: on ? accent : '#f6f4ea',
+        srcOpacity: on ? '0' : '1',
+        fusedOpacity: on ? '1' : '0',
+        fusedShift: on ? 'translateY(0px)' : 'translateY(10px)',
+        status: locked ? 'bonded' : on ? 'binding' : 'three bodies',
+        enter: () => this.setState({ hover: i }),
+        leave: () => this.setState(s => (s.hover === i ? { hover: null } : null)),
+        toggle: () => this.setState(s => ({ locked: { ...s.locked, [i]: !s.locked[i] } }))
+      };
+    });
+
+    return { chambers, goo };
+  }
+}
+
+</script>
+</body>
+</html>

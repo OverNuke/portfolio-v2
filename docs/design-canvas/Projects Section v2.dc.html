@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<script src="./image-slot.js"></script>
+<style>
+html,body{margin:0;padding:0;background:#f6f4ea}
+a{color:#586a30;text-decoration:none}
+a:hover{color:#14150f}
+</style>
+</helmet>
+<div style="width:100%"><div ref="{{ setStage }}" style="position:relative;width:100%;max-width:1440px;margin:0 auto;aspect-ratio:1440/900;overflow:hidden;background:#f6f4ea;background-image:repeating-linear-gradient(92deg,rgba(20,21,15,.022) 0 1px,transparent 1px 4px),repeating-linear-gradient(2deg,rgba(20,21,15,.018) 0 1px,transparent 1px 5px);font-family:'Manrope',system-ui,sans-serif;color:#14150f">
+<div ref="{{ setLayer }}" style="position:absolute;left:0;top:0;width:1440px;height:900px;transform-origin:0 0">
+
+  <h2 style="position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap">Projects</h2>
+
+  <div style="position:absolute;right:76px;top:78px;display:flex;align-items:center;gap:12px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(20,21,15,.55)"><span style="width:54px;height:1px;background:rgba(20,21,15,.3)"></span><span>selected work</span><span style="color:#14150f">03</span></div>
+
+  <div ref="{{ setMark }}" data-mark="p1" data-mk="group" data-rot="-2.2" data-lift="9" data-pid="p1" style="position:absolute;left:76px;top:232px;width:320px;padding:22px 22px 0;box-sizing:border-box;background:#f4f1e6;border-radius:32px 26px 34px 24px;box-shadow:0 20px 44px rgba(20,21,15,.14);transform:rotate(-2.2deg);z-index:8;cursor:pointer">
+    <div ref="{{ setMark }}" data-mark="p1" data-mk="photo" style="position:relative;width:276px;height:276px;border-radius:50%;overflow:hidden;background:#e4e1d8;border:3px solid #14150f;box-sizing:border-box">
+      <image-slot id="pj2-barbershop" shape="circle" placeholder="Barbershop — employee screen" style="position:absolute;inset:0;width:100%;height:100%"></image-slot>
+    </div>
+    <div style="height:58px;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 6px 8px;box-sizing:border-box;font-family:'JetBrains Mono',monospace">
+      <span style="font-size:11px;letter-spacing:.2em;text-transform:uppercase">barbershop</span>
+      <span style="font-size:11px;letter-spacing:.04em;color:rgba(20,21,15,.7)">web-dev final · 2025</span>
+    </div>
+  </div>
+
+  <div ref="{{ setMark }}" data-mark="p1" data-mk="group" data-rot="-3.4" data-lift="9" style="position:absolute;left:56px;top:250px;z-index:12;transform:rotate(-3.4deg);padding:4px 12px 5px;background:#f6f4ea;border:2px solid #14150f;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;pointer-events:none">flagship</div>
+
+  <div ref="{{ setMark }}" data-mark="p2" data-mk="group" data-rot="2.4" data-lift="9" data-pid="p2" style="position:absolute;left:648px;top:120px;width:264px;padding:20px 20px 0;box-sizing:border-box;background:#f4f1e6;border-radius:26px 32px 24px 30px;box-shadow:0 18px 40px rgba(20,21,15,.13);transform:rotate(2.4deg);z-index:8;cursor:pointer">
+    <div ref="{{ setMark }}" data-mark="p2" data-mk="photo" style="position:relative;width:224px;height:224px;border-radius:50%;overflow:hidden;background:#e4e1d8;border:3px solid #14150f;box-sizing:border-box">
+      <image-slot id="pj2-acopiatech" shape="circle" placeholder="Acopiatech — route screen" style="position:absolute;inset:0;width:100%;height:100%"></image-slot>
+    </div>
+    <div style="height:56px;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 5px 8px;box-sizing:border-box;font-family:'JetBrains Mono',monospace">
+      <span style="font-size:11px;letter-spacing:.2em;text-transform:uppercase">acopiatech</span>
+      <span style="font-size:11px;letter-spacing:.04em;color:rgba(20,21,15,.7)">routing · 2025</span>
+    </div>
+  </div>
+
+  <div ref="{{ setMark }}" data-mark="p3" data-mk="group" data-rot="-1.6" data-lift="9" data-pid="p3" style="position:absolute;left:820px;top:372px;width:250px;padding:20px 20px 0;box-sizing:border-box;background:#f4f1e6;border-radius:30px 24px 32px 26px;box-shadow:0 18px 40px rgba(20,21,15,.13);transform:rotate(-1.6deg);z-index:9;cursor:pointer">
+    <div ref="{{ setMark }}" data-mark="p3" data-mk="photo" style="position:relative;width:210px;height:210px;border-radius:50%;overflow:hidden;background:#e4e1d8;border:3px solid #14150f;box-sizing:border-box">
+      <image-slot id="pj2-odoo" shape="circle" placeholder="Odoo — module screen" style="position:absolute;inset:0;width:100%;height:100%"></image-slot>
+    </div>
+    <div style="height:56px;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 5px 8px;box-sizing:border-box;font-family:'JetBrains Mono',monospace">
+      <span style="font-size:11px;letter-spacing:.2em;text-transform:uppercase">odoo module</span>
+      <span style="font-size:11px;letter-spacing:.04em;color:rgba(20,21,15,.7)">private · 2025</span>
+    </div>
+  </div>
+
+  <div ref="{{ setMark }}" data-mark="p1" data-mk="group" data-rot="0" data-lift="5" data-pid="p1" style="position:absolute;left:76px;top:620px;width:400px;display:flex;flex-direction:column;gap:10px;z-index:14">
+    <div style="display:flex;align-items:center;gap:12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(20,21,15,.62)"><span>01</span><span style="flex:1;height:1px;background:rgba(20,21,15,.24)"></span><span>backend</span></div>
+    <h3 ref="{{ setMark }}" data-mark="p1" data-mk="title" style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:42px;line-height:.94;letter-spacing:-.015em;align-self:flex-start">Barbershop</h3>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:rgba(20,21,15,.82);text-wrap:pretty">Employee and appointment records, built end to end for the web development course — full CRUD, containerised, shipped to production.</p>
+  </div>
+
+  <div ref="{{ setMark }}" data-mark="p1" data-mk="group" data-rot="0" data-lift="5" style="position:absolute;left:76px;top:772px;display:flex;gap:8px;z-index:14;pointer-events:none">
+    <span ref="{{ setMark }}" data-mark="p1" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">Express</span>
+    <span ref="{{ setMark }}" data-mark="p1" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">JavaScript</span>
+    <span ref="{{ setMark }}" data-mark="p1" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">Docker</span>
+    <span ref="{{ setMark }}" data-mark="p1" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">MySQL</span>
+  </div>
+
+  <a ref="{{ setMark }}" data-mark="p1" data-mk="group" data-rot="0" data-lift="5" href="#repo-barbershop" style="position:absolute;left:76px;top:824px;padding:13px 24px;background:#586a30;border-radius:40px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#f6f4ea;z-index:14;transition:border-radius .35s cubic-bezier(.2,.85,.2,1)" style-hover="border-radius:62% 38% 55% 45%/45% 60% 40% 55%;color:#f6f4ea">Repository ↗</a>
+
+  <div ref="{{ setMark }}" data-mark="p2" data-mk="group" data-rot="0" data-lift="5" data-pid="p2" style="position:absolute;left:600px;top:470px;width:204px;display:flex;flex-direction:column;gap:9px;z-index:14">
+    <div style="display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(20,21,15,.62)"><span>02</span><span style="flex:1;height:1px;background:rgba(20,21,15,.24)"></span><span>mobile</span></div>
+    <h3 ref="{{ setMark }}" data-mark="p2" data-mk="title" style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;line-height:.98;letter-spacing:-.01em;align-self:flex-start">Acopiatech</h3>
+    <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(20,21,15,.82);text-wrap:pretty">Mobile app for e-waste donation and collection routing, field-tested on local routes.</p>
+  </div>
+
+  <div ref="{{ setMark }}" data-mark="p2" data-mk="group" data-rot="0" data-lift="5" style="position:absolute;left:600px;top:626px;display:flex;flex-wrap:wrap;gap:8px;width:210px;z-index:14;pointer-events:none">
+    <span ref="{{ setMark }}" data-mark="p2" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">Flutter</span>
+    <span ref="{{ setMark }}" data-mark="p2" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">Dart</span>
+    <span ref="{{ setMark }}" data-mark="p2" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">Firebase</span>
+    <span ref="{{ setMark }}" data-mark="p2" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">Maps API</span>
+  </div>
+
+  <a ref="{{ setMark }}" data-mark="p2" data-mk="group" data-rot="0" data-lift="5" href="#repo-acopiatech" style="position:absolute;left:600px;top:704px;padding:13px 24px;background:#586a30;border-radius:40px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#f6f4ea;z-index:14;transition:border-radius .35s cubic-bezier(.2,.85,.2,1)" style-hover="border-radius:55% 45% 62% 38%/40% 55% 45% 60%;color:#f6f4ea">Repository ↗</a>
+
+  <div ref="{{ setMark }}" data-mark="p3" data-mk="group" data-rot="0" data-lift="5" data-pid="p3" style="position:absolute;left:1108px;top:400px;width:250px;display:flex;flex-direction:column;gap:9px;z-index:14">
+    <div style="display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(20,21,15,.62)"><span>03</span><span style="flex:1;height:1px;background:rgba(20,21,15,.24)"></span><span>module</span></div>
+    <h3 ref="{{ setMark }}" data-mark="p3" data-mk="title" style="margin:0;font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;line-height:.98;letter-spacing:-.01em;align-self:flex-start">Odoo Custom Module</h3>
+    <p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(20,21,15,.82);text-wrap:pretty">Document management module built for a local company, folded into their existing ERP.</p>
+  </div>
+
+  <div ref="{{ setMark }}" data-mark="p3" data-mk="group" data-rot="0" data-lift="5" style="position:absolute;left:1108px;top:536px;display:flex;flex-wrap:wrap;gap:8px;width:250px;z-index:14;pointer-events:none">
+    <span ref="{{ setMark }}" data-mark="p3" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">Odoo</span>
+    <span ref="{{ setMark }}" data-mark="p3" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">Python</span>
+    <span ref="{{ setMark }}" data-mark="p3" data-mk="tag" style="padding:5px 9px;border:1px solid rgba(20,21,15,.22);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:rgba(20,21,15,.78)">PostgreSQL</span>
+  </div>
+
+  <div ref="{{ setMark }}" data-mark="p3" data-mk="group" data-rot="0" data-lift="5" style="position:absolute;left:1108px;top:606px;display:flex;align-items:center;gap:10px;width:250px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(20,21,15,.5);z-index:14"><span>private repository</span><span style="flex:1;height:1px;background:rgba(20,21,15,.2)"></span></div>
+
+  <div ref="{{ setMark }}" data-mark="p1" data-mk="note" style="position:absolute;left:430px;top:300px;width:150px;opacity:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.55;color:#e0452b;z-index:16;pointer-events:none">the appointment grid — rebuilt twice before it held</div>
+  <div ref="{{ setMark }}" data-mark="p2" data-mk="note" style="position:absolute;left:952px;top:142px;width:170px;opacity:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.55;color:#e0452b;z-index:16;pointer-events:none">route picker — Maps API doing the heavy lifting</div>
+  <div ref="{{ setMark }}" data-mark="p3" data-mk="note" style="position:absolute;left:820px;top:672px;width:200px;opacity:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.55;color:#e0452b;z-index:16;pointer-events:none">document handoff, collapsed into one screen</div>
+
+  <svg viewBox="0 0 1440 900" style="position:absolute;left:0;top:0;width:1440px;height:900px;pointer-events:none;overflow:visible;z-index:20">
+    <sc-for list="{{ strokes }}" as="s" hint-placeholder-count="40">
+      <path ref="{{ setDood }}" data-sid="{{ s.id }}" d="{{ s.d }}" fill="{{ s.fill }}" stroke="{{ s.stroke }}" stroke-width="{{ s.w }}" stroke-linecap="round" stroke-linejoin="round"></path>
+    </sc-for>
+  </svg>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;doodles&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Doodles&quot;},&quot;annotations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Doodles&quot;},&quot;tagRings&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Doodles&quot;},&quot;doodleColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#586a30&quot;,&quot;options&quot;:[&quot;#2b39c7&quot;,&quot;#1f2a8f&quot;,&quot;#14150f&quot;,&quot;#586a30&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Doodles&quot;},&quot;hotColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#c9351d&quot;,&quot;options&quot;:[&quot;#e0452b&quot;,&quot;#c9351d&quot;,&quot;#e07b2b&quot;,&quot;#2b39c7&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Doodles&quot;}}">
+const W = 1440, H = 900, BLUE = '#586a30', HOT = '#c9351d';
+const PIDS = ['p1', 'p2', 'p3'], MAXTAGS = 4;
+
+/* Single-stroke marker skeletons — the hand-lettered headline. */
+const GLYPHS = {
+  P:{w:48,s:[{p:[[2,2],[0,90]]},{p:[[2,2],[32,8],[40,26],[28,44],[1,46]]}]},
+  R:{w:50,s:[{p:[[2,2],[0,90]]},{p:[[2,2],[32,8],[40,24],[26,42],[1,43]]},{p:[[18,42],[44,90]]}]},
+  O:{w:58,s:[{p:[[32,2],[52,18],[56,46],[42,80],[18,86],[3,58],[6,24]],c:true}]},
+  J:{w:48,s:[{p:[[6,2],[44,6]]},{p:[[32,5],[30,62],[20,84],[6,80],[2,62]]}]},
+  E:{w:46,s:[{p:[[4,2],[0,90]]},{p:[[4,2],[42,0]]},{p:[[2,44],[32,42]]},{p:[[0,90],[42,86]]}]},
+  C:{w:56,s:[{p:[[50,16],[30,2],[9,16],[3,48],[14,78],[36,86],[52,72]]}]},
+  T:{w:50,s:[{p:[[0,3],[48,0]]},{p:[[25,2],[22,90]]}]},
+  S:{w:50,s:[{p:[[46,14],[26,2],[8,12],[12,33],[34,45],[47,60],[40,80],[16,86],[3,72]]}]}
+};
+
+function layoutWord(word, x0, y0, sc, gap) {
+  const out = [];
+  let x = x0;
+  for (const ch of word) {
+    const g = GLYPHS[ch];
+    if (!g) continue;
+    g.s.forEach((st) => out.push({ pts:st.p.map((p) => [x + p[0] * sc, y0 + p[1] * sc]), c:!!st.c }));
+    x += g.w * sc + gap * sc;
+  }
+  return out;
+}
+const HEAD = layoutWord('PROJECTS', 76, 74, 1.18, 9);
+const SWOOSH = [[68,202],[180,210],[320,200],[462,211],[604,197]];
+
+/* Shared crayon character from Distinction v4 — same guy, same proportions. */
+const GUY_BODY = [[-30,-18],[-35,4],[-29,25],[-9,34],[16,31],[31,13],[33,-9],[21,-25],[-7,-29]];
+const GUY_EAR_L = [[-27,-22],[-32,-41],[-20,-44],[-15,-26]];
+const GUY_EAR_R = [[10,-27],[15,-46],[27,-42],[25,-23]];
+const GUY_ARM = [[31,2],[47,-5],[56,-20]];
+const SPARK = [[0,-19],[5,-6],[18,0],[5,6],[0,19],[-5,6],[-18,0],[-5,-6]];
+const SPORES = [[500,492,0],[700,84,2.1],[1012,706,4.3]];
+
+function rnd(a, b, c) {
+  const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453;
+  return (s - Math.floor(s)) * 2 - 1;
+}
+
+function smooth(pts, closed) {
+  const n = pts.length;
+  if (n < 2) return '';
+  if (n === 2) return 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1) + 'L' + pts[1][0].toFixed(1) + ' ' + pts[1][1].toFixed(1);
+  let d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+  const last = closed ? n : n - 1;
+  for (let i = 0; i < last; i++) {
+    const p1 = pts[i % n], p2 = pts[(i + 1) % n];
+    const p0 = closed ? pts[(i - 1 + n) % n] : pts[Math.max(i - 1, 0)];
+    const p3 = closed ? pts[(i + 2) % n] : pts[Math.min(i + 2, n - 1)];
+    d += 'C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ' ' + (p1[1] + (p2[1] - p0[1]) / 6).toFixed(1) + ',' +
+         (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ' ' + (p2[1] - (p3[1] - p1[1]) / 6).toFixed(1) + ',' +
+         p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+  }
+  return d + (closed ? 'Z' : '');
+}
+
+function ellipsePts(cx, cy, rx, ry, n, rot) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const th = i / n * Math.PI * 2 + (rot || 0);
+    out.push([cx + Math.cos(th) * rx, cy + Math.sin(th) * ry]);
+  }
+  return out;
+}
+
+class Component extends DCLogic {
+  doods = []; marks = []; hov = { p1:0, p2:0, p3:0 }; hoverId = null; scale = 1; M = {};
+
+  setStage = (n) => { this.stage = n; };
+  setLayer = (n) => { this.layer = n; };
+  setMark = (n) => { if (n && !this.marks.includes(n)) this.marks.push(n); };
+  setDood = (n) => { if (n && !this.doods.includes(n)) this.doods.push(n); };
+
+  blue() { return this.props.doodleColor || BLUE; }
+  hot() { return this.props.hotColor || HOT; }
+
+  /* Hover is delegated on the layer with native pointer events: each project
+     owns two zones (plate + copy), and crossing between zones of the same
+     project never blinks the annotation off. */
+  over = (e) => {
+    const z = e.target.closest && e.target.closest('[data-pid]');
+    this.hoverId = z ? z.dataset.pid : null;
+  };
+  out = (e) => {
+    const z = e.target.closest && e.target.closest('[data-pid]');
+    if (!z) return;
+    const to = e.relatedTarget, nz = to && to.closest ? to.closest('[data-pid]') : null;
+    if (nz && nz.dataset.pid === z.dataset.pid) return;
+    if (this.hoverId === z.dataset.pid) this.hoverId = nz ? nz.dataset.pid : null;
+  };
+
+  /* Everything the doodles point at is measured from the live DOM in layer
+     space, so marks track the hover lift instead of drifting off it. */
+  measure() {
+    if (!this.layer) return;
+    const lr = this.layer.getBoundingClientRect(), s = this.scale || 1, m = {};
+    for (const n of this.marks) {
+      if (!n.isConnected) continue;
+      const pid = n.dataset.mark, k = n.dataset.mk;
+      if (!pid || !k) continue;
+      const e = m[pid] || (m[pid] = { tags:[] });
+      if (k === 'group') continue;
+      const b = n.getBoundingClientRect();
+      if (!b.width) continue;
+      const r = { x:(b.left - lr.left) / s, y:(b.top - lr.top) / s, w:b.width / s, h:b.height / s };
+      r.cx = r.x + r.w / 2; r.cy = r.y + r.h / 2;
+      if (k === 'tag') { if (e.tags.length < MAXTAGS) e.tags.push(r); } else e[k] = r;
+    }
+    this.M = m;
+  }
+
+  blink(t) {
+    const p = (t + 0.7) % 3.9;
+    return p < 0.17 ? Math.max(0.08, Math.abs(Math.cos(p / 0.17 * Math.PI))) : 1;
+  }
+
+  /* One boiling crayon layer. Every id is always emitted (empty `d` when idle)
+     so the stroke set stays stable across frames. */
+  strokes(t) {
+    const B = this.blue(), R = this.hot(), f = Math.floor(t * 7.5), out = [], M = this.M || {};
+    const at = (pts, ox, oy, seed, amp, sc) => pts.map((p, i) => [
+      ox + p[0] * (sc || 1) + rnd(i, f, seed) * amp,
+      oy + p[1] * (sc || 1) + rnd(i + 41, f, seed) * amp
+    ]);
+    const push = (id, d, fill, stroke, w) => out.push({ id:id, d:d || '', fill:fill || 'none', stroke:stroke || B, w:w || 3.2 });
+
+    HEAD.forEach((st, i) => push('L' + i, smooth(at(st.pts, 0, 0, i + 60, 1.7), st.c), 'none', B, 8));
+    push('swoosh-a', smooth(at(SWOOSH, 0, 0, 90, 3), false), 'none', R, 7);
+    push('swoosh-b', smooth(at(SWOOSH, 0, 7, 91, 3.4), false), 'none', R, 4.5);
+    push('spark', smooth(at(SPARK, 560, 44, 92, 1.1, 1 + Math.sin(t * 2.2) * 0.12), true), B, B, 2.4);
+    push('flag-ring', smooth(at(ellipsePts(112, 266 - (this.hov.p1 || 0) * 9, 64, 26, 9, 0.4), 0, 0, 93, 2), true), 'none', R, 3);
+
+    /* the guy */
+    const gx = 512, gy = 812 + Math.sin(t * 1.7) * 4, S = 1.2;
+    push('ear-l', smooth(at(GUY_EAR_L, gx, gy, 2, 1.1, S), true), B, B, 2.6);
+    push('ear-r', smooth(at(GUY_EAR_R, gx, gy, 3, 1.1, S), true), B, B, 2.6);
+    push('body', smooth(at(GUY_BODY, gx, gy, 1, 1.6, S), true), B, B, 3.2);
+    const k = this.blink(t);
+    ['l', 'r'].forEach((s, i) => {
+      const ex = gx - 14 + i * 26, ey = gy - 8, pts = [];
+      for (let a = 0; a < 8; a++) {
+        const th = a / 8 * Math.PI * 2;
+        pts.push([ex + Math.cos(th) * 5.8, ey + Math.sin(th) * 5.8 * k]);
+      }
+      out.push({ id:'eye-' + s, d:smooth(pts, true), fill:'#f4f1e6', stroke:'none', w:0 });
+    });
+
+    /* which plate is live — drives the arm swing and the pointer arrow */
+    let best = null, bv = 0;
+    PIDS.forEach((pid) => { const h = this.hov[pid] || 0; if (h > bv) { bv = h; best = M[pid] && M[pid].photo; } });
+    const armAim = best ? Math.atan2(best.cy - gy, best.cx - gx) : 0;
+    const idleA = Math.sin(t * 1.6) * 0.12 - 0.15;
+    const a = idleA + (armAim - idleA) * Math.min(1, bv * 1.2) + (bv > 0.1 ? Math.sin(t * 7) * 0.06 : 0);
+    const ca = Math.cos(a), sa = Math.sin(a), px = 31, py = 2;
+    const arm = GUY_ARM.map((p) => [px + (p[0] - px) * ca - (p[1] - py) * sa, py + (p[0] - px) * sa + (p[1] - py) * ca]);
+    const armPts = at(arm, gx, gy, 4, 1.2, S);
+    push('arm', smooth(armPts, false), 'none', B, 3.2);
+
+    const hand = armPts[armPts.length - 1];
+    this.arrow(push, at, 'ptr', hand[0], hand[1], best ? best.cx : 0, best ? best.cy : 0,
+      best ? Math.min(1, bv * 1.25) : 0, best ? best.w / 2 + 26 : 0, B, 3.2, 0.14);
+
+    /* per-project annotation: ringed photo, arrow to the note, underlined
+       title, ringed stack tags — all on measured boxes */
+    PIDS.forEach((pid, pi) => {
+      const e = M[pid] || {}, h = this.hov[pid] || 0, g = Math.min(1, h * 1.35);
+      const ann = this.props.annotations === false ? 0 : g;
+      const ph = e.photo;
+
+      if (ph && ann > 0.05) {
+        const rx = ph.w / 2 + 9, ry = ph.h / 2 + 9, sc = 0.82 + 0.18 * ann;
+        push('ring-a-' + pid, smooth(at(ellipsePts(ph.cx, ph.cy, rx * sc, ry * sc, 11, 0.3 + pi), 0, 0, 100 + pi, 2.2), true), 'none', R, 3.4);
+        push('ring-b-' + pid, smooth(at(ellipsePts(ph.cx, ph.cy, rx * sc + 7, ry * sc + 5, 11, 1.1 + pi), 0, 0, 110 + pi, 2.6), true), 'none', R, 2.2);
+      } else {
+        push('ring-a-' + pid, '', 'none', R, 3.4);
+        push('ring-b-' + pid, '', 'none', R, 2.2);
+      }
+
+      if (ph && e.note && ann > 0.05) {
+        const nb = e.note, right = nb.cx > ph.cx;
+        const tx = right ? nb.x - 10 : nb.x + nb.w + 10, ty = nb.y + 11;
+        const ux = tx - ph.cx, uy = ty - ph.cy, ul = Math.hypot(ux, uy) || 1;
+        const rad = ph.w / 2 + 17;
+        this.arrow(push, at, 'ann-' + pid, ph.cx + ux / ul * rad, ph.cy + uy / ul * rad, tx, ty, ann, 4, R, 3, 0.12);
+      } else {
+        this.arrow(push, at, 'ann-' + pid, 0, 0, 0, 0, 0, 0, R, 3, 0);
+      }
+
+      if (e.title && ann > 0.05) {
+        const ti = e.title, y = ti.y + ti.h - 1, x2 = ti.x + ti.w * ann;
+        push('ul-a-' + pid, smooth(at([[ti.x, y + 3], [ti.x + (x2 - ti.x) * 0.5, y + 6], [x2, y + 2]], 0, 0, 140 + pi, 1.6), false), 'none', R, 3);
+        push('ul-b-' + pid, smooth(at([[ti.x + 4, y + 8], [ti.x + (x2 - ti.x) * 0.6, y + 10], [x2 - 3, y + 7]], 0, 0, 150 + pi, 1.9), false), 'none', R, 1.8);
+      } else {
+        push('ul-a-' + pid, '', 'none', R, 3);
+        push('ul-b-' + pid, '', 'none', R, 1.8);
+      }
+
+      const rings = this.props.tagRings === false ? 0 : g;
+      for (let j = 0; j < MAXTAGS; j++) {
+        const id = 'tag-' + pid + '-' + j, tg = e.tags && e.tags[j];
+        if (!tg || rings < 0.06) { push(id, '', 'none', B, 2.4); continue; }
+        const sc = 0.78 + 0.22 * rings;
+        push(id, smooth(at(ellipsePts(tg.cx, tg.cy, (tg.w / 2 + 7) * sc, (tg.h / 2 + 6) * sc, 9, 0.6 + j), 0, 0, 130 + pi * 7 + j, 1.5), true), 'none', B, 2.4);
+      }
+    });
+
+    SPORES.forEach((s, i) => {
+      const cx = s[0] + Math.cos(t * 0.28 + s[2]) * 34, cy = s[1] + Math.sin(t * 0.23 + s[2]) * 26;
+      push('spore-' + i, smooth(at(ellipsePts(0, 0, 11, 9.5, 9, 0), cx, cy, 10 + i, 1.3), true), 'none', B, 2.4);
+      push('nuc-' + i, smooth(at([[-3,0],[0,-3],[3,0],[0,3]], cx, cy, 20 + i, 0.8), true), B, B, 1.6);
+    });
+    return out;
+  }
+
+  /* shaft + two barbs, growing from 0 → 1 */
+  arrow(push, at, key, hx, hy, tx, ty, grow, back, color, w, bowK) {
+    const ids = [key + '-shaft', key + '-barb-a', key + '-barb-b'];
+    if (!grow || grow < 0.05) { ids.forEach((i) => push(i, '', 'none', color, w)); return; }
+    let vx = tx - hx, vy = ty - hy;
+    const len = Math.hypot(vx, vy) || 1;
+    const stop = Math.max(len - back, len * 0.3) * grow;
+    vx /= len; vy /= len;
+    const ex = hx + vx * stop, ey = hy + vy * stop;
+    const bow = Math.min(len * bowK, 60) * (vx > 0 ? -1 : 1);
+    const samples = [];
+    for (let i = 0; i <= 6; i++) {
+      const u = i / 6, bw = 4 * u * (1 - u);
+      samples.push([hx + (ex - hx) * u - vy * bow * bw, hy + (ey - hy) * u + vx * bow * bw]);
+    }
+    push(ids[0], smooth(at(samples, 0, 0, 5, 1.3), false), 'none', color, w);
+    const bx = samples[6][0] - samples[5][0], by = samples[6][1] - samples[5][1];
+    const bl = Math.hypot(bx, by) || 1, ux = bx / bl, uy = by / bl;
+    const barb = (sgn, seed) => smooth(at([
+      [ex - (ux * 0.94 - uy * sgn * 0.42) * 18, ey - (uy * 0.94 + ux * sgn * 0.42) * 18],
+      [ex, ey]
+    ], 0, 0, seed, 1.1), false);
+    push(ids[1], barb(1, 6), 'none', color, w);
+    push(ids[2], barb(-1, 7), 'none', color, w);
+  }
+
+  /* lift + focus are driven here, on the same lerp as the doodles, so plate,
+     copy and annotation move as one body */
+  applyGroups() {
+    const peak = Math.max(this.hov.p1 || 0, this.hov.p2 || 0, this.hov.p3 || 0);
+    for (const n of this.marks) {
+      if (!n.isConnected || n.dataset.mk !== 'group') continue;
+      const h = this.hov[n.dataset.mark] || 0;
+      const rot = parseFloat(n.dataset.rot) || 0, lift = parseFloat(n.dataset.lift) || 0;
+      const tf = (rot ? 'rotate(' + rot + 'deg) ' : '') + 'translateY(' + (-lift * h).toFixed(2) + 'px)';
+      if (n._tf !== tf) { n.style.transform = tf; n._tf = tf; }
+      const op = (1 - 0.5 * Math.max(0, peak - h)).toFixed(3);
+      if (n._op !== op) { n.style.opacity = op; n._op = op; }
+    }
+  }
+
+  paint(t) {
+    const on = this.props.doodles !== false;
+    const s = on ? this.strokes(t) : [];
+    const byId = {};
+    s.forEach((x) => { byId[x.id] = x; });
+    this.doods.forEach((n) => {
+      if (!n.isConnected) return;
+      const r = on ? byId[n.dataset.sid] : null;
+      if (!r) { n.setAttribute('d', ''); return; }
+      n.setAttribute('d', r.d);
+      n.setAttribute('fill', r.fill);
+      n.setAttribute('stroke', r.stroke);
+      n.setAttribute('stroke-width', r.w);
+    });
+    for (const n of this.marks) {
+      if (!n.isConnected || n.dataset.mk !== 'note') continue;
+      const h = this.hov[n.dataset.mark] || 0;
+      n.style.opacity = (on && this.props.annotations !== false ? Math.min(1, Math.max(0, h * 1.6 - 0.25)) : 0).toFixed(2);
+    }
+  }
+
+  fit = () => {
+    if (!this.stage || !this.layer) return;
+    const s = this.stage.clientWidth / W;
+    if (s && s !== this.scale) { this.scale = s; this.layer.style.transform = 'scale(' + s + ')'; }
+  };
+
+  componentDidMount() {
+    this.t0 = performance.now();
+    window.addEventListener('resize', this.fit);
+    if (window.ResizeObserver && this.stage) { this.ro = new ResizeObserver(this.fit); this.ro.observe(this.stage); }
+    if (this.layer) {
+      this.layer.addEventListener('pointerover', this.over);
+      this.layer.addEventListener('pointerout', this.out);
+      this.layer.addEventListener('mouseover', this.over);
+      this.layer.addEventListener('mouseout', this.out);
+    }
+    this.fit();
+    this.measure();
+    this.paint(0);
+    this.raf = requestAnimationFrame(this.tick);
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    if (this.ro) this.ro.disconnect();
+    if (this.layer) {
+      this.layer.removeEventListener('pointerover', this.over);
+      this.layer.removeEventListener('pointerout', this.out);
+      this.layer.removeEventListener('mouseover', this.over);
+      this.layer.removeEventListener('mouseout', this.out);
+    }
+    window.removeEventListener('resize', this.fit);
+  }
+  componentDidUpdate() { this.fit(); }
+
+  tick = (now) => {
+    this.raf = requestAnimationFrame(this.tick);
+    this.fit();
+    let live = false;
+    PIDS.forEach((pid) => {
+      const target = this.hoverId === pid ? 1 : 0;
+      const cur = this.hov[pid] || 0;
+      const next = cur + (target - cur) * 0.14;
+      this.hov[pid] = Math.abs(next - target) < 0.002 ? target : next;
+      if (this.hov[pid] > 0.002) live = true;
+    });
+    this.applyGroups();
+    if (live || !this.measured) { this.measure(); this.measured = true; }
+    this.paint((now - this.t0) / 1000);
+  };
+
+  renderVals() {
+    return {
+      strokes:this.strokes(0),
+      setStage:this.setStage, setLayer:this.setLayer,
+      setMark:this.setMark, setDood:this.setDood
+    };
+  }
+}
+
+</script>
+</body>
+</html>
