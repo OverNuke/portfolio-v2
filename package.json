@@ -20,6 +20,7 @@
     "e2e": "pnpm build && playwright test"
   },
   "dependencies": {
+    "@fontsource/instrument-serif": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
     "@icons-pack/react-simple-icons": "^13.13.0",
     "animejs": "^4.5.0",

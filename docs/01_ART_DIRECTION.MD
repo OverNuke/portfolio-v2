@@ -98,8 +98,8 @@ Two things, and only two: **display type** and **decorative vocabulary**.
 | Register | Surface | Display type | Decorative vocabulary |
 |---|---|---|---|
 | **Expressive** | `/profile` | LT Remark display (transparent-stroke middle line) + one `--font-hand` scrap | `clip-path` angled panels, the diagonal gutter sweep, outlined "SFX" onomatopoeia, the speech-bubble creed tail |
-| **Instrument** | `/contact` | JetBrains Mono only — no serif display | Ink connector "wires" tucked behind plates, the mechanical proximity dock (≤1.1 scale), an illustrated figure bleeding off the bottom edge, hand-cut `clip-path` plate edges (see "Hand-cut edges", below) |
-| **Record** | `/certifications` | LT Remark titles + Mono meta | Faint blueprint-grid paper, hairline corner registration marks, the vertical "Certificate archive" ghost title, hand-cut `clip-path` tile edges (a 2–12px irregular cut, constant at every tile size), strictly grid-aligned mats (no rotation — see below) |
+| **Instrument** | `/contact` | JetBrains Mono for all labels/meta; the section `<h2>` "REACH OUT" is LT Remark (2026-09-08, see "Masthead") | Ink connector "wires" tucked behind plates, the mechanical proximity dock (≤1.1 scale), an illustrated figure bleeding off the bottom edge, hand-cut `clip-path` plate edges (see "Hand-cut edges", below) |
+| **Record** | `/certifications` | LT Remark titles + Mono meta | Faint blueprint-grid paper, hairline corner registration marks, the "DISTINCTIONS" section `<h2>` in its top band (2026-09-08 — replaced the vertical "Certificate archive" ghost title), hand-cut `clip-path` tile edges (a 2–12px irregular cut, constant at every tile size), strictly grid-aligned mats (no rotation — see below) |
 
 A surface's register is a fixed choice, not a menu. A new decorative element that
 doesn't belong to its surface's register needs a case made for it, per
@@ -118,10 +118,16 @@ doesn't belong to its surface's register needs a case made for it, per
   pattern — not a register. Promote it to its own register only if a case is made.
   A few bounded local exceptions live here — see "`/projects` local exceptions"
   below. (The 2026-08-13 editorial redesign replaced the earlier scattered-plate
-  `projectLayouts.ts` sheet; that file is gone.)
+  `projectLayouts.ts` sheet; that file is gone. *Superseded 2026-09-15,
+  `sdd/design-canvas-reconcile-v2`; a scattered layout returns as a decision
+  taken here with the reversal scheduled for the Wave 6 Projects rebuild, not
+  yet landed.*)
 - **`/contact`** — Instrument.
 
 ## The Record register does not rotate
+
+*Superseded 2026-09-15, `sdd/design-canvas-reconcile-v2`; reversal lands
+`sdd/design-canvas-distinction-colony` (W5).*
 
 The rest of the Sheet rotates within the ±2° cap. `/certifications` deliberately
 does not — every mat is grid-aligned. "Machine-true" is a **property of the Record
@@ -205,7 +211,17 @@ per screen. Where that instance lives by register:
 - **Home** — the painted name on the canvas is the masthead.
 - **Expressive** (`/profile`) — the LT Remark identity stack is the display voice;
   there is no separate Superior Serif masthead (the name *is* the composition).
-- **Record** (`/certifications`) — the page title ("CERTIFICATE ARCHIVE"). Mat
-  titles use LT Remark, never Superior Serif — `cert-wall.css` already notes this.
-- **Instrument** (`/contact`) — the "CHANNELS" title, set in Mono, is the page's
-  masthead slot; Instrument runs no serif at all.
+- **Record** (`/certifications`) — the page `<h1>` ("CERTIFICATE ARCHIVE") is the
+  Superior Serif masthead slot. Mat titles use LT Remark, never Superior Serif —
+  `cert-wall.css` already notes this.
+- **Instrument** (`/contact`) — the page `<h1>` (Mono) is the masthead slot;
+  Instrument runs no Superior Serif.
+
+### Section titles (2026-09-08)
+
+Distinct from the masthead: the large visible `<h2>` at the top of a routed
+composition — Projects "PROJECTS", Contact "REACH OUT", Distinctions
+"DISTINCTIONS" — is **LT Remark on every surface**, one editorial face so the
+three read as one system. This overrides the per-register display-type map
+above for that one element (notably Instrument, which is otherwise serif-free).
+It does not touch the Superior Serif masthead rule or the Mono-for-labels spine.

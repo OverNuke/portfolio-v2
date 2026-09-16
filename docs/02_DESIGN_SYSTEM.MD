@@ -39,6 +39,21 @@
 > corner registration mark — reusing this doc's existing structural-chrome
 > accent instead of adding a fourth one-off decorative color. `cert-wall.css`'s
 > own header note has the full account.
+>
+> Updated 2026-09-15, `sdd/design-canvas-reconcile-v2` (Wave 1) — palette
+> gains one non-text hue, OLIVE MARK (#6F7F45), for the Home masthead's
+> corner-bracket frame (paper-side only — see the Olive Mark entry below).
+> Typography gains a masthead-only italic face (see "Superior Serif", below).
+> Warm paper (`#F6F4EA`) is ruled ADOPTED but sequenced after Wave 6 — not
+> landed here. Full ruling: `sdd/design-canvas-reconcile-v2/design`.
+>
+> Dark mode (2026-09-15, same change) — extending the 2026-07-24 note above:
+> when a dark theme lands, it is a **per-section theme**, scoped with
+> `[data-theme="dark"]` on that section's own root, never `:root` — never a
+> site-wide default. The source canvas's dark ramp (`--olive-bright #B9C98A`
+> at 11.11:1 on `#0A0A0A`, etc.) is reserved and unlanded; no dark token
+> exists in `tokens.css` yet. `/contact` is the planned first consumer
+> (Wave 2).
 
 
 ## Color Palette
@@ -213,6 +228,30 @@ Contrast on paper (#E4E4E2): 6.58:1. Paper White on it: 7.74:1 — clears
 this doc's 7:1 preferred bar, not just the 4.5:1 minimum.
 
 
+OLIVE MARK (added 2026-09-15 — `sdd/design-canvas-reconcile-v2`, D2)
+
+HEX:
+#6F7F45
+
+Usage:
+
+- NON-TEXT ONLY — marks, rules, brackets, fills. Never type. It sits in a
+  contrast dead zone that fails AA 4.5:1 in every direction (below), so it
+  never carries a glyph.
+- current consumer: Home's masthead corner-bracket frame, paper-side only
+  (`.hm-hero--reserved::before` in `src/shell/collage/home.css`).
+
+Contrast on Paper White (#F6F6F4): 4.05:1 — clears the AA 3.0:1 non-text
+floor (marks/rules/brackets/fills), which is its one sanctioned use.
+Contrast on paper (#E4E4E2): 3.97:1. Ink carrying it (#111111): 4.19:1.
+Both fail AA text; neither has a non-text consumer yet.
+
+NEVER on Field Olive — Deep (#47513A): ≈1.9:1 — fails even the 3.0:1
+non-text floor. The masthead's field-side corner bracket stays Paper White
+(7.74:1); do not unify both corners on Olive Mark. `src/styles/tokens.test.ts`'s
+`CONTRAST_PAIRS` guard trip-wires this exact pairing.
+
+
 ---
 
 ## `/projects` restyle — measured pairs and two rejected values
@@ -258,29 +297,51 @@ this doc's 7:1 preferred bar, not just the 4.5:1 minimum.
 
 Purpose:
 
-The masthead, and only that. One instance per screen.
+The masthead, and only that. One instance per screen (Home's painted name;
+`/certifications`' page `<h1>`). It is **not** the section-title face — the
+visible `<h2>` at the top of a routed composition is LT Remark (below).
+
+**Face (updated 2026-09-15, `sdd/design-canvas-reconcile-v2`, D3).** The
+masthead's `--font-serif-display` now leads with self-hosted Instrument
+Serif italic (`src/styles/fonts.css`), OFL-licensed, replacing a commercial
+Lineto face; LT Superior Serif stays in the fallback chain and its own
+`@font-face` is untouched — additive only, independently revertable. Scoped
+to this one role. Manrope (also specified on the source canvas) is
+explicitly **deferred** — it would displace both LT Remark and JetBrains
+Mono's nav/UI/body role, so it needs its own per-screen ruling, sequenced
+with Wave 3. `--font-hand` retirement stays out of scope until the Wave 6
+Projects rebuild.
 
 ## Remark (LT Remark)
 
 Purpose:
 
-The editorial voice — headings and prose emphasis outside the masthead.
+The editorial voice — headings and prose emphasis outside the masthead, and
+(**2026-09-08**) every section-level `<h2>` title: Projects' "PROJECTS"
+(`.pf__title`), Contact's "REACH OUT" (`.cf__headline`), and Distinctions'
+"DISTINCTIONS" (`.cert-wall__title` / `.cert-ledger__title`). One editorial
+face across all three, a deliberate override of the per-register map below —
+the titles are large, tight-tracked (`-0.01em`) display type, not the dense
+9px tracked labels the serif ban is about.
 
 ## Mono (JetBrains Mono)
 
 Purpose:
 
-Everything else: wordmark, nav labels, identity, role, page titles,
-metadata, system information, code labels, body, status. Dense tracked
-uppercase always belongs here, never in either serif — see
+Everything else: wordmark, nav labels, identity, role, page titles (the
+shell `<h1>`), metadata, system information, code labels, body, status.
+Dense tracked uppercase always belongs here, never in either serif — see
 `src/styles/fonts.css`'s header comment for the full rationale.
 
-> **Which role by surface (added 2026-09-02).** Mono metadata is spine — every
-> surface uses it for labels and meta. Display type is what varies:
-> `01_ART_DIRECTION.MD`'s "Surface Registers" section maps it — Expressive
-> (`/profile`) and Record (`/certifications`) use LT Remark; Instrument
-> (`/contact`) runs Mono only, no serif. Superior Serif stays masthead-only on
-> every surface; that doc says where the one instance lives per register.
+> **Which role by surface (added 2026-09-02; section-title row revised
+> 2026-09-08).** Mono metadata is spine — every surface uses it for labels,
+> meta, and the shell `<h1>`. Display type varies by register per
+> `01_ART_DIRECTION.MD`'s "Surface Registers": Expressive (`/profile`) and
+> Record (`/certifications`) use LT Remark; Instrument (`/contact`) runs Mono
+> for all labels/meta. **The one exception is the section `<h2>` title**,
+> which is LT Remark on every surface including Instrument, so the three
+> composition titles read as one system. Superior Serif stays masthead-only
+> (page `<h1>` / Home name), never a section title.
 
 ---
 
@@ -311,3 +372,15 @@ Avoid:
 > for an enumerated allowlist (portrait mats, ledger scans). That is withdrawn —
 > the CSS cleanup is tracked in `09_IMPLEMENTATION_ROADMAP.md` Phase 3.5. There
 > are no sanctioned `border-radius` exceptions.
+>
+> **Shape (2026-09-15, `sdd/design-canvas-reconcile-v2`, D1).** `clip-path` /
+> SVG is the single binding shape mechanism for Waves 2-6 — already proven in
+> `project-field.css`'s discs and `channel-field`'s `--cf-cut`. A scoped
+> `border-radius` allowlist was considered and rejected: it would be
+> non-functional against the `border-radius: 0 !important` rule above, and
+> there is no live precedent for reintroducing one (`--cw-radius`, above, was
+> already reversed). Wave 1 ships no blob consumer — Home's corner brackets
+> are the pre-existing border-drawn pseudo-elements, unchanged geometry, just
+> a color swap (see "Olive Mark", above). Re-openable only as a dated
+> amendment from Wave 5 or 6, which may need their own motion ruling for the
+> source canvas's animated blob morphs.

@@ -27,6 +27,9 @@ export default {
         // large-text/small-text split to mirror.
         oxblood: "var(--oxblood)",
         "oxblood-hi": "var(--oxblood-hi)",
+        // Non-text only — see tokens.css's dead-zone note (D2). Never used
+        // as a text-color utility; border/fill/accent use only.
+        "olive-mark": "var(--olive-mark)",
       },
       fontFamily: {
         "serif-display": ["var(--font-serif-display)"],
