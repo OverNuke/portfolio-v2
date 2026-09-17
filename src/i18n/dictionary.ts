@@ -65,7 +65,27 @@ export type DictionaryKey =
   | "distinction.cell.toefl.title"
   | "distinction.cell.toefl.meta"
   | "distinction.cell.aiinit.title"
-  | "distinction.cell.aiinit.meta";
+  | "distinction.cell.aiinit.meta"
+  | "projects.heading"
+  | "projects.eyebrow"
+  | "projects.badge"
+  | "projects.repo.cta"
+  | "projects.repo.private"
+  | "projects.p1.title"
+  | "projects.p1.caption"
+  | "projects.p1.role"
+  | "projects.p1.desc"
+  | "projects.p1.alt"
+  | "projects.p2.title"
+  | "projects.p2.caption"
+  | "projects.p2.role"
+  | "projects.p2.desc"
+  | "projects.p2.alt"
+  | "projects.p3.title"
+  | "projects.p3.caption"
+  | "projects.p3.role"
+  | "projects.p3.desc"
+  | "projects.p3.alt";
 
 export type Dictionary = Record<DictionaryKey, string>;
 
@@ -134,6 +154,26 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "distinction.cell.toefl.meta": "ETS · 2018",
     "distinction.cell.aiinit.title": "AI Initiation",
     "distinction.cell.aiinit.meta": "MoureDev · 2026",
+    "projects.heading": "Projects",
+    "projects.eyebrow": "selected work",
+    "projects.badge": "flagship",
+    "projects.repo.cta": "GitHub",
+    "projects.repo.private": "private repository",
+    "projects.p1.title": "Barbershop",
+    "projects.p1.caption": "web-dev final · 2025",
+    "projects.p1.role": "backend",
+    "projects.p1.desc": "Employee and appointment records, built end to end for the web development course — full CRUD, containerised, shipped to production.",
+    "projects.p1.alt": "Barbershop — employee screen",
+    "projects.p2.title": "Acopiatech",
+    "projects.p2.caption": "routing · 2025",
+    "projects.p2.role": "mobile",
+    "projects.p2.desc": "Mobile app for e-waste donation and collection routing, field-tested on local routes.",
+    "projects.p2.alt": "Acopiatech — route screen",
+    "projects.p3.title": "Odoo Custom Module",
+    "projects.p3.caption": "private · 2025",
+    "projects.p3.role": "module",
+    "projects.p3.desc": "Document management module built for a local company, folded into their existing ERP.",
+    "projects.p3.alt": "Odoo — module screen",
   },
   es: {
     "nav.profile": "Perfil",
@@ -199,5 +239,25 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "distinction.cell.toefl.meta": "ETS · 2018",
     "distinction.cell.aiinit.title": "Iniciación a la IA",
     "distinction.cell.aiinit.meta": "MoureDev · 2026",
+    "projects.heading": "Proyectos",
+    "projects.eyebrow": "trabajo seleccionado",
+    "projects.badge": "destacado",
+    "projects.repo.cta": "GitHub",
+    "projects.repo.private": "repositorio privado",
+    "projects.p1.title": "Barbershop",
+    "projects.p1.caption": "proyecto final web · 2025",
+    "projects.p1.role": "backend",
+    "projects.p1.desc": "Registros de empleados y citas, construido de principio a fin para el curso de desarrollo web — CRUD completo, contenerizado, llevado a producción.",
+    "projects.p1.alt": "Barbershop — pantalla de empleados",
+    "projects.p2.title": "Acopiatech",
+    "projects.p2.caption": "ruteo · 2025",
+    "projects.p2.role": "móvil",
+    "projects.p2.desc": "App móvil para donación de e-waste y ruteo de recolección, probada en campo en rutas locales.",
+    "projects.p2.alt": "Acopiatech — pantalla de ruta",
+    "projects.p3.title": "Odoo Custom Module",
+    "projects.p3.caption": "privado · 2025",
+    "projects.p3.role": "módulo",
+    "projects.p3.desc": "Módulo de gestión documental construido para una empresa local, integrado a su ERP existente.",
+    "projects.p3.alt": "Odoo — pantalla del módulo",
   },
 };
