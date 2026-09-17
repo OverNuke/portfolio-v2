@@ -39,6 +39,25 @@ for (const { path, label } of NAV_ROUTES) {
   });
 }
 
+test("real Tab traversal from a clean load reaches all 4 nav links in order, and Enter opens the last one", async ({ page }) => {
+  await gotoHome(page);
+
+  const seen: string[] = [];
+  for (let i = 0; i < 20 && seen.length < NAV_ROUTES.length; i++) {
+    await page.keyboard.press("Tab");
+    const name = await page.evaluate(() => {
+      const el = document.activeElement;
+      return el?.closest('nav[aria-label="Module navigation"]') ? el.textContent?.trim() : null;
+    });
+    if (name && !seen.includes(name)) seen.push(name);
+  }
+
+  expect(seen).toEqual(NAV_ROUTES.map((r) => r.label));
+
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(new RegExp(`${NAV_ROUTES[NAV_ROUTES.length - 1].path}$`));
+});
+
 test("opening a page makes Home unreachable by Tab (inert removes it from tab order)", async ({ page }) => {
   await gotoHome(page);
   await page.getByRole("link", { name: "Projects" }).focus();

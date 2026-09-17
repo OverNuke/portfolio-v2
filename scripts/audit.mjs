@@ -95,7 +95,7 @@ function checkClippedText() {
   const results = [];
   for (const el of document.body.querySelectorAll("*")) {
     if (el.closest("[inert]")) continue;
-    if (el.closest('[aria-hidden="true"]')) continue; // decorative bleed, no text to clip (R2)
+    if (!el.textContent?.trim()) continue; // no text to clip (Ink Flow's decorative bleed etc.)
     if (el.clientWidth <= 1 || el.clientHeight <= 1) continue;
     if (getComputedStyle(el).overflow !== "hidden") continue;
 
