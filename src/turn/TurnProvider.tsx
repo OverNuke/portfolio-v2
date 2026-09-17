@@ -25,7 +25,16 @@ export function TurnProvider({ children }: { children: ReactNode }) {
   const [direction, setDirection] = useState<"forward" | "back">("forward");
 
   useEffect(() => {
-    setDirection(turnDirection(prevPath.current, location.pathname));
+    const from = prevPath.current;
+    setDirection(turnDirection(from, location.pathname));
+    // Restore focus to the nav item that opened the page being closed (spec
+    // "close returns to Home and restores focus"). PageLayer's un-inert
+    // effect (a descendant) already ran this commit, so the match is
+    // focusable by now. Keyed off the route transition, not the trigger
+    // mechanism, so it covers click/Enter/Escape/ArrowRight alike.
+    if (location.pathname === "/" && from !== "/") {
+      document.querySelector<HTMLElement>(`[data-turn-open="${from}"]`)?.focus();
+    }
     prevPath.current = location.pathname;
   }, [location.pathname]);
 

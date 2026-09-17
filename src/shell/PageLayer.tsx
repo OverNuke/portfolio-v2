@@ -7,9 +7,9 @@ interface PageLayerProps {
 }
 
 // Route-driven page turn: marks Home `inert` and moves focus into the page
-// root whenever the route isn't "/"; releases both when back at Home. Focus
-// restoration to the nav item that opened the page is TurnProvider's/the
-// nav item's own concern via history, not PageLayer's (see spec [PW]).
+// root whenever the route isn't "/"; releases both when back at Home.
+// Focus restoration to the nav item that opened the page is TurnProvider's
+// concern (its own location effect, after this one un-inerts Home).
 export function PageLayer({ homeRef, children }: PageLayerProps) {
   const location = useLocation();
   const isHome = location.pathname === "/";
