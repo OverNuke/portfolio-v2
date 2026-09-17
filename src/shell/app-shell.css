@@ -1,0 +1,21 @@
+/* Single-viewport shell (D8). No-scroll >=768px; released below per WCAG
+   1.4.10, since MASTER_AGENT.md's conflict order puts accessibility first. */
+.app-shell {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app-shell__home {
+  position: absolute;
+  inset: 0;
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
