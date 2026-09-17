@@ -55,6 +55,37 @@
      CONTRAST_PAIRS trip-wire for this exact pairing. */
   --olive-mark: #6f7f45;
 
+  /* ---- Blob Shape Register (R1, 2026-09-16, sdd/rebuild-src-from-claude-
+     design D1-D2) --------------------------------------------------------
+     The ONLY sanctioned non-zero border-radius values in this system.
+     Consumable solely via the `data-blob` opt-in attribute — see D1's
+     scoped reset below. `--blob-{effect}-{stop}` are animated pairs
+     (interpolated by @keyframes cellWobA|B|C / livePulse / cellWobble);
+     the rest are static, extended by obs #385. Every entry here is
+     enforced by tokens.test.ts's Blob Shape Register trip-wire (D3) —
+     add a consumer, not a new raw border-radius. */
+  --blob-wobble-a-0: 56% 44% 48% 52% / 52% 56% 44% 48%;
+  --blob-wobble-a-50: 46% 54% 57% 43% / 46% 44% 56% 54%;
+  --blob-wobble-b-0: 48% 52% 59% 41% / 44% 57% 43% 56%;
+  --blob-wobble-b-50: 58% 42% 43% 57% / 57% 43% 57% 43%;
+  --blob-wobble-c-0: 52% 48% 42% 58% / 57% 45% 55% 43%;
+  --blob-wobble-c-50: 44% 56% 56% 44% / 45% 58% 42% 55%;
+  --blob-cell-0: 58% 42% 46% 54% / 50% 55% 45% 50%;
+  --blob-cell-50: 44% 56% 55% 45% / 54% 45% 55% 46%;
+  --blob-pulse-0: 60% 40% 55% 45% / 45% 55% 40% 60%;
+  --blob-pulse-50: 45% 55% 40% 60% / 60% 40% 55% 45%;
+  --blob-morph-rest: 40px;
+  --blob-morph-hover-a: 62% 38% 55% 45% / 45% 60% 40% 55%;
+  --blob-morph-hover-b: 55% 45% 62% 38% / 40% 55% 45% 60%;
+  /* Static extension (obs #385) — Projects cards/photos/tags, Distinction
+     lightbox/plate/close. No morph; rest-state rounding only. */
+  --blob-project-card: 32px 26px 34px 24px;
+  --blob-project-photo: 50%;
+  --blob-project-tag: 999px;
+  --blob-distinction-lightbox: 28px;
+  --blob-distinction-plate: 18px;
+  --blob-distinction-close: 999px;
+
   /* ---- Typography ---------------------------------------------------
      Three roles (2026-08-11, font-unification pass — the old Archivo
      Narrow display token is retired; see src/styles/tokens.test.ts's
@@ -202,9 +233,12 @@
 }
 
 /* border-radius: 0 everywhere (docs/02_DESIGN_SYSTEM.MD) — safety net for
-   any element that isn't styled through Tailwind's rounded-* utilities. */
-*,
-*::before,
-*::after {
+   any element that isn't styled through Tailwind's rounded-* utilities.
+   Scoped to :not([data-blob]) (2026-09-16, D1) — an unscoped !important
+   reset outranks the Blob Shape Register's @keyframes morphs per CSS
+   Cascade L5 §6.1, so opted-in elements are excluded here instead. */
+*:not([data-blob]),
+*::before:not([data-blob]),
+*::after:not([data-blob]) {
   border-radius: 0 !important;
 }

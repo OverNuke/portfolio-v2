@@ -189,6 +189,28 @@ describe("tokens.css", () => {
     "--z-crease",
     "--z-wheel",
     "--z-intro",
+    // Blob Shape Register (R1, task 1.1) — D2's 13 animated tokens plus
+    // obs #385's 6 static extensions. Reuses this existing presence block
+    // per D3's instruction rather than a separate it.each.
+    "--blob-wobble-a-0",
+    "--blob-wobble-a-50",
+    "--blob-wobble-b-0",
+    "--blob-wobble-b-50",
+    "--blob-wobble-c-0",
+    "--blob-wobble-c-50",
+    "--blob-cell-0",
+    "--blob-cell-50",
+    "--blob-pulse-0",
+    "--blob-pulse-50",
+    "--blob-morph-rest",
+    "--blob-morph-hover-a",
+    "--blob-morph-hover-b",
+    "--blob-project-card",
+    "--blob-project-photo",
+    "--blob-project-tag",
+    "--blob-distinction-lightbox",
+    "--blob-distinction-plate",
+    "--blob-distinction-close",
   ])(
     "%s resolves to a non-empty value",
     (token) => {
@@ -242,5 +264,50 @@ describe("tokens.css", () => {
     );
     const offenders = files.filter((f) => readFileSync(f, "utf-8").includes(token));
     expect(offenders).toEqual([]);
+  });
+
+  /**
+   * D3 trip-wire (task 1.3) — converts R1's allowlist from a written rule
+   * into a red test. Walks every .css declaration (walkDecls covers
+   * @keyframes bodies too, since postcss doesn't special-case atrule
+   * nesting) and fails on any non-zero border-radius that isn't an
+   * enumerated --blob-* var.
+   */
+  describe("Blob Shape Register (R1, D1-D3)", () => {
+    const ZERO_VALUE = /^0(px)?$/;
+    const BLOB_VAR = /^var\(--blob-[\w-]+\)$/;
+
+    it("no border-radius outside the --blob-* allowlist, including inside @keyframes", () => {
+      const cssFiles = collectSourceFiles(SRC_ROOT).filter((f) => f.endsWith(".css"));
+      const offenders: string[] = [];
+
+      for (const file of cssFiles) {
+        const css = readFileSync(file, "utf-8");
+        const root = postcss.parse(css);
+        root.walkDecls("border-radius", (decl) => {
+          const value = decl.value.trim();
+          if (!ZERO_VALUE.test(value) && !BLOB_VAR.test(value)) {
+            offenders.push(`${file}: border-radius: ${value}`);
+          }
+        });
+      }
+
+      expect(offenders).toEqual([]);
+    });
+
+    it("the universal border-radius reset stays scoped to :not([data-blob])", () => {
+      const css = readFileSync(TOKENS_PATH, "utf-8");
+      const root = postcss.parse(css);
+      let resetRule: postcss.Rule | undefined;
+
+      root.walkDecls("border-radius", (decl) => {
+        if (decl.value.trim() === "0" && decl.important) {
+          resetRule = decl.parent as postcss.Rule;
+        }
+      });
+
+      expect(resetRule, "expected to find the universal border-radius:0 !important rule").toBeTruthy();
+      expect(resetRule?.selector).toContain(":not([data-blob])");
+    });
   });
 });
