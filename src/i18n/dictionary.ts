@@ -41,7 +41,31 @@ export type DictionaryKey =
   | "profile.dot.responsible"
   | "profile.dot.hardworking"
   | "profile.dot.teamwork"
-  | "profile.dot.dedicated";
+  | "profile.dot.dedicated"
+  | "distinction.heading"
+  | "distinction.subheading"
+  | "distinction.openScan"
+  | "distinction.emptyState"
+  | "distinction.lightbox.viewer"
+  | "distinction.lightbox.close"
+  | "distinction.cell.anfeca.title"
+  | "distinction.cell.anfeca.meta"
+  | "distinction.cell.nota.title"
+  | "distinction.cell.nota.meta"
+  | "distinction.cell.propadeutic.title"
+  | "distinction.cell.propadeutic.meta"
+  | "distinction.cell.exaver.title"
+  | "distinction.cell.exaver.meta"
+  | "distinction.cell.english.title"
+  | "distinction.cell.english.meta"
+  | "distinction.cell.powerbi.title"
+  | "distinction.cell.powerbi.meta"
+  | "distinction.cell.ai.title"
+  | "distinction.cell.ai.meta"
+  | "distinction.cell.toefl.title"
+  | "distinction.cell.toefl.meta"
+  | "distinction.cell.aiinit.title"
+  | "distinction.cell.aiinit.meta";
 
 export type Dictionary = Record<DictionaryKey, string>;
 
@@ -86,6 +110,30 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "profile.dot.hardworking": "Hardworking",
     "profile.dot.teamwork": "Teamwork",
     "profile.dot.dedicated": "Dedicated",
+    "distinction.heading": "Distinctions",
+    "distinction.subheading": "Honors, language certification and coursework, packed as one colony. Each cell holds its own scan.",
+    "distinction.openScan": "Open scan —",
+    "distinction.emptyState": "No scan yet",
+    "distinction.lightbox.viewer": "scan viewer",
+    "distinction.lightbox.close": "close · esc",
+    "distinction.cell.anfeca.title": "ANFECA Academic Recognition",
+    "distinction.cell.anfeca.meta": "ANFECA · 2025 · honors",
+    "distinction.cell.nota.title": "Nota Laudatoria",
+    "distinction.cell.nota.meta": "Universidad Veracruzana · 2025",
+    "distinction.cell.propadeutic.title": "Propadeutic Certificate",
+    "distinction.cell.propadeutic.meta": "TecNM · CCPIA · 2026",
+    "distinction.cell.exaver.title": "EXAVER Proficiency",
+    "distinction.cell.exaver.meta": "Universidad Veracruzana · 2022",
+    "distinction.cell.english.title": "English Certificate",
+    "distinction.cell.english.meta": "Anglo Mexicano · 2021",
+    "distinction.cell.powerbi.title": "Introduction to Power BI",
+    "distinction.cell.powerbi.meta": "CONISOFT · 2025",
+    "distinction.cell.ai.title": "AI Fundamentals",
+    "distinction.cell.ai.meta": "DataCamp · 2026",
+    "distinction.cell.toefl.title": "TOEFL Certificate",
+    "distinction.cell.toefl.meta": "ETS · 2018",
+    "distinction.cell.aiinit.title": "AI Initiation",
+    "distinction.cell.aiinit.meta": "MoureDev · 2026",
   },
   es: {
     "nav.profile": "Perfil",
@@ -127,5 +175,29 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "profile.dot.hardworking": "Trabajador",
     "profile.dot.teamwork": "Trabajo en equipo",
     "profile.dot.dedicated": "Dedicado",
+    "distinction.heading": "Distinciones",
+    "distinction.subheading": "Honores, certificación de idiomas y cursos, empacados como una sola colonia. Cada celda guarda su propio escaneo.",
+    "distinction.openScan": "Ver escaneo —",
+    "distinction.emptyState": "Aún no hay escaneo",
+    "distinction.lightbox.viewer": "visor de escaneo",
+    "distinction.lightbox.close": "cerrar · esc",
+    "distinction.cell.anfeca.title": "Reconocimiento Académico ANFECA",
+    "distinction.cell.anfeca.meta": "ANFECA · 2025 · honores",
+    "distinction.cell.nota.title": "Nota Laudatoria",
+    "distinction.cell.nota.meta": "Universidad Veracruzana · 2025",
+    "distinction.cell.propadeutic.title": "Certificado Propedéutico",
+    "distinction.cell.propadeutic.meta": "TecNM · CCPIA · 2026",
+    "distinction.cell.exaver.title": "Competencia EXAVER",
+    "distinction.cell.exaver.meta": "Universidad Veracruzana · 2022",
+    "distinction.cell.english.title": "Certificado de Inglés",
+    "distinction.cell.english.meta": "Anglo Mexicano · 2021",
+    "distinction.cell.powerbi.title": "Introducción a Power BI",
+    "distinction.cell.powerbi.meta": "CONISOFT · 2025",
+    "distinction.cell.ai.title": "Fundamentos de IA",
+    "distinction.cell.ai.meta": "DataCamp · 2026",
+    "distinction.cell.toefl.title": "Certificado TOEFL",
+    "distinction.cell.toefl.meta": "ETS · 2018",
+    "distinction.cell.aiinit.title": "Iniciación a la IA",
+    "distinction.cell.aiinit.meta": "MoureDev · 2026",
   },
 };

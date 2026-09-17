@@ -1,0 +1,249 @@
+/* D5/D14 port of Distinction Section v4. .distinction is the useStageScale
+   root — "scaled" renders the live power-diagram colony; "reflow" (<1100px,
+   D8) renders the same 9 records as a real list, same lightbox. */
+.distinction {
+  position: absolute;
+  inset: 0;
+  overflow: hidden auto;
+  background: #14150f;
+  color: #14150f;
+  font-family: var(--font-mono);
+}
+
+.distinction__stage {
+  position: relative;
+  width: 1440px;
+  height: 900px;
+}
+
+.distinction__cells,
+.distinction__doodle {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* D6: the SVG paths are presentational fill only (D14) — the real focus
+   targets are the label-layer buttons below, positioned by the same rAF
+   loop that mutates these paths' `d`. */
+.distinction__labels {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 900px;
+  pointer-events: none;
+}
+
+.distinction__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-width: 330px;
+  color: #14150f;
+}
+
+.distinction__label--title {
+  max-width: 400px;
+}
+
+.distinction__label--fill {
+  width: 40px;
+  height: 40px;
+}
+
+.distinction__cell {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 300px;
+  border: none;
+  background: transparent;
+  padding: var(--space-xs);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  /* Ancestor `.distinction__labels` opts the whole layer out of pointer
+     events (it's mutated every frame); each cell button opts back in. */
+  pointer-events: auto;
+}
+
+.distinction__cell:focus-visible {
+  outline: 2px solid var(--field-olive);
+  outline-offset: 4px;
+}
+
+.distinction__heading {
+  margin: 0;
+  font-family: var(--font-serif-display);
+  font-style: italic;
+  font-size: 72px;
+  line-height: 0.88;
+  letter-spacing: -0.015em;
+}
+
+.distinction__subheading {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.6;
+  opacity: 0.74;
+}
+
+.distinction__cell-title {
+  font-family: var(--font-serif-display);
+  font-style: italic;
+  font-size: var(--text-display-sm);
+  line-height: 1.02;
+}
+
+.distinction__cell-meta {
+  font-size: var(--text-meta);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  opacity: 0.66;
+}
+
+.distinction__reflow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  color: #f6f4ea;
+}
+
+.distinction__reflow .distinction__heading,
+.distinction__reflow .distinction__subheading {
+  color: #f6f4ea;
+}
+
+.distinction__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.distinction__list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  border: none;
+  border-top: 1px solid rgba(246, 244, 234, 0.22);
+  background: transparent;
+  padding: var(--space-md) 0;
+  color: #f6f4ea;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.distinction__list-item .distinction__cell-meta {
+  color: #f6f4ea;
+}
+
+.distinction__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(10, 10, 10, 0.88);
+  display: grid;
+  place-items: center;
+  padding: var(--space-xl);
+  box-sizing: border-box;
+  overflow-y: auto;
+  cursor: zoom-out;
+}
+
+.distinction__lightbox {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  background: #f4f1e6;
+  padding: var(--space-lg);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  color: #14150f;
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+  cursor: default;
+  border-radius: var(--blob-distinction-lightbox);
+}
+
+.distinction__lightbox-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.distinction__lightbox-head h3 {
+  margin: 0;
+  max-width: 460px;
+  font-family: var(--font-serif-display);
+  font-style: italic;
+  font-size: var(--text-display-md);
+  line-height: 1;
+}
+
+.distinction__plate {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  flex: 1 1 auto;
+  background: #e4e1d8;
+  border-radius: var(--blob-distinction-plate);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.distinction__plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.distinction__empty-eye {
+  width: 46%;
+  min-width: 180px;
+  overflow: visible;
+}
+
+.distinction__lightbox-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.distinction__lightbox-foot button {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid rgba(20, 21, 15, 0.35);
+  border-radius: var(--blob-distinction-close);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: #14150f;
+  cursor: pointer;
+}
+
+.distinction__lightbox-foot button:hover {
+  background: #14150f;
+  color: #f6f4ea;
+}

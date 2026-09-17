@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { Home } from "@/home/Home";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { ContactDock } from "@/sections/contact/ContactDock";
+import { DistinctionSection } from "@/sections/distinction/DistinctionSection";
 import { ProfileSection } from "@/sections/profile/ProfileSection";
 import { AppShell } from "@/shell/AppShell";
 import { TurnProvider } from "@/turn/TurnProvider";
@@ -19,7 +20,7 @@ function AppContent() {
         page={
           <Routes>
             <Route path="/profile" element={<ProfileSection />} />
-            <Route path="/certifications" element={<Placeholder title="Distinctions" />} />
+            <Route path="/certifications" element={<DistinctionSection />} />
             <Route path="/projects" element={<Placeholder title="Projects" />} />
             <Route path="/contact" element={<ContactDock />} />
           </Routes>
