@@ -1,12 +1,38 @@
-import { BrowserRouter } from "react-router";
+import { BrowserRouter, Route, Routes } from "react-router";
+import { Home } from "@/home/Home";
+import { I18nProvider } from "@/i18n/I18nProvider";
+import { AppShell } from "@/shell/AppShell";
+import { TurnProvider } from "@/turn/TurnProvider";
 
-// Phase 0 placeholder — replaced by TurnProvider/AppShell/PageLayer
-// composition in Phase 1 (task 1.14/1.19). Exists only so main.tsx has a
-// valid entry and the toolchain gate (0.8) can go green.
+// Placeholder page elements until each section lands (Phase 2, tasks 2.1-2.5).
+function Placeholder({ title }: { title: string }) {
+  return <div className="page-placeholder">{title}</div>;
+}
+
+function AppContent() {
+  return (
+    <TurnProvider>
+      <AppShell
+        home={<Home />}
+        page={
+          <Routes>
+            <Route path="/profile" element={<Placeholder title="Profile" />} />
+            <Route path="/certifications" element={<Placeholder title="Distinctions" />} />
+            <Route path="/projects" element={<Placeholder title="Projects" />} />
+            <Route path="/contact" element={<Placeholder title="Contact" />} />
+          </Routes>
+        }
+      />
+    </TurnProvider>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
-      <div data-testid="app-shell-placeholder">KEVIN_ARCHIVE_OS</div>
+      <I18nProvider>
+        <AppContent />
+      </I18nProvider>
     </BrowserRouter>
   );
 }

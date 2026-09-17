@@ -1,0 +1,6 @@
+/* Host shell only — decorative gradient/filter layers land in task 2.1.1. */
+.ink-flow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
