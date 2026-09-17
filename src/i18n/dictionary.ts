@@ -20,7 +20,28 @@ export type DictionaryKey =
   | "contact.linkedin.title"
   | "contact.linkedin.body1"
   | "contact.linkedin.body2"
-  | "contact.linkedin.cta";
+  | "contact.linkedin.cta"
+  | "profile.heading"
+  | "profile.bio"
+  | "profile.availability"
+  | "profile.cta"
+  | "profile.status"
+  | "profile.chamber.software"
+  | "profile.chamber.systems"
+  | "profile.chamber.anywhere"
+  | "profile.chamber.dependable"
+  | "profile.dot.java"
+  | "profile.dot.javascript"
+  | "profile.dot.python"
+  | "profile.dot.sql"
+  | "profile.dot.uml"
+  | "profile.dot.spanish"
+  | "profile.dot.english"
+  | "profile.dot.french"
+  | "profile.dot.responsible"
+  | "profile.dot.hardworking"
+  | "profile.dot.teamwork"
+  | "profile.dot.dedicated";
 
 export type Dictionary = Record<DictionaryKey, string>;
 
@@ -44,6 +65,27 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "contact.linkedin.body1": "/keffwontwakeup",
     "contact.linkedin.body2": "network · profile",
     "contact.linkedin.cta": "connect",
+    "profile.heading": "Junior software engineer",
+    "profile.bio": "Just graduated from Universidad Veracruzana. Small projects so far — and the appetite for one that makes a change.",
+    "profile.availability": "Always learning · open to travel",
+    "profile.cta": "Get in touch",
+    "profile.status": "Looking for an opportunity",
+    "profile.chamber.software": "Software",
+    "profile.chamber.systems": "Systems",
+    "profile.chamber.anywhere": "Anywhere",
+    "profile.chamber.dependable": "Dependable",
+    "profile.dot.java": "Java",
+    "profile.dot.javascript": "JavaScript",
+    "profile.dot.python": "Python",
+    "profile.dot.sql": "SQL",
+    "profile.dot.uml": "UML",
+    "profile.dot.spanish": "Spanish",
+    "profile.dot.english": "English B1+",
+    "profile.dot.french": "French basics",
+    "profile.dot.responsible": "Responsible",
+    "profile.dot.hardworking": "Hardworking",
+    "profile.dot.teamwork": "Teamwork",
+    "profile.dot.dedicated": "Dedicated",
   },
   es: {
     "nav.profile": "Perfil",
@@ -64,5 +106,26 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "contact.linkedin.body1": "/keffwontwakeup",
     "contact.linkedin.body2": "red · perfil",
     "contact.linkedin.cta": "conectar",
+    "profile.heading": "Ingeniero de software junior",
+    "profile.bio": "Recién egresado de la Universidad Veracruzana. Proyectos pequeños hasta ahora — y las ganas de uno que haga la diferencia.",
+    "profile.availability": "Siempre aprendiendo · disponible para viajar",
+    "profile.cta": "Ponte en contacto",
+    "profile.status": "Buscando una oportunidad",
+    "profile.chamber.software": "Software",
+    "profile.chamber.systems": "Sistemas",
+    "profile.chamber.anywhere": "En cualquier lugar",
+    "profile.chamber.dependable": "Confiable",
+    "profile.dot.java": "Java",
+    "profile.dot.javascript": "JavaScript",
+    "profile.dot.python": "Python",
+    "profile.dot.sql": "SQL",
+    "profile.dot.uml": "UML",
+    "profile.dot.spanish": "Español",
+    "profile.dot.english": "Inglés B1+",
+    "profile.dot.french": "Francés básico",
+    "profile.dot.responsible": "Responsable",
+    "profile.dot.hardworking": "Trabajador",
+    "profile.dot.teamwork": "Trabajo en equipo",
+    "profile.dot.dedicated": "Dedicado",
   },
 };
