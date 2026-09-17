@@ -81,7 +81,11 @@ sits on the same substrate. These do **not** vary by register:
   cites `CertWall.tsx`'s `TileTone`.
 - **Mono metadata** — every kicker, label, meta line, and status readout is
   tracked-uppercase JetBrains Mono (`02_DESIGN_SYSTEM.MD` Mono role).
-- **`border-radius: 0`** — enforced by `tailwind.config.ts`; no register overrides it.
+- **`border-radius: 0`** — enforced by `tailwind.config.ts`; no register overrides it,
+  except the enumerated `--blob-*` allowlist (R1, `02_DESIGN_SYSTEM.MD` "Border
+  Rules", dated 2026-09-16) — Profile/Distinction/Contact/Projects' shape-morph
+  and shape-frame surfaces only, opted in via `data-blob`, everything else stays
+  hard 0, tested (`tokens.test.ts`).
 - **Mechanical motion** — hard-cut, `--ease-hard`, small (`07_ANIMATION_GUIDELINES.md`).
   No register uses soft/eased/bouncy motion.
 - **One Oxblood content mark per screen** — the "open to work" chip / marker, and
@@ -126,8 +130,20 @@ doesn't belong to its surface's register needs a case made for it, per
 
 ## The Record register does not rotate
 
-*Superseded 2026-09-15, `sdd/design-canvas-reconcile-v2`; reversal lands
-`sdd/design-canvas-distinction-colony` (W5).*
+*Superseded 2026-09-15, `sdd/design-canvas-reconcile-v2`; reversal was
+anticipated to land in `sdd/design-canvas-distinction-colony` (W5).*
+
+> **Orphaned reference resolved (2026-09-17, `sdd/rebuild-src-from-claude-
+> design`).** `sdd/design-canvas-distinction-colony` never shipped as its
+> own change — its scope was absorbed into this change's from-scratch
+> Distinction rebuild (design D5: the ported power-diagram colony, 12
+> sites, weighted-Voronoi cells). The anticipated rotation reversal did
+> **not** materialize: the shipped colony applies only a small continuous
+> position/weight jitter to cell sites (`sin`/`cos` of elapsed time) for
+> the breathing effect — no static `rotate()` transform on any cell,
+> unlike Projects' cards, which do rotate (`--blob-project-*`/D2). The
+> original rule below is confirmed still accurate as shipped; this
+> superseded marker is closed, not left dangling.
 
 The rest of the Sheet rotates within the ±2° cap. `/certifications` deliberately
 does not — every mat is grid-aligned. "Machine-true" is a **property of the Record

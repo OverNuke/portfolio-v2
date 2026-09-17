@@ -55,6 +55,22 @@ Avoid:
 > deviates.** Recorded because the design import of the same date asked for the
 > soft cut again (`.32s cubic-bezier(.2,.85,.2,1)`) and was overruled — see
 > `09_IMPLEMENTATION_ROADMAP.md` Phase 3.5.
+>
+> **Tier-A ambient carve-out, additive (2026-09-16, `sdd/rebuild-src-from-
+> claude-design`, R2).** The bans above (bouncing/playful/spring easing)
+> govern **Tier-B interactive transitions** — hover/focus/state changes on
+> real controls, which still must use `--ease-hard`/`--dur-*` and never
+> overshoot a control point past 1.0 (enforced, `tokens.test.ts`). A
+> separate **Tier-A** now exists for continuous, `aria-hidden`, non-
+> informational ambient layers: Ink Flow's ring drift, Profile's chamber-dot
+> wobble/status pulse, Distinction's colony breathe, Contact's arrow-chip
+> wobble/status pulse. These use ordinary `ease`/`ease-in-out` keyframe
+> loops (never a raw overshoot `cubic-bezier()` — none currently do) and are
+> exempt from the "no bouncing/playful" ban precisely because they carry no
+> interaction semantics; every Tier-A root exposes a `data-motion="static"`
+> observable and stops animating under `prefers-reduced-motion: reduce`
+> (`05_ACCESSIBILITY.MD`'s decorative-animation pattern). This does not
+> reopen Tier-B to soft/spring easing.
 
 ---
 

@@ -384,3 +384,18 @@ Avoid:
 > a color swap (see "Olive Mark", above). Re-openable only as a dated
 > amendment from Wave 5 or 6, which may need their own motion ruling for the
 > source canvas's animated blob morphs.
+>
+> **R1 reopened and adopted (2026-09-16, `sdd/rebuild-src-from-claude-design`,
+> D1-D3).** The allowlist above IS now sanctioned — this supersedes "there
+> are no sanctioned `border-radius` exceptions" and the "re-openable only"
+> framing. `tokens.css`'s universal `border-radius: 0 !important` reset is
+> scoped to `*:not([data-blob])` (an explicit opt-in attribute, not a class);
+> everything else stays hard 0, enforced by a `tokens.test.ts` trip-wire
+> (D3) that scans every `.css` declaration, including inside `@keyframes`,
+> for non-zero radius outside an enumerated `--blob-*` token. Two waves of
+> scope: animated shape-morphs (Profile chamber dots, Distinction cell
+> geometry via SVG path rounding — not this token family, Contact's status
+> pulse/arrow-chip wobble, Projects' repo-button hover morph); then STATIC
+> rounding in the same enumerated components (Projects cards/photos/tags,
+> Distinction's lightbox/plate/close button). `tailwind.config.ts`'s
+> `rounded-*` utilities stay inert everywhere outside this list.

@@ -98,6 +98,16 @@ Original spec for reference: technologies, tools, experience level.
 > `01_ART_DIRECTION.MD`, "Surface Registers". Axis-aligned bento mats, LT
 > Remark titles, blueprint-grid paper, a ledger fallback on phone.
 
+> **Updated 2026-09-16 (`sdd/rebuild-src-from-claude-design`, spec/design
+> decision, obs #385):** on-page/nav label changed to **"Distinctions"**,
+> superseding "CERTIFICATE ARCHIVE" above — matching the Claude Design
+> mockup this change ports from. The route path is unchanged (`/certifications`
+> — docs win on path per this doc's own routing section, below). Rebuilt as
+> a live power-diagram colony (12 sites, weighted-Voronoi cells) rather than
+> the bento-mat wall described above; the Record register's non-rotation
+> rule still holds (`01_ART_DIRECTION.MD`, "The Record register does not
+> rotate").
+
 ---
 
 ## CONTACT TERMINAL
@@ -162,11 +172,17 @@ transition rather than two different behaviors.
 
 Concretely: `/` (Home), `/profile` (PAGE 01), `/certifications` (PAGE 02),
 `/projects` (PAGE 03), `/contact` (PAGE 04) — the canonical list is
-`src/routes/routes.ts`. Nav
+`src/routes/registry.ts`. Nav
 items render as real links styled as buttons, and the page layer is
 driven by the route rather than by local state — that's what makes
 browser back and the close control the same code path, and what keeps
 the archive reachable with JavaScript disabled.
+
+> **Corrected 2026-09-16 (`sdd/rebuild-src-from-claude-design`, task 1.12/
+> design D7):** the canonical file was `src/routes/registry.ts` above, not
+> `routes.ts` as this line previously said — `routes.ts` never existed.
+> `registry.ts` is also the single source for nav labels and turn order
+> (`RouteEntry.labelEn/labelEs/order`), not just the path list.
 
 ## Keyboard mapping — RESOLVED 2026-07-27
 
