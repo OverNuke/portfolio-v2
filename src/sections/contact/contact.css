@@ -143,7 +143,10 @@
 .contact__card-index {
   font-size: var(--text-meta);
   letter-spacing: var(--track-label);
-  opacity: 0.6;
+  /* 0.75, not the mockup's 0.6 (task 3.2: shared across both card tones —
+     0.6 clears AA 4.5:1 on the paper tone (4.60:1) but not on the olive
+     tone (3.55:1); 0.75 clears both). */
+  opacity: 0.75;
 }
 
 .contact__card-foot {

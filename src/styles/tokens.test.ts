@@ -131,6 +131,65 @@ const CONTRAST_PAIRS: ContrastPair[] = [
   },
 ];
 
+/**
+ * Task 3.2 (sdd/rebuild-src-from-claude-design, Phase 3): section CSS
+ * (Projects/Contact/Profile/Distinction) carries mockup-literal hex colors
+ * rather than tokens.css vars (flagged risk, obs #386 risk log — a
+ * deliberate future decision, not re-litigated here). CONTRAST_PAIRS above
+ * can't see those literals since it only resolves --var names. This gate
+ * enumerates the real text-on-background pairs actually used in section
+ * CSS (fg/bg as literal hex, `alpha` for rgba()-opacity text) and checks
+ * them against docs/02's same AA floors. `aria-hidden` text (e.g. Contact's
+ * decorative card-index) still must pass — WCAG 1.4.3 covers what a sighted
+ * user sees, not what the accessibility tree exposes.
+ */
+type SectionContrastPair = {
+  name: string;
+  fg: string;
+  bg: string;
+  alpha?: number;
+  kind: "text" | "non-text";
+  expectPass: boolean;
+};
+
+function blendOverBg(fgHex: string, bgHex: string, alpha: number): string {
+  const f = fgHex.replace("#", "");
+  const b = bgHex.replace("#", "");
+  const [fr, fg, fb] = [0, 2, 4].map((i) => parseInt(f.slice(i, i + 2), 16));
+  const [br, bg, bb] = [0, 2, 4].map((i) => parseInt(b.slice(i, i + 2), 16));
+  const mix = (fc: number, bc: number) => Math.round(fc * alpha + bc * (1 - alpha));
+  return [mix(fr, br), mix(fg, bg), mix(fb, bb)]
+    .map((v) => v.toString(16).padStart(2, "0"))
+    .join("")
+    .replace(/^/, "#");
+}
+
+const SECTION_CONTRAST_PAIRS: SectionContrastPair[] = [
+  { name: "projects eyebrow on stage bg", fg: "#14150f", bg: "#f6f4ea", alpha: 0.65, kind: "text", expectPass: true },
+  { name: "projects card meta on card bg", fg: "#14150f", bg: "#f4f1e6", alpha: 0.62, kind: "text", expectPass: true },
+  { name: "projects card caption on card bg", fg: "#14150f", bg: "#f4f1e6", alpha: 0.7, kind: "text", expectPass: true },
+  { name: "projects card desc on card bg", fg: "#14150f", bg: "#f4f1e6", alpha: 0.82, kind: "text", expectPass: true },
+  { name: "projects repo--private label on card bg", fg: "#14150f", bg: "#f4f1e6", alpha: 0.65, kind: "text", expectPass: true },
+  { name: "projects repo button text on olive fill", fg: "#f6f4ea", bg: "#586a30", kind: "text", expectPass: true },
+  { name: "contact root text on root bg", fg: "#f3f2ef", bg: "#0a0a0a", kind: "text", expectPass: true },
+  { name: "contact paper card text on paper card bg", fg: "#14150f", bg: "#f4f1e6", kind: "text", expectPass: true },
+  { name: "contact olive card text on olive card bg", fg: "#f6f4ea", bg: "#4f5a3c", kind: "text", expectPass: true },
+  // aria-hidden but still visible to sighted users — see block comment above.
+  // Shared class across both card tones, so one opacity must clear the AA
+  // floor against the WORSE of the two backgrounds (olive).
+  { name: "contact card-index on paper card bg", fg: "#14150f", bg: "#f4f1e6", alpha: 0.75, kind: "text", expectPass: true },
+  { name: "contact card-index on olive card bg", fg: "#f6f4ea", bg: "#4f5a3c", alpha: 0.75, kind: "text", expectPass: true },
+  { name: "profile identity heading on light gradient stop", fg: "#14150f", bg: "#f6f3e9", kind: "text", expectPass: true },
+  { name: "profile bio on light gradient stop", fg: "#25241e", bg: "#f6f3e9", kind: "text", expectPass: true },
+  { name: "profile availability on light gradient stop", fg: "#4d4c44", bg: "#f6f3e9", kind: "text", expectPass: true },
+  { name: "profile status on dark gradient stop", fg: "#f3f1e8", bg: "#0a0a09", kind: "text", expectPass: true },
+  { name: "profile chamber text on dark gradient stop", fg: "#f3f1e8", bg: "#101010", kind: "text", expectPass: true },
+  { name: "profile chamber-index on dark gradient stop", fg: "#b5b2a6", bg: "#101010", kind: "text", expectPass: true },
+  { name: "distinction reflow text on root bg", fg: "#f6f4ea", bg: "#14150f", kind: "text", expectPass: true },
+  { name: "distinction lightbox text on lightbox bg", fg: "#14150f", bg: "#f4f1e6", kind: "text", expectPass: true },
+  { name: "distinction lightbox-foot button hover text on hover bg", fg: "#f6f4ea", bg: "#14150f", kind: "text", expectPass: true },
+];
+
 describe("tokens.css", () => {
   const decls = readRootDecls();
 
@@ -238,6 +297,57 @@ describe("tokens.css", () => {
         }
       },
     );
+  });
+
+  describe("Section Text-on-Background Contrast (task 3.2)", () => {
+    it.each(SECTION_CONTRAST_PAIRS)(
+      "$name meets its floor",
+      ({ fg, bg, alpha, kind, expectPass }) => {
+        const floor = kind === "text" ? 4.5 : 3.0;
+        const effectiveFg = alpha !== undefined ? blendOverBg(fg, bg, alpha) : fg;
+        const ratio = contrastRatio(effectiveFg, bg);
+
+        if (expectPass) {
+          expect(ratio).toBeGreaterThanOrEqual(floor);
+        } else {
+          expect(ratio).toBeLessThan(floor);
+        }
+      },
+    );
+  });
+
+  /**
+   * Task 3.5 (R2 motion-tiers spec [SCAN]): "no overshoot/spring curves on
+   * interactive elements" — every raw `cubic-bezier(...)` in the source
+   * tree must keep all 4 control-point numbers inside [0, 1]. Scoped to the
+   * whole tree, not just `transition`/`transition-timing-function`
+   * declarations: as of this task no `@keyframes` in src/ uses a raw
+   * `cubic-bezier()` either (Tier-A ambient morphs use named easings like
+   * `ease-in-out`), so there is no legitimate-overshoot case to carve out
+   * yet. `--ease-hard`/`--ease-soft` (tokens.css) are the only two
+   * `cubic-bezier()` literals in the tree and both already pass — this
+   * documents D11's re-time (2.2.3) as a trip-wire, not just a written rule.
+   */
+  describe("No Overshoot cubic-bezier (R2 motion-tiers, task 3.5)", () => {
+    it("every cubic-bezier() control point stays within [0, 1]", () => {
+      const files = collectSourceFiles(SRC_ROOT).filter(
+        (f) => /\.(css|tsx?|jsx?)$/.test(f) && f !== join(__dirname, "tokens.test.ts"),
+      );
+      const CUBIC_BEZIER = /cubic-bezier\(\s*([^)]+)\s*\)/g;
+      const offenders: string[] = [];
+
+      for (const file of files) {
+        const src = readFileSync(file, "utf-8");
+        for (const match of src.matchAll(CUBIC_BEZIER)) {
+          const points = match[1].split(",").map((n) => Number.parseFloat(n.trim()));
+          if (points.some((p) => Number.isNaN(p) || p < 0 || p > 1)) {
+            offenders.push(`${file}: cubic-bezier(${match[1]})`);
+          }
+        }
+      }
+
+      expect(offenders).toEqual([]);
+    });
   });
 
   const RETIRED_TOKEN_PREFIX = "--color-";

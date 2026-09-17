@@ -28,7 +28,9 @@
   font-size: var(--text-meta);
   letter-spacing: var(--track-label);
   text-transform: uppercase;
-  color: rgba(20, 21, 15, 0.55);
+  /* 0.65, not the mockup's 0.55 (task 3.2: AA 4.5:1 text floor; 0.55 on
+     #f6f4ea only reaches 3.96:1). */
+  color: rgba(20, 21, 15, 0.65);
 }
 
 .projects__stage {
@@ -181,7 +183,9 @@
   font-size: var(--text-meta);
   letter-spacing: var(--track-label);
   text-transform: uppercase;
-  color: rgba(20, 21, 15, 0.5);
+  /* 0.65, not the mockup's 0.5 (task 3.2: AA 4.5:1 text floor; 0.5 on
+     #f4f1e6 only reaches 3.37:1). */
+  color: rgba(20, 21, 15, 0.65);
 }
 
 .projects__reflow {
