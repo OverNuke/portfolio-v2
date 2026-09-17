@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Home } from "@/home/Home";
 import { I18nProvider } from "@/i18n/I18nProvider";
+import { ContactDock } from "@/sections/contact/ContactDock";
 import { AppShell } from "@/shell/AppShell";
 import { TurnProvider } from "@/turn/TurnProvider";
 
@@ -19,7 +20,7 @@ function AppContent() {
             <Route path="/profile" element={<Placeholder title="Profile" />} />
             <Route path="/certifications" element={<Placeholder title="Distinctions" />} />
             <Route path="/projects" element={<Placeholder title="Projects" />} />
-            <Route path="/contact" element={<Placeholder title="Contact" />} />
+            <Route path="/contact" element={<ContactDock />} />
           </Routes>
         }
       />

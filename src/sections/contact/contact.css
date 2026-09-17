@@ -1,0 +1,225 @@
+/* D10 port of Contact Section v2. .contact is the useStageScale root — in
+   "scaled" mode it's a fixed 1440x900 stage; in "reflow" (<1100px, D8) the
+   dock/cards render as a real flow layout instead. */
+.contact {
+  position: absolute;
+  inset: 0;
+  overflow: hidden auto;
+  background: #0a0a0a;
+  color: #f3f2ef;
+  font-family: var(--font-mono);
+}
+
+.contact__figure {
+  position: absolute;
+  inset: 0;
+  background-image: url("@/assets/plates/portrait/contact-figure.jpg");
+  background-size: cover;
+  background-position: 50% 34%;
+  filter: grayscale(1) contrast(1.32) brightness(0.52);
+  opacity: 0.3;
+}
+
+.contact__scrim {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(120% 88% at 50% 52%, transparent 24%, rgba(10, 10, 10, 0.55) 66%, #0a0a0a 100%);
+}
+
+.contact__header {
+  position: relative;
+  z-index: 20;
+  padding: var(--space-2xl) var(--space-xl) 0;
+}
+
+.contact__heading {
+  margin: 0;
+  font-family: var(--font-serif-display);
+  font-style: italic;
+  font-size: clamp(2.25rem, 5vw, 5.75rem);
+  line-height: 0.9;
+}
+
+.contact__status {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0 var(--space-xl);
+  margin-top: var(--space-md);
+  font-size: var(--text-body);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.contact__status-dot {
+  width: 14px;
+  height: 14px;
+  background: var(--field-olive);
+  border-radius: var(--blob-pulse-0);
+  animation: contactPulse 2.4s ease-in-out infinite;
+}
+
+.contact__status[data-motion="static"] .contact__status-dot {
+  animation: none;
+}
+
+.contact__dock {
+  position: relative;
+  z-index: 12;
+  width: 1440px;
+  height: 900px;
+}
+
+.contact__reflow {
+  position: relative;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+}
+
+.contact__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: var(--space-lg) var(--space-md);
+  text-decoration: none;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.5);
+  transition: transform var(--dur-cut) var(--ease-hard);
+}
+
+.contact__dock .contact__card {
+  position: absolute;
+  width: 216px;
+  height: 300px;
+}
+
+.contact__dock .contact__card[data-card="email"] { left: 96px; top: 300px; }
+.contact__dock .contact__card[data-card="github"] { left: 374px; top: 275px; height: 380px; }
+.contact__dock .contact__card[data-card="linkedin"] { left: 900px; top: 260px; }
+
+.contact__card--paper {
+  background: #f4f1e6;
+  color: #14150f;
+}
+
+.contact__card--olive {
+  background: var(--field-olive);
+  color: #f6f4ea;
+}
+
+.contact__corner {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border-color: currentcolor;
+  opacity: 0.55;
+}
+
+.contact__corner--tl { left: 9px; top: 9px; border-left: 1.5px solid; border-top: 1.5px solid; }
+.contact__corner--tr { right: 9px; top: 9px; border-right: 1.5px solid; border-top: 1.5px solid; }
+.contact__corner--bl { left: 9px; bottom: 9px; border-left: 1.5px solid; border-bottom: 1.5px solid; }
+.contact__corner--br { right: 9px; bottom: 9px; border-right: 1.5px solid; border-bottom: 1.5px solid; }
+
+.contact__card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
+.contact__card-title {
+  font-family: var(--font-serif-display);
+  font-style: italic;
+  font-size: var(--text-display-md);
+  line-height: 1;
+}
+
+.contact__card-index {
+  font-size: var(--text-meta);
+  letter-spacing: var(--track-label);
+  opacity: 0.6;
+}
+
+.contact__card-foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.contact__card-body {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--text-meta);
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.contact__rule {
+  height: var(--rule-hair);
+  background: currentcolor;
+  opacity: 0.22;
+}
+
+.contact__cta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.contact__cta {
+  font-size: var(--text-meta);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+
+.contact__chip {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact__chip-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--field-olive);
+  border-radius: var(--blob-cell-0);
+  animation: contactWobble 3.2s ease-in-out infinite;
+}
+
+.contact__chip-arrow {
+  position: relative;
+  font-size: var(--text-meta);
+  font-weight: 700;
+  color: var(--paper-white);
+}
+
+.contact__quote {
+  position: relative;
+  z-index: 20;
+  max-width: 452px;
+  margin: var(--space-2xl) auto var(--space-2xl) var(--space-xl);
+  font-family: var(--font-serif-display);
+  font-style: italic;
+  font-size: var(--text-display-sm);
+  line-height: 1.28;
+}
+
+@keyframes contactPulse {
+  0%, 100% { transform: scale(1); border-radius: var(--blob-pulse-0); }
+  50% { transform: scale(1.22); border-radius: var(--blob-pulse-50); }
+}
+
+@keyframes contactWobble {
+  0%, 100% { border-radius: var(--blob-cell-0); }
+  50% { border-radius: var(--blob-cell-50); }
+}

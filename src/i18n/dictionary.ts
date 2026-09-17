@@ -7,7 +7,20 @@ export type DictionaryKey =
   | "nav.certifications"
   | "nav.projects"
   | "nav.contact"
-  | "lang.toggle.label";
+  | "lang.toggle.label"
+  | "contact.heading"
+  | "contact.status"
+  | "contact.quote"
+  | "contact.email.title"
+  | "contact.email.cta"
+  | "contact.github.title"
+  | "contact.github.body1"
+  | "contact.github.body2"
+  | "contact.github.cta"
+  | "contact.linkedin.title"
+  | "contact.linkedin.body1"
+  | "contact.linkedin.body2"
+  | "contact.linkedin.cta";
 
 export type Dictionary = Record<DictionaryKey, string>;
 
@@ -18,6 +31,19 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "nav.projects": "Projects",
     "nav.contact": "Contact",
     "lang.toggle.label": "Language",
+    "contact.heading": "Reach out",
+    "contact.status": "open to work",
+    "contact.quote": "Even an hundred of years isn't enough to appreciate what life is mean to be.",
+    "contact.email.title": "Email",
+    "contact.email.cta": "send message",
+    "contact.github.title": "GitHub",
+    "contact.github.body1": "@overnuke",
+    "contact.github.body2": "repositories",
+    "contact.github.cta": "source",
+    "contact.linkedin.title": "LinkedIn",
+    "contact.linkedin.body1": "/keffwontwakeup",
+    "contact.linkedin.body2": "network · profile",
+    "contact.linkedin.cta": "connect",
   },
   es: {
     "nav.profile": "Perfil",
@@ -25,5 +51,18 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "nav.projects": "Proyectos",
     "nav.contact": "Contacto",
     "lang.toggle.label": "Idioma",
+    "contact.heading": "Hablemos",
+    "contact.status": "disponible para trabajar",
+    "contact.quote": "Ni cien años alcanzan para apreciar lo que la vida está destinada a ser.",
+    "contact.email.title": "Correo",
+    "contact.email.cta": "enviar mensaje",
+    "contact.github.title": "GitHub",
+    "contact.github.body1": "@overnuke",
+    "contact.github.body2": "repositorios",
+    "contact.github.cta": "código fuente",
+    "contact.linkedin.title": "LinkedIn",
+    "contact.linkedin.body1": "/keffwontwakeup",
+    "contact.linkedin.body2": "red · perfil",
+    "contact.linkedin.cta": "conectar",
   },
 };
