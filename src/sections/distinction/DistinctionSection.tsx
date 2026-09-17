@@ -204,10 +204,15 @@ export function DistinctionSection() {
     if (!openId) return;
     closeButtonRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenId(null);
+      if (e.key !== "Escape") return;
+      // Capture phase + stopPropagation: TurnProvider's own Escape listener
+      // (useTurnKeys, bubble phase on window) would otherwise also fire and
+      // turn the page back to Home underneath the closing lightbox.
+      e.stopPropagation();
+      setOpenId(null);
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, { capture: true });
+    return () => window.removeEventListener("keydown", onKey, { capture: true });
   }, [openId]);
 
   useEffect(() => {

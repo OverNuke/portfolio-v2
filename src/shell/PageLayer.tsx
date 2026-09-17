@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { useLocation } from "react-router";
+import "./app-shell.css";
 
 interface PageLayerProps {
   homeRef: RefObject<HTMLDivElement | null>;
@@ -29,7 +30,7 @@ export function PageLayer({ homeRef, children }: PageLayerProps) {
   if (isHome) return null;
 
   return (
-    <div ref={pageRef} tabIndex={-1} data-testid="page-layer">
+    <div ref={pageRef} className="app-shell__page" tabIndex={-1} data-testid="page-layer">
       {children}
     </div>
   );
