@@ -70,6 +70,7 @@
   z-index: 12;
   width: 1440px;
   height: 900px;
+  transform-origin: top left;
 }
 
 .contact__reflow {

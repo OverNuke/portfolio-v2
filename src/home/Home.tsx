@@ -1,5 +1,6 @@
 import { LanguageToggle } from "@/i18n/LanguageToggle";
 import { InkFlowBackground } from "@/sections/ink-flow/InkFlowBackground";
+import "./home.css";
 import { ModuleNav } from "./ModuleNav";
 
 // Masthead carries name/role as real markup (spec: accessible independent of

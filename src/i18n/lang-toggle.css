@@ -1,0 +1,15 @@
+/* Task 4.1 audit finding: bare 2-letter buttons measured under the WCAG 2.2
+   SC 2.5.8 24x24 target floor (tokens.css's --hit-min). Padding only — no
+   visual design pass, that's still open per root CLAUDE.md's page-content gap. */
+.lang-toggle {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.lang-toggle button {
+  padding: 6px 10px;
+  min-width: var(--hit-min);
+  min-height: var(--hit-min);
+  font-family: var(--font-mono);
+  cursor: pointer;
+}

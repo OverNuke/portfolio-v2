@@ -162,7 +162,7 @@ function ProjectCard({ project, absolute }: { project: ProjectDef; absolute: boo
 export function ProjectsSection() {
   const { t } = useI18n();
   const reduced = useReducedMotion();
-  const { stageRef, mode } = useStageScale();
+  const { stageRef, mode, scale } = useStageScale();
   const scaled = mode === "scaled";
 
   const doodleMap = useRef(new Map<string, SVGPathElement>()).current;
@@ -178,7 +178,10 @@ export function ProjectsSection() {
       <div className="projects__eyebrow" aria-hidden="true">{t("projects.eyebrow")}</div>
 
       {scaled ? (
-        <div className="projects__stage">
+        // D8: the mockup's fixed-1440 collage scaled down to fit, not
+        // reflowed — `scale` comes from useStageScale, applied here since
+        // no earlier batch actually wired it (audit task 4.1 caught it).
+        <div className="projects__stage" style={{ transform: `scale(${scale})` }}>
           <ProjectsHeadline />
           <div className="projects__grid" data-scaled>
             {PROJECTS.map((project) => (

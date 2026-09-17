@@ -58,7 +58,10 @@ const DOCK_SPREAD = 260;
 // D10: Gaussian proximity dock, pointermove-scheduled rAF, no continuous
 // loop. Disabled entirely under reduced motion and in reflow layout (D8 —
 // decorative dock physics don't reflow, only the real content does).
-function useDockPhysics(dockRef: React.RefObject<HTMLDivElement | null>, active: boolean) {
+// `scale` un-does the dock's own CSS transform (D8, audit task 4.1) so
+// pointer deltas and card offsetLeft/Top — one viewport-space, one
+// layout-space — land back in the same coordinate system before falloff.
+function useDockPhysics(dockRef: React.RefObject<HTMLDivElement | null>, active: boolean, scale: number) {
   useEffect(() => {
     if (!active) return;
     const dock = dockRef.current;
@@ -91,7 +94,7 @@ function useDockPhysics(dockRef: React.RefObject<HTMLDivElement | null>, active:
 
     const onMove = (e: PointerEvent) => {
       const r = dock.getBoundingClientRect();
-      point = { x: e.clientX - r.left, y: e.clientY - r.top };
+      point = { x: (e.clientX - r.left) / scale, y: (e.clientY - r.top) / scale };
       schedule();
     };
     const onLeave = () => {
@@ -106,7 +109,7 @@ function useDockPhysics(dockRef: React.RefObject<HTMLDivElement | null>, active:
       dock.removeEventListener("pointermove", onMove);
       dock.removeEventListener("pointerleave", onLeave);
     };
-  }, [dockRef, active]);
+  }, [dockRef, active, scale]);
 }
 
 function ChannelCard({ channel, absolute }: { channel: Channel; absolute: boolean }) {
@@ -153,10 +156,10 @@ function ChannelCard({ channel, absolute }: { channel: Channel; absolute: boolea
 export function ContactDock() {
   const { t } = useI18n();
   const reduced = useReducedMotion();
-  const { stageRef, mode } = useStageScale();
+  const { stageRef, mode, scale } = useStageScale();
   const dockRef = useRef<HTMLDivElement>(null);
   const scaled = mode === "scaled";
-  useDockPhysics(dockRef, scaled && !reduced);
+  useDockPhysics(dockRef, scaled && !reduced, scale);
 
   return (
     <section className="contact" ref={stageRef} aria-label={t("contact.heading")}>
@@ -173,7 +176,8 @@ export function ContactDock() {
       </div>
 
       {scaled ? (
-        <div className="contact__dock" ref={dockRef}>
+        // D8 (audit task 4.1 caught the missing wire-up — same fix as Projects/Distinction).
+        <div className="contact__dock" ref={dockRef} style={{ transform: `scale(${scale})` }}>
           {CHANNELS.map((channel) => (
             <ChannelCard key={channel.id} channel={channel} absolute />
           ))}

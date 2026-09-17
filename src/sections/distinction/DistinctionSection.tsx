@@ -177,7 +177,7 @@ function RecordFields({ cell, t }: { cell: CellDef; t: (k: DictionaryKey) => str
 export function DistinctionSection() {
   const { t } = useI18n();
   const reduced = useReducedMotion();
-  const { stageRef, mode } = useStageScale();
+  const { stageRef, mode, scale } = useStageScale();
   const scaled = mode === "scaled";
 
   const pathMap = useRef(new Map<string, SVGPathElement>()).current;
@@ -243,7 +243,8 @@ export function DistinctionSection() {
   return (
     <section className="distinction" ref={stageRef} aria-label={t("distinction.heading")}>
       {scaled ? (
-        <div className="distinction__stage">
+        // D8 (audit task 4.1 caught the missing wire-up — same fix as Projects).
+        <div className="distinction__stage" style={{ transform: `scale(${scale})` }}>
           <svg className="distinction__cells" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
             {CELLS.map((c) => (
               <path key={c.id} ref={pathRef(c.id)} fill={c.kind === "accent" ? "var(--field-olive)" : "#f4f1e6"} stroke="#14150f" strokeWidth={0.9} />

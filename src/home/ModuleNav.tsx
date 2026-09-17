@@ -19,7 +19,7 @@ export function ModuleNav() {
       <ul>
         {NAV_ROUTES.map((route) => (
           <li key={route.path}>
-            <Link to={route.path} data-turn-open={route.path}>
+            <Link className="home__nav-link" to={route.path} data-turn-open={route.path}>
               {t(NAV_KEY[route.path])}
             </Link>
           </li>

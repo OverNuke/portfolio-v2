@@ -1,0 +1,9 @@
+/* Task 4.1 audit finding: bare-text nav links measured under the WCAG 2.2
+   SC 2.5.8 24x24 target floor (tokens.css's --hit-min). Padding only — no
+   visual design pass, that's still open per root CLAUDE.md's page-content gap. */
+.home__nav-link {
+  display: inline-block;
+  padding: 8px 4px;
+  min-height: var(--hit-min);
+  font-family: var(--font-mono);
+}
