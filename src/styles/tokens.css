@@ -86,6 +86,17 @@
   --blob-distinction-plate: 18px;
   --blob-distinction-close: 999px;
 
+  /* ---- Ink Flow (D9, 2026-09-16, sdd/rebuild-src-from-claude-design) --
+     Home's decorative aria-hidden background field only (src/sections/
+     ink-flow/). A standalone ambient micro-palette, deliberately close to
+     but not aliased onto --paper/--ink — those carry text contrast
+     guarantees this layer doesn't need. Single source here per the file
+     header; ink-flow.css consumes these, never a raw hex. */
+  --if-paper: #f6f4ea;
+  --if-ink: #14150f;
+  --if-mass: #0c0d0a;
+  --if-ring-light: #e9e6d8;
+
   /* ---- Typography ---------------------------------------------------
      Three roles (2026-08-11, font-unification pass — the old Archivo
      Narrow display token is retired; see src/styles/tokens.test.ts's
