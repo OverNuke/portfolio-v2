@@ -149,7 +149,10 @@ function ProjectCard({ project, absolute }: { project: ProjectDef; absolute: boo
           {t("projects.repo.cta")} ↗
         </a>
       ) : (
-        <span className="projects__repo projects__repo--private">{t("projects.repo.private")}</span>
+        <span className="projects__repo projects__repo--private">
+          {t("projects.repo.private")}
+          <span className="projects__repo-rule" aria-hidden="true" />
+        </span>
       )}
     </article>
   );
@@ -175,13 +178,15 @@ export function ProjectsSection() {
   return (
     <section className="projects" ref={stageRef} aria-label={t("projects.heading")}>
       <h2 className="projects__visually-hidden">{t("projects.heading")}</h2>
-      <div className="projects__eyebrow" aria-hidden="true">{t("projects.eyebrow")}</div>
 
       {scaled ? (
         // D8: the mockup's fixed-1440 collage scaled down to fit, not
         // reflowed — `scale` comes from useStageScale, applied here since
         // no earlier batch actually wired it (audit task 4.1 caught it).
+        // Eyebrow lives inside the stage (audit task 4.1): outside it, it
+        // adds flow height on top of the fixed 900px stage and overflows.
         <div className="projects__stage" style={{ transform: `scale(${scale})` }}>
+          <div className="projects__eyebrow" aria-hidden="true">{t("projects.eyebrow")}</div>
           <ProjectsHeadline />
           <div className="projects__grid" data-scaled>
             {PROJECTS.map((project) => (
@@ -196,6 +201,7 @@ export function ProjectsSection() {
         </div>
       ) : (
         <div className="projects__reflow">
+          <div className="projects__eyebrow" aria-hidden="true">{t("projects.eyebrow")}</div>
           {PROJECTS.map((project) => (
             <ProjectCard key={project.id} project={project} absolute={false} />
           ))}
