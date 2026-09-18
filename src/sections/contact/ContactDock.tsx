@@ -166,31 +166,29 @@ export function ContactDock() {
       <div className="contact__figure" aria-hidden="true" />
       <div className="contact__scrim" aria-hidden="true" />
 
-      <header className="contact__header">
-        <h2 className="contact__heading">{t("contact.heading")}</h2>
-      </header>
+      {/* D8 (audit task 4.1): header/status/quote must live inside the same
+          scaled stage as the cards, or the section overflows 900px and the
+          quote falls below the fold — same fix as Projects/Distinction. */}
+      <div
+        className={scaled ? "contact__dock" : "contact__reflow"}
+        ref={scaled ? dockRef : undefined}
+        style={scaled ? { transform: `scale(${scale})` } : undefined}
+      >
+        <header className="contact__header">
+          <h2 className="contact__heading">{t("contact.heading")}</h2>
+        </header>
 
-      <div className="contact__status" data-motion={motionAttr(reduced)}>
-        <span className="contact__status-dot" data-blob aria-hidden="true" />
-        <span className="contact__status-label">{t("contact.status")}</span>
+        <div className="contact__status" data-motion={motionAttr(reduced)}>
+          <span className="contact__status-dot" data-blob aria-hidden="true" />
+          <span className="contact__status-label">{t("contact.status")}</span>
+        </div>
+
+        {CHANNELS.map((channel) => (
+          <ChannelCard key={channel.id} channel={channel} absolute={scaled} />
+        ))}
+
+        <p className="contact__quote">{t("contact.quote")}</p>
       </div>
-
-      {scaled ? (
-        // D8 (audit task 4.1 caught the missing wire-up — same fix as Projects/Distinction).
-        <div className="contact__dock" ref={dockRef} style={{ transform: `scale(${scale})` }}>
-          {CHANNELS.map((channel) => (
-            <ChannelCard key={channel.id} channel={channel} absolute />
-          ))}
-        </div>
-      ) : (
-        <div className="contact__reflow">
-          {CHANNELS.map((channel) => (
-            <ChannelCard key={channel.id} channel={channel} absolute={false} />
-          ))}
-        </div>
-      )}
-
-      <p className="contact__quote">{t("contact.quote")}</p>
     </section>
   );
 }

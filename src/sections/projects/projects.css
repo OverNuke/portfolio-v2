@@ -33,6 +33,13 @@
   color: rgba(20, 21, 15, 0.65);
 }
 
+.projects__stage .projects__eyebrow {
+  position: absolute;
+  right: 76px;
+  top: 78px;
+  padding: 0;
+}
+
 .projects__stage {
   position: relative;
   width: 1440px;
@@ -179,14 +186,26 @@
 .projects__reflow .projects__repo:hover { border-radius: var(--blob-morph-hover-a); }
 
 .projects__repo--private {
-  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  align-self: stretch;
   padding: 13px 0 0;
+  background: none;
+  border-radius: 0;
   font-size: var(--text-meta);
+  font-weight: 400;
   letter-spacing: var(--track-label);
   text-transform: uppercase;
   /* 0.65, not the mockup's 0.5 (task 3.2: AA 4.5:1 text floor; 0.5 on
      #f4f1e6 only reaches 3.37:1). */
   color: rgba(20, 21, 15, 0.65);
+}
+
+.projects__repo-rule {
+  flex: 1;
+  height: 1px;
+  background: rgba(20, 21, 15, 0.2);
 }
 
 .projects__reflow {

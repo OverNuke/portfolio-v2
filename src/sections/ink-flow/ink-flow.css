@@ -4,6 +4,7 @@
 .ink-flow {
   position: absolute;
   inset: 0;
+  z-index: var(--z-plate-decor);
   overflow: hidden;
   background: var(--if-paper);
   pointer-events: none;
