@@ -135,8 +135,12 @@
   color: rgba(20, 21, 15, 0.7);
 }
 
+/* T3.9: additive — the project description <p> has no font-family override
+   in Projects Section v2.dc.html, inheriting Manrope. Titles/tags/eyebrow
+   labels are unchanged. */
 .projects__desc {
   margin: 0;
+  font-family: var(--font-structure);
   font-size: var(--text-body);
   line-height: 1.6;
   color: rgba(20, 21, 15, 0.82);
@@ -160,11 +164,15 @@
   color: rgba(20, 21, 15, 0.78);
 }
 
+/* T3.9: additive — the "Repository ↗" CTA link has no font-family override
+   in the mockup, inheriting Manrope. Does NOT extend to the sibling
+   .projects__repo--private span below (no live-repo CTA to speak of). */
 .projects__repo {
   align-self: flex-start;
   padding: 13px 24px;
   background: #586a30;
   border-radius: var(--blob-morph-rest);
+  font-family: var(--font-structure);
   font-size: var(--text-meta);
   font-weight: 600;
   letter-spacing: var(--track-label);
@@ -178,9 +186,14 @@
 .projects__grid[data-scaled] .projects__card[data-project="p2"] .projects__repo:hover { border-radius: var(--blob-morph-hover-b); }
 .projects__reflow .projects__repo:hover { border-radius: var(--blob-morph-hover-a); }
 
+/* T3.9: NOT part of the additive CTA target above — Projects Section
+   v2.dc.html's own private-repository indicator explicitly declares
+   JetBrains Mono (not inherited Manrope), so this overrides .projects__repo's
+   new font-family back to --font-mono for the shared-class span. */
 .projects__repo--private {
   align-self: flex-start;
   padding: 13px 0 0;
+  font-family: var(--font-mono);
   font-size: var(--text-meta);
   letter-spacing: var(--track-label);
   text-transform: uppercase;

@@ -4,11 +4,16 @@
  *
  * THE FINDING THAT SET THE TYPE SYSTEM: both new faces are serifs. LT
  * Remark is not a grotesque — it is a high-contrast editorial serif. So
- * the system is three roles, not two:
+ * the system is four roles, not two (Manrope added
+ * sdd/portfolio-design-fidelity, T3.3 — Home's structural voice, additive
+ * per-element elsewhere; see tokens.css's Typography block):
  *
  *   --font-serif-display  LT Superior Serif   the masthead, and only that
  *   --font-serif-edit     LT Remark           the editorial voice
- *   --font-mono           JetBrains Mono      every technical label
+ *   --font-mono           JetBrains Mono      specimen numbers, coordinates,
+ *                                             state labels — never prose
+ *   --font-structure      Manrope             Home's root voice, plus
+ *                                             additive per-element elsewhere
  *
  * Dense 9px tracked uppercase must never be set in either serif; that is
  * what --font-mono is for. See docs/02_DESIGN_SYSTEM.MD.
@@ -35,8 +40,11 @@
  * further — a future pass can subset it down if that matters). Same
  * `font-display: block` reasoning as the masthead's other face: this is the
  * masthead, reflow is the expensive failure. Instrument Serif ships only
- * weight 400 (no 800) — `.hm-mast`'s `font-weight: 800` is addressed in
- * `home.css` where the family is consumed, not here.
+ * weight 400 (no 800) — that 800 weight is Manrope's, not Instrument
+ * Serif's; it's addressed by `.home__wordmark` in `home.css` where the
+ * family is consumed, not here (corrected 2026-09-18,
+ * sdd/portfolio-design-fidelity T3.12 — this comment used to cite a
+ * `.hm-mast` selector that no longer exists).
  */
 
 @font-face {
@@ -69,4 +77,49 @@
   font-weight: 400;
   font-display: block;
   src: url("../assets/fonts/InstrumentSerif-Italic.woff2") format("woff2");
+}
+
+/**
+ * Manrope — added sdd/portfolio-design-fidelity (T3.1-T3.3). Pattern B, same
+ * as every other face in this file: `pnpm add @fontsource/manrope`, copy the
+ * static latin woff2 into src/assets/fonts/, declare the @font-face here.
+ * Do NOT `@import "@fontsource/manrope"` in index.css — its own CSS
+ * hardcodes `font-display: swap` for every weight, destroying the
+ * block/swap split below.
+ *
+ * `font-display: block` on 800 only: the 76px Home wordmark (.home__wordmark,
+ * home.css) IS the masthead by this file's own reasoning above — a fallback
+ * flash there reflows the identity block. 400/600/700 swap normally; they
+ * carry body/label copy, not the masthead.
+ */
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/Manrope-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fonts/Manrope-SemiBold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/Manrope-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 800;
+  font-display: block;
+  src: url("../assets/fonts/Manrope-ExtraBold.woff2") format("woff2");
 }

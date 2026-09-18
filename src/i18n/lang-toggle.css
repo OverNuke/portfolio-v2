@@ -1,15 +1,36 @@
-/* Task 4.1 audit finding: bare 2-letter buttons measured under the WCAG 2.2
-   SC 2.5.8 24x24 target floor (tokens.css's --hit-min). Padding only — no
-   visual design pass, that's still open per root CLAUDE.md's page-content gap. */
+/* T3.10: 2px bordered split-button chrome, geometry from Main Page.dc.html:
+   33-36 (border:2px solid; padding:7px 12px 8px; font-size:11px;
+   letter-spacing:.1em). Still clears the WCAG 2.2 SC 2.5.8 24x24 floor
+   (tokens.css's --hit-min) via min-width/min-height — task 4.1's original
+   audit finding stays satisfied, just no longer bare. NOT resized to the
+   Home nav's scoped 44px floor (D9) — the toggle is untouched by that.
+   Font flips to --font-structure. Precondition: LanguageToggle renders
+   only in Home.tsx (verified by grep, sdd/portfolio-design-fidelity design
+   D3) — safe to leave these selectors unscoped to a Home-specific class. */
 .lang-toggle {
   display: flex;
-  gap: var(--space-xs);
+  align-items: center;
+  border: 2px solid var(--if-ink);
 }
 
 .lang-toggle button {
-  padding: 6px 10px;
+  padding: 7px 12px 8px;
   min-width: var(--hit-min);
   min-height: var(--hit-min);
-  font-family: var(--font-mono);
+  border: none;
+  font-family: var(--font-structure);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  background: transparent;
+  color: var(--if-ink);
   cursor: pointer;
+}
+
+.lang-toggle button:first-child {
+  border-right: 2px solid var(--if-ink);
+}
+
+.lang-toggle button[aria-pressed="true"] {
+  background: var(--if-ink);
+  color: var(--if-paper);
 }

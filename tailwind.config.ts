@@ -35,6 +35,7 @@ export default {
         "serif-display": ["var(--font-serif-display)"],
         "serif-edit": ["var(--font-serif-edit)"],
         mono: ["var(--font-mono)"],
+        structure: ["var(--font-structure)"],
         hand: ["var(--font-hand)"],
       },
       fontSize: {

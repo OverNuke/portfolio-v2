@@ -22,7 +22,7 @@ describe("I18nProvider", () => {
       </I18nProvider>,
     );
     expect(screen.getByTestId("locale")).toHaveTextContent("en");
-    expect(screen.getByTestId("label")).toHaveTextContent("Distinctions");
+    expect(screen.getByTestId("label")).toHaveTextContent("Distinction");
     expect(document.documentElement.lang).toBe("en");
   });
 
@@ -34,7 +34,7 @@ describe("I18nProvider", () => {
     );
     await userEvent.click(screen.getByText("go es"));
     expect(screen.getByTestId("locale")).toHaveTextContent("es");
-    expect(screen.getByTestId("label")).toHaveTextContent("Distinciones");
+    expect(screen.getByTestId("label")).toHaveTextContent("Distinción");
     expect(document.documentElement.lang).toBe("es");
   });
 

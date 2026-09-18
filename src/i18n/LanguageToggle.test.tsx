@@ -17,7 +17,7 @@ describe("LanguageToggle", () => {
         <NavLabel />
       </I18nProvider>,
     );
-    expect(screen.getByTestId("nav-label")).toHaveTextContent("Profile");
+    expect(screen.getByTestId("nav-label")).toHaveTextContent("Who me?");
 
     await userEvent.tab();
     await userEvent.tab();
@@ -25,7 +25,7 @@ describe("LanguageToggle", () => {
     expect(esButton).toHaveFocus();
 
     await userEvent.keyboard("{Enter}");
-    expect(screen.getByTestId("nav-label")).toHaveTextContent("Perfil");
+    expect(screen.getByTestId("nav-label")).toHaveTextContent("¿Yo?");
     expect(document.documentElement.lang).toBe("es");
   });
 

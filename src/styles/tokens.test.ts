@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import postcss from "postcss";
 import { describe, expect, it } from "vitest";
+import tailwindConfig from "../../tailwind.config";
 
 const TOKENS_PATH = join(__dirname, "tokens.css");
 const SRC_ROOT = join(__dirname, "..");
@@ -111,23 +112,55 @@ const CONTRAST_PAIRS: ContrastPair[] = [
     expectPass: true,
   },
   // --olive-mark (D2): non-text-only, contrast dead zone in every text
-  // direction. Paper-side corner bracket use (home.css .hm-hero--reserved::before).
+  // direction. Corrected 2026-09-18 (sdd/portfolio-design-fidelity, T3.12):
+  // the "home.css .hm-hero--reserved::before" corner-bracket selector this
+  // comment used to cite no longer exists (home.css was rewritten by that
+  // change) and has zero current --olive-mark consumers. This row/floor
+  // stays in place regardless — see tokens.css's own --olive-mark comment.
   {
-    name: "olive-mark on paper-white (corner-bracket paper-side use)",
+    name: "olive-mark on paper-white (clears the non-text floor, no current consumer)",
     fg: "--olive-mark",
     bg: "--paper-white",
     kind: "non-text",
     expectPass: true,
   },
   // Trip-wire: olive-mark on the field surface fails the non-text floor —
-  // do NOT apply --olive-mark to the field-side bracket (.hm-hero--reserved::after
-  // stays --paper-white). This row documents why.
+  // do NOT apply --olive-mark against --field-olive-deep. This row
+  // documents why (stale ".hm-hero--reserved::after" selector reference
+  // corrected 2026-09-18, T3.12 — see tokens.css's --olive-mark comment).
   {
-    name: "olive-mark on field-olive-deep (BANNED — field-side bracket must stay paper-white)",
+    name: "olive-mark on field-olive-deep (BANNED — fails the non-text floor)",
     fg: "--olive-mark",
     bg: "--field-olive-deep",
     kind: "non-text",
     expectPass: false,
+  },
+  // T2.8/D12: Home's new chrome is fully token-routed (no mockup-literal
+  // hex), so its solid text pairs belong here, not in
+  // SECTION_CONTRAST_PAIRS (which exists specifically for section CSS that
+  // still carries literal hex — see that block's own header comment).
+  {
+    name: "if-ink on if-paper (Home wordmark, nav label, numeral, focus outline)",
+    fg: "--if-ink",
+    bg: "--if-paper",
+    kind: "text",
+    expectPass: true,
+  },
+  {
+    name: "olive-edge on if-paper (Home wordmark period glyph)",
+    fg: "--olive-edge",
+    bg: "--if-paper",
+    kind: "text",
+    expectPass: true,
+  },
+  // T3.11/D12: third and final of D12's three solid Home-chrome pairs —
+  // the lang-toggle active (aria-pressed) state.
+  {
+    name: "if-paper on if-ink (Home lang-toggle active state)",
+    fg: "--if-paper",
+    bg: "--if-ink",
+    kind: "text",
+    expectPass: true,
   },
 ];
 
@@ -188,6 +221,13 @@ const SECTION_CONTRAST_PAIRS: SectionContrastPair[] = [
   { name: "distinction reflow text on root bg", fg: "#f6f4ea", bg: "#14150f", kind: "text", expectPass: true },
   { name: "distinction lightbox text on lightbox bg", fg: "#14150f", bg: "#f4f1e6", kind: "text", expectPass: true },
   { name: "distinction lightbox-foot button hover text on hover bg", fg: "#f6f4ea", bg: "#14150f", kind: "text", expectPass: true },
+  // T2.7/D12: --if-rule trip-wire. This literal mirrors --if-ink (#14150f)
+  // and --if-rule's alpha (0.4) — update this row if either token changes.
+  // ≈2.4:1, intentionally below the 3:1 non-text floor: the rule is a
+  // permanent decorative separator present on every nav row in every state,
+  // never the sole boundary of an interactive component (each row's real
+  // boundary is its 34px ink label, ~17:1).
+  { name: "home nav-link rule (--if-rule) on if-paper", fg: "#14150f", bg: "#f6f4ea", alpha: 0.4, kind: "non-text", expectPass: false },
 ];
 
 describe("tokens.css", () => {
@@ -270,6 +310,10 @@ describe("tokens.css", () => {
     "--blob-distinction-lightbox",
     "--blob-distinction-plate",
     "--blob-distinction-close",
+    // T2.6: Home nav row's decorative separator.
+    "--if-rule",
+    // T3.4/T3.5: the fourth typography role — Home's structural voice.
+    "--font-structure",
   ])(
     "%s resolves to a non-empty value",
     (token) => {
@@ -277,6 +321,14 @@ describe("tokens.css", () => {
       expect(decls.get(token)?.trim()).not.toBe("");
     },
   );
+
+  // T3.4/T3.6: tailwind.config.ts must mirror --font-structure the same way
+  // it mirrors the other three font tokens (parity invariant).
+  it("tailwind.config.ts maps fontFamily.structure to var(--font-structure)", () => {
+    expect(tailwindConfig.theme?.extend?.fontFamily).toMatchObject({
+      structure: ["var(--font-structure)"],
+    });
+  });
 
   describe("Palette Contrast-Safety Gate (design-tokens-v2, D2)", () => {
     it.each(CONTRAST_PAIRS)(

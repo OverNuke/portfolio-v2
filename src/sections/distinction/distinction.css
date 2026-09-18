@@ -53,9 +53,19 @@
   max-width: 400px;
 }
 
-.distinction__label--fill {
-  width: 40px;
-  height: 40px;
+/* D8: width is engine-driven off the cell's live power-diagram area
+   (DistinctionSection.tsx's labelMap loop); height follows from the image's
+   own aspect ratio. No CSS transition on the img below — its transform is
+   rAF-driven per frame and a transition would fight it. */
+.distinction__label--eye {
+  transform-origin: 50% 58%;
+}
+
+.distinction__eye-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 58%;
 }
 
 .distinction__cell {
@@ -92,8 +102,12 @@
   letter-spacing: -0.015em;
 }
 
+/* T3.9: additive — the colony intro paragraph has no font-family override
+   in Distinction Section v4.dc.html, inheriting Manrope. Card titles,
+   numerals, meta, and modal labels are unchanged. */
 .distinction__subheading {
   margin: 0;
+  font-family: var(--font-structure);
   font-size: var(--text-body);
   line-height: 1.6;
   opacity: 0.74;

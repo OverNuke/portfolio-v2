@@ -11,7 +11,10 @@ import { gotoHome } from "./helpers";
 
 test("the 3 resolved contact channels are real, keyboard-reachable links", async ({ page }) => {
   await gotoHome(page);
-  await page.getByRole("link", { name: "Contact" }).click();
+  // Nav label is "Reach out" as of sdd/portfolio-design-fidelity (was
+  // "Contact"); Contact section's own <h2> ("Reach out"/"Hablemos", see
+  // dictionary.ts contact.heading) is a separate key, unaffected either way.
+  await page.getByRole("link", { name: "Reach out" }).click();
   await expect(page.getByTestId("page-layer")).toBeVisible();
 
   await expect(page.locator('a[href="mailto:ksfgarcia24@gmail.com"]')).toBeVisible();
@@ -21,7 +24,7 @@ test("the 3 resolved contact channels are real, keyboard-reachable links", async
 
 test("GitHub and LinkedIn cards open in a new tab", async ({ page }) => {
   await gotoHome(page);
-  await page.getByRole("link", { name: "Contact" }).click();
+  await page.getByRole("link", { name: "Reach out" }).click();
 
   const github = page.locator('a[href="https://github.com/overnuke"]');
   await expect(github).toHaveAttribute("target", "_blank");
@@ -30,7 +33,7 @@ test("GitHub and LinkedIn cards open in a new tab", async ({ page }) => {
 
 test("WhatsApp and Cal.com stay unbuilt, not stubbed as dead links", async ({ page }) => {
   await gotoHome(page);
-  await page.getByRole("link", { name: "Contact" }).click();
+  await page.getByRole("link", { name: "Reach out" }).click();
 
   await expect(page.locator('a[href*="wa.me"]')).toHaveCount(0);
   await expect(page.locator('a[href*="cal.com"]')).toHaveCount(0);

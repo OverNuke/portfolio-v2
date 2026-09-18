@@ -91,10 +91,10 @@ export type Dictionary = Record<DictionaryKey, string>;
 
 export const DICTIONARIES: Record<Locale, Dictionary> = {
   en: {
-    "nav.profile": "Profile",
-    "nav.certifications": "Distinctions",
+    "nav.profile": "Who me?",
+    "nav.certifications": "Distinction",
     "nav.projects": "Projects",
-    "nav.contact": "Contact",
+    "nav.contact": "Reach out",
     "lang.toggle.label": "Language",
     "contact.heading": "Reach out",
     "contact.status": "open to work",
@@ -176,8 +176,8 @@ export const DICTIONARIES: Record<Locale, Dictionary> = {
     "projects.p3.alt": "Odoo — module screen",
   },
   es: {
-    "nav.profile": "Perfil",
-    "nav.certifications": "Distinciones",
+    "nav.profile": "¿Yo?",
+    "nav.certifications": "Distinción",
     "nav.projects": "Proyectos",
     "nav.contact": "Contacto",
     "lang.toggle.label": "Idioma",

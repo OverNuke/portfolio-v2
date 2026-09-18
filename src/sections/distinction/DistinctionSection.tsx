@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type MutableRefObject, type RefObject } from "react";
 import anfecaPlate from "@/assets/certificates/plates/anfeca.png";
 import anglePlate from "@/assets/certificates/plates/anglo.png";
 import exaverPlate from "@/assets/certificates/plates/exaver.png";
 import notaPlate from "@/assets/certificates/plates/nota.png";
 import sepToelfPlate from "@/assets/certificates/plates/sepToelf.png";
+import eyeLeftPaper from "@/assets/doodle/eye-left-paper.png";
+import eyeRight from "@/assets/doodle/eye-right.png";
 import { motionAttr, useReducedMotion } from "@/a11y/useReducedMotion";
 import { centroid, insetPoly, powerCell, roundPath, simplify, type Site } from "@/colony/powerDiagram";
 import { aimArm, blink, boil, buildArrow } from "@/doodle/character";
@@ -34,6 +36,13 @@ const GROW = 0.55;
 // D13: shell composes Distinction with the warm doodle, not the artboard default.
 const DOODLE_COLOR = "#e0452b";
 const DOODLE_IDS = ["ear-l", "ear-r", "body", "arm", "arrow-shaft", "arrow-barb-a", "arrow-barb-b"];
+// T1.3/D8: the previously-empty `count`/`span` label cells now carry the
+// mockup's blinking-eye doodles — left eye on `count`, right eye on `span`.
+const EYE_SOURCES: Record<string, string> = { count: eyeLeftPaper, span: eyeRight };
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, v));
+}
 
 const RAW_CELLS: Omit<CellDef, "phase">[] = [
   { id: "title", kind: "title", x: 215, y: 225, w: 30000 },
@@ -118,6 +127,8 @@ function useColonyEngine(
   pathMap: Map<string, SVGPathElement>,
   labelMap: Map<string, HTMLElement>,
   doodleMap: Map<string, SVGPathElement>,
+  eyeMap: Map<string, HTMLImageElement>,
+  pointerRef: MutableRefObject<{ x: number; y: number } | null>,
 ) {
   useEffect(() => {
     if (!scaled) return;
@@ -136,11 +147,29 @@ function useColonyEngine(
         el.style.top = `${c.cy}px`;
         const h = hov[id] || 0;
         el.style.transform = `translate(-50%, -50%) scale(${(1 + h * 0.05).toFixed(3)})`;
+        // D8: eye wrapper width is engine-driven off the cell's live area —
+        // the record cells don't carry a `--fill` width, so this is scoped
+        // to the two eye cells only.
+        if (id in EYE_SOURCES) {
+          el.style.width = `${clamp(Math.sqrt(c.area || 0) * 0.95, 120, 400)}px`;
+        }
       });
       const strokes = doodleStrokes(t, g, hoverIdRef.current, hov);
       doodleMap.forEach((el, id) => {
         const d = strokes[id];
         if (d !== undefined) el.setAttribute("d", d);
+      });
+      // D8: blink + clamped pointer-parallax translate on the eye images
+      // themselves — never on the `--eye` wrapper the labelMap loop above
+      // already owns (left/top/transform), so the two writers never collide.
+      const k = blink(t);
+      const p = pointerRef.current;
+      eyeMap.forEach((img, id) => {
+        const c = g.find((x) => x.id === id);
+        if (!c) return;
+        const dx = p ? clamp((p.x - c.cx) / 24, -10, 10) : 0;
+        const dy = p ? clamp((p.y - c.cy) / 28, -7, 7) : 0;
+        img.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px) scaleY(${k.toFixed(3)})`;
       });
     };
 
@@ -160,7 +189,37 @@ function useColonyEngine(
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [scaled, reduced, hoverIdRef, pathMap, labelMap, doodleMap]);
+  }, [scaled, reduced, hoverIdRef, pathMap, labelMap, doodleMap, eyeMap, pointerRef]);
+}
+
+// D8: element-scoped pointer source for the eye doodles' clamped parallax,
+// shaped after useDockPhysics (ContactDock.tsx) — not installed when
+// reduced, so the eye images never receive a non-identity transform.
+function useEyePointer(
+  stageElRef: RefObject<HTMLDivElement | null>,
+  active: boolean,
+  scale: number,
+  pointerRef: MutableRefObject<{ x: number; y: number } | null>,
+) {
+  useEffect(() => {
+    if (!active) return;
+    const el = stageElRef.current;
+    if (!el) return;
+
+    const onMove = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      pointerRef.current = { x: (e.clientX - r.left) / scale, y: (e.clientY - r.top) / scale };
+    };
+    const onLeave = () => {
+      pointerRef.current = null;
+    };
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerleave", onLeave);
+    return () => {
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", onLeave);
+    };
+  }, [stageElRef, active, scale, pointerRef]);
 }
 
 function RecordFields({ cell, t }: { cell: CellDef; t: (k: DictionaryKey) => string }) {
@@ -183,7 +242,10 @@ export function DistinctionSection() {
   const pathMap = useRef(new Map<string, SVGPathElement>()).current;
   const labelMap = useRef(new Map<string, HTMLElement>()).current;
   const doodleMap = useRef(new Map<string, SVGPathElement>()).current;
+  const eyeMap = useRef(new Map<string, HTMLImageElement>()).current;
   const hoverIdRef = useRef<string | null>(null);
+  const pointerRef = useRef<{ x: number; y: number } | null>(null);
+  const stageInnerRef = useRef<HTMLDivElement>(null);
   const [, forceHoverPaint] = useState(0);
 
   const [openId, setOpenId] = useState<string | null>(null);
@@ -191,7 +253,8 @@ export function DistinctionSection() {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const openCell = CELLS.find((c) => c.id === openId) ?? null;
 
-  useColonyEngine(scaled, reduced, hoverIdRef, pathMap, labelMap, doodleMap);
+  useColonyEngine(scaled, reduced, hoverIdRef, pathMap, labelMap, doodleMap, eyeMap, pointerRef);
+  useEyePointer(stageInnerRef, scaled && !reduced, scale, pointerRef);
 
   useEffect(() => {
     document.body.style.overflow = openId ? "hidden" : "";
@@ -244,12 +307,16 @@ export function DistinctionSection() {
     if (el) doodleMap.set(id, el);
     else doodleMap.delete(id);
   };
+  const eyeRef = (id: string) => (el: HTMLImageElement | null) => {
+    if (el) eyeMap.set(id, el);
+    else eyeMap.delete(id);
+  };
 
   return (
     <section className="distinction" ref={stageRef} aria-label={t("distinction.heading")}>
       {scaled ? (
         // D8 (audit task 4.1 caught the missing wire-up — same fix as Projects).
-        <div className="distinction__stage" style={{ transform: `scale(${scale})` }}>
+        <div className="distinction__stage" ref={stageInnerRef} style={{ transform: `scale(${scale})` }}>
           <svg className="distinction__cells" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
             {CELLS.map((c) => (
               <path key={c.id} ref={pathRef(c.id)} fill={c.kind === "accent" ? "var(--field-olive)" : "#f4f1e6"} stroke="#14150f" strokeWidth={0.9} />
@@ -279,8 +346,22 @@ export function DistinctionSection() {
               </button>
             ))}
 
-            <div ref={cellRef("count")} className="distinction__label distinction__label--fill" aria-hidden="true" />
-            <div ref={cellRef("span")} className="distinction__label distinction__label--fill" aria-hidden="true" />
+            <div
+              ref={cellRef("count")}
+              className="distinction__label distinction__label--eye"
+              aria-hidden="true"
+              data-motion={motionAttr(reduced)}
+            >
+              <img ref={eyeRef("count")} src={eyeLeftPaper} alt="" className="distinction__eye-img" />
+            </div>
+            <div
+              ref={cellRef("span")}
+              className="distinction__label distinction__label--eye"
+              aria-hidden="true"
+              data-motion={motionAttr(reduced)}
+            >
+              <img ref={eyeRef("span")} src={eyeRight} alt="" className="distinction__eye-img" />
+            </div>
           </div>
 
           <svg className="distinction__doodle" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">

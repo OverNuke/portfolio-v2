@@ -48,8 +48,14 @@
      contrast dead zone: fails AA 4.5:1 in every text direction — 3.97:1 on
      --paper, 4.19:1 carrying --ink, 4.05:1 on --paper-white — so it never
      carries type. It DOES clear the AA 3.0:1 non-text floor on
-     --paper-white (marks/rules/brackets/fills only), which is its one
-     sanctioned use (home.css's masthead corner bracket, paper-side only).
+     --paper-white (marks/rules/brackets/fills only). Corrected
+     2026-09-18 (sdd/portfolio-design-fidelity, T3.12): the "masthead
+     corner bracket" this comment used to cite lived in an earlier
+     home.css that no longer exists — today's home.css (rewritten by that
+     same change) has zero --olive-mark consumers, and none were added.
+     The token and its CONTRAST_PAIRS rows below stay in place regardless
+     (a fidelity pass doesn't amend the non-text-only rule), documenting
+     that it clears the floor if a future consumer needs it.
      It also fails the 3.0:1 non-text floor against --field-olive-deep
      (≈1.9:1) — do not use it on the field surface; see tokens.test.ts's
      CONTRAST_PAIRS trip-wire for this exact pairing. */
@@ -87,30 +93,41 @@
   --blob-distinction-close: 999px;
 
   /* ---- Ink Flow (D9, 2026-09-16, sdd/rebuild-src-from-claude-design) --
-     Home's decorative aria-hidden background field only (src/sections/
-     ink-flow/). A standalone ambient micro-palette, deliberately close to
-     but not aliased onto --paper/--ink — those carry text contrast
-     guarantees this layer doesn't need. Single source here per the file
-     header; ink-flow.css consumes these, never a raw hex. */
+     Not just Home's decorative aria-hidden background field (src/sections/
+     ink-flow/) anymore — the Ink Flow field and the Home chrome drawn over
+     it (sdd/portfolio-design-fidelity, T2.6). A standalone ambient
+     micro-palette, deliberately close to but not aliased onto --paper/--ink
+     — those carry text contrast guarantees this layer doesn't need. Single
+     source here per the file header; ink-flow.css/home.css consume these,
+     never a raw hex. */
   --if-paper: #f6f4ea;
   --if-ink: #14150f;
   --if-mass: #0c0d0a;
   --if-ring-light: #e9e6d8;
+  /* T2.6: the nav row's permanent decorative separator (home.css). ≈2.4:1
+     over --if-paper — intentionally below the 3:1 non-text floor; see
+     tokens.test.ts's SECTION_CONTRAST_PAIRS trip-wire for why that's
+     acceptable here (never the sole boundary of an interactive component). */
+  --if-rule: rgba(20, 21, 15, 0.4);
 
   /* ---- Typography ---------------------------------------------------
-     Three roles (2026-08-11, font-unification pass — the old Archivo
-     Narrow display token is retired; see src/styles/tokens.test.ts's
-     retiredTokens guard, same pattern as the signal-red retirement. Its
-     name is deliberately not spelled out here, same reason as that guard's
-     own note: it should not have to special-case its own doc comment):
+     Four roles (2026-08-11 font-unification pass, extended 2026-09-18
+     sdd/portfolio-design-fidelity T3.5 — the old Archivo Narrow display
+     token is retired; see src/styles/tokens.test.ts's retiredTokens guard,
+     same pattern as the signal-red retirement. Its name is deliberately not
+     spelled out here, same reason as that guard's own note: it should not
+     have to special-case its own doc comment):
      --font-serif-display: the masthead, and only that.
      --font-serif-edit: the editorial voice (headings, prose emphasis).
-     --font-mono: everything else — wordmark, nav labels, identity, role,
-     page titles, metadata, body, labels, status. Dense tracked uppercase
-     (every site that used the retired display token) always belongs here,
-     never in either serif — see src/styles/fonts.css.
+     --font-mono: specimen numbers, coordinates, state labels — anything
+     that reads as a measurement, never as prose. Dense tracked uppercase
+     always belongs here, never in either serif — see src/styles/fonts.css.
+     --font-structure: Home's root voice (home.css), plus additive
+     per-element application in the four shipped sections where the mockup's
+     unstyled body-copy/UI-label role calls for it — never a section root.
      --font-hand: annotation only (doc 12). */
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+  --font-structure: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-hand: "Segoe Script", "Bradley Hand", "Snell Roundhand", cursive;
   /* Editorial faces, self-hosted 2026-08-06 with the Home redesign
      (styles/fonts.css). BOTH are serifs — LT Remark is NOT a grotesque,

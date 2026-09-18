@@ -10,13 +10,16 @@ import { gotoHome } from "./helpers";
 
 test("distinction colony renders under its on-page label", async ({ page }) => {
   await gotoHome(page);
-  await page.getByRole("link", { name: "Distinctions" }).click();
+  // Nav label is "Distinction" (singular) as of sdd/portfolio-design-fidelity
+  // (was "Distinctions"); the section's own <h2> ("Distinctions", a separate
+  // dictionary key — distinction.heading) is unaffected and stays plural.
+  await page.getByRole("link", { name: "Distinction" }).click();
   await expect(page.getByRole("heading", { name: "Distinctions" })).toBeVisible();
 });
 
 test("a colony cell opens its lightbox on Enter and Escape returns focus to the cell", async ({ page }) => {
   await gotoHome(page);
-  await page.getByRole("link", { name: "Distinctions" }).click();
+  await page.getByRole("link", { name: "Distinction" }).click();
 
   const cell = page.locator(".distinction__cell").first();
   await cell.focus();
@@ -32,7 +35,7 @@ test("a colony cell opens its lightbox on Enter and Escape returns focus to the 
 
 test("closing the lightbox with Escape does not also turn the page back to Home", async ({ page }) => {
   await gotoHome(page);
-  await page.getByRole("link", { name: "Distinctions" }).click();
+  await page.getByRole("link", { name: "Distinction" }).click();
 
   const cell = page.locator(".distinction__cell").first();
   await cell.focus();

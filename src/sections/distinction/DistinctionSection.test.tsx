@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { DistinctionSection } from "./DistinctionSection";
 
@@ -13,6 +13,34 @@ function renderDistinction(defaultLocale?: "en" | "es") {
       </I18nProvider>
     </MemoryRouter>,
   );
+}
+
+// T1.1/T1.2: the eye doodles only render in the `scaled` useStageScale
+// branch — force it by stubbing the stage's clientWidth and dispatching a
+// resize, mirroring src/layout/useStageScale.test.tsx's own technique.
+function stubWidth(el: HTMLElement, width: number) {
+  Object.defineProperty(el, "clientWidth", { configurable: true, value: width });
+}
+
+function renderScaledDistinction() {
+  const utils = renderDistinction();
+  const stage = screen.getByRole("region");
+  stubWidth(stage, 1440);
+  act(() => window.dispatchEvent(new Event("resize")));
+  return utils;
+}
+
+function mockMatchMedia(matches: boolean) {
+  vi.spyOn(window, "matchMedia").mockReturnValue({
+    matches,
+    media: "(prefers-reduced-motion: reduce)",
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  } as unknown as MediaQueryList);
 }
 
 describe("DistinctionSection", () => {
@@ -46,5 +74,47 @@ describe("DistinctionSection", () => {
   it("renders translated heading for the active locale", () => {
     renderDistinction("es");
     expect(screen.getByRole("heading", { name: /distinciones/i })).toBeInTheDocument();
+  });
+
+  it("wires eye-left-paper.png/eye-right.png into the count/span cells", () => {
+    const { container } = renderScaledDistinction();
+    const images = container.querySelectorAll(".distinction__eye-img");
+    expect(images).toHaveLength(2);
+    images.forEach((img) => {
+      expect(img.tagName).toBe("IMG");
+      expect(img).toHaveAttribute("alt", "");
+      const wrapper = img.parentElement;
+      expect(wrapper).toHaveAttribute("aria-hidden", "true");
+    });
+    const sources = Array.from(images).map((img) => img.getAttribute("src") ?? "");
+    expect(sources.some((src) => src.includes("eye-left-paper"))).toBe(true);
+    expect(sources.some((src) => src.includes("eye-right") && !src.includes("eye-left"))).toBe(true);
+  });
+
+  it("keeps the eye doodles fully static under prefers-reduced-motion: reduce", async () => {
+    mockMatchMedia(true);
+    const user = userEvent.setup();
+    const { container } = renderScaledDistinction();
+
+    const images = Array.from(container.querySelectorAll<HTMLImageElement>(".distinction__eye-img"));
+    expect(images).toHaveLength(2);
+    images.forEach((img) => {
+      const wrapper = img.parentElement;
+      expect(wrapper).toHaveAttribute("data-motion", "static");
+    });
+    const restingTransforms = images.map((img) => img.style.transform);
+
+    const stage = screen.getByRole("region");
+    await user.pointer({ target: stage, coords: { x: 900, y: 400 } });
+
+    images.forEach((img, i) => {
+      expect(img.style.transform).toBe(restingTransforms[i]);
+    });
+
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 });

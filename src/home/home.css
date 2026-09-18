@@ -1,9 +1,128 @@
-/* Task 4.1 audit finding: bare-text nav links measured under the WCAG 2.2
-   SC 2.5.8 24x24 target floor (tokens.css's --hit-min). Padding only — no
-   visual design pass, that's still open per root CLAUDE.md's page-content gap. */
+/* T2.5/D5: Home's masthead + nav column, ported from Main Page.dc.html's
+   `right:80px;top:104px;width:520px;gap:52px;align-items:flex-end` column.
+   `.home` stays `position:static` deliberately — InkFlowBackground's own
+   `position:absolute;inset:0` (ink-flow.css) already resolves against the
+   positioned `.app-shell__home` ancestor (AppShell.tsx), which occupies the
+   identical full-viewport box, so giving `.home` padding/flex here does not
+   shrink Ink Flow's coverage. `.home__masthead`/`<nav>` are normal-flow flex
+   items of `.home`; InkFlowBackground is out-of-flow (its own
+   position:absolute) and is skipped by the flex algorithm entirely. */
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 52px;
+  padding: 104px 80px 0 0;
+  /* T3.8/D3: Home's root voice. The four shipped sections keep
+     var(--font-mono) at their own roots — this is additive, Home-scoped. */
+  font-family: var(--font-structure);
+}
+
+.home__masthead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  width: 520px;
+  text-align: right;
+}
+
+/* D7: the visual "KEVIN." abbreviation — font-family stays unset here
+   (Track 3 layers in --font-structure onto .home; do not set it here). */
+.home__wordmark {
+  margin: 0;
+  font-size: 76px;
+  line-height: 0.88;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  color: var(--if-ink);
+}
+
+/* D7: the period carries --olive-edge, already type-bearing per the
+   proposal's rejection of --olive-mark for this role. */
+.home__wordmark-dot {
+  color: var(--olive-edge);
+}
+
+/* Byte-level mirror of .projects__visually-hidden (projects.css) — not
+   promoted to a shared utility (D7). */
+.home__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.home__nav {
+  width: 520px;
+}
+
+.home__nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* D5: row geometry from Main Page.dc.html's nav `<a>`. D9: 44px is a local
+   SC 2.5.5 (AAA) upgrade above the global 24px SC 2.5.8 floor (--hit-min,
+   tokens.css, unchanged) — the row measures ≈58px naturally from its own
+   padding/line-height, so 44px is a floor here, not a driver. */
 .home__nav-link {
-  display: inline-block;
-  padding: 8px 4px;
-  min-height: var(--hit-min);
-  font-family: var(--font-mono);
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 18px;
+  min-height: 44px;
+  padding: 11px 0 13px;
+  border-bottom: 2px solid var(--if-rule);
+  color: var(--if-ink);
+  text-decoration: none;
+  transition:
+    transform var(--dur-turn) var(--ease-soft),
+    color var(--dur-turn) var(--ease-soft);
+}
+
+.home__nav-link:hover,
+.home__nav-link:focus-visible {
+  transform: translateX(10px);
+}
+
+.home__nav-link:hover .home__nav-arrow,
+.home__nav-link:focus-visible .home__nav-arrow {
+  opacity: 1;
+}
+
+/* D6: explicit, accessibility-justified deviation from the mockup (which
+   conveys focus purely via the suppressible opacity/translate pair) — an
+   additive outline, never removed by the hover-only mockup transition. */
+.home__nav-link:focus-visible {
+  outline: 2px solid var(--if-ink);
+  outline-offset: 3px;
+}
+
+.home__nav-num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.home__nav-label {
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -0.028em;
+  text-transform: uppercase;
+}
+
+.home__nav-arrow {
+  width: 22px;
+  flex: none;
+  font-size: 19px;
+  opacity: 0;
+  transition: opacity var(--dur-turn) var(--ease-soft);
 }

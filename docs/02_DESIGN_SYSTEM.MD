@@ -292,6 +292,20 @@ non-text floor. The masthead's field-side corner bracket stays Paper White
 > Bebas Neue, Oswald, Space Grotesk, Google Sans Code, IBM Plex Mono, or
 > Archivo Narrow as a fourth display face — Archivo Narrow was the previous
 > primary font and is now retired outright, not deprecated-but-present.
+>
+> **Updated 2026-09-18 (`sdd/portfolio-design-fidelity`, T3.13) — three roles
+> become four.** Manrope, deferred below (2026-09-15 note) pending "its own
+> per-screen ruling," now has one: `--font-structure` (`src/styles/tokens.css`,
+> immediately after `--font-mono`; self-hosted 400/600/700/800 in
+> `src/styles/fonts.css`). It is Home's root voice (`.home`,
+> `src/home/home.css`) — replacing the editorial redesign's carry-over use of
+> `--font-mono` there — plus an additive, evidence-enumerated per-element
+> application in Profile/Distinction/Projects (bio/intro copy and CTA-style
+> links only; Contact has zero qualifying targets). It does **not** displace
+> LT Remark's editorial-voice role or JetBrains Mono's now-narrowed scope
+> (specimen numbers, coordinates, state labels — never prose; see the Mono
+> section below). `--font-mono`'s own doc entry is corrected in place, not
+> superseded, since its role narrowed rather than retired.
 
 ## Superior Serif (LT Superior Serif)
 
@@ -332,6 +346,15 @@ Everything else: wordmark, nav labels, identity, role, page titles (the
 shell `<h1>`), metadata, system information, code labels, body, status.
 Dense tracked uppercase always belongs here, never in either serif — see
 `src/styles/fonts.css`'s header comment for the full rationale.
+
+> **Narrowed 2026-09-18 (`sdd/portfolio-design-fidelity`, T3.13).** With
+> `--font-structure` now covering Home's root voice and select body/UI-label
+> copy elsewhere (see the amendment above), Mono's role narrows to specimen
+> numbers, coordinates, and state labels — anything that reads as a
+> measurement, never as prose. The wordmark/nav-label/identity/role/body
+> items in the "everything else" list above are largely superseded by that
+> split; this paragraph is kept for its still-accurate "dense tracked
+> uppercase, never in either serif" rule rather than rewritten line-by-line.
 
 > **Which role by surface (added 2026-09-02; section-title row revised
 > 2026-09-08).** Mono metadata is spine — every surface uses it for labels,

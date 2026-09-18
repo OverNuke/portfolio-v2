@@ -52,7 +52,11 @@
 .profile__bio {
   margin: var(--space-xl) 0 0;
   max-width: 452px;
-  font-family: var(--font-serif-edit, system-ui, sans-serif);
+  /* T3.9: Profile Section v4.dc.html's bio paragraph carries no font-family
+     override — inherits the mockup's Manrope root. Additive per spec's
+     per-element enumeration; replaces the prior --font-serif-edit value.
+     The section root (.profile, below) stays var(--font-mono). */
+  font-family: var(--font-structure);
   font-size: var(--text-body);
   line-height: 1.6;
   color: #25241e;
@@ -73,6 +77,13 @@
   color: #4d4c44;
 }
 
+/* T3.9 evaluated and REJECTED: Profile Section v4.dc.html:44's wrapper div
+   (containing both .profile__availability and this CTA) sets an explicit
+   font-family:'JetBrains Mono' — the CTA inherits mono, not the mockup's
+   Manrope root, so the spec's per-element table's "Get in touch → CTA"
+   entry contradicts the spec's own governing rule (no override in the
+   .dc.html). Left on inherited --font-mono, matching .profile__availability
+   (its sibling in the same mockup wrapper) and the actual mockup. */
 .profile__cta {
   font-size: var(--text-body);
   letter-spacing: var(--track-micro);
