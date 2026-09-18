@@ -1,3 +1,15 @@
+/* Regression fix (2026-09-18): .home__masthead and .home__nav were both
+   position:static, so per CSS paint order the positioned .ink-flow layer
+   (position:absolute) painted over them regardless of DOM order or its
+   own z-index — masthead/nav were in the DOM but fully invisible. Lifting
+   both into the content band (tokens.css's --z-plate-content) above
+   ink-flow's decor band fixes it, matching every other section's pattern. */
+.home__masthead,
+.home__nav {
+  position: relative;
+  z-index: var(--z-plate-content);
+}
+
 /* Task 4.1 audit finding: bare-text nav links measured under the WCAG 2.2
    SC 2.5.8 24x24 target floor (tokens.css's --hit-min). Padding only — no
    visual design pass, that's still open per root CLAUDE.md's page-content gap. */

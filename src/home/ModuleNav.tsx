@@ -15,7 +15,7 @@ const NAV_KEY: Record<string, DictionaryKey> = {
 export function ModuleNav() {
   const { t } = useI18n();
   return (
-    <nav aria-label="Module navigation">
+    <nav className="home__nav" aria-label="Module navigation">
       <ul>
         {NAV_ROUTES.map((route) => (
           <li key={route.path}>
